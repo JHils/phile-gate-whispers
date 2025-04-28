@@ -1,92 +1,41 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Special+Elite&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 98%;
+    --foreground: 240 10% 3.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
 
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -94,8 +43,162 @@
   * {
     @apply border-border;
   }
-
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-typewriter;
+    cursor: default;
+  }
+
+  .phile-container {
+    @apply max-w-3xl mx-auto px-4 md:px-6;
+  }
+
+  .glitch-hover {
+    position: relative;
+    display: inline-block;
+    transition: all 0.3s ease;
+  }
+
+  .glitch-hover:hover::before {
+    content: attr(data-text);
+    position: absolute;
+    left: -2px;
+    width: 100%;
+    background: rgba(255,255,255,0.2);
+    text-shadow: 1px 0 red;
+    clip: rect(0, 900px, 0, 0);
+    animation: glitch-effect 2s infinite linear alternate-reverse;
+  }
+
+  @keyframes glitch-effect {
+    0% {
+      clip: rect(31px, 9999px, 94px, 0);
+    }
+    5% {
+      clip: rect(70px, 9999px, 71px, 0);
+    }
+    10% {
+      clip: rect(29px, 9999px, 43px, 0);
+    }
+    15% {
+      clip: rect(38px, 9999px, 98px, 0);
+    }
+    20% {
+      clip: rect(16px, 9999px, 60px, 0);
+    }
+    25% {
+      clip: rect(61px, 9999px, 17px, 0);  
+    }
+    30% {
+      clip: rect(15px, 9999px, 58px, 0);
+    }
+    35% {
+      clip: rect(75px, 9999px, 93px, 0);
+    }
+    40% {
+      clip: rect(44px, 9999px, 76px, 0);
+    }
+    45% {
+      clip: rect(67px, 9999px, 21px, 0);
+    }
+    50% {
+      clip: rect(89px, 9999px, 25px, 0);
+    }
+    55% {
+      clip: rect(56px, 9999px, 5px, 0);
+    }
+    60% {
+      clip: rect(36px, 9999px, 32px, 0);
+    }
+    65% {
+      clip: rect(51px, 9999px, 13px, 0);
+    }
+    70% {
+      clip: rect(64px, 9999px, 94px, 0);
+    }
+    75% {
+      clip: rect(35px, 9999px, 59px, 0);
+    }
+    80% {
+      clip: rect(73px, 9999px, 76px, 0);
+    }
+    85% {
+      clip: rect(97px, 9999px, 11px, 0);
+    }
+    90% {
+      clip: rect(70px, 9999px, 74px, 0);
+    }
+    95% {
+      clip: rect(28px, 9999px, 25px, 0);
+    }
+    100% {
+      clip: rect(67px, 9999px, 89px, 0);
+    }
+  }
+  
+  .coin {
+    width: 120px;
+    height: 120px;
+    perspective: 500px;
+    margin: 2rem auto;
+  }
+  
+  .coin-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transform-style: preserve-3d;
+  }
+
+  .coin-side {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .coin-front {
+    background-color: #9F9EA1;
+    color: #222;
+  }
+  
+  .coin-back {
+    background-color: #8B8B8B;
+    color: #333;
+    transform: rotateY(180deg);
   }
 }
+
+.text-reveal {
+  overflow: hidden;
+}
+
+.text-reveal span {
+  opacity: 0;
+  transform: translateY(20px);
+  display: inline-block;
+  animation: reveal 1s forwards;
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Delayed reveal for each character */
+.text-reveal span:nth-child(1) { animation-delay: 0.1s; }
+.text-reveal span:nth-child(2) { animation-delay: 0.2s; }
+.text-reveal span:nth-child(3) { animation-delay: 0.3s; }
+.text-reveal span:nth-child(4) { animation-delay: 0.4s; }
+.text-reveal span:nth-child(5) { animation-delay: 0.5s; }
+/* Add more as needed */
