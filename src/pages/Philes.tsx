@@ -1,12 +1,24 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import FileItem from "../components/FileItem";
 import HiddenLink from "../components/HiddenLink";
+import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
 
 const Philes = () => {
   const [gatekeeperHint, setGatekeeperHint] = useState(false);
+  const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
+  const [thematicMessage, setThematicMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check for ChronoLayer messages
+    const timeMessage = getTimeElapsedMessage();
+    const themMessage = getThematicMessage();
+    if (timeMessage && themMessage) {
+      setCollapseMessage(timeMessage);
+      setThematicMessage(themMessage);
+    }
+    
     // Console message for those who made it this far
     console.log("%cThe Gate has found you.", "color: #8B3A40; font-size:18px; font-weight:bold;");
     
@@ -79,6 +91,14 @@ const Philes = () => {
             />
           ))}
         </div>
+
+        {/* Display ChronoLayer message if user previously collapsed the site */}
+        {collapseMessage && localStorage.getItem("permanentlyCollapsed") === "true" && (
+          <div className="mt-8 mb-4 text-center">
+            <p className="text-dust-red/70 text-sm font-typewriter animate-pulse">{collapseMessage}</p>
+            {thematicMessage && <p className="text-dust-blue/50 text-xs font-typewriter mt-1">{thematicMessage}</p>}
+          </div>
+        )}
 
         <div className="flex justify-center mt-12">
           <Link 

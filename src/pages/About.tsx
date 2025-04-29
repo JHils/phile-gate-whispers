@@ -2,11 +2,19 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import TextGlitch from "../components/TextGlitch";
+import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
 
 const About = () => {
   const [extraLine, setExtraLine] = useState("");
+  const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check for ChronoLayer messages
+    const timeMessage = getTimeElapsedMessage();
+    if (timeMessage) {
+      setCollapseMessage(timeMessage);
+    }
+    
     // Console messages for the about page
     console.log("%cSubject fragmented. Two sides, one shell.", "color: #475B74; font-size:14px;");
     
@@ -34,6 +42,14 @@ const About = () => {
       setExtraLine("Jonah isn't real. You are.");
     } else if (localStorage.getItem("helpCalled")) {
       setExtraLine("Someone heard your call.");
+    }
+    
+    // If Nightmare Sequence was triggered, override with a special message
+    if (localStorage.getItem("permanentlyCollapsed") === "true") {
+      const thematicMessage = getThematicMessage();
+      if (thematicMessage) {
+        setExtraLine(thematicMessage);
+      }
     }
   }, []);
 
@@ -78,6 +94,13 @@ const About = () => {
           {extraLine && (
             <p className="mb-6 text-dust-red animate-pulse font-typewriter">
               {extraLine}
+            </p>
+          )}
+          
+          {/* Display ChronoLayer message if user previously collapsed the site */}
+          {collapseMessage && localStorage.getItem("permanentlyCollapsed") === "true" && (
+            <p className="mb-6 text-dust-red animate-pulse font-typewriter text-sm opacity-70">
+              {collapseMessage}
             </p>
           )}
 

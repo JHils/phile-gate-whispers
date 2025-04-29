@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { recordCollapseTime } from '../utils/chronoLayer';
 
 interface PasswordPromptProps {
   correctPassword: string;
@@ -111,6 +112,7 @@ const PasswordPrompt: React.FC<PasswordPromptProps> = ({ correctPassword, onSucc
       localStorage.removeItem("gatekeeperLocked");
       localStorage.removeItem("gatekeeperLockedAt");
       localStorage.removeItem("permanentlyCollapsed");
+      localStorage.removeItem("gateCollapseTime");
       window.location.reload();
     });
     
@@ -119,7 +121,8 @@ const PasswordPrompt: React.FC<PasswordPromptProps> = ({ correctPassword, onSucc
   
   const triggerNightmareSequence = () => {
     setNightmareActive(true);
-    localStorage.setItem("permanentlyCollapsed", "true");
+    // Record collapse time in the ChronoLayer
+    recordCollapseTime();
     
     // Clear everything first
     document.body.innerHTML = "";
@@ -222,6 +225,7 @@ const PasswordPrompt: React.FC<PasswordPromptProps> = ({ correctPassword, onSucc
       localStorage.removeItem("gatekeeperLocked");
       localStorage.removeItem("gatekeeperLockedAt");
       localStorage.removeItem("permanentlyCollapsed");
+      localStorage.removeItem("gateCollapseTime");
       window.location.reload();
     });
     

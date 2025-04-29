@@ -1,11 +1,13 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PasswordPrompt from "../components/PasswordPrompt";
+import { getTimeElapsedMessage, getThematicMessage, recordCollapseTime } from "../utils/chronoLayer";
 
 const Gatekeeper = () => {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showPrompt, setShowPrompt] = useState(true);
+  const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
+  const [thematicMessage, setThematicMessage] = useState<string | null>(null);
   
   useEffect(() => {
     // Check if site is already collapsed
@@ -38,6 +40,14 @@ const Gatekeeper = () => {
     if (unlocked === "true") {
       setIsUnlocked(true);
       setShowPrompt(false);
+    }
+    
+    // Get ChronoLayer messages if they exist
+    const timeMessage = getTimeElapsedMessage();
+    const themMessage = getThematicMessage();
+    if (timeMessage && themMessage) {
+      setCollapseMessage(timeMessage);
+      setThematicMessage(themMessage);
     }
     
     // Console messages for the Gatekeeper
@@ -84,6 +94,10 @@ const Gatekeeper = () => {
     blackout.style.left = "0";
     blackout.style.zIndex = "9999";
     
+    // Get ChronoLayer messages if they exist
+    const timeMessage = getTimeElapsedMessage();
+    const themMessage = getThematicMessage();
+    
     blackout.innerHTML = `
       <div>
         <p style="font-size: 1.5rem;">You were warned.</p>
@@ -94,6 +108,8 @@ const Gatekeeper = () => {
         <p style="margin-top: 40px; font-size: 0.9rem;">
           Session Terminated.
         </p>
+        ${timeMessage ? `<p style="margin-top: 60px; font-size: 0.7rem; color: #8B3A40; opacity: 0.6;">${timeMessage}</p>` : ''}
+        ${themMessage ? `<p style="margin-top: 10px; font-size: 0.6rem; color: #8B3A40; opacity: 0.4;">${themMessage}</p>` : ''}
       </div>
     `;
     
@@ -115,6 +131,7 @@ const Gatekeeper = () => {
       localStorage.removeItem("gatekeeperLocked");
       localStorage.removeItem("gatekeeperLockedAt");
       localStorage.removeItem("permanentlyCollapsed");
+      localStorage.removeItem("gateCollapseTime");
       window.location.reload();
     });
     
@@ -122,6 +139,8 @@ const Gatekeeper = () => {
   };
   
   const triggerNightmareSequence = () => {
+    // Record collapse time in the ChronoLayer
+    recordCollapseTime();
     localStorage.setItem("permanentlyCollapsed", "true");
     
     // Clear everything first
@@ -225,6 +244,7 @@ const Gatekeeper = () => {
       localStorage.removeItem("gatekeeperLocked");
       localStorage.removeItem("gatekeeperLockedAt");
       localStorage.removeItem("permanentlyCollapsed");
+      localStorage.removeItem("gateCollapseTime");
       window.location.reload();
     });
     
@@ -240,6 +260,12 @@ const Gatekeeper = () => {
       "YOU ARE NOT ALONE. YOU ARE NOT SAFE.",
       "SESSION TERMINATED."
     ];
+    
+    // Get ChronoLayer messages if they exist
+    const timeMessage = getTimeElapsedMessage();
+    if (timeMessage) {
+      lines.push(timeMessage);
+    }
     
     // Image flash function
     const flashImage = () => {
@@ -279,6 +305,7 @@ const Gatekeeper = () => {
             <p class="nightmare-text" style="margin-top: 40px;">He woke up inside you.</p>
             <p class="nightmare-text">Now he waits for someone else to fail.</p>
             <p class="nightmare-text">Goodbye, Gatekeeper.</p>
+            ${timeMessage ? `<p class="nightmare-text" style="font-size: 0.7rem; opacity: 0.6; margin-top: 30px;">${timeMessage}</p>` : ''}
           `;
           container.appendChild(finalMessage);
         }, 2000);
@@ -350,6 +377,14 @@ const Gatekeeper = () => {
               Return to The Gate
             </Link>
           </div>
+          
+          {/* Display ChronoLayer message if user previously collapsed the site */}
+          {collapseMessage && (
+            <div className="mt-16 opacity-0 animate-fade-in" style={{ animationDelay: "16s", animationFillMode: "forwards" }}>
+              <p className="text-dust-red/70 text-xs font-typewriter">{collapseMessage}</p>
+              {thematicMessage && <p className="text-dust-blue/50 text-xs font-typewriter mt-1">{thematicMessage}</p>}
+            </div>
+          )}
         </div>
       ) : (
         <div className="text-center">
@@ -388,6 +423,14 @@ const Gatekeeper = () => {
               Return to The Gate
             </Link>
           </div>
+          
+          {/* Display ChronoLayer message if user previously collapsed the site */}
+          {collapseMessage && (
+            <div className="mt-8">
+              <p className="text-dust-red/70 text-xs font-typewriter">{collapseMessage}</p>
+              {thematicMessage && <p className="text-dust-blue/50 text-xs font-typewriter mt-1">{thematicMessage}</p>}
+            </div>
+          )}
         </div>
       )}
       

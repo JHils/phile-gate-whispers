@@ -1,10 +1,22 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import HiddenLink from "../components/HiddenLink";
+import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
 
 const Inspect = () => {
+  const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
+  const [thematicMessage, setThematicMessage] = useState<string | null>(null);
+
   useEffect(() => {
+    // Check for ChronoLayer messages
+    const timeMessage = getTimeElapsedMessage();
+    const themMessage = getThematicMessage();
+    if (timeMessage && themMessage) {
+      setCollapseMessage(timeMessage);
+      setThematicMessage(themMessage);
+    }
+    
     // Console message for the inspector
     console.log("%cYou're getting closer. Keep looking.", "color: #475B74; font-size:16px;");
     
@@ -58,6 +70,14 @@ const Inspect = () => {
         <p className="text-lg text-phile-light animate-subtle-flicker">
           Something's missing. But not for those who look deeper.
         </p>
+
+        {/* Display ChronoLayer message if user previously collapsed the site */}
+        {collapseMessage && localStorage.getItem("permanentlyCollapsed") === "true" && (
+          <div className="mt-6 mb-8">
+            <p className="text-dust-red/70 text-sm font-typewriter animate-pulse">{collapseMessage}</p>
+            {thematicMessage && <p className="text-dust-blue/50 text-xs font-typewriter mt-1">{thematicMessage}</p>}
+          </div>
+        )}
 
         <div className="mt-12">
           <Link 

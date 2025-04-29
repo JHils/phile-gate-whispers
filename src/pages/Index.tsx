@@ -1,9 +1,12 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import SpinningCoin from "../components/SpinningCoin";
 import HiddenNav from "../components/HiddenNav";
+import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
 
 const Index = () => {
+  const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
+
   // Add classes to individual characters for staggered animation
   const addSpans = (text: string) => {
     return text.split('').map((char, i) => 
@@ -12,6 +15,12 @@ const Index = () => {
   };
 
   useEffect(() => {
+    // Check for ChronoLayer messages
+    const timeMessage = getTimeElapsedMessage();
+    if (timeMessage) {
+      setCollapseMessage(timeMessage);
+    }
+    
     // Console message for the curious
     console.log("%cThe Gate is watching.", "color: #8B3A40; font-size:14px;");
     console.log("%cThe whispers start with help().", "color: #475B74; font-size:14px; font-style:italic;");
@@ -114,6 +123,16 @@ const Index = () => {
         } else if (localStorage.getItem("helpCalled")) {
           whisperElement.textContent = "Someone heard your call.";
         }
+        
+        // If Nightmare Sequence was triggered, add a special message
+        if (localStorage.getItem("permanentlyCollapsed") === "true") {
+          const thematicMessage = getThematicMessage();
+          if (thematicMessage) {
+            whisperElement.textContent = thematicMessage;
+            whisperElement.classList.add("text-dust-red");
+            whisperElement.classList.add("animate-pulse");
+          }
+        }
       }
     }
     
@@ -153,6 +172,15 @@ const Index = () => {
           <p id="whisperText" className="text-lg md:text-xl text-dust-blue font-typewriter mt-8 transition-all duration-700">
             Find the Gate before the Gate finds you.
           </p>
+          
+          {/* Display ChronoLayer message if user previously collapsed the site */}
+          {collapseMessage && localStorage.getItem("permanentlyCollapsed") === "true" && (
+            <div className="mt-6">
+              <p className="text-dust-red/60 text-sm font-typewriter animate-pulse">
+                {collapseMessage}
+              </p>
+            </div>
+          )}
         </div>
       </div>
       
