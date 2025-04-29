@@ -1,4 +1,3 @@
-
 // ChronoLayer - Memory Recall System
 // Tracks when users trigger the Nightmare Sequence and displays personalized messages
 
@@ -110,6 +109,19 @@ export const checkRedemptionTime = (): boolean => {
   return daysPassed >= requiredDays;
 };
 
+// Check if survivor eligibility has been reached (30+ days)
+export const checkSurvivorEligibility = (): boolean => {
+  const collapseTime = localStorage.getItem("gateCollapseTime");
+  
+  if (!collapseTime) return false;
+  
+  const now = Date.now();
+  const diff = now - parseInt(collapseTime);
+  const daysPassed = Math.floor(diff / (1000 * 60 * 60 * 24));
+  
+  return daysPassed >= 30;
+};
+
 // Handle redemption message display
 export const showRedemptionMessage = (): void => {
   // Clear everything first
@@ -149,7 +161,7 @@ export const showRedemptionMessage = (): void => {
       style="padding: 12px 24px; font-size: 1.2rem; background-color: #111; color: #90ee90; border: 1px solid #90ee90; cursor: pointer; transition: all 0.3s ease;" 
       onmouseover="this.style.backgroundColor='#90ee90'; this.style.color='#111';" 
       onmouseout="this.style.backgroundColor='#111'; this.style.color='#90ee90';"
-      onclick="localStorage.removeItem('permanentlyCollapsed'); localStorage.removeItem('gateCollapseTime'); localStorage.removeItem('gatekeeperLocked'); localStorage.removeItem('gatekeeperLockedAt'); window.location.reload();"
+      onclick="localStorage.removeItem('permanentlyCollapsed'); localStorage.removeItem('gateCollapseTime'); localStorage.removeItem('gatekeeperLocked'); localStorage.removeItem('gatekeeperLockedAt'); localStorage.removeItem('survivorMode'); window.location.reload();"
     >Return</button>
   `;
   
@@ -181,4 +193,5 @@ export const resetCollapseState = (): void => {
   localStorage.removeItem("gateCollapseTime");
   localStorage.removeItem("gatekeeperLocked");
   localStorage.removeItem("gatekeeperLockedAt");
+  localStorage.removeItem("survivorMode");
 };

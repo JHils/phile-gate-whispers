@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import HiddenLink from "../components/HiddenLink";
-import { getTimeElapsedMessage, getThematicMessage, checkRedemptionTime, resetCollapseState } from "../utils/chronoLayer";
+import { getTimeElapsedMessage, getThematicMessage, checkRedemptionTime, resetCollapseState, checkSurvivorEligibility } from "../utils/chronoLayer";
 
 const Inspect = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
   const [thematicMessage, setThematicMessage] = useState<string | null>(null);
   const [redemptionAvailable, setRedemptionAvailable] = useState(false);
+  const [survivorPathAvailable, setSurvivorPathAvailable] = useState(false);
 
   useEffect(() => {
     // Check for ChronoLayer messages
@@ -21,8 +22,15 @@ const Inspect = () => {
     // Check if redemption is available
     const permanentlyCollapsed = localStorage.getItem("permanentlyCollapsed");
     if (permanentlyCollapsed === "true") {
-      const isRedemptionTime = checkRedemptionTime();
-      setRedemptionAvailable(isRedemptionTime);
+      // Check for survivor path eligibility first (30+ days)
+      const isSurvivorEligible = checkSurvivorEligibility();
+      setSurvivorPathAvailable(isSurvivorEligible);
+      
+      // If not survivor eligible, check for normal redemption
+      if (!isSurvivorEligible) {
+        const isRedemptionTime = checkRedemptionTime();
+        setRedemptionAvailable(isRedemptionTime);
+      }
     }
     
     // Console message for the inspector
@@ -45,6 +53,13 @@ const Inspect = () => {
   const handleRedemption = () => {
     resetCollapseState();
     window.location.href = "/gatekeeper";
+  };
+  
+  const handleSurvivorPath = () => {
+    localStorage.removeItem("permanentlyCollapsed");
+    localStorage.removeItem("gateCollapseTime");
+    localStorage.setItem("survivorMode", "true");
+    window.location.href = "/survivor";
   };
 
   return (
@@ -92,8 +107,20 @@ const Inspect = () => {
           </div>
         )}
 
-        {/* Show redemption button if available */}
-        {redemptionAvailable && (
+        {/* Show survivor path button if available (30+ days) */}
+        {survivorPathAvailable && (
+          <div className="mt-8 mb-10">
+            <button 
+              onClick={handleSurvivorPath}
+              className="bg-black text-[#00FFAA] px-6 py-3 border border-[#00FFAA] hover:bg-[#00FFAA]/10 transition-colors font-typewriter animate-pulse"
+            >
+              Survivor Path
+            </button>
+          </div>
+        )}
+        
+        {/* Show redemption button if available (7-30 days) */}
+        {redemptionAvailable && !survivorPathAvailable && (
           <div className="mt-8 mb-10">
             <button 
               onClick={handleRedemption}
