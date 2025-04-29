@@ -8,6 +8,24 @@ const Gatekeeper = () => {
   const [showPrompt, setShowPrompt] = useState(true);
   
   useEffect(() => {
+    // Check if site is already collapsed
+    const locked = localStorage.getItem("gatekeeperLocked");
+    if (locked === "true") {
+      // Check if 24 hours have passed
+      const lockedAt = localStorage.getItem("gatekeeperLockedAt");
+      if (lockedAt) {
+        const hoursPassed = (Date.now() - parseInt(lockedAt)) / 1000 / 3600;
+        if (hoursPassed >= 24) {
+          // Reset after 24 hours
+          localStorage.removeItem("gatekeeperLocked");
+          localStorage.removeItem("gatekeeperLockedAt");
+        } else {
+          // Still locked, trigger collapse
+          collapseSite();
+        }
+      }
+    }
+    
     // Check if previously unlocked
     const unlocked = localStorage.getItem("gatekeeperUnlocked");
     if (unlocked === "true") {
@@ -35,6 +53,64 @@ const Gatekeeper = () => {
     setIsUnlocked(true);
     setShowPrompt(false);
     localStorage.setItem("gatekeeperUnlocked", "true");
+  };
+  
+  const collapseSite = () => {
+    document.body.innerHTML = "";
+    document.body.style.margin = "0";
+    document.body.style.padding = "0";
+    document.body.style.overflow = "hidden";
+    
+    const blackout = document.createElement("div");
+    blackout.style.backgroundColor = "black";
+    blackout.style.color = "white";
+    blackout.style.fontFamily = "'Courier New', monospace";
+    blackout.style.display = "flex";
+    blackout.style.justifyContent = "center";
+    blackout.style.alignItems = "center";
+    blackout.style.height = "100vh";
+    blackout.style.width = "100vw";
+    blackout.style.textAlign = "center";
+    blackout.style.padding = "20px";
+    blackout.style.position = "fixed";
+    blackout.style.top = "0";
+    blackout.style.left = "0";
+    blackout.style.zIndex = "9999";
+    
+    blackout.innerHTML = `
+      <div>
+        <p style="font-size: 1.5rem;">You were warned.</p>
+        <p style="margin-top: 20px; font-size: 1rem; opacity: 0.7;">
+          The Monster doesn't forget.  
+          The Gatekeeper does not repeat himself.
+        </p>
+        <p style="margin-top: 40px; font-size: 0.9rem;">
+          Session Terminated.
+        </p>
+      </div>
+    `;
+    
+    document.body.appendChild(blackout);
+    
+    // Add hidden reset symbol
+    const resetSymbol = document.createElement("div");
+    resetSymbol.id = "resetSymbol";
+    resetSymbol.style.position = "fixed";
+    resetSymbol.style.top = "10px";
+    resetSymbol.style.right = "10px";
+    resetSymbol.style.width = "5px";
+    resetSymbol.style.height = "5px";
+    resetSymbol.style.opacity = "0.01";
+    resetSymbol.style.cursor = "pointer";
+    resetSymbol.style.zIndex = "10000";
+    
+    resetSymbol.addEventListener("click", () => {
+      localStorage.removeItem("gatekeeperLocked");
+      localStorage.removeItem("gatekeeperLockedAt");
+      window.location.reload();
+    });
+    
+    document.body.appendChild(resetSymbol);
   };
 
   return (
