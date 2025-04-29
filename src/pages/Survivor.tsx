@@ -1,9 +1,13 @@
 
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { jsPDF } from "jspdf";
+import { FileText } from "lucide-react";
 
 const Survivor = () => {
   const [fadeIn, setFadeIn] = useState(false);
+  const [userName, setUserName] = useState("Survivor");
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
   
   useEffect(() => {
     // Verify the user is actually a survivor
@@ -35,6 +39,59 @@ const Survivor = () => {
       // audio.pause();
     };
   }, []);
+  
+  const downloadCertificate = () => {
+    const doc = new jsPDF();
+    
+    const collapseTime = localStorage.getItem("gateCollapseTime");
+    const dateReached = collapseTime 
+      ? new Date(parseInt(collapseTime) + (1000 * 60 * 60 * 24 * 30)).toDateString() 
+      : new Date().toDateString();
+    
+    // Set up certificate styling
+    doc.setTextColor("#00FFAA");
+    doc.setFillColor(0, 0, 0); // Black background
+    doc.rect(0, 0, 210, 297, "F"); // Fill page with black
+    
+    // Certificate title
+    doc.setFont("Courier", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor("#00FFAA"); // Green text
+    doc.text("SURVIVOR CERTIFICATE", 105, 30, { align: "center" });
+    
+    // Certificate content
+    doc.setFontSize(14);
+    doc.setFont("Courier", "normal");
+    doc.text("This certifies that", 105, 50, { align: "center" });
+    
+    doc.setFontSize(18);
+    doc.setFont("Courier", "bold");
+    doc.text(userName, 105, 65, { align: "center" });
+    
+    doc.setFontSize(12);
+    doc.setFont("Courier", "normal");
+    doc.text("survived the silence", 105, 80, { align: "center" });
+    doc.text("and completed the Survivor Path", 105, 90, { align: "center" });
+    doc.text("of Jonah's Philes", 105, 100, { align: "center" });
+    doc.text(`Date of Completion: ${dateReached}`, 105, 120, { align: "center" });
+    
+    // Signature
+    doc.setFontSize(10);
+    doc.text("Verified by Joseph-James Hilson", 105, 170, { align: "center" });
+    
+    // Hidden watermark (hex encoded)
+    doc.setTextColor("#003311"); // Very dark green, almost invisible
+    doc.setFontSize(8);
+    doc.text("49 20 41 4D 20 4A 4F 53 45 50 48 2D 4A 41 4D 45 53 20 48 49 4C 53 4F 4E", 105, 220, { align: "center" });
+    
+    // Save PDF
+    doc.save("Jonah_Philes_Survivor_Certificate.pdf");
+  };
+  
+  const handleNameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowNamePrompt(false);
+  };
 
   return (
     <div 
@@ -84,19 +141,41 @@ const Survivor = () => {
         </p>
         
         <div className="mt-12 pt-12 opacity-0 animate-fade-in flex flex-col md:flex-row items-center justify-center gap-6" style={{ animationDelay: "22s", animationFillMode: "forwards" }}>
-          <button 
-            className="bg-black border border-[#00FFAA] hover:bg-[#00FFAA]/10 text-[#00FFAA] px-6 py-3 rounded transition-colors"
-            onClick={() => alert("In a full implementation, this would download a PDF journal page.")}
-          >
-            Download Final Page
-          </button>
+          {showNamePrompt ? (
+            <form onSubmit={handleNameSubmit} className="flex flex-col gap-3">
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                className="bg-black border border-[#00FFAA] px-4 py-2 text-[#00FFAA] focus:outline-none"
+                placeholder="Enter your name"
+              />
+              <button 
+                type="submit"
+                className="bg-black border border-[#00FFAA] hover:bg-[#00FFAA]/10 text-[#00FFAA] px-6 py-3 rounded transition-colors"
+              >
+                Confirm Name
+              </button>
+            </form>
+          ) : (
+            <button 
+              className="bg-black border border-[#00FFAA] hover:bg-[#00FFAA]/10 text-[#00FFAA] px-6 py-3 rounded transition-colors flex items-center gap-2"
+              onClick={() => {
+                setShowNamePrompt(true);
+              }}
+            >
+              <FileText size={18} />
+              Personalize Certificate
+            </button>
+          )}
           
-          <Link 
-            to="/contact" 
-            className="bg-black border border-[#00FFAA] hover:bg-[#00FFAA]/10 text-[#00FFAA] px-6 py-3 rounded transition-colors"
+          <button 
+            className="bg-black border border-[#00FFAA] hover:bg-[#00FFAA]/10 text-[#00FFAA] px-6 py-3 rounded transition-colors flex items-center gap-2"
+            onClick={downloadCertificate}
           >
-            Send Message Back
-          </Link>
+            <FileText size={18} />
+            Download Certificate
+          </button>
         </div>
         
         <div className="mt-12 opacity-0 animate-fade-in" style={{ animationDelay: "24s", animationFillMode: "forwards" }}>
@@ -136,6 +215,15 @@ const Survivor = () => {
           background-size: 200px 200px;
           opacity: 0.2;
         }
+        
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 1.5s ease-out forwards;
+        }
         `}
       </style>
     </div>
@@ -143,4 +231,3 @@ const Survivor = () => {
 };
 
 export default Survivor;
-
