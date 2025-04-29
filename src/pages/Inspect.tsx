@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import HiddenLink from "../components/HiddenLink";
-import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
+import { getTimeElapsedMessage, getThematicMessage, checkRedemptionTime, resetCollapseState } from "../utils/chronoLayer";
 
 const Inspect = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
   const [thematicMessage, setThematicMessage] = useState<string | null>(null);
+  const [redemptionAvailable, setRedemptionAvailable] = useState(false);
 
   useEffect(() => {
     // Check for ChronoLayer messages
@@ -15,6 +16,13 @@ const Inspect = () => {
     if (timeMessage && themMessage) {
       setCollapseMessage(timeMessage);
       setThematicMessage(themMessage);
+    }
+    
+    // Check if redemption is available
+    const permanentlyCollapsed = localStorage.getItem("permanentlyCollapsed");
+    if (permanentlyCollapsed === "true") {
+      const isRedemptionTime = checkRedemptionTime();
+      setRedemptionAvailable(isRedemptionTime);
     }
     
     // Console message for the inspector
@@ -33,6 +41,11 @@ const Inspect = () => {
       console.error("%cSignal disruption. Surface identity leaking.", "font-size:14px;");
     }, Math.random() * 4000 + 3000);
   }, []);
+
+  const handleRedemption = () => {
+    resetCollapseState();
+    window.location.href = "/gatekeeper";
+  };
 
   return (
     <div className="min-h-screen bg-phile-dark flex flex-col items-center justify-center px-4">
@@ -76,6 +89,18 @@ const Inspect = () => {
           <div className="mt-6 mb-8">
             <p className="text-dust-red/70 text-sm font-typewriter animate-pulse">{collapseMessage}</p>
             {thematicMessage && <p className="text-dust-blue/50 text-xs font-typewriter mt-1">{thematicMessage}</p>}
+          </div>
+        )}
+
+        {/* Show redemption button if available */}
+        {redemptionAvailable && (
+          <div className="mt-8 mb-10">
+            <button 
+              onClick={handleRedemption}
+              className="bg-black text-green-400 px-6 py-3 border border-green-400 hover:bg-green-400 hover:text-black transition-colors font-typewriter animate-pulse"
+            >
+              Redemption Awaits
+            </button>
           </div>
         )}
 
