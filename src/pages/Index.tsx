@@ -25,6 +25,9 @@ const Index = () => {
       {/* <!-- Phile initiated. Tracking subject... --> */}
       {/* <!-- The coin will fall. --> */}
       {/* <!-- Warning: Surface Integrity Failing. --> */}
+      {/* <!-- The Gate watches. --> */}
+      {/* <!-- Left was never right. --> */}
+      {/* <!-- Coin Toss initiated. --> */}
       
       <div className="phile-container text-center z-10">
         <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">Jonah's Philes</h1>

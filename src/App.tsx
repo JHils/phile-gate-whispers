@@ -9,6 +9,8 @@ import About from "./pages/About";
 import Inspect from "./pages/Inspect";
 import Philes from "./pages/Philes";
 import Contact from "./pages/Contact";
+import Monster from "./pages/Monster";
+import Legacy from "./pages/Legacy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,9 @@ const App = () => (
           <Route path="/inspect" element={<Inspect />} />
           <Route path="/philes" element={<Philes />} />
           <Route path="/contact" element={<Contact />} />
+          {/* Secret pages */}
+          <Route path="/monster" element={<Monster />} />
+          <Route path="/legacy" element={<Legacy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

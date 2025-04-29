@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import FileItem from "../components/FileItem";
+import HiddenLink from "../components/HiddenLink";
 
 const Philes = () => {
   useEffect(() => {
@@ -35,8 +36,11 @@ const Philes = () => {
   return (
     <div className="min-h-screen bg-black text-phile-light py-16">
       {/* Hidden comments for inspection */}
-      {/* <!-- Phile Complete. Subject Identified. --> */}
-      {/* <!-- The Gate Was Always Inside You. --> */}
+      {/* <!-- You have crossed the Gate. --> */}
+      {/* <!-- The Monster smiles. --> */}
+      {/* <!-- File corruption escalating. --> */}
+      {/* <!-- The coin never lands. --> */}
+      {/* <!-- M dormant. Password unlockable. --> */}
 
       <div className="phile-container">
         <h1 className="text-3xl md:text-4xl font-typewriter text-dust-red mb-2 text-center">
@@ -66,6 +70,20 @@ const Philes = () => {
             Return to The Gate
           </Link>
         </div>
+        
+        {/* Hidden link to /monster */}
+        <div className="text-center mt-16">
+          <HiddenLink 
+            text="M smiles." 
+            password="MONSTERAWAKES" 
+            redirectPath="/monster"
+            className="tiny-hidden-text"
+          />
+        </div>
+        
+        {/* Hidden comment for the legacy page */}
+        {/* <!-- Legacy Hidden. Password needed. --> */}
+        {/* <!-- But dormant things awaken. --> */}
       </div>
     </div>
   );

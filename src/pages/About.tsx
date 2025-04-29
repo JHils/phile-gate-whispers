@@ -11,6 +11,9 @@ const About = () => {
       {/* <!-- Memory Corruption Detected. --> */}
       {/* <!-- Event: Monaco Proposal Confirmed. --> */}
       {/* <!-- Surface Code Fragment: /inspect --> */}
+      {/* <!-- Anagram unresolved. --> */}
+      {/* <!-- Bracelet fracture observed. --> */}
+      {/* <!-- Observe her closely. --> */}
 
       <div className="phile-container">
         <h1 className="text-4xl md:text-5xl font-serif text-dust-red mb-10 text-center">
