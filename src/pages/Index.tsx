@@ -28,10 +28,30 @@ const Index = () => {
       console.log("%cLeft was never right. Forward was a lie.", "color: #8B3A40; font-size:14px;");
     }, Math.random() * 4000 + 3000);
     
-    // Define help function for console Easter egg
+    // Define global Easter egg functions for console interaction
     // @ts-ignore - This is intentionally added to window
     window.help = function() {
       console.log("%cHelp was never coming. You were always the Gatekeeper.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+    };
+    
+    // @ts-ignore - This is intentionally added to window
+    window.coinToss = function() {
+      const side = Math.random() < 0.5 ? "HEADS" : "TAILS";
+      if (side === "HEADS") {
+        console.log("%cHeads: You chose to heal.", "color: #475B74; font-size:16px;");
+      } else {
+        console.log("%cTails: You chose to break.", "color: #8B3A40; font-size:16px;");
+      }
+    };
+    
+    // @ts-ignore - This is intentionally added to window
+    window.monster = function() {
+      console.log("%cHe smiled with your voice. Be careful what you feed.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+    };
+    
+    // @ts-ignore - This is intentionally added to window
+    window.legacy = function() {
+      console.log("%cThis was never fiction. This was survival.", "color: #475B74; font-size:16px; font-weight:bold;");
     };
   }, []);
 

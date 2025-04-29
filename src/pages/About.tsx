@@ -9,12 +9,17 @@ const About = () => {
     console.log("%cSubject fragmented. Two sides, one shell.", "color: #475B74; font-size:14px;");
     
     setTimeout(() => {
-      console.log("%cDecode his name. Solve yourself.", "color: #475B74; font-size:14px;");
+      console.log("%cJonah isn't lost. He's rearranged.", "color: #475B74; font-size:14px;");
     }, Math.random() * 2000 + 1000);
     
     setTimeout(() => {
-      console.log("%cBracelet integrity: Gold flaking detected. True silver beneath.", "color: #475B74; font-size:14px;");
+      console.log("%cThe anagram holds the key. Joseph watches behind the mask.", "color: #475B74; font-size:14px;");
     }, Math.random() * 3000 + 2000);
+    
+    setTimeout(() => {
+      console.log("%cYou ever wonder why no one else hears the whispers?", "color: #475B74; font-size:14px;");
+      console.warn("%cTimeline corruption escalating beyond .phile threshold.", "font-size:14px;");
+    }, Math.random() * 4000 + 3000);
   }, []);
 
   return (

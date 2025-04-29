@@ -9,15 +9,16 @@ const Inspect = () => {
     console.log("%cYou're getting closer. Keep looking.", "color: #475B74; font-size:16px;");
     
     setTimeout(() => {
-      console.log("%cMonitor activated. Surveillance node awake.", "color: #475B74; font-size:14px;");
+      console.log("%cNode Breach Detected: Subject escalating.", "color: #475B74; font-size:14px;");
     }, Math.random() * 2000 + 1000);
     
     setTimeout(() => {
-      console.log("%cError 7G: Hidden path found. /philes", "color: #475B74; font-size:14px;");
+      console.log("%cBroken images hide broken memories.", "color: #475B74; font-size:14px;");
     }, Math.random() * 3000 + 2000);
     
     setTimeout(() => {
-      console.log("%cLegacy sleeps behind broken images.", "color: #475B74; font-size:14px;");
+      console.log("%cMonster monitoring... awaiting command.", "color: #475B74; font-size:14px;");
+      console.error("%cSignal disruption. Surface identity leaking.", "font-size:14px;");
     }, Math.random() * 4000 + 3000);
   }, []);
 
