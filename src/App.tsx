@@ -16,6 +16,7 @@ import Legacy from "./pages/Legacy";
 import Gatekeeper from "./pages/Gatekeeper";
 import Survivor from "./pages/Survivor";
 import PhilesFinal from "./pages/PhilesFinal";
+import Rebirth from "./pages/Rebirth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ const App = () => {
             <Route path="/gatekeeper" element={<Gatekeeper />} />
             <Route path="/survivor" element={<Survivor />} />
             <Route path="/philes/final" element={<PhilesFinal />} />
+            <Route path="/rebirth" element={<Rebirth />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

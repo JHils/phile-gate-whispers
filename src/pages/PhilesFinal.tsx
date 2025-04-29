@@ -149,6 +149,9 @@ const PhilesFinal = () => {
             <div className="p-4 border border-[#00FFAA]/30 bg-black/50 transition-all duration-500">
               <p className="font-bold text-xl mb-2">Truth Fragment #4:</p>
               <p className="text-lg">The reason the Gate collapsed... was to show you how to rebuild yourself.</p>
+              <p className="text-sm mt-2 opacity-60">
+                <span className="tracking-widest">Find the coordinates. Find your rebirth.</span>
+              </p>
             </div>
           )}
         </div>
