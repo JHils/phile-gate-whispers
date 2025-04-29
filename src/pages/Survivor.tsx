@@ -8,6 +8,7 @@ const Survivor = () => {
   const [fadeIn, setFadeIn] = useState(false);
   const [userName, setUserName] = useState("Survivor");
   const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [certificateDownloaded, setCertificateDownloaded] = useState(false);
   
   useEffect(() => {
     // Verify the user is actually a survivor
@@ -16,6 +17,12 @@ const Survivor = () => {
       // If they're not a survivor, redirect to home
       window.location.href = "/";
       return;
+    }
+    
+    // Check if they've already downloaded a certificate
+    const hasDownloaded = localStorage.getItem("certificateDownloaded");
+    if (hasDownloaded === "true") {
+      setCertificateDownloaded(true);
     }
     
     // Begin the fade-in animation
@@ -86,6 +93,10 @@ const Survivor = () => {
     
     // Save PDF
     doc.save("Jonah_Philes_Survivor_Certificate.pdf");
+    
+    // Mark that they've downloaded it
+    localStorage.setItem("certificateDownloaded", "true");
+    setCertificateDownloaded(true);
   };
   
   const handleNameSubmit = (e: React.FormEvent) => {
@@ -177,6 +188,18 @@ const Survivor = () => {
             Download Certificate
           </button>
         </div>
+        
+        {/* Show final page link after certificate is downloaded */}
+        {certificateDownloaded && (
+          <div className="mt-6 opacity-0 animate-fade-in" style={{ animationDelay: "0.5s", animationFillMode: "forwards" }}>
+            <Link 
+              to="/philes/final"
+              className="bg-black border border-[#00FFAA] hover:bg-[#00FFAA]/10 text-[#00FFAA] px-6 py-3 rounded transition-colors inline-block"
+            >
+              Access Final Revelations
+            </Link>
+          </div>
+        )}
         
         <div className="mt-12 opacity-0 animate-fade-in" style={{ animationDelay: "24s", animationFillMode: "forwards" }}>
           <Link 

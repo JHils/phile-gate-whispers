@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,7 @@ import Monster from "./pages/Monster";
 import Legacy from "./pages/Legacy";
 import Gatekeeper from "./pages/Gatekeeper";
 import Survivor from "./pages/Survivor";
+import PhilesFinal from "./pages/PhilesFinal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +62,7 @@ const App = () => {
             <Route path="/legacy" element={<Legacy />} />
             <Route path="/gatekeeper" element={<Gatekeeper />} />
             <Route path="/survivor" element={<Survivor />} />
+            <Route path="/philes/final" element={<PhilesFinal />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
