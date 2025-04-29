@@ -116,7 +116,8 @@ const Survivor = () => {
       </div>
       
       {/* Add some CSS for the ambient star background */}
-      <style jsx>{`
+      <style>
+        {`
         .stars {
           position: fixed;
           top: 0;
@@ -135,9 +136,11 @@ const Survivor = () => {
           background-size: 200px 200px;
           opacity: 0.2;
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
 
 export default Survivor;
+
