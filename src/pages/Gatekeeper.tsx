@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PasswordPrompt from "../components/PasswordPrompt";
@@ -51,11 +52,11 @@ const Gatekeeper = () => {
       
       {isUnlocked ? (
         <div className="text-center max-w-xl animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-typewriter text-dust-orange mb-12">
+          <h1 className="text-4xl md:text-5xl font-serif text-dust-orange mb-12">
             The Final Truth
           </h1>
           
-          <div className="space-y-6 text-xl text-phile-light">
+          <div className="space-y-6 text-xl text-phile-light font-typewriter">
             <p className="opacity-0 animate-fade-in" style={{ animationDelay: "0.5s", animationFillMode: "forwards" }}>
               You weren't just reading.
             </p>
@@ -100,11 +101,11 @@ const Gatekeeper = () => {
         </div>
       ) : (
         <div className="text-center">
-          <h1 className="text-3xl md:text-4xl font-typewriter text-dust-red mb-6">
+          <h1 className="text-3xl md:text-4xl font-serif text-dust-red mb-6">
             Final Gate
           </h1>
           
-          <p className="text-xl text-phile-light mb-8">
+          <p className="text-xl text-phile-light mb-8 font-typewriter">
             You've reached the threshold of truth.
           </p>
           
@@ -137,6 +138,21 @@ const Gatekeeper = () => {
           </div>
         </div>
       )}
+      
+      {/* Subtle stars background effect */}
+      <div 
+        className="absolute inset-0 z-0 opacity-40 pointer-events-none"
+        style={{
+          backgroundImage: "radial-gradient(white 1px, transparent 1px)",
+          backgroundSize: "50px 50px"
+        }}
+      ></div>
+      
+      {/* Gradient overlay animation */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/5 to-black/20 z-0 animate-pulse pointer-events-none"
+        style={{ animationDuration: "10s" }}
+      ></div>
     </div>
   );
 };

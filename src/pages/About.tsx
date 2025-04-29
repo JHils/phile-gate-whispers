@@ -32,6 +32,8 @@ const About = () => {
       setExtraLine("You're already inside.");
     } else if (localStorage.getItem("whoisCalled")) {
       setExtraLine("Jonah isn't real. You are.");
+    } else if (localStorage.getItem("helpCalled")) {
+      setExtraLine("Someone heard your call.");
     }
   }, []);
 
@@ -91,6 +93,24 @@ const About = () => {
               Return to The Gate
             </Link>
           </div>
+          
+          {/* Hidden message that appears if user has accessed console functions */}
+          {localStorage.getItem("helpCalled") && (
+            <div className="mt-8 text-center">
+              <p id="bonusLine" className="tiny-hidden-text">
+                You were never really outside the story.
+              </p>
+            </div>
+          )}
+          
+          {/* Hidden footer message that only appears after monster() is called */}
+          {localStorage.getItem("monsterCalled") && (
+            <div className="mt-16 text-center">
+              <p className="text-[0.6rem] text-dust-blue/50 italic">
+                [Session recorded by the Monster]
+              </p>
+            </div>
+          )}
         </div>
       </div>
       
