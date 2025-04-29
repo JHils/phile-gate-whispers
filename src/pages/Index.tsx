@@ -14,6 +14,7 @@ const Index = () => {
   useEffect(() => {
     // Console message for the curious
     console.log("%cThe Gate is watching.", "color: #8B3A40; font-size:14px;");
+    console.log("%cThe whispers start with help().", "color: #475B74; font-size:14px; font-style:italic;");
     
     // Additional console messages with delays for creepier effect
     setTimeout(() => {
@@ -31,7 +32,57 @@ const Index = () => {
     // Define global Easter egg functions for console interaction
     // @ts-ignore - This is intentionally added to window
     window.help = function() {
-      console.log("%cHelp was never coming. You were always the Gatekeeper.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+      console.log("%cWelcome, wanderer.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+      console.log("%cThis console is not monitored... but it remembers.", "color: #8B3A40; font-size:16px;");
+      console.log("%cTry typing: whois()", "color: #475B74; font-size:16px; font-style:italic;");
+      localStorage.setItem("helpCalled", "true");
+      updateUIBasedOnProgress();
+    };
+    
+    // @ts-ignore - This is intentionally added to window
+    window.whois = function() {
+      console.log("%cJonah S.M. Phile.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+      console.log("%cRearrange me, and you may find someone else hiding.", "color: #8B3A40; font-size:16px;");
+      console.log("%cOnce you understand, type: gate()", "color: #475B74; font-size:16px; font-style:italic;");
+      localStorage.setItem("whoisCalled", "true");
+      updateUIBasedOnProgress();
+    };
+    
+    // @ts-ignore - This is intentionally added to window
+    window.gate = function() {
+      console.log("%cThe Gate never opened. You walked through it anyway.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+      console.log("%cThe coin is still spinning. So are you.", "color: #8B3A40; font-size:16px;");
+      console.log("%cNow try: philes()", "color: #475B74; font-size:16px; font-style:italic;");
+      localStorage.setItem("gateCalled", "true");
+      updateUIBasedOnProgress();
+    };
+    
+    // @ts-ignore - This is intentionally added to window
+    window.philes = function() {
+      console.log("%cYou're deeper than most.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+      console.log("%cThe Monster is watching.", "color: #8B3A40; font-size:16px;");
+      console.log("%cInvoke him at your own risk: monster()", "color: #475B74; font-size:16px; font-style:italic;");
+      localStorage.setItem("philesCalled", "true");
+      updateUIBasedOnProgress();
+    };
+    
+    // @ts-ignore - This is intentionally added to window
+    window.monster = function() {
+      console.log("%cHe smiled with your voice. He walks in your skin.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+      console.log("%cThere was no rescue. Only transformation.", "color: #8B3A40; font-size:16px;");
+      console.log("%cYou've earned the truth. Type: legacy()", "color: #475B74; font-size:16px; font-style:italic;");
+      localStorage.setItem("monsterCalled", "true");
+      updateUIBasedOnProgress();
+    };
+    
+    // @ts-ignore - This is intentionally added to window
+    window.legacy = function() {
+      console.log("%cYou saw through the cracks.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+      console.log("%cYou decoded survival.", "color: #8B3A40; font-size:16px;");
+      console.log("%cLegacy is not given. It is built. You are the Gatekeeper now.", "color: #8B3A40; font-size:16px;");
+      console.log("%cPassword for final page: 'N0tFict10n'", "color: #475B74; font-size:16px; font-weight:bold;");
+      localStorage.setItem("legacyCalled", "true");
+      updateUIBasedOnProgress();
     };
     
     // @ts-ignore - This is intentionally added to window
@@ -44,15 +95,30 @@ const Index = () => {
       }
     };
     
-    // @ts-ignore - This is intentionally added to window
-    window.monster = function() {
-      console.log("%cHe smiled with your voice. Be careful what you feed.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-    };
+    // Function to update UI based on progress
+    function updateUIBasedOnProgress() {
+      const whisperElement = document.getElementById("whisperText");
+      
+      if (whisperElement) {
+        if (localStorage.getItem("legacyCalled")) {
+          whisperElement.textContent = "The Gatekeeper sees all.";
+          whisperElement.classList.add("text-dust-red");
+        } else if (localStorage.getItem("monsterCalled")) {
+          whisperElement.textContent = "He walks with your steps now.";
+        } else if (localStorage.getItem("philesCalled")) {
+          whisperElement.textContent = "The files are watching you back.";
+        } else if (localStorage.getItem("gateCalled")) {
+          whisperElement.textContent = "You crossed without permission.";
+        } else if (localStorage.getItem("whoisCalled")) {
+          whisperElement.textContent = "Names hide deeper truths.";
+        } else if (localStorage.getItem("helpCalled")) {
+          whisperElement.textContent = "Someone heard your call.";
+        }
+      }
+    }
     
-    // @ts-ignore - This is intentionally added to window
-    window.legacy = function() {
-      console.log("%cThis was never fiction. This was survival.", "color: #475B74; font-size:16px; font-weight:bold;");
-    };
+    // Call on load to reflect any existing progress
+    setTimeout(updateUIBasedOnProgress, 1000);
   }, []);
 
   return (
@@ -84,7 +150,7 @@ const Index = () => {
             The Gate is already open.
           </p>
           
-          <p className="text-lg md:text-xl text-dust-blue font-typewriter mt-8">
+          <p id="whisperText" className="text-lg md:text-xl text-dust-blue font-typewriter mt-8 transition-all duration-700">
             Find the Gate before the Gate finds you.
           </p>
         </div>

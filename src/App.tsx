@@ -11,6 +11,7 @@ import Philes from "./pages/Philes";
 import Contact from "./pages/Contact";
 import Monster from "./pages/Monster";
 import Legacy from "./pages/Legacy";
+import Gatekeeper from "./pages/Gatekeeper";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           {/* Secret pages */}
           <Route path="/monster" element={<Monster />} />
           <Route path="/legacy" element={<Legacy />} />
+          <Route path="/gatekeeper" element={<Gatekeeper />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

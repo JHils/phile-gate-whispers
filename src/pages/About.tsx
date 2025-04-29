@@ -1,9 +1,11 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import TextGlitch from "../components/TextGlitch";
 
 const About = () => {
+  const [extraLine, setExtraLine] = useState("");
+
   useEffect(() => {
     // Console messages for the about page
     console.log("%cSubject fragmented. Two sides, one shell.", "color: #475B74; font-size:14px;");
@@ -20,6 +22,17 @@ const About = () => {
       console.log("%cYou ever wonder why no one else hears the whispers?", "color: #475B74; font-size:14px;");
       console.warn("%cTimeline corruption escalating beyond .phile threshold.", "font-size:14px;");
     }, Math.random() * 4000 + 3000);
+
+    // Check localStorage for console interactions
+    if (localStorage.getItem("legacyCalled")) {
+      setExtraLine("The Gatekeeper awaits your final step.");
+    } else if (localStorage.getItem("monsterCalled")) {
+      setExtraLine("You've seen his face. It was your own.");
+    } else if (localStorage.getItem("gateCalled")) {
+      setExtraLine("You're already inside.");
+    } else if (localStorage.getItem("whoisCalled")) {
+      setExtraLine("Jonah isn't real. You are.");
+    }
   }, []);
 
   return (
@@ -59,6 +72,12 @@ const About = () => {
           <p className="mb-6">
             Some say he's still searching for a way back. Others say he never left at all.
           </p>
+          
+          {extraLine && (
+            <p className="mb-6 text-dust-red animate-pulse font-typewriter">
+              {extraLine}
+            </p>
+          )}
 
           <p className="mb-10 italic text-dust-blue">
             "Not everything you see is real. Try inspecting closer."

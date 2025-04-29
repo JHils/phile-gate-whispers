@@ -1,10 +1,11 @@
-
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import FileItem from "../components/FileItem";
 import HiddenLink from "../components/HiddenLink";
 
 const Philes = () => {
+  const [gatekeeperHint, setGatekeeperHint] = useState(false);
+
   useEffect(() => {
     // Console message for those who made it this far
     console.log("%cThe Gate has found you.", "color: #8B3A40; font-size:18px; font-weight:bold;");
@@ -20,6 +21,11 @@ const Philes = () => {
     setTimeout(() => {
       console.log("%cSurface Memory: Treacherous journey confirmed.", "color: #8B3A40; font-size:16px;");
     }, Math.random() * 4000 + 3000);
+    
+    // Check if the user has progressed through the console easter eggs
+    if (localStorage.getItem("legacyCalled") === "true") {
+      setGatekeeperHint(true);
+    }
   }, []);
 
   const files = [
@@ -92,6 +98,18 @@ const Philes = () => {
             className="tiny-hidden-text"
           />
         </div>
+        
+        {/* Conditional link to /gatekeeper if legacy() has been called */}
+        {gatekeeperHint && (
+          <div className="text-center mt-6 opacity-30 hover:opacity-60 transition-opacity">
+            <Link 
+              to="/gatekeeper"
+              className="text-dust-orange text-xs font-typewriter"
+            >
+              The Final Gate awaits.
+            </Link>
+          </div>
+        )}
         
         {/* Hidden comment for the legacy page */}
         {/* <!-- Legacy Hidden. Password needed. --> */}
