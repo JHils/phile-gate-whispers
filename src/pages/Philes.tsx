@@ -8,6 +8,18 @@ const Philes = () => {
   useEffect(() => {
     // Console message for those who made it this far
     console.log("%cThe Gate has found you.", "color: #8B3A40; font-size:18px; font-weight:bold;");
+    
+    setTimeout(() => {
+      console.log("%cYou have crossed into the Philes.", "color: #8B3A40; font-size:16px;");
+    }, Math.random() * 2000 + 1000);
+    
+    setTimeout(() => {
+      console.log("%cThe Monster still dreams. For now.", "color: #8B3A40; font-size:16px;");
+    }, Math.random() * 3000 + 2000);
+    
+    setTimeout(() => {
+      console.log("%cSurface Memory: Treacherous journey confirmed.", "color: #8B3A40; font-size:16px;");
+    }, Math.random() * 4000 + 3000);
   }, []);
 
   const files = [

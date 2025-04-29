@@ -7,6 +7,18 @@ const Monster = () => {
     // Console message for those who find the monster
     console.log("%cThe Monster sees you now.", "color: #8B3A40; font-size:20px; font-weight:bold;");
     
+    setTimeout(() => {
+      console.log("%cYou woke him.", "color: #8B3A40; font-size:18px;");
+    }, Math.random() * 2000 + 1000);
+    
+    setTimeout(() => {
+      console.log("%cHe smiles with your face.", "color: #8B3A40; font-size:18px;");
+    }, Math.random() * 3000 + 2000);
+    
+    setTimeout(() => {
+      console.log("%cNow you belong to the silence.", "color: #8B3A40; font-size:18px;");
+    }, Math.random() * 4000 + 3000);
+    
     document.body.classList.add('monster-active');
     
     return () => {

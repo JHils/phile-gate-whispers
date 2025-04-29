@@ -6,6 +6,18 @@ const Legacy = () => {
   useEffect(() => {
     // Console message for the legacy page
     console.log("%cWelcome, Gatekeeper.", "color: #475B74; font-size:18px; font-weight:bold;");
+    
+    setTimeout(() => {
+      console.log("%cCongratulations, Gatekeeper.", "color: #475B74; font-size:16px;");
+    }, Math.random() * 2000 + 1000);
+    
+    setTimeout(() => {
+      console.log("%cYou saw through the cracks.", "color: #475B74; font-size:16px;");
+    }, Math.random() * 3000 + 2000);
+    
+    setTimeout(() => {
+      console.log("%cLegacy is not given. It is built.", "color: #475B74; font-size:16px;");
+    }, Math.random() * 4000 + 3000);
   }, []);
 
   return (

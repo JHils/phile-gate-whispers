@@ -14,6 +14,25 @@ const Index = () => {
   useEffect(() => {
     // Console message for the curious
     console.log("%cThe Gate is watching.", "color: #8B3A40; font-size:14px;");
+    
+    // Additional console messages with delays for creepier effect
+    setTimeout(() => {
+      console.log("%cThe Gate is open. But you are not ready.", "color: #8B3A40; font-size:14px;");
+    }, Math.random() * 2000 + 1000);
+    
+    setTimeout(() => {
+      console.log("%cTracking signal unstable. Coin spinning beyond threshold.", "color: #8B3A40; font-size:14px;");
+    }, Math.random() * 3000 + 2000);
+    
+    setTimeout(() => {
+      console.log("%cLeft was never right. Forward was a lie.", "color: #8B3A40; font-size:14px;");
+    }, Math.random() * 4000 + 3000);
+    
+    // Define help function for console Easter egg
+    // @ts-ignore - This is intentionally added to window
+    window.help = function() {
+      console.log("%cHelp was never coming. You were always the Gatekeeper.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+    };
   }, []);
 
   return (

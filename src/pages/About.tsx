@@ -1,9 +1,22 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import TextGlitch from "../components/TextGlitch";
 
 const About = () => {
+  useEffect(() => {
+    // Console messages for the about page
+    console.log("%cSubject fragmented. Two sides, one shell.", "color: #475B74; font-size:14px;");
+    
+    setTimeout(() => {
+      console.log("%cDecode his name. Solve yourself.", "color: #475B74; font-size:14px;");
+    }, Math.random() * 2000 + 1000);
+    
+    setTimeout(() => {
+      console.log("%cBracelet integrity: Gold flaking detected. True silver beneath.", "color: #475B74; font-size:14px;");
+    }, Math.random() * 3000 + 2000);
+  }, []);
+
   return (
     <div className="min-h-screen bg-phile-light py-16 relative">
       {/* Hidden comments for inspection */}
