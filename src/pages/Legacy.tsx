@@ -6,14 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useTrackingSystem } from "../hooks/useTrackingSystem";
 
 const Legacy = () => {
   const [email, setEmail] = useState("");
   const [journalEntry, setJournalEntry] = useState("");
   const [showJournal, setShowJournal] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
+  const { userState, trackEvent } = useTrackingSystem();
   
   useEffect(() => {
+    // Track page visit
+    trackEvent('visited_legacy');
+    
     // Begin fade-in animation
     setTimeout(() => setFadeIn(true), 500);
     
@@ -45,6 +50,7 @@ const Legacy = () => {
       console.log("Designer. Storyteller. Monster-tamer.");
       console.log("The voice behind the whispers.");
       console.log("https://josephhilson.design"); // Replace with actual URL when ready
+      trackEvent('console_hilson_reveal_called');
     };
     
     return () => {
@@ -52,7 +58,7 @@ const Legacy = () => {
       // @ts-ignore - This is intentionally removed from window
       delete window.hilsonReveal;
     };
-  }, []);
+  }, [trackEvent]);
   
   const handleStartLegacy = () => {
     setShowJournal(true);
@@ -60,6 +66,7 @@ const Legacy = () => {
   
   const handleSaveJournal = () => {
     localStorage.setItem("legacyJournalEntry", journalEntry);
+    trackEvent('legacy_written');
     toast.success("Your legacy has been remembered");
   };
   
@@ -88,6 +95,7 @@ const Legacy = () => {
     doc.text("From the Legacy Portal - Joseph-James Hilson", 20, 280);
 
     doc.save("My_Legacy_Chapter.pdf");
+    trackEvent('legacy_exported');
   };
   
   const handleSubscribe = () => {
@@ -97,6 +105,7 @@ const Legacy = () => {
     }
     
     // In a real implementation, this would connect to a newsletter service
+    trackEvent('email_submitted');
     toast.success("Your email has been received");
     console.log("%cNew gatekeeper joined: " + email, "color: gold;");
     setEmail("");

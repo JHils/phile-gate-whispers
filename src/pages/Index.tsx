@@ -3,9 +3,11 @@ import React, { useEffect, useState } from "react";
 import SpinningCoin from "../components/SpinningCoin";
 import HiddenNav from "../components/HiddenNav";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
+import { useTrackingSystem } from "../hooks/useTrackingSystem";
 
 const Index = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
+  const { userState, trackEvent } = useTrackingSystem();
 
   // Add classes to individual characters for staggered animation
   const addSpans = (text: string) => {
@@ -15,6 +17,9 @@ const Index = () => {
   };
 
   useEffect(() => {
+    // Track page visit
+    trackEvent('visited_gate');
+    
     // Check for ChronoLayer messages
     const timeMessage = getTimeElapsedMessage();
     if (timeMessage) {
@@ -44,7 +49,7 @@ const Index = () => {
       console.log("%cWelcome, wanderer.", "color: #8B3A40; font-size:16px; font-weight:bold;");
       console.log("%cThis console is not monitored... but it remembers.", "color: #8B3A40; font-size:16px;");
       console.log("%cTry typing: whois()", "color: #475B74; font-size:16px; font-style:italic;");
-      localStorage.setItem("helpCalled", "true");
+      trackEvent('console_help_called');
       updateUIBasedOnProgress();
     };
     
@@ -53,7 +58,7 @@ const Index = () => {
       console.log("%cJonah S.M. Phile.", "color: #8B3A40; font-size:16px; font-weight:bold;");
       console.log("%cRearrange me, and you may find someone else hiding.", "color: #8B3A40; font-size:16px;");
       console.log("%cOnce you understand, type: gate()", "color: #475B74; font-size:16px; font-style:italic;");
-      localStorage.setItem("whoisCalled", "true");
+      trackEvent('console_whois_called');
       updateUIBasedOnProgress();
     };
     
@@ -62,7 +67,7 @@ const Index = () => {
       console.log("%cThe Gate never opened. You walked through it anyway.", "color: #8B3A40; font-size:16px; font-weight:bold;");
       console.log("%cThe coin is still spinning. So are you.", "color: #8B3A40; font-size:16px;");
       console.log("%cNow try: philes()", "color: #475B74; font-size:16px; font-style:italic;");
-      localStorage.setItem("gateCalled", "true");
+      trackEvent('console_gate_called');
       updateUIBasedOnProgress();
     };
     
@@ -71,7 +76,7 @@ const Index = () => {
       console.log("%cYou're deeper than most.", "color: #8B3A40; font-size:16px; font-weight:bold;");
       console.log("%cThe Monster is watching.", "color: #8B3A40; font-size:16px;");
       console.log("%cInvoke him at your own risk: monster()", "color: #475B74; font-size:16px; font-style:italic;");
-      localStorage.setItem("philesCalled", "true");
+      trackEvent('console_philes_called');
       updateUIBasedOnProgress();
     };
     
@@ -80,7 +85,7 @@ const Index = () => {
       console.log("%cHe smiled with your voice. He walks in your skin.", "color: #8B3A40; font-size:16px; font-weight:bold;");
       console.log("%cThere was no rescue. Only transformation.", "color: #8B3A40; font-size:16px;");
       console.log("%cYou've earned the truth. Type: legacy()", "color: #475B74; font-size:16px; font-style:italic;");
-      localStorage.setItem("monsterCalled", "true");
+      trackEvent('console_monster_called');
       updateUIBasedOnProgress();
     };
     
@@ -90,7 +95,26 @@ const Index = () => {
       console.log("%cYou decoded survival.", "color: #8B3A40; font-size:16px;");
       console.log("%cLegacy is not given. It is built. You are the Gatekeeper now.", "color: #8B3A40; font-size:16px;");
       console.log("%cPassword for final page: 'N0tFict10n'", "color: #475B74; font-size:16px; font-weight:bold;");
-      localStorage.setItem("legacyCalled", "true");
+      trackEvent('console_legacy_called');
+      updateUIBasedOnProgress();
+    };
+    
+    // Add new console functions
+    // @ts-ignore - This is intentionally added to window
+    window.reveal = function() {
+      console.log("%cBehind every Gate is a Gatekeeper.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+      console.log("%cBehind every story is an author.", "color: #8B3A40; font-size:16px;");
+      console.log("%cNext, try: reincarnate()", "color: #475B74; font-size:16px; font-style:italic;");
+      trackEvent('console_reveal_called');
+      updateUIBasedOnProgress();
+    };
+    
+    // @ts-ignore - This is intentionally added to window
+    window.reincarnate = function() {
+      console.log("%cThe coin never lands.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+      console.log("%cYour story never ends.", "color: #8B3A40; font-size:16px;");
+      console.log("%cType whois() to continue your journey", "color: #475B74; font-size:16px; font-style:italic;");
+      trackEvent('console_reincarnate_called');
       updateUIBasedOnProgress();
     };
     
@@ -109,23 +133,27 @@ const Index = () => {
       const whisperElement = document.getElementById("whisperText");
       
       if (whisperElement) {
-        if (localStorage.getItem("legacyCalled")) {
+        if (userState.console.legacyCalled || localStorage.getItem("legacyCalled")) {
           whisperElement.textContent = "The Gatekeeper sees all.";
           whisperElement.classList.add("text-dust-red");
-        } else if (localStorage.getItem("monsterCalled")) {
+        } else if (userState.console.monsterCalled || localStorage.getItem("monsterCalled")) {
           whisperElement.textContent = "He walks with your steps now.";
-        } else if (localStorage.getItem("philesCalled")) {
+        } else if (userState.console.philesCalled || localStorage.getItem("philesCalled")) {
           whisperElement.textContent = "The files are watching you back.";
-        } else if (localStorage.getItem("gateCalled")) {
+        } else if (userState.console.gateCalled || localStorage.getItem("gateCalled")) {
           whisperElement.textContent = "You crossed without permission.";
-        } else if (localStorage.getItem("whoisCalled")) {
+        } else if (userState.console.whoisCalled || localStorage.getItem("whoisCalled")) {
           whisperElement.textContent = "Names hide deeper truths.";
-        } else if (localStorage.getItem("helpCalled")) {
+        } else if (userState.console.helpCalled || localStorage.getItem("helpCalled")) {
           whisperElement.textContent = "Someone heard your call.";
+        } else if (userState.console.revealCalled) {
+          whisperElement.textContent = "Every revelation has a price.";
+        } else if (userState.console.reincarnateCalled) {
+          whisperElement.textContent = "Death is just transformation.";
         }
         
         // If Nightmare Sequence was triggered, add a special message
-        if (localStorage.getItem("permanentlyCollapsed") === "true") {
+        if (userState.permanentlyCollapsed || localStorage.getItem("permanentlyCollapsed") === "true") {
           const thematicMessage = getThematicMessage();
           if (thematicMessage) {
             whisperElement.textContent = thematicMessage;
@@ -138,7 +166,7 @@ const Index = () => {
     
     // Call on load to reflect any existing progress
     setTimeout(updateUIBasedOnProgress, 1000);
-  }, []);
+  }, [trackEvent, userState]);
 
   return (
     <div 
@@ -174,7 +202,7 @@ const Index = () => {
           </p>
           
           {/* Display ChronoLayer message if user previously collapsed the site */}
-          {collapseMessage && localStorage.getItem("permanentlyCollapsed") === "true" && (
+          {collapseMessage && (userState.permanentlyCollapsed || localStorage.getItem("permanentlyCollapsed") === "true") && (
             <div className="mt-6">
               <p className="text-dust-red/60 text-sm font-typewriter animate-pulse">
                 {collapseMessage}
