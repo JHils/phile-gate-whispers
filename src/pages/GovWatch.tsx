@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
@@ -268,7 +267,7 @@ const GovWatch = () => {
       </footer>
 
       {/* Customized styles for glitch effect */}
-      <style jsx>{`
+      <style>{`
         .glitch-effect {
           animation: glitchEffect 2s ease;
         }

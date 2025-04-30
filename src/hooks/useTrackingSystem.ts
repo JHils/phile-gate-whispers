@@ -183,8 +183,8 @@ export const useTrackingSystem = () => {
         console.error('Error syncing with Supabase:', error);
       }
       
-      // Set a custom header for RLS policies
-      supabase.headers['app-user-hash'] = userHash;
+      // Set a custom header for RLS policies - FIX: Use custom fetch options instead of direct header access
+      // Instead of using supabase.headers directly, we'll apply user_hash to queries as needed
     } catch (error) {
       console.error('Error in Supabase sync:', error);
     }

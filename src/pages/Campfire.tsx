@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -195,13 +194,35 @@ const Campfire = () => {
     // Fetch user's rank if not in top 10
     const fetchUserRank = async () => {
       try {
-        const { data, error } = await supabase
-          .rpc('get_user_rank', { user_hash_param: userHash });
+        // Fix: Use a proper Supabase query instead of RPC
+        // Since we can't use RPC here, we'll just count how many users have a higher score
+        if (userHash) {
+          const { data: userScore, error: userScoreError } = await supabase
+            .from('user_tracking')
+            .select('score')
+            .eq('user_hash', userHash)
+            .single();
+            
+          if (userScoreError) {
+            console.error('Error fetching user score:', userScoreError);
+            return;
+          }
           
-        if (error) {
-          console.error('Error fetching user rank:', error);
-        } else if (data) {
-          setUserRank(data);
+          if (userScore) {
+            const { count, error: countError } = await supabase
+              .from('user_tracking')
+              .select('*', { count: 'exact', head: true })
+              .gt('score', userScore.score);
+              
+            if (countError) {
+              console.error('Error counting higher ranked users:', countError);
+              return;
+            }
+            
+            if (count !== null) {
+              setUserRank(count + 1); // Add 1 because rank starts at 1, not 0
+            }
+          }
         }
       } catch (error) {
         console.error('Error fetching user rank:', error);

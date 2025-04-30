@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
 import { Link } from "react-router-dom";
@@ -248,7 +247,7 @@ const OutbackHostel = () => {
       </footer>
 
       {/* Custom styles for glitch effect */}
-      <style jsx>{`
+      <style>{`
         .glitch-effect {
           animation: glitch 0.2s linear forwards;
         }
