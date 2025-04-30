@@ -39,7 +39,9 @@ const Campfire = () => {
   const [loading, setLoading] = useState(true);
   const [userHash, setUserHash] = useState<string>("");
   const [username, setUsername] = useState<string>("");
+  const [audioEnabled, setAudioEnabled] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const { userState, trackEvent } = useTrackingSystem();
   
   // Check if user can post messages
@@ -148,6 +150,16 @@ const Campfire = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   
+  // Toggle audio on/off
+  const toggleAudio = () => {
+    setAudioEnabled(!audioEnabled);
+    if (!audioEnabled) {
+      audioRef.current?.play();
+    } else {
+      audioRef.current?.pause();
+    }
+  };
+  
   // Check if message contains forbidden words
   const isSafeMessage = (message: string) => {
     const lowerMessage = message.toLowerCase();
@@ -214,13 +226,26 @@ const Campfire = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-black text-dust-orange">
+    <div className="min-h-screen flex flex-col bg-black">
+      {/* Hidden audio element */}
+      <audio ref={audioRef} loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/17/audio_f3c1db9a4d.mp3" type="audio/mp3" />
+      </audio>
+
       {/* Campfire header */}
       <header className="p-6 text-center">
-        <h1 className="text-3xl md:text-5xl font-serif mb-2 text-dust-red">THE CAMPFIRE</h1>
-        <p className="text-lg md:text-xl text-dust-orange font-typewriter">
-          Whispers echo between worlds
+        <h1 className="text-3xl md:text-5xl font-serif mb-2 text-dust-red">🔥 THE CAMPFIRE</h1>
+        <p className="text-lg md:text-xl text-dust-orange font-typewriter opacity-60">
+          The fire remembers you. Speak only if the flames allow it.
         </p>
+        <div className="mt-2">
+          <button 
+            onClick={toggleAudio} 
+            className="text-xs text-dust-blue hover:text-dust-orange transition-colors"
+          >
+            {audioEnabled ? "Mute Fire Sounds" : "Play Crackling Fire"}
+          </button>
+        </div>
         {!canPost && (
           <p className="mt-4 text-dust-blue italic text-sm">
             You may listen, but only those who have faced the Monster may speak.
@@ -230,7 +255,7 @@ const Campfire = () => {
       
       {/* Messages area */}
       <div className="flex-grow p-4 md:p-6 max-w-3xl mx-auto w-full">
-        <div className="bg-black/50 border border-dust-blue/30 rounded-md p-4 h-[60vh] overflow-y-auto">
+        <div className="bg-[#1a1a1a] border border-[#444] rounded-md p-4 h-[60vh] overflow-y-auto shadow-[0_0_10px_rgba(245,222,179,0.25)]">
           {loading ? (
             <div className="space-y-4">
               <Skeleton className="h-12 w-full bg-gray-800/30" />
@@ -245,7 +270,7 @@ const Campfire = () => {
             messages.map((msg) => (
               <div 
                 key={msg.id} 
-                className={`mb-4 p-3 rounded ${
+                className={`mb-4 p-3 rounded animate-[flicker_1.5s_infinite] ${
                   msg.user_hash === userHash 
                     ? 'border-l-4 border-dust-orange/40 bg-black/30' 
                     : 'bg-black/10'
@@ -260,7 +285,7 @@ const Campfire = () => {
                 }`}>
                   {msg.username}
                 </p>
-                <p className="mt-1 text-dust-orange/80 font-typewriter">{msg.message}</p>
+                <p className="mt-1 text-[#f5deb3]/80 font-typewriter">{msg.message}</p>
                 <p className="mt-1 text-xs text-gray-500">
                   {new Date(msg.created_at).toLocaleTimeString([], {
                     hour: '2-digit',
@@ -278,19 +303,22 @@ const Campfire = () => {
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder={canPost ? "Whisper to the fire..." : "You must survive before you may speak..."}
-            className="flex-grow bg-black/50 border-dust-blue/30 text-dust-orange placeholder:text-dust-blue/50"
+            placeholder={canPost ? "Whisper something..." : "You must survive before you may speak..."}
+            className="flex-grow bg-[#111] text-[#fff2c7] border-[#333] placeholder:text-gray-500"
             disabled={!canPost}
           />
           <Button 
             type="submit" 
-            className="ml-2 bg-black/70 hover:bg-black text-dust-orange border border-dust-orange/30 hover:border-dust-orange/60"
+            className="ml-2 bg-[#f5deb3] hover:bg-[#ffeaa7] text-[#0c0c0c] border-none font-bold"
             disabled={!canPost}
           >
-            Whisper
+            Send
           </Button>
         </form>
       </div>
+      
+      {/* Overlay effect */}
+      <div className="fixed inset-0 pointer-events-none bg-black/10 z-10 static-overlay opacity-30"></div>
     </div>
   );
 };
