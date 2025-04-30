@@ -235,7 +235,7 @@ const Legacy = () => {
       <div hidden>
         <meta name="author" content="Joseph-James Hilson" />
         <meta name="description" content="The Legacy Portal - Where your story continues" />
-        <!-- hint: josephhilson.com -->
+        {/* hint: josephhilson.com */}
       </div>
       
       {/* Ambient background effect */}
