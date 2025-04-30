@@ -36,6 +36,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_tracking: {
+        Row: {
+          console_commands_found: number
+          first_visit: string
+          id: string
+          last_visit: string
+          legacy_written: boolean
+          pages_visited: number
+          score: number
+          title: string
+          user_hash: string
+        }
+        Insert: {
+          console_commands_found?: number
+          first_visit?: string
+          id?: string
+          last_visit?: string
+          legacy_written?: boolean
+          pages_visited?: number
+          score?: number
+          title?: string
+          user_hash: string
+        }
+        Update: {
+          console_commands_found?: number
+          first_visit?: string
+          id?: string
+          last_visit?: string
+          legacy_written?: boolean
+          pages_visited?: number
+          score?: number
+          title?: string
+          user_hash?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

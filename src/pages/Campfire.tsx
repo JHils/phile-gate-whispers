@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
 import { toast } from "@/hooks/use-toast";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // List of forbidden words that will be filtered
 const FORBIDDEN_WORDS = [
@@ -33,13 +35,24 @@ interface CampfireMessage {
   role: string;
 }
 
+interface LeaderboardUser {
+  id: string;
+  user_hash: string;
+  score: number;
+  title: string;
+  first_visit: string;
+}
+
 const Campfire = () => {
   const [messages, setMessages] = useState<CampfireMessage[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
   const [userHash, setUserHash] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [audioEnabled, setAudioEnabled] = useState<boolean>(false);
+  const [userRank, setUserRank] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { userState, trackEvent } = useTrackingSystem();
@@ -144,6 +157,61 @@ const Campfire = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+  
+  // Fetch leaderboard data
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        setLeaderboardLoading(true);
+        const { data, error } = await supabase
+          .from('user_tracking')
+          .select('*')
+          .order('score', { ascending: false })
+          .limit(10);
+          
+        if (error) {
+          throw error;
+        }
+        
+        if (data) {
+          setLeaderboard(data);
+          
+          // Find user's rank if they're in the leaderboard
+          const userRankIndex = data.findIndex(user => user.user_hash === userHash);
+          if (userRankIndex !== -1) {
+            setUserRank(userRankIndex + 1);
+          } else {
+            // If not in top 10, fetch their rank separately
+            fetchUserRank();
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      } finally {
+        setLeaderboardLoading(false);
+      }
+    };
+    
+    // Fetch user's rank if not in top 10
+    const fetchUserRank = async () => {
+      try {
+        const { data, error } = await supabase
+          .rpc('get_user_rank', { user_hash_param: userHash });
+          
+        if (error) {
+          console.error('Error fetching user rank:', error);
+        } else if (data) {
+          setUserRank(data);
+        }
+      } catch (error) {
+        console.error('Error fetching user rank:', error);
+      }
+    };
+    
+    if (userHash) {
+      fetchLeaderboard();
+    }
+  }, [userHash]);
   
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -253,68 +321,143 @@ const Campfire = () => {
         )}
       </header>
       
-      {/* Messages area */}
+      {/* Tabs for Messages and Leaderboard */}
       <div className="flex-grow p-4 md:p-6 max-w-3xl mx-auto w-full">
-        <div className="bg-[#1a1a1a] border border-[#444] rounded-md p-4 h-[60vh] overflow-y-auto shadow-[0_0_10px_rgba(245,222,179,0.25)]">
-          {loading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-12 w-full bg-gray-800/30" />
-              <Skeleton className="h-12 w-full bg-gray-800/30" />
-              <Skeleton className="h-12 w-full bg-gray-800/30" />
+        <Tabs defaultValue="messages" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4 bg-[#1a1a1a] border border-[#333]">
+            <TabsTrigger value="messages" className="text-dust-orange data-[state=active]:text-dust-red">
+              Campfire Messages
+            </TabsTrigger>
+            <TabsTrigger value="leaderboard" className="text-dust-orange data-[state=active]:text-dust-red">
+              Philes Leaderboard
+            </TabsTrigger>
+          </TabsList>
+          
+          {/* Messages Tab */}
+          <TabsContent value="messages" className="border-none p-0">
+            <div className="bg-[#1a1a1a] border border-[#444] rounded-md p-4 h-[60vh] overflow-y-auto shadow-[0_0_10px_rgba(245,222,179,0.25)]">
+              {loading ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-12 w-full bg-gray-800/30" />
+                  <Skeleton className="h-12 w-full bg-gray-800/30" />
+                  <Skeleton className="h-12 w-full bg-gray-800/30" />
+                </div>
+              ) : messages.length === 0 ? (
+                <p className="text-center text-dust-blue italic">
+                  The fire crackles. No one has spoken yet.
+                </p>
+              ) : (
+                messages.map((msg) => (
+                  <div 
+                    key={msg.id} 
+                    className={`mb-4 p-3 rounded animate-[flicker_1.5s_infinite] ${
+                      msg.user_hash === userHash 
+                        ? 'border-l-4 border-dust-orange/40 bg-black/30' 
+                        : 'bg-black/10'
+                    }`}
+                  >
+                    <p className={`text-sm font-medium ${
+                      msg.role === 'gatekeeper' 
+                        ? 'text-dust-red' 
+                        : msg.role === 'ashwalker' 
+                          ? 'text-dust-orange' 
+                          : 'text-dust-blue'
+                    }`}>
+                      {msg.username}
+                    </p>
+                    <p className="mt-1 text-[#f5deb3]/80 font-typewriter">{msg.message}</p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {new Date(msg.created_at).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
             </div>
-          ) : messages.length === 0 ? (
-            <p className="text-center text-dust-blue italic">
-              The fire crackles. No one has spoken yet.
-            </p>
-          ) : (
-            messages.map((msg) => (
-              <div 
-                key={msg.id} 
-                className={`mb-4 p-3 rounded animate-[flicker_1.5s_infinite] ${
-                  msg.user_hash === userHash 
-                    ? 'border-l-4 border-dust-orange/40 bg-black/30' 
-                    : 'bg-black/10'
-                }`}
+            
+            {/* Message input form */}
+            <form onSubmit={handleSendMessage} className="mt-4 flex">
+              <Input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder={canPost ? "Whisper something..." : "You must survive before you may speak..."}
+                className="flex-grow bg-[#111] text-[#fff2c7] border-[#333] placeholder:text-gray-500"
+                disabled={!canPost}
+              />
+              <Button 
+                type="submit" 
+                className="ml-2 bg-[#f5deb3] hover:bg-[#ffeaa7] text-[#0c0c0c] border-none font-bold"
+                disabled={!canPost}
               >
-                <p className={`text-sm font-medium ${
-                  msg.role === 'gatekeeper' 
-                    ? 'text-dust-red' 
-                    : msg.role === 'ashwalker' 
-                      ? 'text-dust-orange' 
-                      : 'text-dust-blue'
-                }`}>
-                  {msg.username}
-                </p>
-                <p className="mt-1 text-[#f5deb3]/80 font-typewriter">{msg.message}</p>
-                <p className="mt-1 text-xs text-gray-500">
-                  {new Date(msg.created_at).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </p>
-              </div>
-            ))
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-        
-        {/* Message input form */}
-        <form onSubmit={handleSendMessage} className="mt-4 flex">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder={canPost ? "Whisper something..." : "You must survive before you may speak..."}
-            className="flex-grow bg-[#111] text-[#fff2c7] border-[#333] placeholder:text-gray-500"
-            disabled={!canPost}
-          />
-          <Button 
-            type="submit" 
-            className="ml-2 bg-[#f5deb3] hover:bg-[#ffeaa7] text-[#0c0c0c] border-none font-bold"
-            disabled={!canPost}
-          >
-            Send
-          </Button>
-        </form>
+                Send
+              </Button>
+            </form>
+          </TabsContent>
+          
+          {/* Leaderboard Tab */}
+          <TabsContent value="leaderboard" className="border-none p-0">
+            <div className="bg-[#1a1a1a] border border-[#444] rounded-md p-4 overflow-hidden shadow-[0_0_10px_rgba(245,222,179,0.25)]">
+              <h3 className="text-xl text-dust-red font-serif mb-4">Philes Leaderboard</h3>
+              
+              {leaderboardLoading ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-12 w-full bg-gray-800/30" />
+                  <Skeleton className="h-12 w-full bg-gray-800/30" />
+                  <Skeleton className="h-12 w-full bg-gray-800/30" />
+                </div>
+              ) : (
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-b border-[#333]">
+                        <TableHead className="text-dust-orange">Rank</TableHead>
+                        <TableHead className="text-dust-orange">User</TableHead>
+                        <TableHead className="text-dust-orange">Score</TableHead>
+                        <TableHead className="text-dust-orange">Title</TableHead>
+                        <TableHead className="text-dust-orange hidden md:table-cell">Joined</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {leaderboard.map((user, index) => (
+                        <TableRow 
+                          key={user.id} 
+                          className={`border-b border-[#333] ${user.user_hash === userHash ? 'bg-black/30' : ''}`}
+                        >
+                          <TableCell className="text-dust-blue">{index + 1}</TableCell>
+                          <TableCell className="text-[#f5deb3]">
+                            {user.user_hash === userHash ? `You (#${user.user_hash})` : `#${user.user_hash}`}
+                          </TableCell>
+                          <TableCell className="text-[#f5deb3]">{user.score}</TableCell>
+                          <TableCell className={`font-medium ${
+                            user.title === 'Monster' ? 'text-dust-red' : 
+                            user.title === 'Gatekeeper' ? 'text-dust-orange' : 
+                            'text-dust-blue'
+                          }`}>
+                            {user.title}
+                          </TableCell>
+                          <TableCell className="text-gray-500 hidden md:table-cell">
+                            {new Date(user.first_visit).toLocaleDateString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  
+                  {userRank && userRank > 10 && (
+                    <div className="mt-4 p-3 border-t border-[#333] text-center">
+                      <p className="text-dust-blue">
+                        You are currently ranked <span className="text-dust-orange">#{userRank}</span> on the leaderboard
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
       
       {/* Overlay effect */}

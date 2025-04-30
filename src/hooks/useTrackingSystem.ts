@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 // Define types for our tracking system
 interface UserState {
@@ -109,6 +110,9 @@ export const useTrackingSystem = () => {
         
         setUserState(state);
         localStorage.setItem('philes_user_state', JSON.stringify(state));
+        
+        // Sync with Supabase
+        syncUserStateWithSupabase(state);
       } catch (error) {
         console.error('Error loading user state:', error);
         // Reset to default state if there's an error
@@ -124,11 +128,92 @@ export const useTrackingSystem = () => {
     localStorage.setItem('philes_user_state', JSON.stringify(userState));
   }, [userState]);
 
+  // Function to sync user state with Supabase
+  const syncUserStateWithSupabase = async (state: UserState) => {
+    try {
+      // Generate user hash from browser fingerprint if not exists
+      const userHash = localStorage.getItem('user_hash') || generateUserHash();
+      localStorage.setItem('user_hash', userHash);
+
+      // Calculate score based on user progress
+      let score = 0;
+      
+      // Base score from visit count (1 point per visit)
+      score += state.visitCount;
+      
+      // Points for console commands discovered
+      if (state.console.helpCalled) score += 10;
+      if (state.console.whoisCalled) score += 20;
+      if (state.console.gateCalled) score += 30;
+      if (state.console.philesCalled) score += 40;
+      if (state.console.monsterCalled) score += 50;
+      if (state.console.legacyCalled) score += 60;
+      if (state.console.revealCalled) score += 15;
+      if (state.console.reincarnateCalled) score += 25;
+      
+      // Points for significant actions
+      if (state.permanentlyCollapsed) score += 100;
+      if (state.survivorMode) score += 200;
+      if (state.legacyWritten) score += 150;
+      if (state.gatekeeperStatus) score += 75;
+      
+      // Count pages visited
+      const pagesVisitedCount = Object.keys(state.events).filter(key => 
+        key.startsWith('visited_')).length;
+      
+      // Count console commands found
+      const consoleCommandsFound = Object.values(state.console).filter(Boolean).length;
+      
+      // Insert or update user tracking record in Supabase
+      const { error } = await supabase
+        .from('user_tracking')
+        .upsert({
+          user_hash: userHash,
+          score: score,
+          last_visit: new Date().toISOString(),
+          first_visit: new Date(state.firstVisit).toISOString(),
+          legacy_written: state.legacyWritten,
+          console_commands_found: consoleCommandsFound,
+          pages_visited: pagesVisitedCount
+        }, {
+          onConflict: 'user_hash'
+        });
+      
+      if (error) {
+        console.error('Error syncing with Supabase:', error);
+      }
+      
+      // Set a custom header for RLS policies
+      supabase.headers['app-user-hash'] = userHash;
+    } catch (error) {
+      console.error('Error in Supabase sync:', error);
+    }
+  };
+
+  // Generate a consistent user hash based on browser fingerprint
+  const generateUserHash = () => {
+    const navigator_info = window.navigator.userAgent;
+    const screen_info = `${window.screen.height}x${window.screen.width}`;
+    const fingerprint = `${navigator_info}-${screen_info}-${new Date().getTimezoneOffset()}`;
+    
+    // Create a simple hash from the fingerprint
+    let hash = 0;
+    for (let i = 0; i < fingerprint.length; i++) {
+      hash = ((hash << 5) - hash) + fingerprint.charCodeAt(i);
+      hash |= 0; // Convert to 32bit integer
+    }
+    
+    // Make it positive and limit to 5 digits
+    const positiveHash = Math.abs(hash % 100000);
+    return positiveHash.toString().padStart(5, '0');
+  };
+
   // Function to update user state
   const updateUserState = useCallback((updates: Partial<UserState>) => {
     setUserState(prevState => {
       const newState = { ...prevState, ...updates };
       localStorage.setItem('philes_user_state', JSON.stringify(newState));
+      syncUserStateWithSupabase(newState);
       return newState;
     });
   }, []);
@@ -181,6 +266,7 @@ export const useTrackingSystem = () => {
       };
       
       localStorage.setItem('philes_user_state', JSON.stringify(newState));
+      syncUserStateWithSupabase(newState);
       return newState;
     });
   }, []);

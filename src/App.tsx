@@ -19,6 +19,8 @@ import Survivor from "./pages/Survivor";
 import PhilesFinal from "./pages/PhilesFinal";
 import Rebirth from "./pages/Rebirth";
 import Campfire from "./pages/Campfire";
+import OutbackHostel from "./pages/OutbackHostel";
+import GovWatch from "./pages/GovWatch";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,6 +64,8 @@ const App = () => {
             <Route path="/philes" element={<Philes />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/campfire" element={<Campfire />} />
+            <Route path="/outbackhostel" element={<OutbackHostel />} />
+            <Route path="/govwatch" element={<GovWatch />} />
             {/* Secret pages */}
             <Route path="/monster" element={<Monster />} />
             <Route path="/legacy" element={<Legacy />} />
