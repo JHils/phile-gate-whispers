@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +18,7 @@ import Gatekeeper from "./pages/Gatekeeper";
 import Survivor from "./pages/Survivor";
 import PhilesFinal from "./pages/PhilesFinal";
 import Rebirth from "./pages/Rebirth";
+import Campfire from "./pages/Campfire";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,6 +61,7 @@ const App = () => {
             <Route path="/inspect" element={<Inspect />} />
             <Route path="/philes" element={<Philes />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/campfire" element={<Campfire />} />
             {/* Secret pages */}
             <Route path="/monster" element={<Monster />} />
             <Route path="/legacy" element={<Legacy />} />

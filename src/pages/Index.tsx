@@ -1,9 +1,11 @@
 
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import SpinningCoin from "../components/SpinningCoin";
 import HiddenNav from "../components/HiddenNav";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
@@ -209,6 +211,18 @@ const Index = () => {
               </p>
             </div>
           )}
+          
+          {/* Add campfire link */}
+          <div className="mt-8">
+            <Link to="/campfire">
+              <Button 
+                variant="ghost" 
+                className="text-dust-orange hover:text-dust-red hover:bg-black/20 border border-transparent hover:border-dust-red/30"
+              >
+                Join the Campfire
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
       
