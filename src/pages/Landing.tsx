@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -74,8 +75,8 @@ const Landing = () => {
       trackEvent('console_reincarnate_called');
     };
     
-    // Keep existing whois() function if user has progressed this far
-    if (!window.whois) {
+    // Use a type guard to check if window.whois is defined
+    if (!('whois' in window)) {
       // @ts-ignore - This is intentionally added to window
       window.whois = function() {
         console.log("%cJonah S.M. Phile.", "color: #8B3A40; font-size:16px; font-weight:bold;");
