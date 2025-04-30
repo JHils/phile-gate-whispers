@@ -46,6 +46,10 @@ const DEFAULT_STATE: UserState = {
   events: {}
 };
 
+// Track last sync time to avoid excessive updates
+const SYNC_COOLDOWN = 60000; // 1 minute cooldown between syncs
+let lastSyncTime = 0;
+
 export const useTrackingSystem = () => {
   const [userState, setUserState] = useState<UserState>(DEFAULT_STATE);
 
@@ -111,8 +115,11 @@ export const useTrackingSystem = () => {
         setUserState(state);
         localStorage.setItem('philes_user_state', JSON.stringify(state));
         
-        // Sync with Supabase
-        syncUserStateWithSupabase(state);
+        // Sync with Supabase with rate limiting
+        if (Date.now() - lastSyncTime > SYNC_COOLDOWN) {
+          syncUserStateWithSupabase(state);
+          lastSyncTime = Date.now();
+        }
       } catch (error) {
         console.error('Error loading user state:', error);
         // Reset to default state if there's an error
@@ -131,6 +138,11 @@ export const useTrackingSystem = () => {
   // Function to sync user state with Supabase
   const syncUserStateWithSupabase = async (state: UserState) => {
     try {
+      // Don't sync too frequently
+      if (Date.now() - lastSyncTime <= SYNC_COOLDOWN) {
+        return;
+      }
+      
       // Generate user hash from browser fingerprint if not exists
       const userHash = localStorage.getItem('user_hash') || generateUserHash();
       localStorage.setItem('user_hash', userHash);
@@ -164,7 +176,7 @@ export const useTrackingSystem = () => {
       // Count console commands found
       const consoleCommandsFound = Object.values(state.console).filter(Boolean).length;
       
-      // Insert or update user tracking record in Supabase
+      // Insert or update user tracking record in Supabase with custom headers
       const { error } = await supabase
         .from('user_tracking')
         .upsert({
@@ -177,14 +189,15 @@ export const useTrackingSystem = () => {
           pages_visited: pagesVisitedCount
         }, {
           onConflict: 'user_hash'
-        });
+        })
+        .select();
       
       if (error) {
         console.error('Error syncing with Supabase:', error);
       }
       
-      // Set a custom header for RLS policies - FIX: Use custom fetch options instead of direct header access
-      // Instead of using supabase.headers directly, we'll apply user_hash to queries as needed
+      // Update last sync time
+      lastSyncTime = Date.now();
     } catch (error) {
       console.error('Error in Supabase sync:', error);
     }
@@ -213,12 +226,18 @@ export const useTrackingSystem = () => {
     setUserState(prevState => {
       const newState = { ...prevState, ...updates };
       localStorage.setItem('philes_user_state', JSON.stringify(newState));
-      syncUserStateWithSupabase(newState);
+      
+      // Don't sync on every update, only if enough time has passed
+      if (Date.now() - lastSyncTime > SYNC_COOLDOWN) {
+        syncUserStateWithSupabase(newState);
+        lastSyncTime = Date.now();
+      }
+      
       return newState;
     });
   }, []);
 
-  // Track an event
+  // Track an event with debouncing
   const trackEvent = useCallback((eventName: string) => {
     setUserState(prevState => {
       const events = { ...prevState.events };
@@ -266,7 +285,13 @@ export const useTrackingSystem = () => {
       };
       
       localStorage.setItem('philes_user_state', JSON.stringify(newState));
-      syncUserStateWithSupabase(newState);
+      
+      // Only sync with Supabase occasionally to prevent too many requests
+      if (Date.now() - lastSyncTime > SYNC_COOLDOWN) {
+        syncUserStateWithSupabase(newState);
+        lastSyncTime = Date.now();
+      }
+      
       return newState;
     });
   }, []);
@@ -293,6 +318,8 @@ export const useTrackingSystem = () => {
     localStorage.removeItem('philesCalled');
     localStorage.removeItem('monsterCalled');
     localStorage.removeItem('legacyCalled');
+    localStorage.removeItem('console_messages_shown');
+    localStorage.removeItem('index_console_messages_shown');
     setUserState(DEFAULT_STATE);
   }, []);
 

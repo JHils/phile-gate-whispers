@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,18 @@ declare global {
     coinToss: () => void;
   }
 }
+
+// Keep track of whether console messages have been shown
+// Use localStorage to prevent showing messages on every render
+const CONSOLE_MESSAGES_KEY = 'console_messages_shown';
+const hasShownConsoleMessages = () => {
+  const timestamp = localStorage.getItem(CONSOLE_MESSAGES_KEY);
+  if (!timestamp) return false;
+  
+  // Only show messages again after 24 hours
+  const hoursPassed = (Date.now() - parseInt(timestamp)) / (1000 * 60 * 60);
+  return hoursPassed < 24;
+};
 
 const Landing = () => {
   const [fadeIn, setFadeIn] = useState(false);
@@ -37,18 +48,30 @@ const Landing = () => {
     // Track page visit
     trackEvent('visited_landing');
     
-    // Console message for the curious
-    console.log("%cThe Gate is watching.", "color: #8B3A40; font-size:14px;");
-    console.log("%cThe whispers start with help().", "color: #475B74; font-size:14px; font-style:italic;");
-    
-    // Additional console messages with delays for creepier effect
-    setTimeout(() => {
-      console.log("%cThe Gate is open. But you are not ready.", "color: #8B3A40; font-size:14px;");
-    }, Math.random() * 2000 + 1000);
-    
-    setTimeout(() => {
-      console.log("%cTracking signal unstable. Coin spinning beyond threshold.", "color: #8B3A40; font-size:14px;");
-    }, Math.random() * 3000 + 2000);
+    // Only show console messages if they haven't been shown recently
+    if (!hasShownConsoleMessages()) {
+      // Console message for the curious
+      console.log("%cThe Gate is watching.", "color: #8B3A40; font-size:14px;");
+      console.log("%cThe whispers start with help().", "color: #475B74; font-size:14px; font-style:italic;");
+      
+      // Additional console messages with delays for creepier effect
+      const timeout1 = setTimeout(() => {
+        console.log("%cThe Gate is open. But you are not ready.", "color: #8B3A40; font-size:14px;");
+      }, Math.random() * 2000 + 1000);
+      
+      const timeout2 = setTimeout(() => {
+        console.log("%cTracking signal unstable. Coin spinning beyond threshold.", "color: #8B3A40; font-size:14px;");
+      }, Math.random() * 3000 + 2000);
+      
+      // Mark that we've shown the messages
+      localStorage.setItem(CONSOLE_MESSAGES_KEY, Date.now().toString());
+      
+      // Clean up timeouts
+      return () => {
+        clearTimeout(timeout1);
+        clearTimeout(timeout2);
+      };
+    }
     
     // Define global Easter egg functions for console interaction
     // @ts-ignore - This is intentionally added to window

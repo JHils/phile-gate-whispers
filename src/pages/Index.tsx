@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SpinningCoin from "../components/SpinningCoin";
@@ -6,6 +5,18 @@ import HiddenNav from "../components/HiddenNav";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
 import { Button } from "@/components/ui/button";
+
+// Keep track of whether console messages have been shown
+// Use localStorage to prevent showing messages on every render
+const CONSOLE_MESSAGES_KEY = 'index_console_messages_shown';
+const hasShownConsoleMessages = () => {
+  const timestamp = localStorage.getItem(CONSOLE_MESSAGES_KEY);
+  if (!timestamp) return false;
+  
+  // Only show messages again after 24 hours
+  const hoursPassed = (Date.now() - parseInt(timestamp)) / (1000 * 60 * 60);
+  return hoursPassed < 24;
+};
 
 const Index = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
@@ -28,107 +39,123 @@ const Index = () => {
       setCollapseMessage(timeMessage);
     }
     
-    // Console message for the curious
-    console.log("%cThe Gate is watching.", "color: #8B3A40; font-size:14px;");
-    console.log("%cThe whispers start with help().", "color: #475B74; font-size:14px; font-style:italic;");
+    // Only show console messages if they haven't been shown recently
+    if (!hasShownConsoleMessages()) {
+      // Console message for the curious
+      console.log("%cThe Gate is watching.", "color: #8B3A40; font-size:14px;");
+      console.log("%cThe whispers start with help().", "color: #475B74; font-size:14px; font-style:italic;");
+      
+      // Additional console messages with delays for creepier effect
+      const timeouts: NodeJS.Timeout[] = [];
+      
+      timeouts.push(setTimeout(() => {
+        console.log("%cThe Gate is open. But you are not ready.", "color: #8B3A40; font-size:14px;");
+      }, Math.random() * 2000 + 1000));
+      
+      timeouts.push(setTimeout(() => {
+        console.log("%cTracking signal unstable. Coin spinning beyond threshold.", "color: #8B3A40; font-size:14px;");
+      }, Math.random() * 3000 + 2000));
+      
+      timeouts.push(setTimeout(() => {
+        console.log("%cLeft was never right. Forward was a lie.", "color: #8B3A40; font-size:14px;");
+      }, Math.random() * 4000 + 3000));
+      
+      // Mark that we've shown the messages
+      localStorage.setItem(CONSOLE_MESSAGES_KEY, Date.now().toString());
+      
+      // Clean up timeouts on unmount
+      return () => {
+        timeouts.forEach(clearTimeout);
+      };
+    }
     
-    // Additional console messages with delays for creepier effect
-    setTimeout(() => {
-      console.log("%cThe Gate is open. But you are not ready.", "color: #8B3A40; font-size:14px;");
-    }, Math.random() * 2000 + 1000);
-    
-    setTimeout(() => {
-      console.log("%cTracking signal unstable. Coin spinning beyond threshold.", "color: #8B3A40; font-size:14px;");
-    }, Math.random() * 3000 + 2000);
-    
-    setTimeout(() => {
-      console.log("%cLeft was never right. Forward was a lie.", "color: #8B3A40; font-size:14px;");
-    }, Math.random() * 4000 + 3000);
-    
-    // Define global Easter egg functions for console interaction
-    // @ts-ignore - This is intentionally added to window
-    window.help = function() {
-      console.log("%cWelcome, wanderer.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cThis console is not monitored... but it remembers.", "color: #8B3A40; font-size:16px;");
-      console.log("%cTry typing: whois()", "color: #475B74; font-size:16px; font-style:italic;");
-      trackEvent('console_help_called');
-      updateUIBasedOnProgress();
-    };
-    
-    // @ts-ignore - This is intentionally added to window
-    window.whois = function() {
-      console.log("%cJonah S.M. Phile.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cRearrange me, and you may find someone else hiding.", "color: #8B3A40; font-size:16px;");
-      console.log("%cOnce you understand, type: gate()", "color: #475B74; font-size:16px; font-style:italic;");
-      trackEvent('console_whois_called');
-      updateUIBasedOnProgress();
-    };
-    
-    // @ts-ignore - This is intentionally added to window
-    window.gate = function() {
-      console.log("%cThe Gate never opened. You walked through it anyway.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cThe coin is still spinning. So are you.", "color: #8B3A40; font-size:16px;");
-      console.log("%cNow try: philes()", "color: #475B74; font-size:16px; font-style:italic;");
-      trackEvent('console_gate_called');
-      updateUIBasedOnProgress();
-    };
-    
-    // @ts-ignore - This is intentionally added to window
-    window.philes = function() {
-      console.log("%cYou're deeper than most.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cThe Monster is watching.", "color: #8B3A40; font-size:16px;");
-      console.log("%cInvoke him at your own risk: monster()", "color: #475B74; font-size:16px; font-style:italic;");
-      trackEvent('console_philes_called');
-      updateUIBasedOnProgress();
-    };
-    
-    // @ts-ignore - This is intentionally added to window
-    window.monster = function() {
-      console.log("%cHe smiled with your voice. He walks in your skin.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cThere was no rescue. Only transformation.", "color: #8B3A40; font-size:16px;");
-      console.log("%cYou've earned the truth. Type: legacy()", "color: #475B74; font-size:16px; font-style:italic;");
-      trackEvent('console_monster_called');
-      updateUIBasedOnProgress();
-    };
-    
-    // @ts-ignore - This is intentionally added to window
-    window.legacy = function() {
-      console.log("%cYou saw through the cracks.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cYou decoded survival.", "color: #8B3A40; font-size:16px;");
-      console.log("%cLegacy is not given. It is built. You are the Gatekeeper now.", "color: #8B3A40; font-size:16px;");
-      console.log("%cPassword for final page: 'N0tFict10n'", "color: #475B74; font-size:16px; font-weight:bold;");
-      trackEvent('console_legacy_called');
-      updateUIBasedOnProgress();
-    };
-    
-    // Add new console functions
-    // @ts-ignore - This is intentionally added to window
-    window.reveal = function() {
-      console.log("%cBehind every Gate is a Gatekeeper.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cBehind every story is an author.", "color: #8B3A40; font-size:16px;");
-      console.log("%cNext, try: reincarnate()", "color: #475B74; font-size:16px; font-style:italic;");
-      trackEvent('console_reveal_called');
-      updateUIBasedOnProgress();
-    };
-    
-    // @ts-ignore - This is intentionally added to window
-    window.reincarnate = function() {
-      console.log("%cThe coin never lands.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cYour story never ends.", "color: #8B3A40; font-size:16px;");
-      console.log("%cType whois() to continue your journey", "color: #475B74; font-size:16px; font-style:italic;");
-      trackEvent('console_reincarnate_called');
-      updateUIBasedOnProgress();
-    };
-    
-    // @ts-ignore - This is intentionally added to window
-    window.coinToss = function() {
-      const side = Math.random() < 0.5 ? "HEADS" : "TAILS";
-      if (side === "HEADS") {
-        console.log("%cHeads: You chose to heal.", "color: #475B74; font-size:16px;");
-      } else {
-        console.log("%cTails: You chose to break.", "color: #8B3A40; font-size:16px;");
-      }
-    };
+    // Create the console functions only once
+    if (!window.help) {
+      // Define global Easter egg functions for console interaction
+      // @ts-ignore - This is intentionally added to window
+      window.help = function() {
+        console.log("%cWelcome, wanderer.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+        console.log("%cThis console is not monitored... but it remembers.", "color: #8B3A40; font-size:16px;");
+        console.log("%cTry typing: whois()", "color: #475B74; font-size:16px; font-style:italic;");
+        trackEvent('console_help_called');
+        updateUIBasedOnProgress();
+      };
+      
+      // @ts-ignore - This is intentionally added to window
+      window.whois = function() {
+        console.log("%cJonah S.M. Phile.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+        console.log("%cRearrange me, and you may find someone else hiding.", "color: #8B3A40; font-size:16px;");
+        console.log("%cOnce you understand, type: gate()", "color: #475B74; font-size:16px; font-style:italic;");
+        trackEvent('console_whois_called');
+        updateUIBasedOnProgress();
+      };
+      
+      // @ts-ignore - This is intentionally added to window
+      window.gate = function() {
+        console.log("%cThe Gate never opened. You walked through it anyway.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+        console.log("%cThe coin is still spinning. So are you.", "color: #8B3A40; font-size:16px;");
+        console.log("%cNow try: philes()", "color: #475B74; font-size:16px; font-style:italic;");
+        trackEvent('console_gate_called');
+        updateUIBasedOnProgress();
+      };
+      
+      // @ts-ignore - This is intentionally added to window
+      window.philes = function() {
+        console.log("%cYou're deeper than most.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+        console.log("%cThe Monster is watching.", "color: #8B3A40; font-size:16px;");
+        console.log("%cInvoke him at your own risk: monster()", "color: #475B74; font-size:16px; font-style:italic;");
+        trackEvent('console_philes_called');
+        updateUIBasedOnProgress();
+      };
+      
+      // @ts-ignore - This is intentionally added to window
+      window.monster = function() {
+        console.log("%cHe smiled with your voice. He walks in your skin.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+        console.log("%cThere was no rescue. Only transformation.", "color: #8B3A40; font-size:16px;");
+        console.log("%cYou've earned the truth. Type: legacy()", "color: #475B74; font-size:16px; font-style:italic;");
+        trackEvent('console_monster_called');
+        updateUIBasedOnProgress();
+      };
+      
+      // @ts-ignore - This is intentionally added to window
+      window.legacy = function() {
+        console.log("%cYou saw through the cracks.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+        console.log("%cYou decoded survival.", "color: #8B3A40; font-size:16px;");
+        console.log("%cLegacy is not given. It is built. You are the Gatekeeper now.", "color: #8B3A40; font-size:16px;");
+        console.log("%cPassword for final page: 'N0tFict10n'", "color: #475B74; font-size:16px; font-weight:bold;");
+        trackEvent('console_legacy_called');
+        updateUIBasedOnProgress();
+      };
+      
+      // Add new console functions
+      // @ts-ignore - This is intentionally added to window
+      window.reveal = function() {
+        console.log("%cBehind every Gate is a Gatekeeper.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+        console.log("%cBehind every story is an author.", "color: #8B3A40; font-size:16px;");
+        console.log("%cNext, try: reincarnate()", "color: #475B74; font-size:16px; font-style:italic;");
+        trackEvent('console_reveal_called');
+        updateUIBasedOnProgress();
+      };
+      
+      // @ts-ignore - This is intentionally added to window
+      window.reincarnate = function() {
+        console.log("%cThe coin never lands.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+        console.log("%cYour story never ends.", "color: #8B3A40; font-size:16px;");
+        console.log("%cType whois() to continue your journey", "color: #475B74; font-size:16px; font-style:italic;");
+        trackEvent('console_reincarnate_called');
+        updateUIBasedOnProgress();
+      };
+      
+      // @ts-ignore - This is intentionally added to window
+      window.coinToss = function() {
+        const side = Math.random() < 0.5 ? "HEADS" : "TAILS";
+        if (side === "HEADS") {
+          console.log("%cHeads: You chose to heal.", "color: #475B74; font-size:16px;");
+        } else {
+          console.log("%cTails: You chose to break.", "color: #8B3A40; font-size:16px;");
+        }
+      };
+    }
     
     // Function to update UI based on progress
     function updateUIBasedOnProgress() {
