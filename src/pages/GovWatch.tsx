@@ -261,8 +261,8 @@ const GovWatch = () => {
           
           {/* Hidden elements for ARG */}
           <div className="hidden">
-            <!-- Active Surveillance: phile-gate-whispers -->
-            <!-- Known alias: Jonah S.M. Phile -->
+            {/* Active Surveillance: phile-gate-whispers */}
+            {/* Known alias: Jonah S.M. Phile */}
           </div>
         </div>
       </footer>
