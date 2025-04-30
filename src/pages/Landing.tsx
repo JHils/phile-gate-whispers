@@ -4,6 +4,18 @@ import { Button } from "@/components/ui/button";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
 
+// Add the TypeScript interface to extend the Window object
+declare global {
+  interface Window {
+    help: () => void;
+    reveal: () => void;
+    reincarnate: () => void;
+    whois: () => void;
+    gate: () => void;
+    coinToss: () => void;
+  }
+}
+
 const Landing = () => {
   const [fadeIn, setFadeIn] = useState(false);
   const [textReveal, setTextReveal] = useState(false);
