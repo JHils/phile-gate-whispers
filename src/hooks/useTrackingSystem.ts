@@ -1,8 +1,9 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 // Define types for our tracking system
-interface UserState {
+export interface UserState {
   visitCount: number;
   firstVisit: number;
   lastVisit: number;

@@ -4,36 +4,19 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
+import { useConsoleMessages } from "../hooks/useConsoleMessages";
+import { initializeConsoleCommands } from "../utils/consoleCommands";
 
-// Add the TypeScript interface to extend the Window object
-declare global {
-  interface Window {
-    help: () => void;
-    reveal: () => void;
-    reincarnate: () => void;
-    whois: () => void;
-    gate: () => void;
-    coinToss: () => void;
-    showStatus: () => Promise<void>; // Renamed from status to showStatus
-  }
-}
-
-// Keep track of whether console messages have been shown
-// Use localStorage to prevent showing messages on every render
-const CONSOLE_MESSAGES_KEY = 'console_messages_shown';
-const hasShownConsoleMessages = () => {
-  const timestamp = localStorage.getItem(CONSOLE_MESSAGES_KEY);
-  if (!timestamp) return false;
-  
-  // Only show messages again after 24 hours
-  const hoursPassed = (Date.now() - parseInt(timestamp)) / (1000 * 60 * 60);
-  return hoursPassed < 24;
-};
+// Reference the global interface from consoleCommands.ts
+/// <reference path="../utils/consoleCommands.ts" />
 
 const Landing = () => {
   const [fadeIn, setFadeIn] = useState(false);
   const [textReveal, setTextReveal] = useState(false);
   const { userState, trackEvent, getUserRank } = useTrackingSystem();
+  const { showConsoleMessages } = useConsoleMessages({ 
+    storageKey: 'console_messages_shown' 
+  });
   
   // Add classes to individual characters for staggered animation
   const addSpans = (text: string) => {
@@ -50,126 +33,14 @@ const Landing = () => {
     // Track page visit
     trackEvent('visited_landing');
     
-    // Only show console messages if they haven't been shown recently
-    if (!hasShownConsoleMessages()) {
-      // Console message for the curious
-      console.log("%cThe Gate is watching.", "color: #8B3A40; font-size:14px;");
-      console.log("%cThe whispers start with help().", "color: #475B74; font-size:14px; font-style:italic;");
-      
-      // Additional console messages with delays for creepier effect
-      const timeout1 = setTimeout(() => {
-        console.log("%cThe Gate is open. But you are not ready.", "color: #8B3A40; font-size:14px;");
-      }, Math.random() * 2000 + 1000);
-      
-      const timeout2 = setTimeout(() => {
-        console.log("%cTracking signal unstable. Coin spinning beyond threshold.", "color: #8B3A40; font-size:14px;");
-      }, Math.random() * 3000 + 2000);
-      
-      // Mark that we've shown the messages
-      localStorage.setItem(CONSOLE_MESSAGES_KEY, Date.now().toString());
-      
-      // Clean up timeouts
-      return () => {
-        clearTimeout(timeout1);
-        clearTimeout(timeout2);
-      };
+    // Show console messages if they haven't been shown recently
+    showConsoleMessages();
+    
+    // Initialize console commands
+    if (!window.help) {
+      initializeConsoleCommands(trackEvent, getUserRank, userState);
     }
-    
-    // Define global Easter egg functions for console interaction
-    
-    // Define showStatus() function to show user rank and progress (renamed from status)
-    window.showStatus = async function() {
-      try {
-        const { rank, score, position } = await getUserRank();
-        
-        console.log("%c=== STATUS REPORT ===", "color: #8B3A40; font-size:16px; font-weight:bold;");
-        console.log(`%cRank: ${rank}`, "color: #8B3A40; font-size:14px;");
-        console.log(`%cScore: ${score}`, "color: #8B3A40; font-size:14px;");
-        console.log(`%cPosition: #${position}`, "color: #8B3A40; font-size:14px;");
-        
-        // Calculate next rank threshold
-        let nextRank = '';
-        let pointsNeeded = 0;
-        
-        if (score < 100) {
-          nextRank = 'Watcher';
-          pointsNeeded = 100 - score;
-        } else if (score < 300) {
-          nextRank = 'Survivor';
-          pointsNeeded = 300 - score;
-        } else if (score < 500) {
-          nextRank = 'Gatekeeper';
-          pointsNeeded = 500 - score;
-        } else if (score < 800) {
-          nextRank = 'Monster';
-          pointsNeeded = 800 - score;
-        } else {
-          console.log("%cYou've reached the highest rank.", "color: #475B74; font-size:14px; font-style:italic;");
-        }
-        
-        if (nextRank) {
-          console.log(`%c${pointsNeeded} points until ${nextRank}`, "color: #475B74; font-size:14px; font-style:italic;");
-        }
-        
-        // Show console commands discovered
-        const commands = [];
-        if (userState.console.helpCalled) commands.push("help()");
-        if (userState.console.whoisCalled) commands.push("whois()");
-        if (userState.console.gateCalled) commands.push("gate()");
-        if (userState.console.philesCalled) commands.push("philes()");
-        if (userState.console.monsterCalled) commands.push("monster()");
-        if (userState.console.legacyCalled) commands.push("legacy()");
-        if (userState.console.revealCalled) commands.push("reveal()");
-        if (userState.console.reincarnateCalled) commands.push("reincarnate()");
-        
-        console.log("%cDiscovered commands: " + commands.join(", "), "color: #8B3A40; font-size:14px;");
-        
-        trackEvent('console_status_called');
-      } catch (error) {
-        console.error("Error retrieving status:", error);
-        console.log("%cUnable to retrieve status. The Gate is unstable.", "color: red; font-size:14px;");
-      }
-    };
-    
-    // @ts-ignore - This is intentionally added to window
-    window.help = function() {
-      console.log("%cWelcome, wanderer.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cThis console is not monitored... but it remembers.", "color: #8B3A40; font-size:16px;");
-      console.log("%cTry typing: reveal()", "color: #475B74; font-size:14px; font-style:italic;");
-      trackEvent('console_help_called');
-    };
-    
-    // @ts-ignore - This is intentionally added to window
-    window.reveal = function() {
-      console.log("%cBehind every Gate is a Gatekeeper.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cBehind every story is an author.", "color: #8B3A40; font-size:16px;");
-      console.log("%cNext, try: reincarnate()", "color: #475B74; font-size:16px; font-style:italic;");
-      trackEvent('console_reveal_called');
-    };
-    
-    // @ts-ignore - This is intentionally added to window
-    window.reincarnate = function() {
-      console.log("%cThe coin never lands.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cYour story never ends.", "color: #8B3A40; font-size:16px;");
-      console.log("%cType whois() to learn more", "color: #475B74; font-size:16px; font-style:italic;");
-      trackEvent('console_reincarnate_called');
-    };
-    
-    // Use a type guard to check if window.whois is defined
-    if (!('whois' in window)) {
-      // @ts-ignore - This is intentionally added to window
-      window.whois = function() {
-        console.log("%cJonah S.M. Phile.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-        console.log("%cRearrange me, and you may find someone else hiding.", "color: #8B3A40; font-size:16px; font-style:italic;");
-        console.log("%cOnce you understand, type: gate()", "color: #475B74; font-size:16px; font-style:italic;");
-        trackEvent('console_whois_called');
-      };
-    }
-    
-    return () => {
-      // No cleanup needed for localStorage events
-    };
-  }, [trackEvent, userState, getUserRank]);
+  }, [trackEvent, userState, getUserRank, showConsoleMessages]);
 
   // Determine which message to show based on user's state
   const getLandingMessage = () => {
