@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SpinningCoin from "../components/SpinningCoin";
@@ -18,9 +19,12 @@ const hasShownConsoleMessages = () => {
   return hoursPassed < 24;
 };
 
+// Track active timeouts to prevent duplicate messages
+let activeTimeouts: NodeJS.Timeout[] = [];
+
 const Index = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
-  const { userState, trackEvent } = useTrackingSystem();
+  const { userState, trackEvent, getUserRank } = useTrackingSystem();
 
   // Add classes to individual characters for staggered animation
   const addSpans = (text: string) => {
@@ -41,6 +45,10 @@ const Index = () => {
     
     // Only show console messages if they haven't been shown recently
     if (!hasShownConsoleMessages()) {
+      // Cancel any existing timeouts to prevent duplicate messages
+      activeTimeouts.forEach(clearTimeout);
+      activeTimeouts = [];
+      
       // Console message for the curious
       console.log("%cThe Gate is watching.", "color: #8B3A40; font-size:14px;");
       console.log("%cThe whispers start with help().", "color: #475B74; font-size:14px; font-style:italic;");
@@ -63,6 +71,9 @@ const Index = () => {
       // Mark that we've shown the messages
       localStorage.setItem(CONSOLE_MESSAGES_KEY, Date.now().toString());
       
+      // Store timeouts for cleanup
+      activeTimeouts = timeouts;
+      
       // Clean up timeouts on unmount
       return () => {
         timeouts.forEach(clearTimeout);
@@ -71,6 +82,60 @@ const Index = () => {
     
     // Create the console functions only once
     if (!window.help) {
+      // Define status() function to show user rank and progress
+      window.status = async function() {
+        try {
+          const { rank, score, position } = await getUserRank();
+          
+          console.log("%c=== STATUS REPORT ===", "color: #8B3A40; font-size:16px; font-weight:bold;");
+          console.log(`%cRank: ${rank}`, "color: #8B3A40; font-size:14px;");
+          console.log(`%cScore: ${score}`, "color: #8B3A40; font-size:14px;");
+          console.log(`%cPosition: #${position}`, "color: #8B3A40; font-size:14px;");
+          
+          // Calculate next rank threshold
+          let nextRank = '';
+          let pointsNeeded = 0;
+          
+          if (score < 100) {
+            nextRank = 'Watcher';
+            pointsNeeded = 100 - score;
+          } else if (score < 300) {
+            nextRank = 'Survivor';
+            pointsNeeded = 300 - score;
+          } else if (score < 500) {
+            nextRank = 'Gatekeeper';
+            pointsNeeded = 500 - score;
+          } else if (score < 800) {
+            nextRank = 'Monster';
+            pointsNeeded = 800 - score;
+          } else {
+            console.log("%cYou've reached the highest rank.", "color: #475B74; font-size:14px; font-style:italic;");
+          }
+          
+          if (nextRank) {
+            console.log(`%c${pointsNeeded} points until ${nextRank}`, "color: #475B74; font-size:14px; font-style:italic;");
+          }
+          
+          // Show console commands discovered
+          const commands = [];
+          if (userState.console.helpCalled) commands.push("help()");
+          if (userState.console.whoisCalled) commands.push("whois()");
+          if (userState.console.gateCalled) commands.push("gate()");
+          if (userState.console.philesCalled) commands.push("philes()");
+          if (userState.console.monsterCalled) commands.push("monster()");
+          if (userState.console.legacyCalled) commands.push("legacy()");
+          if (userState.console.revealCalled) commands.push("reveal()");
+          if (userState.console.reincarnateCalled) commands.push("reincarnate()");
+          
+          console.log("%cDiscovered commands: " + commands.join(", "), "color: #8B3A40; font-size:14px;");
+          
+          trackEvent('console_status_called');
+        } catch (error) {
+          console.error("Error retrieving status:", error);
+          console.log("%cUnable to retrieve status. The Gate is unstable.", "color: red; font-size:14px;");
+        }
+      };
+    
       // Define global Easter egg functions for console interaction
       // @ts-ignore - This is intentionally added to window
       window.help = function() {
@@ -162,18 +227,18 @@ const Index = () => {
       const whisperElement = document.getElementById("whisperText");
       
       if (whisperElement) {
-        if (userState.console.legacyCalled || localStorage.getItem("legacyCalled")) {
+        if (userState.console.legacyCalled || localStorage.getItem("legacyCalled") === "true") {
           whisperElement.textContent = "The Gatekeeper sees all.";
           whisperElement.classList.add("text-dust-red");
-        } else if (userState.console.monsterCalled || localStorage.getItem("monsterCalled")) {
+        } else if (userState.console.monsterCalled || localStorage.getItem("monsterCalled") === "true") {
           whisperElement.textContent = "He walks with your steps now.";
-        } else if (userState.console.philesCalled || localStorage.getItem("philesCalled")) {
+        } else if (userState.console.philesCalled || localStorage.getItem("philesCalled") === "true") {
           whisperElement.textContent = "The files are watching you back.";
-        } else if (userState.console.gateCalled || localStorage.getItem("gateCalled")) {
+        } else if (userState.console.gateCalled || localStorage.getItem("gateCalled") === "true") {
           whisperElement.textContent = "You crossed without permission.";
-        } else if (userState.console.whoisCalled || localStorage.getItem("whoisCalled")) {
+        } else if (userState.console.whoisCalled || localStorage.getItem("whoisCalled") === "true") {
           whisperElement.textContent = "Names hide deeper truths.";
-        } else if (userState.console.helpCalled || localStorage.getItem("helpCalled")) {
+        } else if (userState.console.helpCalled || localStorage.getItem("helpCalled") === "true") {
           whisperElement.textContent = "Someone heard your call.";
         } else if (userState.console.revealCalled) {
           whisperElement.textContent = "Every revelation has a price.";
@@ -195,7 +260,7 @@ const Index = () => {
     
     // Call on load to reflect any existing progress
     setTimeout(updateUIBasedOnProgress, 1000);
-  }, [trackEvent, userState]);
+  }, [trackEvent, userState, getUserRank]);
 
   return (
     <div 

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -176,24 +177,27 @@ export const useTrackingSystem = () => {
       // Count console commands found
       const consoleCommandsFound = Object.values(state.console).filter(Boolean).length;
       
-      // Insert or update user tracking record in Supabase with custom headers
-      const { error } = await supabase
-        .from('user_tracking')
-        .upsert({
-          user_hash: userHash,
-          score: score,
-          last_visit: new Date().toISOString(),
-          first_visit: new Date(state.firstVisit).toISOString(),
-          legacy_written: state.legacyWritten,
-          console_commands_found: consoleCommandsFound,
-          pages_visited: pagesVisitedCount
-        }, {
-          onConflict: 'user_hash'
-        })
-        .select();
-      
-      if (error) {
-        console.error('Error syncing with Supabase:', error);
+      try {
+        // Insert or update user tracking record in Supabase with custom headers
+        const { error } = await supabase
+          .from('user_tracking')
+          .upsert({
+            user_hash: userHash,
+            score: score,
+            last_visit: new Date().toISOString(),
+            first_visit: new Date(state.firstVisit).toISOString(),
+            legacy_written: state.legacyWritten,
+            console_commands_found: consoleCommandsFound,
+            pages_visited: pagesVisitedCount
+          }, {
+            onConflict: 'user_hash'
+          });
+        
+        if (error) {
+          console.error('Error syncing with Supabase:', error);
+        }
+      } catch (error) {
+        console.error('Error in Supabase sync:', error);
       }
       
       // Update last sync time
@@ -267,6 +271,8 @@ export const useTrackingSystem = () => {
         prevState.console.revealCalled = true;
       } else if (eventName === 'console_reincarnate_called') {
         prevState.console.reincarnateCalled = true;
+      } else if (eventName === 'console_status_called') {
+        // New event for status command
       } else if (eventName === 'legacy_written') {
         prevState.legacyWritten = true;
       } else if (eventName === 'gate_collapsed') {
@@ -323,11 +329,81 @@ export const useTrackingSystem = () => {
     setUserState(DEFAULT_STATE);
   }, []);
 
+  // Get user rank based on score
+  const getUserRank = useCallback(async () => {
+    try {
+      const userHash = localStorage.getItem('user_hash');
+      if (!userHash) return { rank: 'Drifter', score: 0, position: 0 };
+
+      // Get user's current data
+      const { data: userData, error: userError } = await supabase
+        .from('user_tracking')
+        .select('score, title')
+        .eq('user_hash', userHash)
+        .single();
+
+      if (userError || !userData) {
+        return { rank: 'Drifter', score: 0, position: 0 };
+      }
+
+      // Get user's leaderboard position
+      const { count: higherRanked, error: countError } = await supabase
+        .from('user_tracking')
+        .select('*', { count: 'exact', head: true })
+        .gt('score', userData.score);
+
+      if (countError) {
+        console.error('Error getting leaderboard position:', countError);
+      }
+
+      const position = (higherRanked || 0) + 1;
+      return {
+        rank: userData.title || 'Drifter',
+        score: userData.score || 0,
+        position
+      };
+    } catch (error) {
+      console.error('Error fetching user rank:', error);
+      return { rank: 'Drifter', score: 0, position: 0 };
+    }
+  }, []);
+
+  // Get leaderboard data
+  const getLeaderboard = useCallback(async (limit = 10) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_tracking')
+        .select('user_hash, score, title, last_visit')
+        .order('score', { ascending: false })
+        .limit(limit);
+        
+      if (error) {
+        console.error('Error fetching leaderboard:', error);
+        return [];
+      }
+
+      // Format the data
+      return data.map((entry, index) => ({
+        position: index + 1,
+        userHash: entry.user_hash,
+        displayName: `AshWalker #${entry.user_hash}`,
+        rank: entry.title || 'Drifter',
+        score: entry.score,
+        lastSeen: new Date(entry.last_visit).toLocaleDateString()
+      }));
+    } catch (error) {
+      console.error('Error in getLeaderboard:', error);
+      return [];
+    }
+  }, []);
+
   return {
     userState,
     updateUserState,
     trackEvent,
     checkGatekeeperEligibility,
-    resetUserState
+    resetUserState,
+    getUserRank,
+    getLeaderboard
   };
 };

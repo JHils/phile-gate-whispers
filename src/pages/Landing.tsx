@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ declare global {
     whois: () => void;
     gate: () => void;
     coinToss: () => void;
+    status: () => void;
   }
 }
 
@@ -31,7 +33,7 @@ const hasShownConsoleMessages = () => {
 const Landing = () => {
   const [fadeIn, setFadeIn] = useState(false);
   const [textReveal, setTextReveal] = useState(false);
-  const { userState, trackEvent } = useTrackingSystem();
+  const { userState, trackEvent, getUserRank } = useTrackingSystem();
   
   // Add classes to individual characters for staggered animation
   const addSpans = (text: string) => {
@@ -74,6 +76,61 @@ const Landing = () => {
     }
     
     // Define global Easter egg functions for console interaction
+    
+    // Define status() function to show user rank and progress
+    window.status = async function() {
+      try {
+        const { rank, score, position } = await getUserRank();
+        
+        console.log("%c=== STATUS REPORT ===", "color: #8B3A40; font-size:16px; font-weight:bold;");
+        console.log(`%cRank: ${rank}`, "color: #8B3A40; font-size:14px;");
+        console.log(`%cScore: ${score}`, "color: #8B3A40; font-size:14px;");
+        console.log(`%cPosition: #${position}`, "color: #8B3A40; font-size:14px;");
+        
+        // Calculate next rank threshold
+        let nextRank = '';
+        let pointsNeeded = 0;
+        
+        if (score < 100) {
+          nextRank = 'Watcher';
+          pointsNeeded = 100 - score;
+        } else if (score < 300) {
+          nextRank = 'Survivor';
+          pointsNeeded = 300 - score;
+        } else if (score < 500) {
+          nextRank = 'Gatekeeper';
+          pointsNeeded = 500 - score;
+        } else if (score < 800) {
+          nextRank = 'Monster';
+          pointsNeeded = 800 - score;
+        } else {
+          console.log("%cYou've reached the highest rank.", "color: #475B74; font-size:14px; font-style:italic;");
+        }
+        
+        if (nextRank) {
+          console.log(`%c${pointsNeeded} points until ${nextRank}`, "color: #475B74; font-size:14px; font-style:italic;");
+        }
+        
+        // Show console commands discovered
+        const commands = [];
+        if (userState.console.helpCalled) commands.push("help()");
+        if (userState.console.whoisCalled) commands.push("whois()");
+        if (userState.console.gateCalled) commands.push("gate()");
+        if (userState.console.philesCalled) commands.push("philes()");
+        if (userState.console.monsterCalled) commands.push("monster()");
+        if (userState.console.legacyCalled) commands.push("legacy()");
+        if (userState.console.revealCalled) commands.push("reveal()");
+        if (userState.console.reincarnateCalled) commands.push("reincarnate()");
+        
+        console.log("%cDiscovered commands: " + commands.join(", "), "color: #8B3A40; font-size:14px;");
+        
+        trackEvent('console_status_called');
+      } catch (error) {
+        console.error("Error retrieving status:", error);
+        console.log("%cUnable to retrieve status. The Gate is unstable.", "color: red; font-size:14px;");
+      }
+    };
+    
     // @ts-ignore - This is intentionally added to window
     window.help = function() {
       console.log("%cWelcome, wanderer.", "color: #8B3A40; font-size:16px; font-weight:bold;");
@@ -112,7 +169,7 @@ const Landing = () => {
     return () => {
       // No cleanup needed for localStorage events
     };
-  }, [trackEvent]);
+  }, [trackEvent, userState, getUserRank]);
 
   // Determine which message to show based on user's state
   const getLandingMessage = () => {
