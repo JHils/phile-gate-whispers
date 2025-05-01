@@ -14,7 +14,7 @@ declare global {
     whois: () => void;
     gate: () => void;
     coinToss: () => void;
-    status: () => Promise<void>;
+    showStatus: () => Promise<void>; // Renamed from status to showStatus
   }
 }
 
@@ -77,8 +77,8 @@ const Landing = () => {
     
     // Define global Easter egg functions for console interaction
     
-    // Define status() function to show user rank and progress
-    window.status = async function() {
+    // Define showStatus() function to show user rank and progress (renamed from status)
+    window.showStatus = async function() {
       try {
         const { rank, score, position } = await getUserRank();
         

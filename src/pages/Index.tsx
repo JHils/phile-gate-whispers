@@ -24,7 +24,7 @@ let activeTimeouts: NodeJS.Timeout[] = [];
 // Extend window interface for the global functions
 declare global {
   interface Window {
-    status: () => Promise<void>;
+    showStatus: () => Promise<void>; // Renamed from status to showStatus
     help: () => void;
     whois: () => void;
     gate: () => void;
@@ -97,8 +97,8 @@ const Index = () => {
     
     // Create the console functions only once
     if (!window.help) {
-      // Define status() function to show user rank and progress
-      window.status = async function() {
+      // Define showStatus() function to show user rank and progress (renamed from status)
+      window.showStatus = async function() {
         try {
           const { rank, score, position } = await getUserRank();
           

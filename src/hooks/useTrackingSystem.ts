@@ -271,7 +271,7 @@ export const useTrackingSystem = () => {
       } else if (eventName === 'console_reincarnate_called') {
         prevState.console.reincarnateCalled = true;
       } else if (eventName === 'console_status_called') {
-        // New event for status command
+        // This event is triggered by showStatus() function
       } else if (eventName === 'legacy_written') {
         prevState.legacyWritten = true;
       } else if (eventName === 'gate_collapsed') {
