@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -333,17 +332,17 @@ export const useTrackingSystem = () => {
   const getUserRank = useCallback(async () => {
     try {
       const userHash = localStorage.getItem('user_hash');
-      if (!userHash) return { rank: 'Drifter', score: 0, position: 0 };
+      if (!userHash) return { rank: 'Drifter', score: 0, position: 0, userHash: '' };
 
       // Get user's current data
       const { data: userData, error: userError } = await supabase
         .from('user_tracking')
-        .select('score, title')
+        .select('score, title, user_hash')
         .eq('user_hash', userHash)
         .single();
 
       if (userError || !userData) {
-        return { rank: 'Drifter', score: 0, position: 0 };
+        return { rank: 'Drifter', score: 0, position: 0, userHash: '' };
       }
 
       // Get user's leaderboard position
@@ -360,11 +359,12 @@ export const useTrackingSystem = () => {
       return {
         rank: userData.title || 'Drifter',
         score: userData.score || 0,
-        position
+        position,
+        userHash: userData.user_hash
       };
     } catch (error) {
       console.error('Error fetching user rank:', error);
-      return { rank: 'Drifter', score: 0, position: 0 };
+      return { rank: 'Drifter', score: 0, position: 0, userHash: '' };
     }
   }, []);
 

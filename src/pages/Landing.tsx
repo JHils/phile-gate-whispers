@@ -14,7 +14,7 @@ declare global {
     whois: () => void;
     gate: () => void;
     coinToss: () => void;
-    status: () => void;
+    status: () => Promise<void>;
   }
 }
 

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SpinningCoin from "../components/SpinningCoin";
@@ -21,6 +20,22 @@ const hasShownConsoleMessages = () => {
 
 // Track active timeouts to prevent duplicate messages
 let activeTimeouts: NodeJS.Timeout[] = [];
+
+// Extend window interface for the global functions
+declare global {
+  interface Window {
+    status: () => Promise<void>;
+    help: () => void;
+    whois: () => void;
+    gate: () => void;
+    philes: () => void;
+    monster: () => void;
+    legacy: () => void;
+    reveal: () => void;
+    reincarnate: () => void;
+    coinToss: () => void;
+  }
+}
 
 const Index = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);

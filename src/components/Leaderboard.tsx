@@ -17,7 +17,7 @@ interface LeaderboardProps {
 
 export function Leaderboard({ className = "" }: LeaderboardProps) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-  const [userRank, setUserRank] = useState<{ rank: string; score: number; position: number } | null>(null);
+  const [userRank, setUserRank] = useState<{ rank: string; score: number; position: number; userHash?: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { getLeaderboard, getUserRank } = useTrackingSystem();
 
