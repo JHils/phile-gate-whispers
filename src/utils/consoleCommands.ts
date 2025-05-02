@@ -21,12 +21,13 @@ export const initializeConsoleCommands = (
   // Define showStatus() function to show user rank and progress
   window.showStatus = async function() {
     try {
-      const { rank, score, position } = await getUserRank();
+      const { rank, score, position, userHash } = await getUserRank();
       
       console.log("%c=== STATUS REPORT ===", "color: #8B3A40; font-size:16px; font-weight:bold;");
       console.log(`%cRank: ${rank}`, "color: #8B3A40; font-size:14px;");
       console.log(`%cScore: ${score}`, "color: #8B3A40; font-size:14px;");
       console.log(`%cPosition: #${position}`, "color: #8B3A40; font-size:14px;");
+      console.log(`%cUser ID: ${userHash}`, "color: #8B3A40; font-size:14px;");
       
       // Calculate next rank threshold
       let nextRank = '';
