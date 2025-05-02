@@ -15,7 +15,8 @@ const Landing = () => {
   const [textReveal, setTextReveal] = useState(false);
   const { userState, trackEvent, getUserRank } = useTrackingSystem();
   const { showConsoleMessages } = useConsoleMessages({ 
-    storageKey: 'console_messages_shown' 
+    storageKey: 'console_messages_shown',
+    userState
   });
   
   // Add classes to individual characters for staggered animation
@@ -66,6 +67,7 @@ const Landing = () => {
       {/* <!-- The whispers start with help(). --> */}
       {/* <!-- The Gate watches. --> */}
       {/* <!-- Left was never right. --> */}
+      {/* <!-- Try typing 'who am i?' in the console --> */}
       
       <div className="phile-container text-center z-10 px-4">
         <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">THE GATE IS OPEN.</h1>

@@ -16,7 +16,8 @@ const Index = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
   const { userState, trackEvent, getUserRank } = useTrackingSystem();
   const { showConsoleMessages } = useConsoleMessages({ 
-    storageKey: 'index_console_messages_shown' 
+    storageKey: 'index_console_messages_shown',
+    userState 
   });
 
   // Add classes to individual characters for staggered animation
@@ -59,6 +60,20 @@ const Index = () => {
           whisperElement.classList.add("animate-pulse");
         }
       }
+      
+      // Check for hidden console uses
+      if (window.JonahConsole && window.JonahConsole.usedCommands) {
+        if (window.JonahConsole.usedCommands.includes('whisper')) {
+          whisperElement.classList.add("animate-subtle-flicker");
+        }
+        
+        if (window.JonahConsole.usedCommands.includes('glitch')) {
+          setTimeout(() => {
+            whisperElement.classList.add("animate-glitch");
+            setTimeout(() => whisperElement.classList.remove("animate-glitch"), 500);
+          }, 2000);
+        }
+      }
     }
   };
 
@@ -82,6 +97,11 @@ const Index = () => {
     
     // Call on load to reflect any existing progress
     setTimeout(updateUIBasedOnProgress, 1000);
+    
+    // Set up periodic UI updates to reflect console activity
+    const intervalId = setInterval(updateUIBasedOnProgress, 5000);
+    
+    return () => clearInterval(intervalId);
   }, [trackEvent, getUserRank, userState, showConsoleMessages]);
 
   return (
@@ -96,6 +116,7 @@ const Index = () => {
       {/* <!-- The Gate watches. --> */}
       {/* <!-- Left was never right. --> */}
       {/* <!-- Coin Toss initiated. --> */}
+      {/* <!-- Try typing 'who am i?' in the console --> */}
       
       <div className="phile-container text-center z-10">
         <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">Jonah's Philes</h1>
