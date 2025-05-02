@@ -68,6 +68,8 @@ const Landing = () => {
       {/* <!-- The Gate watches. --> */}
       {/* <!-- Left was never right. --> */}
       {/* <!-- Try typing 'who am i?' in the console --> */}
+      {/* <!-- Try flipcoin(), glitch(), whisper() in the console --> */}
+      {/* <!-- Some things echo(), others burn() --> */}
       
       <div className="phile-container text-center z-10 px-4">
         <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">THE GATE IS OPEN.</h1>

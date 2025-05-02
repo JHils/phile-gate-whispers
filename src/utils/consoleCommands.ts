@@ -1,5 +1,14 @@
 
 import { UserState } from "@/hooks/useTrackingSystem";
+import { 
+  typewriterLog, 
+  flickerLog, 
+  delayedLog, 
+  glitchEffectLog, 
+  speak, 
+  trackCommand,
+  initializeWhisperMaster 
+} from "./consoleEffects";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -33,13 +42,16 @@ export const initializeConsoleCommands = (
   if (!window.JonahConsole) {
     window.JonahConsole = {
       usedCommands: [],
-      score: 0,
+      score: parseInt(localStorage.getItem('phileScore') || '0'),
       failCount: 0,
-      rank: "drifter",
+      rank: localStorage.getItem('phileRank') || "drifter",
       sessionStartTime: Date.now(),
       whispersFound: []
     };
   }
+  
+  // Initialize WhisperMaster for side quests
+  initializeWhisperMaster();
   
   // Update score and rank from real user state
   const updateConsoleState = async () => {
@@ -47,6 +59,10 @@ export const initializeConsoleCommands = (
       const { rank, score } = await getUserRank();
       window.JonahConsole.score = score;
       window.JonahConsole.rank = rank.toLowerCase();
+      
+      // Ensure localStorage is in sync
+      localStorage.setItem('phileScore', score.toString());
+      localStorage.setItem('phileRank', rank.toLowerCase());
     } catch (error) {
       console.error("Failed to update console state:", error);
     }
@@ -56,11 +72,8 @@ export const initializeConsoleCommands = (
   updateConsoleState();
   
   // Track a command execution and add to used commands
-  const trackCommand = (commandName: string) => {
-    if (!window.JonahConsole.usedCommands.includes(commandName)) {
-      window.JonahConsole.usedCommands.push(commandName);
-    }
-    window.JonahConsole.lastCommand = commandName;
+  const trackCommandExecution = (commandName: string) => {
+    trackCommand(commandName);
     trackEvent(`console_${commandName}_called`);
   };
   
@@ -73,19 +86,30 @@ export const initializeConsoleCommands = (
     }
   };
   
+  // Format session time for display
+  const formatSessionTime = () => {
+    const elapsed = Math.floor((Date.now() - window.JonahConsole.sessionStartTime) / 1000);
+    const hours = Math.floor(elapsed / 3600);
+    const minutes = Math.floor((elapsed % 3600) / 60);
+    const seconds = elapsed % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
   // Define showStatus() function to show user rank and progress
   window.showStatus = async function() {
     try {
       const { rank, score, position, userHash } = await getUserRank();
       await updateConsoleState(); // Refresh console state
       
-      console.log("%c=== STATUS REPORT ===", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log(`%cRank: ${rank}`, "color: #8B3A40; font-size:14px;");
-      console.log(`%cScore: ${score}`, "color: #8B3A40; font-size:14px;");
-      console.log(`%cPosition: #${position}`, "color: #8B3A40; font-size:14px;");
-      console.log(`%cUser ID: ${userHash}`, "color: #8B3A40; font-size:14px;");
-      console.log(`%cCommands unlocked: ${window.JonahConsole.usedCommands.length} / 20`, "color: #8B3A40; font-size:14px;");
-      console.log(`%cTime in session: ${formatSessionTime()}`, "color: #8B3A40; font-size:14px;");
+      const statusText = `=== STATUS REPORT ===
+Rank: ${rank}
+Score: ${score}
+Position: #${position}
+User ID: ${userHash}
+Commands unlocked: ${window.JonahConsole.usedCommands.length} / 20
+Time in session: ${formatSessionTime()}`;
+      
+      typewriterLog(statusText);
       
       // Calculate next rank threshold
       let nextRank = '';
@@ -104,11 +128,15 @@ export const initializeConsoleCommands = (
         nextRank = 'Monster';
         pointsNeeded = 800 - score;
       } else {
-        console.log("%cYou've reached the highest rank.", "color: #475B74; font-size:14px; font-style:italic;");
+        setTimeout(() => {
+          console.log("%cYou've reached the highest rank.", "color: #475B74; font-size:14px; font-style:italic;");
+        }, 2000);
       }
       
       if (nextRank) {
-        console.log(`%c${pointsNeeded} points until ${nextRank}`, "color: #475B74; font-size:14px; font-style:italic;");
+        setTimeout(() => {
+          console.log(`%c${pointsNeeded} points until ${nextRank}`, "color: #475B74; font-size:14px; font-style:italic;");
+        }, 1500);
       }
       
       // Show console commands discovered
@@ -122,22 +150,15 @@ export const initializeConsoleCommands = (
       if (userState.console.revealCalled) commands.push("reveal()");
       if (userState.console.reincarnateCalled) commands.push("reincarnate()");
       
-      console.log("%cDiscovered commands: " + commands.join(", "), "color: #8B3A40; font-size:14px;");
+      setTimeout(() => {
+        console.log("%cDiscovered commands: " + commands.join(", "), "color: #8B3A40; font-size:14px;");
+      }, 2500);
       
-      trackCommand('showStatus');
+      trackCommandExecution('showStatus');
     } catch (error) {
       console.error("Error retrieving status:", error);
       console.log("%cUnable to retrieve status. The Gate is unstable.", "color: red; font-size:14px;");
     }
-  };
-  
-  // Format session time for display
-  const formatSessionTime = () => {
-    const elapsed = Math.floor((Date.now() - window.JonahConsole.sessionStartTime) / 1000);
-    const hours = Math.floor(elapsed / 3600);
-    const minutes = Math.floor((elapsed % 3600) / 60);
-    const seconds = elapsed % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   // Define basic console commands
@@ -156,7 +177,7 @@ export const initializeConsoleCommands = (
       console.log("%cTo see your progress, try: showStatus()", "color: #475B74; font-size:16px; font-style:italic;");
     }
     
-    trackCommand('help');
+    trackCommandExecution('help');
     userState.console.helpCalled = true;
   };
   
@@ -171,7 +192,7 @@ export const initializeConsoleCommands = (
       console.log("%cYou've already seen this truth.", "color: #475B74; font-size:16px; font-style:italic;");
     }
     
-    trackCommand('reveal');
+    trackCommandExecution('reveal');
     userState.console.revealCalled = true;
   };
   
@@ -186,7 +207,7 @@ export const initializeConsoleCommands = (
       console.log("%cEven rebirth has its limits.", "color: #475B74; font-size:16px; font-style:italic;");
     }
     
-    trackCommand('reincarnate');
+    trackCommandExecution('reincarnate');
     userState.console.reincarnateCalled = true;
   };
   
@@ -201,7 +222,7 @@ export const initializeConsoleCommands = (
       console.log("%cThe name is worn from repetition.", "color: #475B74; font-size:16px; font-style:italic;");
     }
     
-    trackCommand('whois');
+    trackCommandExecution('whois');
     userState.console.whoisCalled = true;
   };
 
@@ -216,7 +237,7 @@ export const initializeConsoleCommands = (
       console.log("%cYou've already crossed this threshold.", "color: #475B74; font-size:16px; font-style:italic;");
     }
     
-    trackCommand('gate');
+    trackCommandExecution('gate');
     userState.console.gateCalled = true;
   };
   
@@ -231,7 +252,7 @@ export const initializeConsoleCommands = (
       console.log("%cThe files are already open and watching.", "color: #475B74; font-size:16px; font-style:italic;");
     }
     
-    trackCommand('philes');
+    trackCommandExecution('philes');
     userState.console.philesCalled = true;
   };
   
@@ -246,7 +267,7 @@ export const initializeConsoleCommands = (
       console.log("%cThe Monster remembers being summoned before.", "color: #475B74; font-size:16px; font-style:italic;");
     }
     
-    trackCommand('monster');
+    trackCommandExecution('monster');
     userState.console.monsterCalled = true;
   };
   
@@ -262,11 +283,11 @@ export const initializeConsoleCommands = (
       console.log("%cThe password was already revealed to you.", "color: #475B74; font-size:16px; font-style:italic;");
     }
     
-    trackCommand('legacy');
+    trackCommandExecution('legacy');
     userState.console.legacyCalled = true;
   };
   
-  // New console commands
+  // New console commands with visual effects
   window.flipcoin = function() {
     const rand = Math.random();
     const coinFlips = parseInt(localStorage.getItem('coinFlips') || '0');
@@ -276,11 +297,14 @@ export const initializeConsoleCommands = (
     const edgeChance = coinFlips > 10 ? 0.15 : 0.1;
     
     if (rand < 0.45) {
-      console.log("%cHeads: You chose to heal.", "color: #475B74; font-size:16px;");
+      flickerLog("Heads: You chose to heal.");
+      speak("Heads: You chose to heal.");
     } else if (rand < (1 - edgeChance)) {
-      console.log("%cTails: You chose to break.", "color: #8B3A40; font-size:16px;");
+      flickerLog("Tails: You chose to break.");
+      speak("Tails: You chose to break.");
     } else {
-      console.log("%cThe coin lands on its edge. Again.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+      glitchEffectLog("The coin lands on its edge. Again.");
+      speak("The coin lands on its edge. Again.");
       window.JonahConsole.score += 20;
       
       // Easter egg for repeated edge landings
@@ -291,7 +315,7 @@ export const initializeConsoleCommands = (
       }
     }
     
-    trackCommand('flipcoin');
+    trackCommandExecution('flipcoin');
   };
   
   window.glitch = function() {
@@ -311,10 +335,12 @@ export const initializeConsoleCommands = (
     const glitchChance = Math.min(0.8, 0.2 + (sessionMinutes / 60) * 0.3);
     
     if (rand > glitchChance) {
-      console.log("%cStatic crackles... but nothing happens.", "color: #475B74; font-size:14px;");
+      typewriterLog("Static crackles... but nothing happens.");
+      speak("Static crackles");
     } else {
       const msg = glitches[Math.floor(Math.random() * glitches.length)];
-      console.log(`%c${msg}`, "color: #8B3A40; font-size:16px; font-weight:bold;");
+      glitchEffectLog(msg);
+      speak(msg);
       window.JonahConsole.score += 15;
       
       // Easter egg for repeated glitches
@@ -325,7 +351,7 @@ export const initializeConsoleCommands = (
       }
     }
     
-    trackCommand('glitch');
+    trackCommandExecution('glitch');
   };
   
   window.whisper = function() {
@@ -347,16 +373,20 @@ export const initializeConsoleCommands = (
       // Prefer new memories if available
       const memory = newMemories[Math.floor(Math.random() * newMemories.length)];
       window.JonahConsole.whispersFound.push(memory);
-      console.log(`%cWhisperLog > ${memory}`, "color: #8B3A40; font-size:16px;");
+      typewriterLog(`WhisperLog > ${memory}`);
+      speak(memory, { rate: 0.7, pitch: 0.5 });
       window.JonahConsole.score += 10;
     } else {
       // If all memories found, use any random one
       const memory = memories[Math.floor(Math.random() * memories.length)];
-      console.log(`%cWhisperLog > ${memory}`, "color: #475B74; font-size:16px; font-style:italic;");
-      console.log("%cYou've heard all the whispers before.", "color: #475B74; font-size:14px;");
+      typewriterLog(`WhisperLog > ${memory}`);
+      speak(memory, { rate: 0.7, pitch: 0.5 });
+      setTimeout(() => {
+        console.log("%cYou've heard all the whispers before.", "color: #475B74; font-size:14px;");
+      }, 2000);
     }
     
-    trackCommand('whisper');
+    trackCommandExecution('whisper');
   };
   
   window.scream = function() {
@@ -364,20 +394,26 @@ export const initializeConsoleCommands = (
     const rank = window.JonahConsole.rank.toLowerCase();
     
     if (rank === "monster") {
-      console.log("%cThe void screams back.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%cA chorus of voices joins yours.", "color: #8B3A40; font-size:16px;");
+      glitchEffectLog("The void screams back.");
+      speak("The void screams back", { pitch: 0.3, rate: 0.6 });
+      setTimeout(() => {
+        console.log("%cA chorus of voices joins yours.", "color: #8B3A40; font-size:16px;");
+      }, 1500);
       window.JonahConsole.score += 25;
     } else if (rank === "gatekeeper") {
-      console.log("%cThe Gate trembles at your voice.", "color: #8B3A40; font-size:16px;");
+      flickerLog("The Gate trembles at your voice.");
+      speak("The Gate trembles at your voice");
       window.JonahConsole.score += 15;
     } else if (rank === "survivor") {
-      console.log("%cEchoes. But no answer.", "color: #475B74; font-size:16px;");
+      typewriterLog("Echoes. But no answer.");
+      speak("Echoes. But no answer.");
       window.JonahConsole.score += 5;
     } else {
-      console.log("%cNo one heard you.", "color: #475B74; font-size:16px;");
+      flickerLog("No one heard you.");
+      speak("No one heard you");
     }
     
-    trackCommand('scream');
+    trackCommandExecution('scream');
   };
   
   window.burn = function(command) {
@@ -391,18 +427,21 @@ export const initializeConsoleCommands = (
       // Can't burn core commands
       const coreCommands = ['help', 'reveal', 'reincarnate', 'whois', 'gate', 'philes', 'monster', 'legacy', 'showStatus'];
       if (coreCommands.includes(command)) {
-        console.log("%cCore memories cannot be burned.", "color: #8B3A40; font-size:16px;");
+        glitchEffectLog("Core memories cannot be burned.");
+        speak("Core memories cannot be burned");
         return;
       }
       
       window.JonahConsole.usedCommands.splice(i, 1);
-      console.log(`%cYou burned ${command}. The flame took it.`, "color: #8B3A40; font-size:16px;");
+      delayedLog([`You burned ${command}.`, "The flame took it."]);
+      speak(`You burned ${command}`);
       window.JonahConsole.score += 10;
     } else {
-      console.log("%cThere's nothing left to burn.", "color: #475B74; font-size:14px;");
+      typewriterLog("There's nothing left to burn.");
+      speak("There's nothing left to burn");
     }
     
-    trackCommand('burn');
+    trackCommandExecution('burn');
   };
   
   window.decrypt = function(code) {
@@ -415,34 +454,42 @@ export const initializeConsoleCommands = (
     
     // Different codes with different responses and rewards
     if (cleanCode === "S.M.PHILE") {
-      console.log("%cYou found it. The truth is archived.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      console.log("%c'S.M.' stands for 'Shadow Monster'.", "color: #8B3A40; font-size:16px;");
+      delayedLog(["You found it.", "The truth is archived."]);
+      speak("You found it. The truth is archived.");
+      setTimeout(() => {
+        console.log("%c'S.M.' stands for 'Shadow Monster'.", "color: #8B3A40; font-size:16px;");
+      }, 3000);
       window.JonahConsole.score += 50;
     } else if (cleanCode === "JONAS") {
-      console.log("%cReborn, rearranged, remembered.", "color: #8B3A40; font-size:16px;");
+      glitchEffectLog("Reborn, rearranged, remembered.");
+      speak("Reborn, rearranged, remembered");
       window.JonahConsole.score += 30;
     } else if (cleanCode === "THE GATE") {
-      console.log("%c...is a metaphor. And a warning.", "color: #8B3A40; font-size:16px;");
+      typewriterLog("...is a metaphor. And a warning.");
+      speak("is a metaphor. And a warning");
       window.JonahConsole.score += 20;
     } else if (cleanCode === "N0TFICT10N") {
-      console.log("%cThe password was already given. But yes, this isn't fiction.", "color: #8B3A40; font-size:16px;");
+      flickerLog("The password was already given. But yes, this isn't fiction.");
+      speak("This isn't fiction");
       window.JonahConsole.score += 25;
     } else {
-      console.log("%cInvalid input. The algorithm spits static.", "color: #475B74; font-size:14px;");
+      glitchEffectLog("Invalid input. The algorithm spits static.");
+      speak("Invalid input");
       recordFailAttempt();
     }
     
-    trackCommand('decrypt');
+    trackCommandExecution('decrypt');
   };
   
   window.echo = function() {
     if (!window.JonahConsole.lastCommand) {
-      console.log("%cNothing to echo. You must speak first.", "color: #475B74; font-size:14px;");
+      typewriterLog("Nothing to echo. You must speak first.");
+      speak("Nothing to echo");
       return;
     }
     
     const lastCmd = window.JonahConsole.lastCommand;
-    console.log(`%cEchoing "${lastCmd}", but the words twist...`, "color: #8B3A40; font-size:16px;");
+    flickerLog(`Echoing "${lastCmd}", but the words twist...`);
     
     // Twisted echo responses
     const responses = {
@@ -464,62 +511,69 @@ export const initializeConsoleCommands = (
     };
     
     setTimeout(() => {
-      console.log(`%c${responses[lastCmd] || "The echo distorts beyond comprehension."}`, "color: #8B3A40; font-size:16px; font-style:italic;");
+      const response = responses[lastCmd] || "The echo distorts beyond comprehension.";
+      glitchEffectLog(response);
+      speak(response, { pitch: 0.4, rate: 0.7 });
       window.JonahConsole.score += 15;
     }, 1500);
     
-    trackCommand('echo');
+    trackCommandExecution('echo');
   };
   
   window.hint = function() {
     // Smart contextual hints based on progress
     const commands = window.JonahConsole.usedCommands;
     const rank = window.JonahConsole.rank.toLowerCase();
+    let hintText = "";
     
     if (!commands.includes('help')) {
-      console.log("%cStart with help()", "color: #475B74; font-size:16px;");
+      hintText = "Start with help()";
     } else if (!commands.includes('reveal')) {
-      console.log("%cTry reveal() to pull back the veil", "color: #475B74; font-size:16px;");
+      hintText = "Try reveal() to pull back the veil";
     } else if (!commands.includes('reincarnate')) {
-      console.log("%creincarnate() brings new life", "color: #475B74; font-size:16px;");
+      hintText = "reincarnate() brings new life";
     } else if (!commands.includes('whois')) {
-      console.log("%cIdentify with whois()", "color: #475B74; font-size:16px;");
+      hintText = "Identify with whois()";
     } else if (!commands.includes('gate')) {
-      console.log("%cThe gate() awaits you", "color: #475B74; font-size:16px;");
+      hintText = "The gate() awaits you";
     } else if (!commands.includes('philes')) {
-      console.log("%cArranging letters in philes() reveals more", "color: #475B74; font-size:16px;");
+      hintText = "Arranging letters in philes() reveals more";
     } else if (!commands.includes('monster')) {
-      console.log("%cSummon what haunts you with monster()", "color: #475B74; font-size:16px;");
+      hintText = "Summon what haunts you with monster()";
     } else if (!commands.includes('legacy')) {
-      console.log("%cClaim your legacy() when ready", "color: #475B74; font-size:16px;");
+      hintText = "Claim your legacy() when ready";
     } else if (rank === "monster" && !commands.includes('scream')) {
-      console.log("%cYou're ready to scream()", "color: #8B3A40; font-size:16px;");
+      hintText = "You're ready to scream()";
     } else if (!commands.includes('whisper')) {
-      console.log("%cListen for whisper()s in the dark", "color: #475B74; font-size:16px;");
+      hintText = "Listen for whisper()s in the dark";
     } else if (!commands.includes('flipcoin')) {
-      console.log("%cChance determines fate with flipcoin()", "color: #475B74; font-size:16px;");
+      hintText = "Chance determines fate with flipcoin()";
     } else if (!commands.includes('glitch')) {
-      console.log("%cBreak reality with glitch()", "color: #475B74; font-size:16px;");
+      hintText = "Break reality with glitch()";
     } else if (!commands.includes('decrypt')) {
-      console.log("%cTry to decrypt('CODE') what you've learned", "color: #475B74; font-size:16px;");
+      hintText = "Try to decrypt('CODE') what you've learned";
     } else if (commands.length >= 10) {
-      console.log("%cYou've come far. Try asking 'who am i?'", "color: #8B3A40; font-size:16px;");
+      hintText = "You've come far. Try asking 'who am i?'";
     } else {
-      console.log("%cThe darkness offers no more hints", "color: #8B3A40; font-size:16px;");
+      hintText = "The darkness offers no more hints";
     }
     
-    trackCommand('hint');
+    typewriterLog(hintText);
+    speak(hintText);
+    trackCommandExecution('hint');
   };
   
   window.coinToss = function() {
     const side = Math.random() < 0.5 ? "HEADS" : "TAILS";
     if (side === "HEADS") {
-      console.log("%cHeads: You chose to heal.", "color: #475B74; font-size:16px;");
+      typewriterLog("Heads: You chose to heal.");
+      speak("Heads: You chose to heal");
     } else {
-      console.log("%cTails: You chose to break.", "color: #8B3A40; font-size:16px;");
+      flickerLog("Tails: You chose to break.");
+      speak("Tails: You chose to break");
     }
     
-    trackCommand('coinToss');
+    trackCommandExecution('coinToss');
   };
   
   // Hidden language processing function - triggered by console.log inspection
@@ -534,20 +588,31 @@ export const initializeConsoleCommands = (
       // Hidden commands
       if (input === 'who am i' || input === 'who am i?') {
         setTimeout(() => {
-          console.log("%cNot who. What.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-          console.log("%cYou are Jonah. Or something wearing him.", "color: #8B3A40; font-size:16px;");
+          glitchEffectLog("Not who. What.");
+          setTimeout(() => {
+            console.log("%cYou are Jonah. Or something wearing him.", "color: #8B3A40; font-size:16px;");
+            speak("You are Jonah. Or something wearing him.");
+          }, 1500);
           window.JonahConsole.score += 25;
         }, 1000);
       } else if (input === 'help me' || input === 'help me!') {
         setTimeout(() => {
-          console.log("%cYou've already been helped. You just forgot.", "color: #8B3A40; font-size:16px;");
+          flickerLog("You've already been helped. You just forgot.");
+          speak("You've already been helped. You just forgot.");
           window.JonahConsole.score += 15;
         }, 1000);
       } else if (input === 'where am i' || input === 'where am i?') {
         setTimeout(() => {
-          console.log("%cInside the spiral. Where the coin never lands.", "color: #8B3A40; font-size:16px;");
+          glitchEffectLog("Inside the spiral. Where the coin never lands.");
+          speak("Inside the spiral. Where the coin never lands.");
           window.JonahConsole.score += 20;
         }, 1000);
+      } else if (input.includes('whispermaster')) {
+        setTimeout(() => {
+          if (window.WhisperMaster) {
+            console.log("%cWhisperMaster detected. Use .unlock(), .showMap(), or .showLeaderboard()", "color: #8B3A40; font-size:16px;");
+          }
+        }, 500);
       }
     }
   };

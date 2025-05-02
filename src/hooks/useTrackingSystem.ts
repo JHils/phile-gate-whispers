@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -56,85 +55,135 @@ export const useTrackingSystem = () => {
 
   // Initialize user state from localStorage
   useEffect(() => {
-    const loadUserState = () => {
-      try {
-        // Load existing state if available
-        const savedState = localStorage.getItem('philes_user_state');
-        let state: UserState = savedState ? JSON.parse(savedState) : { ...DEFAULT_STATE };
-        
-        // Set default values for new properties if they don't exist
-        state = {
-          ...DEFAULT_STATE,
-          ...state
-        };
-        
-        // Check for legacy values in localStorage and migrate them
-        if (localStorage.getItem('permanentlyCollapsed') === 'true') {
-          state.permanentlyCollapsed = true;
-        }
-        
-        if (localStorage.getItem('survivorMode') === 'true') {
-          state.survivorMode = true;
-        }
-        
-        if (localStorage.getItem('helpCalled') === 'true') {
-          state.console.helpCalled = true;
-        }
-        
-        if (localStorage.getItem('whoisCalled') === 'true') {
-          state.console.whoisCalled = true;
-        }
-        
-        if (localStorage.getItem('gateCalled') === 'true') {
-          state.console.gateCalled = true;
-        }
-        
-        if (localStorage.getItem('philesCalled') === 'true') {
-          state.console.philesCalled = true;
-        }
-        
-        if (localStorage.getItem('monsterCalled') === 'true') {
-          state.console.monsterCalled = true;
-        }
-        
-        if (localStorage.getItem('legacyCalled') === 'true') {
-          state.console.legacyCalled = true;
-        }
-        
-        if (localStorage.getItem('legacyJournalEntry')) {
-          state.legacyWritten = true;
-        }
-        
-        // Update visit count and timestamps
-        state.visitCount += 1;
-        state.lastVisit = Date.now();
-        
-        if (!state.firstVisit) {
-          state.firstVisit = Date.now();
-        }
-        
-        setUserState(state);
-        localStorage.setItem('philes_user_state', JSON.stringify(state));
-        
-        // Sync with Supabase with rate limiting
-        if (Date.now() - lastSyncTime > SYNC_COOLDOWN) {
-          syncUserStateWithSupabase(state);
-          lastSyncTime = Date.now();
-        }
-      } catch (error) {
-        console.error('Error loading user state:', error);
-        // Reset to default state if there's an error
-        setUserState(DEFAULT_STATE);
-      }
-    };
-    
-    loadUserState();
+    initializeUserState();
   }, []);
+
+  // Load user state from localStorage and handle migrations
+  const initializeUserState = () => {
+    try {
+      // Load existing state if available
+      const savedState = localStorage.getItem('philes_user_state');
+      let state: UserState = savedState ? JSON.parse(savedState) : { ...DEFAULT_STATE };
+      
+      // Set default values for new properties if they don't exist
+      state = {
+        ...DEFAULT_STATE,
+        ...state
+      };
+      
+      // Migrate legacy values from localStorage
+      migrateLegacyValues(state);
+      
+      // Update visit count and timestamps
+      state.visitCount += 1;
+      state.lastVisit = Date.now();
+      
+      if (!state.firstVisit) {
+        state.firstVisit = Date.now();
+      }
+      
+      setUserState(state);
+      localStorage.setItem('philes_user_state', JSON.stringify(state));
+      
+      // Sync with Supabase with rate limiting
+      if (Date.now() - lastSyncTime > SYNC_COOLDOWN) {
+        syncUserStateWithSupabase(state);
+        lastSyncTime = Date.now();
+      }
+    } catch (error) {
+      console.error('Error loading user state:', error);
+      // Reset to default state if there's an error
+      setUserState(DEFAULT_STATE);
+    }
+  };
+
+  // Migrate legacy localStorage values to the structured state
+  const migrateLegacyValues = (state: UserState) => {
+    if (localStorage.getItem('permanentlyCollapsed') === 'true') {
+      state.permanentlyCollapsed = true;
+    }
+    
+    if (localStorage.getItem('survivorMode') === 'true') {
+      state.survivorMode = true;
+    }
+    
+    if (localStorage.getItem('helpCalled') === 'true') {
+      state.console.helpCalled = true;
+    }
+    
+    if (localStorage.getItem('whoisCalled') === 'true') {
+      state.console.whoisCalled = true;
+    }
+    
+    if (localStorage.getItem('gateCalled') === 'true') {
+      state.console.gateCalled = true;
+    }
+    
+    if (localStorage.getItem('philesCalled') === 'true') {
+      state.console.philesCalled = true;
+    }
+    
+    if (localStorage.getItem('monsterCalled') === 'true') {
+      state.console.monsterCalled = true;
+    }
+    
+    if (localStorage.getItem('legacyCalled') === 'true') {
+      state.console.legacyCalled = true;
+    }
+    
+    if (localStorage.getItem('legacyJournalEntry')) {
+      state.legacyWritten = true;
+    }
+
+    // Also update the phileScore and phileRank for console compatibility
+    if (state.visitCount > 0) {
+      let score = calculateScore(state);
+      localStorage.setItem('phileScore', score.toString());
+      
+      let rank = determineRank(score);
+      localStorage.setItem('phileRank', rank.toLowerCase());
+    }
+  };
 
   // Save state to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('philes_user_state', JSON.stringify(userState));
   }, [userState]);
+
+  // Calculate user score based on interactions
+  const calculateScore = (state: UserState) => {
+    let score = 0;
+    
+    // Base score from visit count
+    score += state.visitCount;
+    
+    // Points for console commands discovered
+    if (state.console.helpCalled) score += 10;
+    if (state.console.whoisCalled) score += 20;
+    if (state.console.gateCalled) score += 30;
+    if (state.console.philesCalled) score += 40;
+    if (state.console.monsterCalled) score += 50;
+    if (state.console.legacyCalled) score += 60;
+    if (state.console.revealCalled) score += 15;
+    if (state.console.reincarnateCalled) score += 25;
+    
+    // Points for significant actions
+    if (state.permanentlyCollapsed) score += 100;
+    if (state.survivorMode) score += 200;
+    if (state.legacyWritten) score += 150;
+    if (state.gatekeeperStatus) score += 75;
+    
+    return score;
+  };
+
+  // Determine user rank based on score
+  const determineRank = (score: number): string => {
+    if (score >= 800) return 'Monster';
+    if (score >= 500) return 'Gatekeeper';
+    if (score >= 300) return 'Survivor';
+    if (score >= 100) return 'Watcher';
+    return 'Drifter';
+  };
 
   // Function to sync user state with Supabase
   const syncUserStateWithSupabase = async (state: UserState) => {
@@ -149,26 +198,14 @@ export const useTrackingSystem = () => {
       localStorage.setItem('user_hash', userHash);
 
       // Calculate score based on user progress
-      let score = 0;
+      const score = calculateScore(state);
       
-      // Base score from visit count (1 point per visit)
-      score += state.visitCount;
+      // Update local phileScore for console use
+      localStorage.setItem('phileScore', score.toString());
       
-      // Points for console commands discovered
-      if (state.console.helpCalled) score += 10;
-      if (state.console.whoisCalled) score += 20;
-      if (state.console.gateCalled) score += 30;
-      if (state.console.philesCalled) score += 40;
-      if (state.console.monsterCalled) score += 50;
-      if (state.console.legacyCalled) score += 60;
-      if (state.console.revealCalled) score += 15;
-      if (state.console.reincarnateCalled) score += 25;
-      
-      // Points for significant actions
-      if (state.permanentlyCollapsed) score += 100;
-      if (state.survivorMode) score += 200;
-      if (state.legacyWritten) score += 150;
-      if (state.gatekeeperStatus) score += 75;
+      // Update local phileRank for console use
+      const rank = determineRank(score);
+      localStorage.setItem('phileRank', rank.toLowerCase());
       
       // Count pages visited
       const pagesVisitedCount = Object.keys(state.events).filter(key => 
@@ -178,7 +215,7 @@ export const useTrackingSystem = () => {
       const consoleCommandsFound = Object.values(state.console).filter(Boolean).length;
       
       try {
-        // Insert or update user tracking record in Supabase with custom headers
+        // Insert or update user tracking record in Supabase
         const { error } = await supabase
           .from('user_tracking')
           .upsert({
@@ -250,7 +287,6 @@ export const useTrackingSystem = () => {
       // Handle special events
       if (eventName === 'console_help_called') {
         prevState.console.helpCalled = true;
-        // For backward compatibility
         localStorage.setItem('helpCalled', 'true');
       } else if (eventName === 'console_whois_called') {
         prevState.console.whoisCalled = true;
@@ -271,8 +307,6 @@ export const useTrackingSystem = () => {
         prevState.console.revealCalled = true;
       } else if (eventName === 'console_reincarnate_called') {
         prevState.console.reincarnateCalled = true;
-      } else if (eventName === 'console_status_called') {
-        // This event is triggered by showStatus() function
       } else if (eventName === 'legacy_written') {
         prevState.legacyWritten = true;
       } else if (eventName === 'gate_collapsed') {
@@ -292,7 +326,14 @@ export const useTrackingSystem = () => {
       
       localStorage.setItem('philes_user_state', JSON.stringify(newState));
       
-      // Only sync with Supabase occasionally to prevent too many requests
+      // Update score and rank in localStorage for console compatibility
+      const score = calculateScore(newState);
+      localStorage.setItem('phileScore', score.toString());
+      
+      const rank = determineRank(score);
+      localStorage.setItem('phileRank', rank.toLowerCase());
+      
+      // Only sync with Supabase occasionally
       if (Date.now() - lastSyncTime > SYNC_COOLDOWN) {
         syncUserStateWithSupabase(newState);
         lastSyncTime = Date.now();
@@ -326,6 +367,8 @@ export const useTrackingSystem = () => {
     localStorage.removeItem('legacyCalled');
     localStorage.removeItem('console_messages_shown');
     localStorage.removeItem('index_console_messages_shown');
+    localStorage.removeItem('phileScore');
+    localStorage.removeItem('phileRank');
     setUserState(DEFAULT_STATE);
   }, []);
 

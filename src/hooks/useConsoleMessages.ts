@@ -72,6 +72,19 @@ export const useConsoleMessages = ({
         messages.delayed.push("%cNight reveals what day conceals.");
         messages.delayed.push("%cThe Monster is most active after dark.");
       }
+
+      // Add hints about newer console commands
+      if (userState.console.whoisCalled && userState.console.gateCalled) {
+        messages.delayed.push("%cHave you tried flipcoin() or glitch() in the console?");
+      }
+
+      if (userState.console.philesCalled) {
+        messages.delayed.push("%cWhisper() to hear forgotten memories.");
+      }
+
+      if (userState.console.monsterCalled) {
+        messages.delayed.push("%cYou might be ready to scream().");
+      }
     }
     
     return messages;
