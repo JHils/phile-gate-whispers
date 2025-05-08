@@ -41,6 +41,19 @@ export const useConsoleMessages = ({
       ]
     };
     
+    // Check for page-specific messages based on storageKey
+    if (storageKey.includes('summerhouse')) {
+      messages.standard.unshift("%cThe Summerhouse remembers your stay.");
+      messages.delayed.push("%cRoom 7 is watching you right now.");
+      messages.delayed.push("%cThe manager has noted your passport details.");
+    }
+    
+    if (storageKey.includes('webfail')) {
+      messages.standard.unshift("%cThe joke wasn't funny then. It still isn't.");
+      messages.delayed.push("%cTry flipcoin() to see if your timing improves.");
+      messages.delayed.push("%cThe cable car never reaches the end.");
+    }
+    
     // Add dynamic messages based on user state if available
     if (userState) {
       const rank = userState.visitCount > 10 ? "frequent" : "new";

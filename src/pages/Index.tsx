@@ -147,14 +147,32 @@ const Index = () => {
             </div>
           )}
           
-          {/* Add campfire link */}
-          <div className="mt-8">
+          {/* Links Section */}
+          <div className="mt-8 flex flex-wrap gap-4 justify-center">
             <Link to="/campfire">
               <Button 
                 variant="ghost" 
                 className="text-dust-orange hover:text-dust-red hover:bg-black/20 border border-transparent hover:border-dust-red/30"
               >
                 Join the Campfire
+              </Button>
+            </Link>
+            
+            <Link to="/summerhouse">
+              <Button 
+                variant="ghost" 
+                className="text-dust-blue hover:text-dust-red hover:bg-black/20 border border-transparent hover:border-dust-red/30"
+              >
+                Visit Summerhouse
+              </Button>
+            </Link>
+            
+            <Link to="/webfail">
+              <Button 
+                variant="ghost" 
+                className="text-silver hover:text-dust-blue hover:bg-black/20 border border-transparent hover:border-dust-blue/30"
+              >
+                Web Failure
               </Button>
             </Link>
           </div>

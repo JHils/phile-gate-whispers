@@ -21,6 +21,9 @@ import Rebirth from "./pages/Rebirth";
 import Campfire from "./pages/Campfire";
 import OutbackHostel from "./pages/OutbackHostel";
 import GovWatch from "./pages/GovWatch";
+import Summerhouse from "./pages/Summerhouse";
+import WebFail from "./pages/WebFail";
+import Kuranda from "./pages/Kuranda";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,6 +69,10 @@ const App = () => {
             <Route path="/campfire" element={<Campfire />} />
             <Route path="/outbackhostel" element={<OutbackHostel />} />
             <Route path="/govwatch" element={<GovWatch />} />
+            {/* New pages */}
+            <Route path="/summerhouse" element={<Summerhouse />} />
+            <Route path="/webfail" element={<WebFail />} />
+            <Route path="/kuranda" element={<Kuranda />} />
             {/* Secret pages */}
             <Route path="/monster" element={<Monster />} />
             <Route path="/legacy" element={<Legacy />} />
