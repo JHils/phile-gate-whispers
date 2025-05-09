@@ -12,6 +12,7 @@ declare global {
       lastCommand?: string;
       sessionStartTime: number;
       whispersFound: string[];
+      jokesDisplayed?: string[];
     };
   }
 }
@@ -120,6 +121,84 @@ export function trackCommand(commandName: string): void {
     }
     window.JonahConsole.lastCommand = commandName;
   }
+}
+
+/**
+ * Display random joke from the joke pool
+ */
+export function displayRandomJoke(): void {
+  const jokes = [
+    "Fun fact: There is no fun. Only facts.",
+    "Still looking for meaning? Have you tried carbs?",
+    "Your console commands are being monitored… by your past self.",
+    "ToggleWrath() is not recommended. But you will anyway.",
+    "Everything you type is remembered. Especially the weird stuff.",
+    "Didn't know consoles could laugh, did you? Neither did we.",
+    "The coin never lands. But you keep flipping it anyway.",
+    "Memory leak detected. Good luck figuring out which one.",
+    "Jonah says hi. He's wearing your smile today."
+  ];
+  
+  // Initialize jokesDisplayed array if it doesn't exist
+  if (!window.JonahConsole.jokesDisplayed) {
+    window.JonahConsole.jokesDisplayed = [];
+  }
+  
+  // Filter for jokes not yet displayed
+  let availableJokes = jokes.filter(joke => 
+    !window.JonahConsole.jokesDisplayed?.includes(joke)
+  );
+  
+  // If all jokes have been shown, reset the tracking
+  if (availableJokes.length === 0) {
+    window.JonahConsole.jokesDisplayed = [];
+    availableJokes = jokes;
+  }
+  
+  // Select random joke and display
+  const joke = availableJokes[Math.floor(Math.random() * availableJokes.length)];
+  window.JonahConsole.jokesDisplayed?.push(joke);
+  
+  console.log(`%c${joke}`, "color: #475B74; font-style: italic;");
+}
+
+/**
+ * Play the Magnetic Tent story
+ */
+export function playMagneticTentStory(): void {
+  console.log("Accessing... private logs.");
+  
+  setTimeout(() => { 
+    console.log("%cMemory retrieved: MAGNETIC TENT INCIDENT — REDACTED", "color: #8B3A40; font-weight: bold;"); 
+  }, 1000);
+  
+  setTimeout(() => { 
+    console.log("%c\"You're sleeping on my toggles… you're tightening my trousers.\"", "color: #475B74;"); 
+  }, 2500);
+  
+  setTimeout(() => { 
+    console.log("%c\"If you're pissing on the side of the tent… you'll attract… straaaaayngeeeers…\"", "color: #475B74;"); 
+  }, 4000);
+  
+  setTimeout(() => { 
+    console.log("%c\"I've got blood in me mouth, gov'nor! Would you like to purchase some of my waaaares?\"", "color: #475B74;"); 
+  }, 5500);
+  
+  setTimeout(() => { 
+    console.log("%c*THUD*", "color: #8B3A40; font-weight: bold;"); 
+  }, 6500);
+  
+  setTimeout(() => { 
+    console.log("%c\"Owwwwl.\" (There was no owl.)", "color: #475B74; font-style: italic;"); 
+  }, 7000);
+  
+  setTimeout(() => { 
+    console.log("%c\"Which one of your wooden posts is to blame?\"", "color: #475B74;"); 
+  }, 8000);
+  
+  setTimeout(() => { 
+    console.log("%c…log closed. The glamping pod never forgets.", "color: #8B3A40;"); 
+  }, 9000);
 }
 
 /**

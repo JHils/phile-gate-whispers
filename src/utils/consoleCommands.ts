@@ -7,7 +7,9 @@ import {
   glitchEffectLog, 
   speak, 
   trackCommand,
-  initializeWhisperMaster 
+  initializeWhisperMaster,
+  displayRandomJoke,
+  playMagneticTentStory
 } from "./consoleEffects";
 
 // Define type for getRank function to ensure proper typing
@@ -179,6 +181,11 @@ Time in session: ${formatSessionTime()}`;
     
     trackCommandExecution('help');
     userState.console.helpCalled = true;
+
+    // Maybe show a random joke after a delay
+    if (Math.random() < 0.3) {
+      setTimeout(displayRandomJoke, 4000);
+    }
   };
   
   window.reveal = function() {
@@ -575,6 +582,92 @@ Time in session: ${formatSessionTime()}`;
     
     trackCommandExecution('coinToss');
   };
+
+  // New humorous commands
+  window.helpMe = function() {
+    flickerLog("Oh. You're one of *those* protagonists.");
+    speak("Oh. You're one of those protagonists.");
+    setTimeout(() => {
+      console.log("%cHelp thyself. Or at least try help() first.", "color: #475B74; font-size:14px; font-style:italic;");
+    }, 2000);
+    
+    trackCommandExecution('helpMe');
+    window.JonahConsole.score += 5;
+  };
+  
+  window.tea = function() {
+    typewriterLog("Out of stock. You drank the last existential crisis.");
+    speak("Out of stock. You drank the last existential crisis.");
+    
+    trackCommandExecution('tea');
+    window.JonahConsole.score += 5;
+  };
+  
+  window.trousers = function() {
+    glitchEffectLog("You have tightened the sacred toggles. Prepare to be judged.");
+    speak("You have tightened the sacred toggles. Prepare to be judged.");
+    
+    trackCommandExecution('trousers');
+    window.JonahConsole.score += 5;
+  };
+  
+  window.moustache = function() {
+    flickerLog("There's something in it. Wait. Did it just whisper back?");
+    speak("There's something in it. Wait. Did it just whisper back?");
+    
+    setTimeout(() => {
+      console.log("%c*rustling noises*", "color: #8B3A40; font-size:14px; font-style:italic;");
+    }, 1500);
+    
+    trackCommandExecution('moustache');
+    window.JonahConsole.score += 10;
+  };
+  
+  window.funny = function() {
+    typewriterLog("There's no comedy in collapse. Except… this one time at the glamping pod.");
+    speak("There's no comedy in collapse. Except this one time at the glamping pod.");
+    
+    setTimeout(() => {
+      console.log("%cTry toggleWrath() to hear the full story.", "color: #475B74; font-size:14px; font-style:italic;");
+    }, 2000);
+    
+    trackCommandExecution('funny');
+    window.JonahConsole.score += 5;
+  };
+  
+  window.seenMyself = function() {
+    glitchEffectLog("He smiled like he earned your skin. He winked because he knew you'd look.");
+    speak("He smiled like he earned your skin. He winked because he knew you'd look.");
+    
+    trackCommandExecution('seenMyself');
+    window.JonahConsole.score += 15;
+  };
+  
+  window.youWereHimFirst = function() {
+    delayedLog(["You returned to yourself.", "She noticed.", "But she liked this version better."]);
+    speak("You returned to yourself. She noticed. But she liked this version better.");
+    
+    trackCommandExecution('youWereHimFirst');
+    window.JonahConsole.score += 20;
+  };
+  
+  window.wearingYouNow = function() {
+    glitchEffectLog("They liked who you became. Too bad it wasn't you.");
+    speak("They liked who you became. Too bad it wasn't you.");
+    
+    setTimeout(() => {
+      console.log("%cThe Monster never left. Only waited.", "color: #8B3A40; font-size:16px; font-style:italic;");
+    }, 2000);
+    
+    trackCommandExecution('wearingYouNow');
+    window.JonahConsole.score += 25;
+  };
+
+  window.toggleWrath = function() {
+    playMagneticTentStory();
+    trackCommandExecution('toggleWrath');
+    window.JonahConsole.score += 30;
+  };
   
   // Hidden language processing function - triggered by console.log inspection
   const originalLog = console.log;
@@ -616,6 +709,21 @@ Time in session: ${formatSessionTime()}`;
       }
     }
   };
+  
+  // Random joke display on first console open
+  if (!localStorage.getItem('console_first_open')) {
+    console.log("%cAh, a console user. Finally.", "color: #8B3A40; font-size:16px;");
+    
+    setTimeout(() => {
+      console.log("%cYou'd be surprised how many people never even peek under the hood.", "color: #8B3A40; font-size:16px;");
+    }, 1500);
+    
+    setTimeout(() => {
+      console.log("%cTry typing: help(). Or don't. I'm not your subconscious. Or am I?", "color: #8B3A40; font-size:16px;");
+    }, 3000);
+    
+    localStorage.setItem('console_first_open', 'true');
+  }
 };
 
 // Define a standardized window interface to be used across the application
@@ -629,6 +737,7 @@ declare global {
       lastCommand?: string;
       sessionStartTime: number;
       whispersFound: string[];
+      jokesDisplayed?: string[];
     };
     help: () => void;
     reveal: () => void;
@@ -648,5 +757,15 @@ declare global {
     decrypt: (code?: string) => void;
     echo: () => void;
     hint: () => void;
+    // New humor commands
+    helpMe: () => void;
+    tea: () => void;
+    trousers: () => void;
+    moustache: () => void;
+    funny: () => void;
+    seenMyself: () => void;
+    youWereHimFirst: () => void;
+    wearingYouNow: () => void;
+    toggleWrath: () => void;
   }
 }

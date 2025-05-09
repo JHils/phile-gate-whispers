@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { checkRedemptionTime, resetCollapseState, showRedemptionMessage, checkSurvivorEligibility } from "./utils/chronoLayer";
+import { displayRandomJoke } from "./utils/consoleEffects";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import About from "./pages/About";
@@ -27,6 +28,18 @@ import Kuranda from "./pages/Kuranda";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+// Expose the displayRandomJoke function to the window object
+if (typeof window !== "undefined") {
+  window.displayRandomJoke = displayRandomJoke;
+}
+
+// Add the function to the global window interface
+declare global {
+  interface Window {
+    displayRandomJoke: () => void;
+  }
+}
 
 const App = () => {
   useEffect(() => {

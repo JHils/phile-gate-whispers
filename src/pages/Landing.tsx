@@ -41,6 +41,19 @@ const Landing = () => {
     if (!window.help) {
       initializeConsoleCommands(trackEvent, getUserRank, userState);
     }
+    
+    // Set up a periodic random joke in the console (if user has it open)
+    const jokeInterval = setInterval(() => {
+      // Only show a joke 15% of the time the check runs
+      if (Math.random() < 0.15 && window.JonahConsole) {
+        // Use the displayRandomJoke function through the window object if available
+        if (typeof window.displayRandomJoke === 'function') {
+          window.displayRandomJoke();
+        }
+      }
+    }, 45000); // Check every 45 seconds
+    
+    return () => clearInterval(jokeInterval);
   }, [trackEvent, userState, getUserRank, showConsoleMessages]);
 
   // Determine which message to show based on user's state
@@ -70,6 +83,9 @@ const Landing = () => {
       {/* <!-- Try typing 'who am i?' in the console --> */}
       {/* <!-- Try flipcoin(), glitch(), whisper() in the console --> */}
       {/* <!-- Some things echo(), others burn() --> */}
+      {/* <!-- Try toggleWrath() for a secret story --> */}
+      {/* <!-- helpMe() if you dare --> */}
+      {/* <!-- trousers() for binding, tea() for redemption --> */}
       
       <div className="phile-container text-center z-10 px-4">
         <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">THE GATE IS OPEN.</h1>
