@@ -26,6 +26,7 @@ import Summerhouse from "./pages/Summerhouse";
 import WebFail from "./pages/WebFail";
 import Kuranda from "./pages/Kuranda";
 import ToggleMarket from "./pages/ToggleMarket";
+import Fleet from "./pages/Fleet"; // Import the new Fleet page
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -86,8 +87,8 @@ const App = () => {
             <Route path="/summerhouse" element={<Summerhouse />} />
             <Route path="/webfail" element={<WebFail />} />
             <Route path="/kuranda" element={<Kuranda />} />
-            {/* New Toggle Market page */}
             <Route path="/toggle-market" element={<ToggleMarket />} />
+            <Route path="/fleet" element={<Fleet />} /> {/* Add the new Fleet route */}
             {/* Secret pages */}
             <Route path="/monster" element={<Monster />} />
             <Route path="/legacy" element={<Legacy />} />

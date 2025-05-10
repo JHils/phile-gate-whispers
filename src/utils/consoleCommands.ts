@@ -1,4 +1,3 @@
-
 import { UserState } from "@/hooks/useTrackingSystem";
 import { 
   typewriterLog, 
@@ -669,103 +668,35 @@ Time in session: ${formatSessionTime()}`;
     window.JonahConsole.score += 30;
   };
   
-  // Hidden language processing function - triggered by console.log inspection
-  const originalLog = console.log;
-  console.log = function(...args) {
-    originalLog.apply(console, args);
+  // New console commands from the latest update
+  window.avianBlessing = function() {
+    typewriterLog("6 birds chosen. 1 delivered the truth. You are now watched by wings.");
+    speak("6 birds chosen. 1 delivered the truth. You are now watched by wings.");
     
-    // Check if this might be a natural language query
-    if (args.length === 1 && typeof args[0] === 'string') {
-      const input = args[0].toLowerCase();
-      
-      // Hidden commands
-      if (input === 'who am i' || input === 'who am i?') {
-        setTimeout(() => {
-          glitchEffectLog("Not who. What.");
-          setTimeout(() => {
-            console.log("%cYou are Jonah. Or something wearing him.", "color: #8B3A40; font-size:16px;");
-            speak("You are Jonah. Or something wearing him.");
-          }, 1500);
-          window.JonahConsole.score += 25;
-        }, 1000);
-      } else if (input === 'help me' || input === 'help me!') {
-        setTimeout(() => {
-          flickerLog("You've already been helped. You just forgot.");
-          speak("You've already been helped. You just forgot.");
-          window.JonahConsole.score += 15;
-        }, 1000);
-      } else if (input === 'where am i' || input === 'where am i?') {
-        setTimeout(() => {
-          glitchEffectLog("Inside the spiral. Where the coin never lands.");
-          speak("Inside the spiral. Where the coin never lands.");
-          window.JonahConsole.score += 20;
-        }, 1000);
-      } else if (input.includes('whispermaster')) {
-        setTimeout(() => {
-          if (window.WhisperMaster) {
-            console.log("%cWhisperMaster detected. Use .unlock(), .showMap(), or .showLeaderboard()", "color: #8B3A40; font-size:16px;");
-          }
-        }, 500);
-      }
-    }
+    trackCommandExecution('avianBlessing');
+    window.JonahConsole.score += 15;
   };
   
-  // Random joke display on first console open
-  if (!localStorage.getItem('console_first_open')) {
-    console.log("%cAh, a console user. Finally.", "color: #8B3A40; font-size:16px;");
+  window.blessMe = function() {
+    flickerLog("You have been marked by the flock.");
+    speak("You have been marked by the flock.");
+    
+    trackCommandExecution('blessMe');
+    window.JonahConsole.score += 10;
+  };
+  
+  window.initiateBirdProtocol = function() {
+    glitchEffectLog("Too late. It already began.");
+    speak("Too late. It already began.");
     
     setTimeout(() => {
-      console.log("%cYou'd be surprised how many people never even peek under the hood.", "color: #8B3A40; font-size:16px;");
-    }, 1500);
+      console.log("%cThe parakeets are monitoring your connection.", "color: #8B3A40; font-size:14px; font-style:italic;");
+    }, 2000);
     
-    setTimeout(() => {
-      console.log("%cTry typing: help(). Or don't. I'm not your subconscious. Or am I?", "color: #8B3A40; font-size:16px;");
-    }, 3000);
-    
-    localStorage.setItem('console_first_open', 'true');
-  }
-};
-
-// Define a standardized window interface to be used across the application
-declare global {
-  interface Window {
-    JonahConsole: {
-      usedCommands: string[];
-      score: number;
-      failCount: number;
-      rank: string;
-      lastCommand?: string;
-      sessionStartTime: number;
-      whispersFound: string[];
-      jokesDisplayed?: string[];
-    };
-    help: () => void;
-    reveal: () => void;
-    reincarnate: () => void;
-    whois: () => void;
-    gate: () => void;
-    philes: () => void;
-    monster: () => void;
-    legacy: () => void;
-    coinToss: () => void;
-    showStatus: () => Promise<void>;
-    flipcoin: () => void;
-    glitch: () => void;
-    whisper: () => void;
-    scream: () => void;
-    burn: (command?: string) => void;
-    decrypt: (code?: string) => void;
-    echo: () => void;
-    hint: () => void;
-    // New humor commands
-    helpMe: () => void;
-    tea: () => void;
-    trousers: () => void;
-    moustache: () => void;
-    funny: () => void;
-    seenMyself: () => void;
-    youWereHimFirst: () => void;
-    wearingYouNow: () => void;
-    toggleWrath: () => void;
-  }
-}
+    trackCommandExecution('initiateBirdProtocol');
+    window.JonahConsole.score += 20;
+  };
+  
+  window.bullsBalls = function() {
+    typewriterLog("Tutti frutti meets existential crisis.");
+    speak("Tutti fr

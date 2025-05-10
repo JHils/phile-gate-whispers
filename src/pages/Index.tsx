@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SpinningCoin from "../components/SpinningCoin";
@@ -106,7 +105,7 @@ const Index = () => {
 
   return (
     <div 
-      className="min-h-screen flex flex-col items-center justify-center relative bg-cover bg-center overflow-hidden" 
+      className="min-h-screen bg-black font-typewriter flex flex-col"
       style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&q=80&w=1600&ixlib=rb-4.0.3')" }}
     >
       {/* Hidden comments for inspection */}
@@ -193,6 +192,22 @@ const Index = () => {
       <HiddenNav />
       
       <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
+      
+      <div className="font-typewriter text-xs text-dust-blue/30 p-3 text-center">
+        <p className="mb-3">You've been gate-logged {userState.visitCount} times.</p>
+        {/* Add a subtle link to the toggle-market page */}
+        <p className="mb-3">
+          <Link to="/toggle-market" className="hover:text-dust-blue/50 transition-colors">
+            The toggles remember your adjustment.
+          </Link>
+        </p>
+        {/* Add a subtle link to the fleet page */}
+        <p>
+          <Link to="/fleet" className="hover:text-dust-blue/50 transition-colors">
+            The fleet has spotted your position.
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };
