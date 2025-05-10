@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -52,6 +51,9 @@ const Landing = () => {
         }
       }
     }, 45000); // Check every 45 seconds
+    
+    // Add hint for console users
+    console.log("Psst. Try typing: help()");
     
     return () => clearInterval(jokeInterval);
   }, [trackEvent, userState, getUserRank, showConsoleMessages]);
@@ -130,6 +132,12 @@ const Landing = () => {
             </p>
           </div>
         )}
+        
+        {/* Add console hint */}
+        <p className="font-typewriter mt-12 text-phile-light" style={{ fontSize: "0.85rem", opacity: 0.6 }}>
+          Who needs a console when the real story plays out inside your head?<br />
+          <em>Unless you mean… <strong>that</strong> console. In which case, inspect… closely.</em>
+        </p>
       </div>
       
       <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>

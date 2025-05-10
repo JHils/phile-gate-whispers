@@ -175,6 +175,17 @@ const Index = () => {
                 Web Failure
               </Button>
             </Link>
+            
+            {/* Hidden link to Toggle Market with very low opacity */}
+            <Link to="/toggle-market" aria-label="Hidden Toggle Market">
+              <Button 
+                variant="ghost" 
+                className="text-dust-red/10 hover:text-dust-red/60 hover:bg-black/20 border border-transparent hover:border-dust-red/30 text-xs"
+                style={{ opacity: 0.1 }}
+              >
+                Toggle Market
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
