@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
 import { useConsoleMessages } from "../hooks/useConsoleMessages";
-import { Arrow } from "lucide-react";
 
 const Fleet = () => {
   const { userState, trackEvent } = useTrackingSystem();
