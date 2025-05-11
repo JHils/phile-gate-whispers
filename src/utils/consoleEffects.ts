@@ -1,3 +1,4 @@
+
 /**
  * Central export file for all console effects
  * This maintains compatibility with existing imports while providing a more modular structure
@@ -9,6 +10,7 @@ export { speak } from './consoleAudioEffects';
 export { trackCommand } from './consoleTrackingUtils';
 export { displayRandomJoke } from './consoleJokes';
 export { playMagneticTentStory } from './consoleStories';
+export { playGriffTriggerStory } from './consoleGriffStory';
 export { initializeWhisperMaster } from './consoleWhisperMaster';
 
 // This ensures backward compatibility by re-exporting all the functionality

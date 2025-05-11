@@ -1,10 +1,11 @@
-
 import { 
   flickerLog, 
   glitchEffectLog, 
   speak, 
   typewriterLog, 
-  delayedLog 
+  delayedLog,
+  playMagneticTentStory,
+  playGriffTriggerStory
 } from "./consoleEffects";
 
 type TrackCommandFunction = (commandName: string) => void;
@@ -260,6 +261,48 @@ export const initializeStoryCommands = (
     
     trackCommandExecution('coinToss');
   };
+  
+  window.griffProtocol = function() {
+    playGriffTriggerStory();
+    trackCommandExecution('griffProtocol');
+    window.JonahConsole.score += 30;
+  };
+  
+  window.relocate = function() {
+    typewriterLog("Coordinates shifted. Next designation: Boat Haven Bay.");
+    speak("Coordinates shifted. Next designation: Boat Haven Bay.");
+    
+    setTimeout(() => {
+      console.log("%cThe map never shows the same location twice.", "color: #475B74; font-size:14px; font-style:italic;");
+    }, 2000);
+    
+    trackCommandExecution('relocate');
+    window.JonahConsole.score += 20;
+  };
+  
+  window.loopGesture = function() {
+    flickerLog("Bus Loop Alpha initialized. The circuit never breaks.");
+    speak("Bus Loop Alpha initialized. The circuit never breaks.");
+    
+    setTimeout(() => {
+      console.log("%cEvery destination leads back to where you started.", "color: #8B3A40; font-size:14px; font-style:italic;");
+    }, 2000);
+    
+    trackCommandExecution('loopGesture');
+    window.JonahConsole.score += 25;
+  };
+  
+  window.sixEleven = function() {
+    glitchEffectLog("The Six Eleven Prophecy has been activated.");
+    speak("The Six Eleven Prophecy has been activated.");
+    
+    setTimeout(() => {
+      console.log("%cCheck your clock at exactly 6:11. The message will appear.", "color: #8B3A40; font-size:14px; font-style:italic;");
+    }, 2000);
+    
+    trackCommandExecution('sixEleven');
+    window.JonahConsole.score += 35;
+  };
 };
 
 // Add story commands to the global interface
@@ -273,5 +316,9 @@ declare global {
     decrypt: (code?: string) => void;
     echo: () => void;
     coinToss: () => void;
+    griffProtocol: () => void;
+    relocate: () => void;
+    loopGesture: () => void;
+    sixEleven: () => void;
   }
 }

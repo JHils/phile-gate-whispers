@@ -27,6 +27,10 @@ declare global {
     
     // Function declarations will be in their respective files
     displayRandomJoke: () => void;
+    griffProtocol: () => void;
+    relocate: () => void;
+    loopGesture: () => void;
+    sixEleven: () => void;
   }
 }
 
