@@ -103,7 +103,7 @@ const MapPage = () => {
         style: 'mapbox://styles/mapbox/satellite-streets-v12',
         center: [146.5, -19.3], // Central position for Queensland area
         zoom: 9,
-        projection: 'globe',
+        projection: { name: 'globe' as 'globe' }, // Fixed: Using correct type for projection
         pitch: 45,
       });
 
