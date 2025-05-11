@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -131,7 +132,7 @@ const CharacterChat: React.FC<CharacterChatProps> = ({ character }) => {
     if (!input.trim()) return;
     
     // Add user message
-    const userMessage = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       sender: 'user',
       text: input,
@@ -146,7 +147,7 @@ const CharacterChat: React.FC<CharacterChatProps> = ({ character }) => {
     const typingTime = 1000 + Math.random() * 1500;
     
     setTimeout(() => {
-      const characterMessage = {
+      const characterMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'character',
         text: generateCharacterResponse('reply', input),
@@ -159,7 +160,7 @@ const CharacterChat: React.FC<CharacterChatProps> = ({ character }) => {
       // Easter egg - very rare chance of glitch response
       if (Math.random() < 0.08) { // 8% chance
         setTimeout(() => {
-          const glitchMessage = {
+          const glitchMessage: Message = {
             id: (Date.now() + 2).toString(),
             sender: 'character',
             text: "Ī̸̙'̵̱m̸̙ ̴̬n̸̢ȯ̴̰t̴̨ ̴͕s̷̡u̴̺p̶̼p̶͈o̷̪s̸̯e̵̙d̵̪ ̴̦t̸̖o̸̥ ̷̠t̴͓e̴̡l̵̰l̴̤ ̶͚y̶̰o̵̳u̸̳ ̶̠t̸̝h̵̥i̴̢s̷̠.̴̮.̷̧.̴̭ ̴̼t̷̹h̸̫i̷͈s̵̙ ̸̙i̶̠s̷̯n̷͕'̵̨t̸̯ ̸͕r̸͉e̷̫a̵̦l̵̖.̸̼",
