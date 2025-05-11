@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,6 +26,7 @@ import WebFail from "./pages/WebFail";
 import Kuranda from "./pages/Kuranda";
 import ToggleMarket from "./pages/ToggleMarket";
 import Fleet from "./pages/Fleet";
+import Map from "./pages/Map";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -89,6 +89,7 @@ const App = () => {
             <Route path="/kuranda" element={<Kuranda />} />
             <Route path="/toggle-market" element={<ToggleMarket />} />
             <Route path="/fleet" element={<Fleet />} />
+            <Route path="/map" element={<Map />} />
             {/* Secret pages */}
             <Route path="/monster" element={<Monster />} />
             <Route path="/legacy" element={<Legacy />} />

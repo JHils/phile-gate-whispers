@@ -13,7 +13,8 @@ const HiddenNav: React.FC = () => {
   
   const navItems: NavItem[] = [
     { text: "About Jonah", path: "/about" },
-    { text: "Message The Gatekeeper", path: "/contact" }
+    { text: "Message The Gatekeeper", path: "/contact" },
+    { text: "Journey Map", path: "/map" }
   ];
   
   useEffect(() => {
