@@ -1,4 +1,3 @@
-
 import { UserState } from "@/hooks/useTrackingSystem";
 import { 
   typewriterLog, 
@@ -19,7 +18,14 @@ import { initializeBookCommands } from "./consoleBookCommands";
 import { initializeClueSystem } from "./consoleClueSystem";
 import { initializeSimbaSystem } from "./consoleSimbaSystem";
 import { initializeTimeSystem } from "./consoleTimeSystem";
-import { initializeARGCommands, generateTestament } from "./argTracking";
+import { 
+  initializeARGCommands, 
+  generateTestament 
+} from "./argTracking";
+import { 
+  initializeSentience, 
+  generatePersonalDiary 
+} from "./jonahSentience";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -66,6 +72,9 @@ export const initializeConsoleCommands = (
       }
     };
   }
+
+  // Initialize sentience system
+  initializeSentience();
   
   // Initialize WhisperMaster for side quests
   initializeWhisperMaster();
@@ -176,6 +185,14 @@ Time in session: ${formatSessionTime()}`;
         setTimeout(() => {
           console.log("%cAlright. I'll give you coordinates. Don't come alone.", "color: #8B3A40; font-size:16px; font-style:italic;");
         }, 4000);
+      }
+      
+      // If user has high trust, sometimes add a personal diary entry
+      if ((window.JonahConsole.rank === 'gatekeeper' || window.JonahConsole.rank === 'monster') && 
+          Math.random() > 0.7) {
+        setTimeout(() => {
+          console.log("%c" + generatePersonalDiary("high"), "color: #8B3A40; font-size:16px; font-style:italic;");
+        }, 4500);
       }
       
       trackCommandExecution('showStatus');

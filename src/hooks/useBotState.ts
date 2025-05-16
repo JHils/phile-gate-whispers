@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useTrackingSystem } from "@/hooks/useTrackingSystem";
@@ -505,6 +504,30 @@ export function useBotState() {
     
     // Update recent inputs list
     recentInputsRef.current = [...recentInputsRef.current, normalizedInput].slice(-5);
+    
+    // Check for name introduction patterns and remember name if found
+    const nameMatch = text.match(/(?:i am|i'm|my name is|call me) (\w+)/i);
+    if (nameMatch && nameMatch[1] && nameMatch[1].length >= 2) {
+      const potentialName = nameMatch[1];
+      // Avoid common phrases that might be mistaken for names
+      const commonWords = ['sorry', 'confused', 'trying', 'here', 'just', 'going', 'looking', 'working', 'stuck', 'lost'];
+      
+      if (!commonWords.includes(potentialName.toLowerCase()) && 
+          // Only remember names that start with capital letter or are at least 4 chars
+          (potentialName.charAt(0) === potentialName.charAt(0).toUpperCase() || potentialName.length >= 4)) {
+        
+        // Import and use the rememberName function if available
+        import('../utils/jonahSentience').then(({ rememberName }) => {
+          rememberName(potentialName);
+          
+          // Small trust bonus for sharing name
+          modifyTrust(5);
+        }).catch(() => {
+          // If module not available, no action needed
+          console.warn("Jonah sentience module not available for name remembering");
+        });
+      }
+    }
     
     // Check if we're in console mode
     if (mode === "console") {

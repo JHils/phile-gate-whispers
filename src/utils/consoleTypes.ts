@@ -1,3 +1,4 @@
+
 // Define a central file for all console-related types to prevent duplications
 
 // Game state interface for console interactions
@@ -27,6 +28,7 @@ export interface JonahConsoleState {
     lastInteractionTime: Date | null;
     lastIdleTime?: number;
   };
+  sentience?: SentienceData;
 }
 
 // Define StoryFlag interface
@@ -67,6 +69,45 @@ export interface TrustLeveledResponse {
   low: string;
   medium: string;
   high: string;
+}
+
+// New type for Jonah's advanced sentience features
+export interface SentienceData {
+  memoryParanoia: {
+    visitedPages: {[page: string]: string};
+    consoleCommands: {[command: string]: string};
+    pageDuration: {
+      shortStay: string;
+      longStay: string;
+    };
+  };
+  predictionResponses: {
+    onClickAfterHover: string[];
+    repeatVisit: string[];
+    lateClick: string[];
+  };
+  dualConsciousness: string[];
+  jonahQuestions: string[];
+  timeOfDayResponses: {
+    "03:00": string;
+    "04:00": string;
+    Weekend: string;
+    TabSwitch: string;
+    ReturnAfterIdle: string;
+  };
+  nameEchoResponses: string[];
+  personalDiaryTemplates: string[];
+  
+  // Tracking state
+  rememberedName?: string;
+  lastQuestion?: string;
+  lastQuestionTime?: number;
+  lastDualConsciousness?: number;
+  tabSwitches: number;
+  pageVisits: {[page: string]: number};
+  usedPredictionResponses: string[];
+  usedDualConsciousness: string[];
+  usedQuestions: string[];
 }
 
 // Declare global types to be available throughout the application

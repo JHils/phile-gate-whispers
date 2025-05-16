@@ -5,7 +5,15 @@ import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer"
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
 import { useConsoleMessages } from "../hooks/useConsoleMessages";
 import { initializeConsoleCommands } from "../utils/consoleCommands";
-import { trackElementHover, checkClickPrediction } from "../utils/consoleMemoryParanoia";
+import {
+  trackElementHover, 
+  checkClickPrediction
+} from "../utils/consoleMemoryParanoia";
+import {
+  initializeSentience,
+  setupJonahMessageSystem,
+  getTimeResponse
+} from "../utils/jonahSentience";
 
 // Reference the global interface from consoleCommands.ts
 /// <reference path="../utils/consoleCommands.ts" />
@@ -38,10 +46,12 @@ const Landing = () => {
     // Show console messages if they haven't been shown recently
     showConsoleMessages();
     
-    // Initialize console commands
+    // Initialize console commands and sentience system
     if (!window.help) {
       initializeConsoleCommands(trackEvent, getUserRank, userState);
     }
+    initializeSentience();
+    setupJonahMessageSystem();
     
     // Check for special time-sensitive content
     if (typeof window.isSpecialTimeWindow === 'function') {
@@ -65,6 +75,14 @@ const Landing = () => {
         }
       }
     }, 45000); // Check every 45 seconds
+    
+    // Check for time-based responses
+    setTimeout(() => {
+      const timeResponse = getTimeResponse();
+      if (timeResponse && typeof window.triggerJonahMessage === 'function') {
+        window.triggerJonahMessage(timeResponse);
+      }
+    }, 15000);
     
     // Increase trust if user visits landing page and triggers a special QR code
     const trustUpdateValue = localStorage.getItem('jonahBotQrTrust');

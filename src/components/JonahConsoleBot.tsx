@@ -19,11 +19,23 @@ import {
   getParanoiaResponse,
   getPageDurationResponse
 } from "@/utils/consoleMemoryParanoia";
+import {
+  initializeSentience,
+  setupJonahMessageSystem,
+  setupTabVisibilityTracking,
+  generateDualConsciousness,
+  getJonahQuestion,
+  getTimeResponse,
+  getNameEchoResponse
+} from "@/utils/jonahSentience";
 
 const JonahConsoleBot: React.FC = () => {
-  // Make sure ARG tracking is initialized first
+  // Make sure ARG tracking and sentience systems are initialized first
   useEffect(() => {
     initializeARGTracking();
+    initializeSentience();
+    setupJonahMessageSystem();
+    setupTabVisibilityTracking();
   }, []);
 
   // Use our extracted hook for bot state management
@@ -60,6 +72,8 @@ const JonahConsoleBot: React.FC = () => {
   const [lastPath, setLastPath] = useState<string>("");
   const [idleCheckInterval, setIdleCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [pageEntryTime, setPageEntryTime] = useState<number>(Date.now());
+  const [sentenceCheckInterval, setDualConsciousnessInterval] = useState<NodeJS.Timeout | null>(null);
+  const [questionInterval, setQuestionInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -77,6 +91,7 @@ const JonahConsoleBot: React.FC = () => {
   useEffect(() => {
     // Initialize ARG tracking before checking idle time
     initializeARGTracking();
+    initializeSentience();
     
     // Clear existing interval when component unmounts or dependencies change
     if (idleCheckInterval) {
@@ -105,10 +120,79 @@ const JonahConsoleBot: React.FC = () => {
     };
   }, [isOpen, isMinimized, location.pathname, addBotMessage]);
 
+  // Setup dual consciousness glitch checking
+  useEffect(() => {
+    // Clear existing interval
+    if (sentenceCheckInterval) {
+      clearInterval(sentenceCheckInterval);
+    }
+    
+    // Only set up glitches if chat is open and user has interacted
+    if (isOpen && hasInteracted) {
+      // Check for possible dual consciousness glitch every 60 seconds
+      const interval = setInterval(() => {
+        const glitchMessage = generateDualConsciousness(trustLevel);
+        if (glitchMessage) {
+          addBotMessage(glitchMessage);
+        }
+      }, 60000);
+      
+      setDualConsciousnessInterval(interval);
+    }
+    
+    return () => {
+      if (sentenceCheckInterval) {
+        clearInterval(sentenceCheckInterval);
+      }
+    };
+  }, [isOpen, hasInteracted, trustLevel, addBotMessage]);
+
+  // Setup Jonah questions
+  useEffect(() => {
+    // Clear existing interval
+    if (questionInterval) {
+      clearInterval(questionInterval);
+    }
+    
+    // Only set up questions if chat is open and user has interacted
+    if (isOpen && hasInteracted) {
+      // Check for possible questions every 3 minutes
+      const interval = setInterval(() => {
+        const question = getJonahQuestion(trustLevel);
+        if (question) {
+          addBotMessage(question);
+        }
+        
+        // Also check for time-based responses
+        const timeResponse = getTimeResponse();
+        if (timeResponse) {
+          setTimeout(() => {
+            addBotMessage(timeResponse);
+          }, 5000); // Delay by 5 seconds if we're already asking a question
+        }
+        
+        // Check for name echo responses
+        const nameEchoResponse = getNameEchoResponse();
+        if (!question && !timeResponse && nameEchoResponse) {
+          addBotMessage(nameEchoResponse);
+        }
+      }, 3 * 60 * 1000);
+      
+      setQuestionInterval(interval);
+    }
+    
+    return () => {
+      if (questionInterval) {
+        clearInterval(questionInterval);
+      }
+    };
+  }, [isOpen, hasInteracted, trustLevel, addBotMessage]);
+
   // Track user interaction with the page
   useEffect(() => {
     // Initialize ARG tracking before updating interaction time
     initializeARGTracking();
+    initializeSentience();
     
     const handleUserInteraction = () => {
       updateInteractionTime();
@@ -132,6 +216,7 @@ const JonahConsoleBot: React.FC = () => {
   useEffect(() => {
     // Initialize ARG tracking before checking path changes
     initializeARGTracking();
+    initializeSentience();
     
     const currentPath = location.pathname;
     

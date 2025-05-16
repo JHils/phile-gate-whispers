@@ -2,6 +2,7 @@
  * Memory paranoia and prediction systems for Jonah Console Bot
  * Provides eerie, personalized responses based on user behavior patterns
  */
+import { initializeSentience, trackSentiencePage, trackPageDuration } from './jonahSentience';
 
 // Memory paranoia data - comments on specific user navigation patterns
 export const memoryParanoia = {
@@ -48,6 +49,42 @@ export const predictionResponses = {
 
 // Get a random response from a given category
 export const getRandomPredictionResponse = (category: keyof typeof predictionResponses): string => {
+  // Initialize sentience data if needed
+  initializeSentience();
+  
+  // If we have sentience data available, use those responses
+  if (window.JonahConsole?.sentience) {
+    const sentience = window.JonahConsole.sentience;
+    const responses = sentience.predictionResponses[category];
+    
+    if (!sentience.usedPredictionResponses) {
+      sentience.usedPredictionResponses = [];
+    }
+    
+    // Filter out recently used responses
+    const availableResponses = responses.filter(r => !sentience.usedPredictionResponses.includes(r));
+    
+    if (availableResponses.length === 0) {
+      // All responses were used, reset memory
+      sentience.usedPredictionResponses = [];
+      const response = responses[Math.floor(Math.random() * responses.length)];
+      sentience.usedPredictionResponses.push(response);
+      return response;
+    }
+    
+    // Get a random unused response
+    const response = availableResponses[Math.floor(Math.random() * availableResponses.length)];
+    
+    // Remember this response was used (keep last 5)
+    sentience.usedPredictionResponses.push(response);
+    if (sentience.usedPredictionResponses.length > 5) {
+      sentience.usedPredictionResponses.shift();
+    }
+    
+    return response;
+  }
+  
+  // Fallback to original behavior if sentience isn't initialized
   const responses = predictionResponses[category];
   return responses[Math.floor(Math.random() * responses.length)];
 };
@@ -57,20 +94,21 @@ export const getParanoiaResponse = (
   type: 'visitedPages' | 'consoleCommands', 
   identifier: string
 ): string | null => {
+  // Initialize sentience data if needed
+  initializeSentience();
+  
+  // If we have sentience data available, use those responses
+  if (window.JonahConsole?.sentience) {
+    return window.JonahConsole.sentience.memoryParanoia[type][identifier] || null;
+  }
+  
+  // Fallback to original behavior
   return memoryParanoia[type][identifier as keyof typeof memoryParanoia[typeof type]] || null;
 };
 
 // Get page duration response based on time spent
 export const getPageDurationResponse = (timeSpentMs: number): string | null => {
-  // Short stay: less than 10 seconds
-  if (timeSpentMs < 10000) {
-    return memoryParanoia.pageDuration.shortStay;
-  }
-  // Long stay: more than 2 minutes
-  else if (timeSpentMs > 120000) {
-    return memoryParanoia.pageDuration.longStay;
-  }
-  return null;
+  return trackPageDuration(timeSpentMs);
 };
 
 // Track user hover and click patterns for prediction responses
@@ -123,6 +161,12 @@ export const checkClickPrediction = (elementId: string): string | null => {
 
 // Track page visit for repeat visit detection
 export const trackPageVisit = (path: string): string | null => {
+  // Use the sentience system if available
+  const sentienceResponse = trackSentiencePage(path);
+  if (sentienceResponse) {
+    return sentienceResponse;
+  }
+  
   // Check if this is a repeat visit
   if (elementTracking.lastVisitedPages.includes(path)) {
     // Add to front of array (most recent)
