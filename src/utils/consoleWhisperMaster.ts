@@ -3,6 +3,24 @@
  * WhisperMaster functionality for side quests
  */
 
+// Define the WhisperMaster interface for TypeScript
+interface WhisperMaster {
+  map: {[key: number]: string};
+  audioFiles: string[];
+  unlock: (index: number, playerName?: string) => void;
+  playSound: (index: number) => void;
+  updateLeaderboard: (name: string) => void;
+  showMap: () => void;
+  showLeaderboard: () => void;
+}
+
+// Declare WhisperMaster on Window object
+declare global {
+  interface Window {
+    WhisperMaster?: WhisperMaster;
+  }
+}
+
 /**
  * Initialize the WhisperMaster for side quests
  */

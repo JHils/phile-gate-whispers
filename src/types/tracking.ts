@@ -18,6 +18,21 @@ export interface UserState {
     revealCalled: boolean;
     reincarnateCalled: boolean;
   };
+  bookCodes?: {
+    unlockedCodes: string[];
+    lastCodeEnteredAt?: number;
+    totalCodesUnlocked: number;
+  };
+  layeredClues?: {
+    discoveredClues: string[];
+    mirrorChecks: number;
+    anomaliesFound: number;
+  };
+  simba?: {
+    traced: boolean;
+    lastSeen?: string;
+    encounters: number;
+  };
   events: {
     [key: string]: number;
   };
@@ -37,4 +52,11 @@ export interface LeaderboardEntry {
   rank: string;
   score: number;
   lastSeen: string;
+}
+
+export interface BookCode {
+  code: string;
+  page: number;
+  unlocked: boolean;
+  description: string;
 }

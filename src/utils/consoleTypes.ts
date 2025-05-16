@@ -37,5 +37,11 @@ declare global {
     coinToss: () => void;
     relocate: () => void;
     bridgeCollapse?: () => void;
+    WhisperMaster?: any;
+    bookCode?: (code?: string) => void;
+    bookStatus?: () => void;
+    readBetweenLines?: () => void;
+    mirrorCheck?: () => void;
+    traceSimba?: () => void;
   }
 }

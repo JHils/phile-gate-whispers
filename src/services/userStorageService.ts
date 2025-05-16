@@ -20,6 +20,19 @@ const DEFAULT_STATE: UserState = {
     revealCalled: false,
     reincarnateCalled: false,
   },
+  bookCodes: {
+    unlockedCodes: [],
+    totalCodesUnlocked: 0
+  },
+  layeredClues: {
+    discoveredClues: [],
+    mirrorChecks: 0,
+    anomaliesFound: 0
+  },
+  simba: {
+    traced: false,
+    encounters: 0
+  },
   events: {}
 };
 
@@ -35,7 +48,10 @@ export const loadUserState = (): UserState => {
     // Set default values for new properties if they don't exist
     state = {
       ...DEFAULT_STATE,
-      ...state
+      ...state,
+      bookCodes: state.bookCodes || { ...DEFAULT_STATE.bookCodes },
+      layeredClues: state.layeredClues || { ...DEFAULT_STATE.layeredClues },
+      simba: state.simba || { ...DEFAULT_STATE.simba }
     };
     
     // Migrate legacy values from localStorage
@@ -124,6 +140,13 @@ export const migrateLegacyValues = (state: UserState): void => {
   
   if (localStorage.getItem('legacyJournalEntry')) {
     state.legacyWritten = true;
+  }
+  
+  // Migrate book codes from localStorage
+  const unlockedBookCodes = JSON.parse(localStorage.getItem('unlockedBookCodes') || '[]');
+  if (unlockedBookCodes.length > 0 && state.bookCodes) {
+    state.bookCodes.unlockedCodes = unlockedBookCodes;
+    state.bookCodes.totalCodesUnlocked = unlockedBookCodes.length;
   }
 
   // Also update the phileScore and phileRank for console compatibility

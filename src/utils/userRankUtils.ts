@@ -26,6 +26,23 @@ export const calculateScore = (state: UserState): number => {
   if (state.legacyWritten) score += 150;
   if (state.gatekeeperStatus) score += 75;
   
+  // Points for book code unlocks
+  if (state.bookCodes && state.bookCodes.unlockedCodes) {
+    score += state.bookCodes.unlockedCodes.length * 25;
+  }
+  
+  // Points for layered clue discoveries
+  if (state.layeredClues && state.layeredClues.discoveredClues) {
+    score += state.layeredClues.discoveredClues.length * 35;
+    score += state.layeredClues.anomaliesFound * 20;
+  }
+  
+  // Points for Simba encounters
+  if (state.simba && state.simba.traced) {
+    score += 40;
+    score += state.simba.encounters * 15;
+  }
+  
   return score;
 };
 
