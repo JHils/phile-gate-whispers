@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer"
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
 import { useConsoleMessages } from "../hooks/useConsoleMessages";
 import { initializeConsoleCommands } from "../utils/consoleCommands";
+import { trackElementHover, checkClickPrediction } from "../utils/consoleMemoryParanoia";
 
 // Reference the global interface from consoleCommands.ts
 /// <reference path="../utils/consoleCommands.ts" />
@@ -86,6 +86,40 @@ const Landing = () => {
         setIsSpecialTimeContent(window.isSpecialTimeWindow());
       }
     }, 60000); // Check every minute
+    
+    // Add tracking for interactive elements to enable prediction responses
+    const trackInteractiveElements = () => {
+      document.querySelectorAll('a, button, .interactive-element').forEach((element, index) => {
+        const elementId = element.id || `interactive-element-${index}`;
+        
+        // Set id if not present
+        if (!element.id) {
+          element.id = elementId;
+        }
+        
+        // Add hover tracking
+        element.addEventListener('mouseenter', () => trackElementHover(elementId));
+        
+        // Add click prediction checking
+        element.addEventListener('click', (e) => {
+          const predictionMessage = checkClickPrediction(elementId);
+          
+          // If we have a prediction response and high enough trust or luck
+          if (predictionMessage && (localStorage.getItem('phileRank') !== 'drifter' || Math.random() > 0.8)) {
+            // For trusted users, show Jonah's prediction
+            if (typeof window.triggerJonahMessage === 'function') {
+              window.triggerJonahMessage(predictionMessage);
+            } else {
+              // Fallback if Jonah bot isn't available
+              console.log(`%c${predictionMessage}`, "color: #8B3A40; font-style:italic;");
+            }
+          }
+        });
+      });
+    };
+    
+    // Set up tracking after a short delay to ensure all elements are rendered
+    setTimeout(trackInteractiveElements, 1000);
     
     return () => {
       clearInterval(jokeInterval);

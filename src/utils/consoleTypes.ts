@@ -1,4 +1,3 @@
-
 // Define a central file for all console-related types to prevent duplications
 
 // Game state interface for console interactions
@@ -77,6 +76,7 @@ declare global {
     WhisperMaster?: WhisperMaster;
     isSpecialTimeWindow: () => boolean;
     triggerSimbaComment: (pageId: string) => boolean;
+    triggerJonahMessage: (message: string) => void; // New function to trigger Jonah messages
     bridgeCollapse: () => void;
     
     // Console system commands

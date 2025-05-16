@@ -1,6 +1,7 @@
 import { trackCommand } from "./consoleTrackingUtils";
 import { typewriterLog, glitchEffectLog } from "./consoleEffects";
 import { TestamentData, TrustLevel } from "@/types/chat";
+import { getParanoiaResponse } from "./consoleMemoryParanoia";
 
 // ARG progress tracking
 export interface ARGProgress {
@@ -154,6 +155,12 @@ export const trackConsoleClue = (clueId: string) => {
   // Check if user has matched 3 console clues
   if (window.JonahConsole.argData.consoleCluesTouched.length === 3) {
     return "You stitched the scars. Now stitch the truth.";
+  }
+  
+  // Check for paranoia response to this console command
+  const paranoiaResponse = getParanoiaResponse('consoleCommands', clueId);
+  if (paranoiaResponse && Math.random() > 0.7) {
+    return paranoiaResponse;
   }
   
   return null;
@@ -346,6 +353,9 @@ export const initializeARGCommands = (trackCommandExecution: (commandName: strin
     }, 5000);
     
     trackCommandExecution('testament');
+    
+    // Track this console command for memory paranoia
+    trackConsoleClue('/testament');
   };
 };
 

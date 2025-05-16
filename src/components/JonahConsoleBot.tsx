@@ -14,6 +14,11 @@ import {
   trackSecretPageVisit, 
   getARGResponse 
 } from "@/utils/argTracking";
+import {
+  trackPageVisit,
+  getParanoiaResponse,
+  getPageDurationResponse
+} from "@/utils/consoleMemoryParanoia";
 
 const JonahConsoleBot: React.FC = () => {
   // Make sure ARG tracking is initialized first
@@ -54,6 +59,7 @@ const JonahConsoleBot: React.FC = () => {
   const location = useLocation();
   const [lastPath, setLastPath] = useState<string>("");
   const [idleCheckInterval, setIdleCheckInterval] = useState<NodeJS.Timeout | null>(null);
+  const [pageEntryTime, setPageEntryTime] = useState<number>(Date.now());
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -122,7 +128,7 @@ const JonahConsoleBot: React.FC = () => {
     };
   }, []);
 
-  // Track page navigation for trust modifications and secret pages
+  // Track page navigation for trust modifications, secret pages, and memory paranoia
   useEffect(() => {
     // Initialize ARG tracking before checking path changes
     initializeARGTracking();
@@ -131,6 +137,33 @@ const JonahConsoleBot: React.FC = () => {
     
     // Only process if path has changed
     if (currentPath !== lastPath) {
+      // Reset page entry time for duration tracking
+      const now = Date.now();
+      
+      // If we have a previous path, we can calculate duration
+      if (lastPath) {
+        const timeSpent = now - pageEntryTime;
+        
+        // Check if we should show a duration-based paranoia message
+        const durationMessage = getPageDurationResponse(timeSpent);
+        if (durationMessage && Math.random() > 0.7) {
+          setTimeout(() => {
+            addBotMessage(durationMessage);
+          }, 1000);
+        }
+      }
+      
+      // Update page entry time for new page
+      setPageEntryTime(now);
+      
+      // Check for repeat visit paranoia
+      const repeatVisitMessage = trackPageVisit(currentPath);
+      if (repeatVisitMessage && Math.random() > 0.6) {
+        setTimeout(() => {
+          addBotMessage(repeatVisitMessage);
+        }, 1500);
+      }
+      
       // Special hidden pages that boost trust
       const hiddenPages = ['/rebirth', '/mirror-logs', '/legacy', '/monster', '/gatekeeper', '/philes', '/toggle-market'];
       
@@ -141,10 +174,16 @@ const JonahConsoleBot: React.FC = () => {
         // Track the secret page visit
         const secretResponse = trackSecretPageVisit(currentPath);
         
+        // Check for paranoia response for this page
+        const paranoiaResponse = getParanoiaResponse('visitedPages', currentPath);
+        
+        // Choose between secret response and paranoia response
+        const responseToUse = Math.random() > 0.5 ? secretResponse : paranoiaResponse;
+        
         // For secret pages, add a unique comment
-        if (secretResponse && Math.random() > 0.5) {
+        if (responseToUse) {
           setTimeout(() => {
-            addBotMessage(secretResponse);
+            addBotMessage(responseToUse);
           }, 2000);
         }
       }
@@ -160,7 +199,7 @@ const JonahConsoleBot: React.FC = () => {
       // Update the last path
       setLastPath(currentPath);
     }
-  }, [location.pathname, modifyTrust, addBotMessage, lastPath]);
+  }, [location.pathname, modifyTrust, addBotMessage, lastPath, pageEntryTime]);
 
   // Add hover detection for specific elements
   useEffect(() => {
