@@ -356,7 +356,7 @@ const JonahConsoleBot: React.FC = () => {
               )}
               <button onClick={closeChat} className="text-gray-400 hover:text-white">
                 <X className="w-4 h-4" />
-              </button>
+                </button>
             </div>
           </div>
 
@@ -416,7 +416,8 @@ const JonahConsoleBot: React.FC = () => {
       )}
 
       {/* CSS for glitch effects */}
-      <style jsx>{`
+      <style>
+        {`
         .animate-glitch {
           animation: glitch 0.5s cubic-bezier(.25, .46, .45, .94) both;
         }
@@ -487,7 +488,8 @@ const JonahConsoleBot: React.FC = () => {
             transform: translate(0);
           }
         }
-      `}</style>
+        `}
+      </style>
     </>
   );
 };
