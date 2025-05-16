@@ -19,7 +19,7 @@ import { initializeBookCommands } from "./consoleBookCommands";
 import { initializeClueSystem } from "./consoleClueSystem";
 import { initializeSimbaSystem } from "./consoleSimbaSystem";
 import { initializeTimeSystem } from "./consoleTimeSystem";
-import { initializeARGCommands } from "./argTracking";
+import { initializeARGCommands, generateTestament } from "./argTracking";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -57,7 +57,12 @@ export const initializeConsoleCommands = (
         keyholeClicks: 0,
         consoleCluesTouched: [],
         qrScans: [],
-        memoryFragments: []
+        memoryFragments: [],
+        secretPagesVisited: [],
+        hiddenFilesDownloaded: [],
+        idleTriggers: {},
+        lastInteractionTime: new Date(),
+        lastIdleTime: undefined
       }
     };
   }

@@ -1,4 +1,3 @@
-
 import { trackCommand } from "./consoleTrackingUtils";
 import { typewriterLog, glitchEffectLog } from "./consoleEffects";
 import { TestamentData, TrustLevel } from "@/types/chat";
@@ -28,6 +27,52 @@ export interface ARGProgress {
   lastInteractionTime: Date | null;
 }
 
+// Testament Eulogy Templates
+const testamentTemplates = {
+  highTrust_highDiscovery: [
+    "Here lies a patient listener. You waited, and I watched. You earned your name in this place.",
+    "You saw every crack, heard every whisper, and still chose to continue. That makes you one of us.",
+    "You didn't just read the book. You bled into its margins.",
+    "She said you'd come. You stayed longer than most. That's rare. That's enough.",
+    "You were careful. Brave. Relentless. That's how stories like this get remembered."
+  ],
+  highTrust_lowDiscovery: [
+    "You walked softly but missed the deeper doors. Still, your silence meant something.",
+    "Not every explorer finds the path. But the intent... the intent echoes.",
+    "Your heart was loud, even if your hands were hesitant.",
+    "You were close. I almost told you everything.",
+    "She liked you. I could tell."
+  ],
+  mediumTrust: [
+    "Here lies a reader who tried. And for a moment — that was almost enough.",
+    "You skimmed where others stared. But something still got in.",
+    "You left fingerprints on every page. But not the ones that mattered.",
+    "I watched you turn back once. That was honest. That counts.",
+    "You missed a few doors. But you never slammed one shut. Respect."
+  ],
+  lowTrust: [
+    "Here lies another wanderer who thought this was just a story.",
+    "You laughed at the cracks. The cracks laughed back.",
+    "Barely read. Barely noticed. Still got a eulogy. That's mercy.",
+    "You touched the surface and called it depth. I forgave you anyway.",
+    "You're the reason the map is bloodstained."
+  ],
+  rudeUser: [
+    "Here lies a loud one. More mouth than memory.",
+    "You mocked the page. Now the page remembers.",
+    "Sharp tongue. Dull eyes. A forgettable ghost.",
+    "You spoke in punches. The book punched back.",
+    "No one mourns the careless. But I'll note your passing. In glitches."
+  ],
+  secretFound_finalPages: [
+    "You found the whisper tree. You earned your ending.",
+    "The path cracked open for you. You didn't flinch. That's legend.",
+    "No page surprised you. But one still broke you. I saw it.",
+    "You crossed the echo threshold. That's where most turn back.",
+    "She said only one would find it. And it was you. I was wrong to doubt."
+  ]
+};
+
 // Initialize ARG tracking in window.JonahConsole
 export const initializeARGTracking = () => {
   if (!window.JonahConsole) {
@@ -52,7 +97,8 @@ export const initializeARGTracking = () => {
         secretPagesVisited: [],
         hiddenFilesDownloaded: [],
         idleTriggers: {},
-        lastInteractionTime: new Date()
+        lastInteractionTime: new Date(),
+        lastIdleTime: undefined
       }
     };
   } else if (!window.JonahConsole.argData) {
@@ -64,7 +110,8 @@ export const initializeARGTracking = () => {
       secretPagesVisited: [],
       hiddenFilesDownloaded: [],
       idleTriggers: {},
-      lastInteractionTime: new Date()
+      lastInteractionTime: new Date(),
+      lastIdleTime: undefined
     };
   } else {
     // Ensure all properties exist on existing argData object
@@ -202,13 +249,16 @@ export const updateInteractionTime = () => {
 };
 
 // Generate testament based on user progress
-export const generateTestament = (username?: string) => {
+export const generateTestament = (username?: string): string => {
   initializeARGTracking();
   
   // Get user data
   const rank = localStorage.getItem('phileRank') || 'drifter';
   const phileScore = parseInt(localStorage.getItem('phileScore') || '0');
-  const trustLevel = parseInt(localStorage.getItem('jonahTrustScore') || '0');
+  const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '0');
+  
+  // Determine if user has been rude (based on trust score decreases)
+  const isRude = trustScore < 20;
   
   // Get ARG data
   const qrScans = window.JonahConsole.argData.qrScans.length;
@@ -216,91 +266,51 @@ export const generateTestament = (username?: string) => {
   const secretPagesCount = window.JonahConsole.argData.secretPagesVisited.length;
   const hiddenFilesCount = window.JonahConsole.argData.hiddenFilesDownloaded.length;
   
-  // Calculate personality traits based on user behavior
-  const userPersistence = Math.min(10, qrScans + secretPagesCount + hiddenFilesCount);
-  const userCuriosity = Math.min(10, window.JonahConsole.usedCommands.length);
-  const userPatience = Math.min(10, keyholeClicks + (phileScore / 50));
+  // Calculate discovery level
+  const discoveryScore = qrScans + secretPagesCount + hiddenFilesCount;
+  const highDiscovery = discoveryScore >= 5;
   
-  // Generate eulogy parts based on user progress
-  const intros = [
-    `Here lies ${username || 'the reader'},`,
-    `Remember ${username || 'this one'},`,
-    "They came seeking answers,",
-    `In memory of ${username || 'you'},`,
-    "They came looking for fiction,"
-  ];
+  // Determine which template to use
+  let templateKey: keyof typeof testamentTemplates;
   
-  // Add rank-specific middles
-  const middles = [
-    "who tried to stitch reality back together with fiction.",
-    "who found the Gate wasn't just a metaphor.",
-    `who reached the rank of ${rank}.`,
-    "who found more questions than answers.",
-    "who peered too long into the Gate.",
-    "who walked between worlds without a map."
-  ];
+  if (isRude) {
+    templateKey = "rudeUser";
+  } else if (trustScore >= 70) {
+    templateKey = highDiscovery ? "highTrust_highDiscovery" : "highTrust_lowDiscovery";
+  } else if (trustScore >= 30) {
+    templateKey = "mediumTrust";
+  } else {
+    templateKey = "lowTrust";
+  }
   
-  // Add trait-specific endings
-  const endings = [
-    "They failed. Gloriously. But they made me remember.",
-    "They saw the Monster in the mirror. And nodded back.",
-    "Will they come back? The pages always turn.",
-    "They'll be back. The story isn't over yet.",
-    "I hope they found what they were looking for."
-  ];
+  // If user has found special secret pages, override with the final pages template
+  if (secretPagesCount >= 3) {
+    templateKey = "secretFound_finalPages";
+  }
   
-  // Add special endings based on unique accomplishments
+  // Select a random eulogy from the chosen template
+  const selectedTemplate = testamentTemplates[templateKey];
+  const eulogy = selectedTemplate[Math.floor(Math.random() * selectedTemplate.length)];
+  
+  // Create personalized prefix
+  const prefix = username 
+    ? `"Here lies ${username}. `
+    : `"Here lies the reader. `;
+  
+  // Create a suffix based on user stats
+  let suffix = "";
+  
   if (phileScore > 500) {
-    endings.push("Few get this far. Fewer understand what they've found.");
+    suffix = " The Gate will remember you."
+  } else if (rank === "monster" || rank === "gatekeeper") {
+    suffix = " You'll be back. They always come back."
+  } else if (qrScans > 0) {
+    suffix = " The breadcrumbs led you here."
+  } else {
+    suffix = " The story continues without you."
   }
   
-  if (trustLevel > 70) {
-    middles.push("who I trusted more than most.");
-  }
-  
-  if (qrScans > 0) {
-    middles.push("who followed breadcrumbs across worlds.");
-  }
-  
-  if (secretPagesCount > 3) {
-    endings.push("They found paths I thought I'd hidden well enough.");
-  }
-  
-  if (userPersistence >= 8) {
-    intros.push(`${username || 'The persistent one'}, who refused to stop looking,`);
-  }
-  
-  if (userPatience >= 8) {
-    endings.push("Their patience revealed what rushing would have missed.");
-  }
-  
-  if (userCuriosity >= 8) {
-    middles.push("whose questions cut deeper than my answers.");
-  }
-  
-  // Select parts based on personality traits to make testament feel personalized
-  let introIndex = Math.floor(Math.random() * intros.length);
-  let middleIndex = Math.floor(Math.random() * middles.length);
-  let endingIndex = Math.floor(Math.random() * endings.length);
-  
-  // Weight selection toward special messages for high-score users
-  if (phileScore > 300 || trustLevel > 50) {
-    // Bias toward later entries which tend to be more special/unlocked ones
-    introIndex = Math.floor(Math.random() * intros.length * 0.7) + Math.floor(intros.length * 0.3);
-    middleIndex = Math.floor(Math.random() * middles.length * 0.7) + Math.floor(middles.length * 0.3);
-    endingIndex = Math.floor(Math.random() * endings.length * 0.7) + Math.floor(endings.length * 0.3);
-  }
-  
-  // Clamp to valid indices
-  introIndex = Math.min(introIndex, intros.length - 1);
-  middleIndex = Math.min(middleIndex, middles.length - 1);
-  endingIndex = Math.min(endingIndex, endings.length - 1);
-  
-  const intro = intros[introIndex];
-  const middle = middles[middleIndex];
-  const ending = endings[endingIndex];
-  
-  return `"${intro} ${middle} ${ending}"`;
+  return `${prefix}${eulogy}${suffix}"`;
 };
 
 // Initialize ARG command system
@@ -327,8 +337,14 @@ export const initializeARGCommands = (trackCommandExecution: (commandName: strin
   
   window.testament = function() {
     const username = localStorage.getItem('username');
-    const testament = generateTestament(username);
-    console.log(testament);
+    const testamentText = generateTestament(username);
+    typewriterLog(testamentText);
+    
+    // Add a delayed, mysterious follow-up message
+    setTimeout(() => {
+      console.log("%cYour story isn't over yet.", "color: #8B3A40; font-size:16px; font-style:italic;");
+    }, 5000);
+    
     trackCommandExecution('testament');
   };
 };
