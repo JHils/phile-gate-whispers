@@ -7,6 +7,12 @@ import { BotMessages } from "./bot/BotMessages";
 import { BotInput } from "./bot/BotInput";
 import { useBotState } from "@/hooks/useBotState";
 import { BotIcon } from "./bot/BotIcon";
+import { 
+  updateInteractionTime, 
+  checkIdleTime, 
+  trackSecretPageVisit, 
+  getARGResponse 
+} from "@/utils/argTracking";
 
 const JonahConsoleBot: React.FC = () => {
   // Use our extracted hook for bot state management
@@ -40,6 +46,8 @@ const JonahConsoleBot: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
+  const [lastPath, setLastPath] = useState<string>("");
+  const [idleCheckInterval, setIdleCheckInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -53,24 +61,134 @@ const JonahConsoleBot: React.FC = () => {
     }
   }, [isOpen, isMinimized]);
 
-  // Track page navigation for trust modifications
+  // Set up idle detection
   useEffect(() => {
-    // Special hidden pages that boost trust
-    const hiddenPages = ['/rebirth', '/mirror-logs', '/legacy', '/monster', '/gatekeeper', '/philes'];
+    // Clear existing interval when component unmounts or dependencies change
+    if (idleCheckInterval) {
+      clearInterval(idleCheckInterval);
+    }
+    
+    // Create new idle check interval - check every 30 seconds
+    const interval = setInterval(() => {
+      const currentPath = location.pathname;
+      const idleMessage = checkIdleTime(currentPath);
+      
+      if (idleMessage && (!isOpen || isMinimized)) {
+        // Auto-open chat with idle message if not already open
+        setIsOpen(true);
+        setIsMinimized(false);
+        addBotMessage(idleMessage);
+      }
+    }, 30000);
+    
+    setIdleCheckInterval(interval);
+    
+    return () => {
+      if (idleCheckInterval) {
+        clearInterval(idleCheckInterval);
+      }
+    };
+  }, [isOpen, isMinimized, location.pathname]);
+
+  // Track user interaction with the page
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      updateInteractionTime();
+    };
+    
+    // Add event listeners for user interactions
+    window.addEventListener('mousedown', handleUserInteraction);
+    window.addEventListener('keydown', handleUserInteraction);
+    window.addEventListener('scroll', handleUserInteraction);
+    window.addEventListener('mousemove', handleUserInteraction);
+    
+    return () => {
+      window.removeEventListener('mousedown', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+      window.removeEventListener('scroll', handleUserInteraction);
+      window.removeEventListener('mousemove', handleUserInteraction);
+    };
+  }, []);
+
+  // Track page navigation for trust modifications and secret pages
+  useEffect(() => {
     const currentPath = location.pathname;
     
-    if (hiddenPages.includes(currentPath)) {
-      // Award trust points for visiting hidden pages
-      modifyTrust(10);
+    // Only process if path has changed
+    if (currentPath !== lastPath) {
+      // Special hidden pages that boost trust
+      const hiddenPages = ['/rebirth', '/mirror-logs', '/legacy', '/monster', '/gatekeeper', '/philes', '/toggle-market'];
       
-      // For very special pages, add a unique comment
-      if (currentPath === '/mirror-logs') {
-        setTimeout(() => {
-          addBotMessage("You found this place. I'm... impressed.");
-        }, 2000);
+      if (hiddenPages.includes(currentPath)) {
+        // Award trust points for visiting hidden pages
+        modifyTrust(10);
+        
+        // Track the secret page visit
+        const secretResponse = trackSecretPageVisit(currentPath);
+        
+        // For secret pages, add a unique comment
+        if (secretResponse && Math.random() > 0.5) {
+          setTimeout(() => {
+            addBotMessage(secretResponse);
+          }, 2000);
+        }
       }
+      
+      // Check for ARG progression responses
+      const argResponse = getARGResponse();
+      if (argResponse && Math.random() > 0.7) { // 30% chance to show ARG-specific response on page change
+        setTimeout(() => {
+          addBotMessage(argResponse);
+        }, 3000);
+      }
+      
+      // Update the last path
+      setLastPath(currentPath);
     }
-  }, [location.pathname, modifyTrust, addBotMessage]);
+  }, [location.pathname, modifyTrust, addBotMessage, lastPath]);
+
+  // Add hover detection for specific elements
+  useEffect(() => {
+    // Function to handle element hover
+    const handleElementHover = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      
+      // Check for special classes that might indicate secret elements
+      const isSecretElement = 
+        target.classList.contains('easter-egg') || 
+        target.classList.contains('hidden-link') || 
+        target.classList.contains('keyhole') ||
+        target.getAttribute('data-secret') === 'true';
+      
+      // If it's a secret element and we have high trust, maybe give a hint
+      if (isSecretElement && trustLevel === 'high' && Math.random() > 0.7) {
+        const hintMessages = [
+          "This isn't where the real story ends.",
+          "Click again. Just once. Trust me.",
+          "You're close. Look harder.",
+          "There's something here worth finding."
+        ];
+        
+        const randomHint = hintMessages[Math.floor(Math.random() * hintMessages.length)];
+        
+        if (!isOpen) {
+          setIsOpen(true);
+          setIsMinimized(false);
+        }
+        
+        addBotMessage(randomHint);
+      }
+    };
+    
+    // Only add the hover detection if we have high trust
+    if (trustLevel === 'high') {
+      document.addEventListener('mouseover', handleElementHover);
+      
+      return () => {
+        document.removeEventListener('mouseover', handleElementHover);
+      };
+    }
+  }, [trustLevel, isOpen, addBotMessage]);
 
   return (
     <>

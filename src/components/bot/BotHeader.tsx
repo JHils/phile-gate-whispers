@@ -1,6 +1,6 @@
 
 import React from "react";
-import { X, Minus, Terminal, MessageSquare } from "lucide-react";
+import { X, Minus, Terminal, MessageSquare, Shield, Lock, LockOpen } from "lucide-react";
 import { BotMode, TrustLevel } from "@/types/chat";
 
 interface BotHeaderProps {
@@ -28,18 +28,36 @@ export const BotHeader: React.FC<BotHeaderProps> = ({
     return "JONAH.log";
   };
 
+  // Get appropriate icon based on mode and trust
+  const renderStatusIcon = () => {
+    if (mode === "console") {
+      return <Terminal className="w-5 h-5 text-green-400 mr-2" />;
+    }
+
+    if (trustLevel === "high") {
+      return <LockOpen className="w-5 h-5 text-blue-400 mr-2" />;
+    } else if (trustLevel === "medium") {
+      return <Shield className="w-5 h-5 text-yellow-400 mr-2" />;
+    } else {
+      return <Lock className="w-5 h-5 text-red-400 mr-2" />;
+    }
+  };
+
+  // Get appropriate trust level indicator color
+  const getTrustLevelColor = () => {
+    if (trustLevel === "high") return "text-blue-400";
+    if (trustLevel === "medium") return "text-yellow-400";
+    return "text-red-400";
+  };
+
   return (
     <div className="flex items-center justify-between bg-gray-800 p-2 rounded-t-lg">
       <div className="flex items-center">
-        {mode === "console" ? (
-          <Terminal className="w-5 h-5 text-green-400 mr-2" />
-        ) : (
-          <MessageSquare className="w-5 h-5 text-blue-400 mr-2" />
-        )}
+        {renderStatusIcon()}
         <span className="text-sm font-mono">
           {getTitle()}
           {!isMinimized && trustScore !== undefined && (
-            <span className="ml-2 text-xs text-gray-400">
+            <span className={`ml-2 text-xs ${getTrustLevelColor()}`}>
               (trust: {Math.min(100, trustScore)}%)
             </span>
           )}

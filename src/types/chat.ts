@@ -38,4 +38,16 @@ export interface TestamentData {
   trustLevel: TrustLevel;
   visitedPages: string[];
   unlockedSecrets: string[];
+  qrCodes: string[];
+  hiddenFiles: string[];
+  chapter: {
+    current: number;
+    completed: boolean[];
+  };
+  specialPaths: string[];
+  behaviourStats: {
+    rudeness: number;
+    patience: number;
+    curiosity: number;
+  };
 }

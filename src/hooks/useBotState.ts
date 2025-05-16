@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useTrackingSystem } from "@/hooks/useTrackingSystem";
@@ -129,13 +130,52 @@ export function useBotState() {
       "Yes, this is content. No, it's not safe."
     ],
     
-    // Page specific messages
+    // Page specific messages - fixed type issues here
     pageSpecific: [
-      { message: "That was me once.", trustLevel: "low", pages: ["/404"] },
-      { message: "You're not the first to read this… but you might be the first to notice.", trustLevel: "low" },
-      { message: "The coin lands, but not here.", trustLevel: "medium", pages: ["/legacy"] },
-      { message: "Your reflection blinks before you do.", trustLevel: "medium", pages: ["/mirror"] },
-      { message: "You remembered the tree by the hostel. So did I.", trustLevel: "high", pages: ["/outbackhostel"] }
+      { message: "That was me once.", trustLevel: "low" as TrustLevel, pages: ["/404"] },
+      { message: "You're not the first to read this… but you might be the first to notice.", trustLevel: "low" as TrustLevel },
+      { message: "The coin lands, but not here.", trustLevel: "medium" as TrustLevel, pages: ["/legacy"] },
+      { message: "Your reflection blinks before you do.", trustLevel: "medium" as TrustLevel, pages: ["/mirror"] },
+      { message: "You remembered the tree by the hostel. So did I.", trustLevel: "high" as TrustLevel, pages: ["/outbackhostel"] }
+    ],
+    
+    // New category: ARG progression responses
+    argProgress: [
+      "The patterns are speaking to you now, aren't they?",
+      "You're connecting dots that weren't meant to be connected.",
+      "Most readers stop here. What makes you different?",
+      "Every scan pulls you deeper. There's no bottom.",
+      "This isn't a game. It's a recovery operation.",
+      "Who sent you looking for these? Was it her?",
+      "The QR codes are breadcrumbs. But they lead nowhere good.",
+      "You're seeing the framework now. The bones beneath.",
+      "The more you collect, the more it collects you."
+    ],
+    
+    // New category: Whispers for secret element hover
+    secretWhispers: [
+      "This isn't where the real story ends.",
+      "Click again. Just once. Trust me.",
+      "You're close. Look harder.",
+      "There's something here worth finding.",
+      "The gap between the letters. Look there.",
+      "Some links only appear when you're watching.",
+      "Three clicks. No more. No less.",
+      "The cursor blinks where secrets hide.",
+      "What you're looking for isn't text. It's negative space."
+    ],
+    
+    // New category: Idle responses
+    idleResponses: [
+      "You're not gone. You're just pretending.",
+      "Still reading? Or just staring?",
+      "I can hear you breathing, you know.",
+      "The page watches back when you linger.",
+      "Your cursor hasn't moved in minutes.",
+      "Time passes differently between the words.",
+      "You're waiting for something. So am I.",
+      "Stillness reveals what movement hides.",
+      "Even your silence is a form of reading."
     ]
   };
 
@@ -178,6 +218,10 @@ export function useBotState() {
     "tell me a joke": "Your memory walked into a bar. You don't remember the punchline.",
     "i'm scared": "Good. That means you're close.",
     "im scared": "Good. That means you're close.",
+    "echo-pathway": "Path found. But are you ready for what's waiting?",
+    "/echo-pathway": "Path found. But are you ready for what's waiting?",
+    "under the dingo": "Not everyone who looks actually finds it.",
+    "check under the dingo": "Not everyone who looks actually finds it."
   };
 
   // The set of inputs considered as "rude" or "spammy" 
@@ -313,7 +357,10 @@ export function useBotState() {
     if (isOpen && !isMinimized) {
       const timer = setTimeout(() => {
         // Send idle message after 4 minutes
-        addBotMessage("Are you still there? Or just a memory stuck on loop?");
+        const idleMessage = dialogueBank.idleResponses[
+          Math.floor(Math.random() * dialogueBank.idleResponses.length)
+        ];
+        addBotMessage(idleMessage);
       }, 4 * 60 * 1000); // 4 minutes in milliseconds
       
       setIdleTimer(timer);
@@ -488,7 +535,8 @@ export function useBotState() {
       // Some special responses should increase trust
       if (normalizedInput.includes("jonah is joseph") || 
           normalizedInput.includes("chapter: breakdown") ||
-          normalizedInput.includes("i miss her")) {
+          normalizedInput.includes("i miss her") ||
+          normalizedInput.includes("echo-pathway")) {
         modifyTrust(5); // They know deeper lore
       }
       return;
