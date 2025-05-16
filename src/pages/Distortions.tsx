@@ -109,7 +109,8 @@ const Distortions: React.FC = () => {
     }
     
     // Add special Simba logs if user has encountered Simba
-    if (window.JonahConsole?.simba?.encountered) {
+    const simbaPresence = localStorage.getItem('simbaPresence');
+    if (simbaPresence && JSON.parse(simbaPresence).traced) {
       generatedLogs.push({
         date: new Date().toISOString().split('T')[0],
         variant: "SM1BA",

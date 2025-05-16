@@ -1,4 +1,3 @@
-
 // Define a central file for all console-related types to prevent duplications
 
 // Game state interface for console interactions
@@ -10,6 +9,26 @@ export interface JonahConsoleState {
   lastCommand?: string;
   sessionStartTime: number;
   whispersFound: string[];
+  jokesDisplayed?: string[];
+  storyFlags?: StoryFlag[];
+  bookCodes?: BookCode[];
+  simba?: {
+    encountered: boolean;
+    lastSeen?: string;
+  };
+}
+
+// Define StoryFlag interface
+export interface StoryFlag {
+  id: string;
+  discovered: boolean;
+  description: string;
+}
+
+// Define BookCode interface
+export interface BookCode {
+  id: string;
+  unlocked: boolean;
 }
 
 // Define the WhisperMaster interface for TypeScript
@@ -31,6 +50,16 @@ declare global {
     isSpecialTimeWindow: () => boolean;
     triggerSimbaComment: (pageId: string) => boolean;
     bridgeCollapse?: () => void;
+    
+    // Console system commands
+    timeCheck: () => void;
+    traceCat: () => void;
+    feedSimba: () => void;
+    
+    // Book commands
+    readPage: (page: number) => void;
+    verifyCode: (code: string) => void;
+    
     // Add other global console-related functions here
     // Console basics
     help: () => void;
@@ -55,5 +84,12 @@ declare global {
     relocate: () => void;
     loopGesture: () => void;
     sixEleven: () => void;
+    // Story flag functions
+    discoverStoryFlag: (flagId: string) => boolean;
+    storyFlags: () => void;
+    mirrorCheck: () => void;
+    findAnomaly: (text?: string) => void;
+    // Other commands
+    displayRandomJoke: () => void;
   }
 }

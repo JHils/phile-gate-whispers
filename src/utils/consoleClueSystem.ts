@@ -1,14 +1,8 @@
 
 import { glitchEffectLog, typewriterLog, speak, delayedLog } from "./consoleEffects";
+import { StoryFlag } from "./consoleTypes";
 
 type TrackCommandFunction = (commandName: string) => void;
-
-// Store clues and their discovery status
-interface StoryFlag {
-  id: string;
-  discovered: boolean;
-  description: string;
-}
 
 export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction) => {
   // Initialize story flags if they don't exist
@@ -33,9 +27,14 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
     }
   }
 
+  // Initialize book codes if they don't exist
+  if (!window.JonahConsole.bookCodes) {
+    window.JonahConsole.bookCodes = [];
+  }
+
   // mirrorCheck command - requires at least 3 story flags discovered
   window.mirrorCheck = function() {
-    const discoveredCount = window.JonahConsole.storyFlags.filter(f => f.discovered).length;
+    const discoveredCount = window.JonahConsole.storyFlags?.filter(f => f.discovered).length || 0;
     const unlockedBookCodes = window.JonahConsole.bookCodes ? 
       window.JonahConsole.bookCodes.filter(bc => bc.unlocked).length : 0;
     
@@ -48,13 +47,15 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
         
         // Show discovered story flags
         setTimeout(() => {
-          window.JonahConsole.storyFlags
-            .filter(f => f.discovered)
-            .forEach((flag, index) => {
-              setTimeout(() => {
-                console.log(`%c${flag.description}`, "color: #8B3A40; font-size:14px;");
-              }, index * 1000);
-            });
+          if (window.JonahConsole.storyFlags) {
+            window.JonahConsole.storyFlags
+              .filter(f => f.discovered)
+              .forEach((flag, index) => {
+                setTimeout(() => {
+                  console.log(`%c${flag.description}`, "color: #8B3A40; font-size:14px;");
+                }, index * 1000);
+              });
+          }
           
           // Show a connecting phrase at the end
           setTimeout(() => {
@@ -85,6 +86,10 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
 
   // Command to view discovered story flags
   window.storyFlags = function() {
+    if (!window.JonahConsole.storyFlags) {
+      window.JonahConsole.storyFlags = []; 
+    }
+    
     const discoveredCount = window.JonahConsole.storyFlags.filter(f => f.discovered).length;
     const totalCount = window.JonahConsole.storyFlags.length;
     
@@ -115,6 +120,10 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
 
   // Function to discover a story flag (called from various pages)
   window.discoverStoryFlag = function(flagId) {
+    if (!window.JonahConsole.storyFlags) {
+      return false;
+    }
+    
     const flag = window.JonahConsole.storyFlags.find(f => f.id === flagId);
     if (flag && !flag.discovered) {
       flag.discovered = true;
@@ -179,16 +188,3 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
     trackCommandExecution('findAnomaly');
   };
 };
-
-// Add clue system commands to the global interface
-declare global {
-  interface Window {
-    mirrorCheck: () => void;
-    storyFlags: () => void;
-    findAnomaly: (text?: string) => void;
-    discoverStoryFlag: (flagId: string) => boolean;
-    JonahConsole: any & {
-      storyFlags?: Array<StoryFlag>;
-    };
-  }
-}

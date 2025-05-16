@@ -32,6 +32,13 @@ export const initializeSimbaSystem = (trackCommandExecution: TrackCommandFunctio
       simbaData.encounters = 1;
       localStorage.setItem('simbaPresence', JSON.stringify(simbaData));
       
+      // Update the JonahConsole simba property
+      if (!window.JonahConsole.simba) {
+        window.JonahConsole.simba = {
+          encountered: true
+        };
+      }
+      
       setTimeout(() => {
         console.log("%cWhen the cat appears, you'll know.", "color: #475B74; font-size:14px; font-style:italic;");
       }, 2000);
@@ -71,6 +78,17 @@ export const initializeSimbaSystem = (trackCommandExecution: TrackCommandFunctio
     simbaData.encounters = (simbaData.encounters || 0) + 1;
     simbaData.lastSeen = pageId;
     localStorage.setItem('simbaPresence', JSON.stringify(simbaData));
+    
+    // Update the JonahConsole simba property
+    if (!window.JonahConsole.simba) {
+      window.JonahConsole.simba = {
+        encountered: true,
+        lastSeen: pageId
+      };
+    } else {
+      window.JonahConsole.simba.encountered = true;
+      window.JonahConsole.simba.lastSeen = pageId;
+    }
     
     // Return true to trigger Simba comment
     return true;
