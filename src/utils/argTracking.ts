@@ -1,6 +1,5 @@
-
 import { trackCommand } from "./consoleTrackingUtils";
-import { TypewriterEffect, GlitchEffect } from "./consoleEffects";
+import { typewriterLog, glitchEffectLog } from "./consoleEffects";
 
 // ARG progress tracking
 export interface ARGProgress {
