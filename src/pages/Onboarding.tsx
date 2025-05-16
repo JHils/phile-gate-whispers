@@ -1,281 +1,262 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
-import { Card } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import HiddenLink from '@/components/HiddenLink';
+import { useConsoleMessages } from '@/hooks/useConsoleMessages';
+import TextGlitch from '@/components/TextGlitch';
 
-const Onboarding: React.FC = () => {
+const Onboarding = () => {
+  const { trackEvent, userState } = useTrackingSystem();
   const navigate = useNavigate();
-  const { trackEvent } = useTrackingSystem();
-  const { toast } = useToast();
-  const [currentSection, setCurrentSection] = useState(1);
-  const [consoleInitiated, setConsoleInitiated] = useState(false);
-  const [listeningAttempted, setListeningAttempted] = useState(false);
-  const [secondVisit, setSecondVisit] = useState(false);
-  const [isTraceCompleted, setIsTraceCompleted] = useState(false);
-
-  // Check if this is the second+ visit
+  const [activeSection, setActiveSection] = useState(1);
+  const [consoleValue, setConsoleValue] = useState('');
+  const [consoleOutput, setConsoleOutput] = useState<{ text: string, isResponse?: boolean }[]>([]);
+  const [showHiddenWord, setShowHiddenWord] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(false);
+  const consoleInputRef = useRef<HTMLInputElement>(null);
+  const consoleOutputRef = useRef<HTMLDivElement>(null);
+  
+  const { showConsoleMessages } = useConsoleMessages({ 
+    storageKey: 'onboarding_console_messages',
+    userState
+  });
+  
   useEffect(() => {
-    const visitCount = parseInt(localStorage.getItem('onboardingVisits') || '0');
-    if (visitCount > 0) {
-      setSecondVisit(true);
-    }
-    localStorage.setItem('onboardingVisits', (visitCount + 1).toString());
-
-    // Track this page view
-    trackEvent('view_onboarding');
-  }, [trackEvent]);
-
-  const initiateConsole = () => {
-    setConsoleInitiated(true);
-    trackEvent('onboarding_console_initiated');
+    trackEvent('visited_onboarding');
+    showConsoleMessages();
     
+    // Set up console command handler
+    (window as any).seeTheLie = function() {
+      setShowHiddenWord(true);
+      return "Truth revealed. Shadow path unlocked.";
+    };
+  }, [trackEvent, showConsoleMessages]);
+  
+  useEffect(() => {
+    // Auto-scroll console output to bottom
+    if (consoleOutputRef.current) {
+      consoleOutputRef.current.scrollTop = consoleOutputRef.current.scrollHeight;
+    }
+  }, [consoleOutput]);
+  
+  const handleConsoleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!consoleValue.trim()) return;
+    
+    // Add user input to console output
+    setConsoleOutput(prev => [...prev, { text: `> ${consoleValue}` }]);
+    
+    // Handle different commands
+    const command = consoleValue.trim().toLowerCase();
+    let response = "Command not recognized.";
+    
+    if (command === 'initiate()') {
+      response = "Shadowfile Initiated. Memory slot corrupted. Proceed.";
+      setActiveSection(2);
+    } else if (command === 'seetheli()' || command === 'seethelie()') {
+      response = "Truth revealed. Shadow path unlocked.";
+      setShowHiddenWord(true);
+    } else if (command === 'listen()') {
+      response = "Audio channel detected: ECHO 3. Response delayed.";
+      setAudioEnabled(true);
+    } else if (command.includes('tracevariant')) {
+      response = "QR registered. Variant leads to unstable page: /fleet/ghost";
+    } else if (command === 'breaktheloop()') {
+      response = "Loop broken. Redirecting to failure state...";
+      setTimeout(() => navigate('/onboarding/failure'), 1500);
+    } else if (command === 'help()' || command === 'help') {
+      response = "Available commands: initiate(), listen(), seeTheLie(), traceVariant(), breakTheLoop()";
+    } else if (command === 'clear()' || command === 'clear') {
+      setConsoleOutput([]);
+      setConsoleValue('');
+      return;
+    }
+    
+    // Add response to console output with delay
     setTimeout(() => {
-      toast({
-        title: "Shadowfile Initiated",
-        description: "Memory slot corrupted. Proceed.",
-        variant: "destructive"
-      });
-    }, 500);
-  };
-
-  const handleListenCommand = () => {
-    setListeningAttempted(true);
+      setConsoleOutput(prev => [...prev, { text: `→ ${response}`, isResponse: true }]);
+    }, 300);
     
-    if (secondVisit) {
-      toast({
-        title: "Audio channel detected: ECHO 3",
-        description: "Signal coming through...",
-        variant: "default"
-      });
-      
-      setTimeout(() => {
-        // Play audio or show additional content for second visit
-        console.log("%cECHO 3: They're watching you through the browser.", "color: #8B3A40; font-size:14px;");
-      }, 2000);
-    } else {
-      toast({
-        title: "Audio channel detected: ECHO 3",
-        description: "Response delayed.",
-        variant: "default"
-      });
-    }
+    // Clear the input
+    setConsoleValue('');
     
-    trackEvent('onboarding_listen_command');
-  };
-
-  const handleTraceVariant = () => {
-    setIsTraceCompleted(true);
-    toast({
-      title: "QR registered",
-      description: "Variant leads to unstable page: /fleet/ghost",
-      variant: "default"
-    });
-    
-    trackEvent('onboarding_trace_variant');
-    
-    // Add this as a discoverable URL
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('discoveredFleetGhost', 'true');
+    // Make sure we track the special command
+    if (command === 'seethelie()') {
+      trackEvent('console_seeTheLie_called');
     }
   };
-
-  const completeTraining = () => {
+  
+  const handleCompleteTraining = () => {
     trackEvent('onboarding_completed');
     navigate('/gate');
   };
-
-  const breakTheLoop = () => {
-    trackEvent('onboarding_break_loop');
-    navigate('/onboarding/failure');
-  };
-
+  
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white p-4 md:p-8">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 mt-8 text-center">Jonah's Philes – Onboarding</h1>
+    <div className="min-h-screen bg-black text-white font-mono flex flex-col">
+      <div className="container mx-auto px-4 py-12 flex-grow flex flex-col">
+        <header className="mb-10 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">GATEWATCH ORIENTATION</h1>
+          <p className="text-dust-blue opacity-70">Access Level: UNAUTHORIZED</p>
+        </header>
         
-        {/* Section 1 */}
-        <Card className="bg-gray-800 bg-opacity-50 backdrop-blur-sm border border-gray-700 p-6 mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Section 1 – Welcome to the Archive</h2>
-          <p className="mb-4">You are not authorised. But you're here anyway. That's enough.</p>
-          <p className="mb-6">This orientation program was designed for Gate Agents only. If you are reading this, protocol has failed. So… congratulations. You are now a Gatewatch Trainee.</p>
-          
-          <div className="mb-4">
-            <p className="mb-4">Tap the console below to begin your shadowfile.</p>
+        <div className="max-w-3xl mx-auto w-full flex-grow flex flex-col">
+          {/* Section 1 */}
+          <div className={`mb-16 transition-all duration-500 ${activeSection > 1 ? 'opacity-50' : ''}`}>
+            <h2 className="text-xl md:text-2xl mb-6 border-b border-gray-800 pb-2 font-typewriter">Section 1 – Welcome to the Archive</h2>
             
-            <div className="bg-black p-4 rounded-md font-mono text-sm mb-6">
-              {!consoleInitiated ? (
-                <div className="cursor-pointer flex" onClick={initiateConsole}>
-                  <span className="text-green-400">&gt;</span> 
-                  <span className="ml-2 text-green-400">console command: </span>
-                  <span className="ml-2 text-white hover:text-green-300">initiate()</span>
-                </div>
-              ) : (
-                <>
-                  <div>
-                    <span className="text-green-400">&gt;</span> 
-                    <span className="ml-2 text-green-400">console command: </span>
-                    <span className="ml-2 text-white">initiate()</span>
-                  </div>
-                  <div className="text-green-300 mt-1">→ Shadowfile Initiated. Memory slot corrupted. Proceed.</div>
-                </>
-              )}
-            </div>
-            
-            {consoleInitiated && (
-              <Button 
-                variant="outline" 
-                onClick={() => setCurrentSection(2)}
-                className="w-full mt-4 border-gray-500 text-gray-300 hover:bg-gray-700"
-              >
-                Continue to Section 2
-              </Button>
-            )}
-          </div>
-        </Card>
-        
-        {/* Section 2 */}
-        {currentSection >= 2 && (
-          <Card className="bg-gray-800 bg-opacity-50 backdrop-blur-sm border border-gray-700 p-6 mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Section 2 – How to Spot a Clue</h2>
-            <p className="mb-4">Not all secrets wear labels. Some look like typos. Others wear timestamps like camouflage. When in doubt, click what shouldn't be clickable.</p>
-            
-            <div className="mb-6">
-              <p>
-                Sometimes the truth is hidden in plain sight. <HiddenLink 
-                  text="You just need to look closer." 
-                  password="layer1" 
-                  redirectPath="/shadow/initiation?layer=1" 
-                  className="text-gray-400 hover:text-white"
-                />
-              </p>
-            </div>
-            
-            <div className="bg-black p-4 rounded-md font-mono text-sm mb-6">
-              <div>
-                <span className="text-green-400">&gt;</span> 
-                <span className="ml-2 text-green-400">console command: </span>
-                <span className="ml-2 text-white animate-pulse">seeTheLie()</span>
-              </div>
-            </div>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => setCurrentSection(3)}
-              className="w-full mt-4 border-gray-500 text-gray-300 hover:bg-gray-700"
-            >
-              Continue to Section 3
-            </Button>
-          </Card>
-        )}
-        
-        {/* Section 3 */}
-        {currentSection >= 3 && (
-          <Card className="bg-gray-800 bg-opacity-50 backdrop-blur-sm border border-gray-700 p-6 mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Section 3 – Understanding Console Behaviour</h2>
-            <p className="mb-4">The Console speaks in code. It wants to help you. Or mislead you. That's part of the game.</p>
-            
-            <div className="bg-black p-4 rounded-md font-mono text-sm mb-6">
-              <div>
-                <span className="text-green-400">&gt;</span> 
-                <span className="ml-2 text-green-400">console command: </span>
-                <span 
-                  className="ml-2 text-white hover:text-green-300 cursor-pointer"
-                  onClick={handleListenCommand}
-                >
-                  listen()
-                </span>
-              </div>
+            <div className="space-y-6 text-lg">
+              <p className="animate-fade-in">You are not authorised. But you're here anyway. That's enough.</p>
               
-              {listeningAttempted && (
-                <div className="text-green-300 mt-1">
-                  → Audio channel detected: ECHO 3. 
-                  <span 
-                    className="ml-1 cursor-help" 
-                    title={secondVisit ? "Signal connected. Try running this command in the browser console." : "Try again after your second visit."}
+              <p className="animate-fade-in delay-300">This orientation program was designed for Gate Agents only. If you are reading this, protocol has failed. So… congratulations. You are now a Gatewatch Trainee.</p>
+              
+              <p className="animate-fade-in delay-600">Tap the console below to begin your shadowfile.</p>
+              
+              <div className="bg-gray-900 border border-gray-800 rounded-md p-4">
+                <form onSubmit={handleConsoleSubmit} className="flex flex-col">
+                  <div 
+                    ref={consoleOutputRef}
+                    className="h-32 overflow-y-auto mb-2 text-sm" 
+                    style={{ fontFamily: 'monospace' }}
+                    onClick={() => consoleInputRef.current?.focus()}
                   >
-                    Response {secondVisit ? "connected" : "delayed"}.
-                  </span>
-                </div>
-              )}
-            </div>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => setCurrentSection(4)}
-              className="w-full mt-4 border-gray-500 text-gray-300 hover:bg-gray-700"
-            >
-              Continue to Section 4
-            </Button>
-          </Card>
-        )}
-        
-        {/* Section 4 */}
-        {currentSection >= 4 && (
-          <Card className="bg-gray-800 bg-opacity-50 backdrop-blur-sm border border-gray-700 p-6 mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Section 4 – Pavement URLs & QR Variants</h2>
-            <p className="mb-4">Pages like /re-entry?code=XXXX hide in plain sight.</p>
-            <p className="mb-4">QR codes embedded in books, graffiti, or corrupted logs lead here. Some change. Some lie. All mean something.</p>
-            
-            <div className="mb-4">
-              <p className="mb-4">Sample: /re-<span className="bg-gray-700">■■■■■■■■</span>?code=<span className="bg-gray-700">■■■■</span></p>
-            </div>
-            
-            <div className="bg-black p-4 rounded-md font-mono text-sm mb-6">
-              <div>
-                <span className="text-green-400">&gt;</span> 
-                <span className="ml-2 text-green-400">console command: </span>
-                <span 
-                  className="ml-2 text-white hover:text-green-300 cursor-pointer"
-                  onClick={handleTraceVariant}
-                >
-                  traceVariant("VAR007")
-                </span>
+                    {consoleOutput.map((line, i) => (
+                      <div 
+                        key={i} 
+                        className={`mb-1 ${line.isResponse ? 'text-dust-blue' : 'text-white'}`}
+                      >
+                        {line.text}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex border-t border-gray-800 pt-2">
+                    <span className="text-dust-blue mr-2">&gt;</span>
+                    <input
+                      ref={consoleInputRef}
+                      type="text"
+                      value={consoleValue}
+                      onChange={e => setConsoleValue(e.target.value)}
+                      className="bg-transparent flex-grow focus:outline-none"
+                      placeholder="Enter command"
+                      autoFocus
+                    />
+                  </div>
+                </form>
+                
+                <div className="text-xs text-gray-500 mt-2">Try: initiate()</div>
               </div>
+            </div>
+          </div>
+          
+          {/* Section 2 */}
+          {activeSection >= 2 && (
+            <div className={`mb-16 transition-all duration-500 ${activeSection > 2 ? 'opacity-50' : ''}`}>
+              <h2 className="text-xl md:text-2xl mb-6 border-b border-gray-800 pb-2 font-typewriter">Section 2 – How to Spot a Clue</h2>
               
-              {isTraceCompleted && (
-                <div className="text-green-300 mt-1">
-                  → QR registered. Variant leads to unstable page: /fleet/ghost
+              <div className="space-y-6 text-lg">
+                <p>Not all secrets wear labels. Some look like typos. Others wear timestamps like camouflage. When in doubt, click what shouldn't be clickable.</p>
+                
+                <p>
+                  Some text contains <span 
+                    className={`${showHiddenWord ? 'text-dust-red cursor-pointer underline' : ''}`}
+                    onClick={() => {
+                      if (showHiddenWord) {
+                        trackEvent('shadow_path_link_clicked');
+                        navigate('/shadow/initiation?layer=1');
+                      }
+                    }}
+                  >
+                    hidden paths
+                  </span> that lead to deeper truths.
+                </p>
+                
+                <div className="bg-gray-900 border border-gray-800 rounded-md p-4">
+                  <div className="font-mono text-sm">
+                    <div>&gt; console command: seeTheLie()</div>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => setCurrentSection(5)}
-              className="w-full mt-4 border-gray-500 text-gray-300 hover:bg-gray-700"
-            >
-              Continue to Section 5
-            </Button>
-          </Card>
-        )}
-        
-        {/* Section 5 */}
-        {currentSection >= 5 && (
-          <Card className="bg-gray-800 bg-opacity-50 backdrop-blur-sm border border-gray-700 p-6 mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Section 5 – Final Lesson: Nothing Is Final</h2>
-            <p className="mb-4">If this page ends… It's lying.</p>
-            <p className="mb-6">If the system says COMPLETE… You've missed something.</p>
-            
-            <Button 
-              onClick={completeTraining}
-              className="w-full mb-6 bg-green-700 hover:bg-green-600 text-white"
-            >
-              Complete Training
-            </Button>
-            
-            <div 
-              className="text-white opacity-0 hover:opacity-100 transition-opacity duration-500 mt-8 cursor-pointer text-center"
-              onClick={breakTheLoop}
-            >
-              → Use command: breakTheLoop()
+          )}
+          
+          {/* Section 3 */}
+          {activeSection >= 2 && (
+            <div className={`mb-16 transition-all duration-500 ${activeSection > 3 ? 'opacity-50' : ''}`}>
+              <h2 className="text-xl md:text-2xl mb-6 border-b border-gray-800 pb-2 font-typewriter">Section 3 – Understanding Console Behaviour</h2>
+              
+              <div className="space-y-6 text-lg">
+                <p>The Console speaks in code. It wants to help you. Or mislead you. That's part of the game.</p>
+                
+                <p>Try: listen()</p>
+                
+                <div className="bg-gray-900 border border-gray-800 rounded-md p-4">
+                  <div className="font-mono text-sm text-dust-blue">
+                    → Audio channel detected: ECHO 3. 
+                    <span 
+                      className="relative group cursor-help"
+                      title="Try again after your second visit."
+                    >
+                      Response delayed.
+                      <span className="hidden group-hover:block absolute bg-gray-800 border border-gray-700 text-white text-xs p-2 rounded w-48 top-full left-0 mt-1 z-10">
+                        Try again after your second visit.
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </Card>
-        )}
+          )}
+          
+          {/* Section 4 */}
+          {activeSection >= 2 && (
+            <div className={`mb-16 transition-all duration-500 ${activeSection > 4 ? 'opacity-50' : ''}`}>
+              <h2 className="text-xl md:text-2xl mb-6 border-b border-gray-800 pb-2 font-typewriter">Section 4 – Pavement URLs & QR Variants</h2>
+              
+              <div className="space-y-6 text-lg">
+                <p>Pages like /re-entry?code=XXXX hide in plain sight.</p>
+                
+                <p>QR codes embedded in books, graffiti, or corrupted logs lead here. Some change. Some lie. All mean something.</p>
+                
+                <p>Sample: /re-■■■■■■■■?code=■■■■</p>
+                
+                <div className="bg-gray-900 border border-gray-800 rounded-md p-4">
+                  <div className="font-mono text-sm">
+                    <div>&gt; console command: traceVariant("VAR007")</div>
+                    <div className="text-dust-blue">→ QR registered. Variant leads to unstable page: /fleet/ghost</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Section 5 */}
+          {activeSection >= 2 && (
+            <div className="mb-16 pb-16 border-b border-gray-800">
+              <h2 className="text-xl md:text-2xl mb-6 border-b border-gray-800 pb-2 font-typewriter">Section 5 – Final Lesson: Nothing Is Final</h2>
+              
+              <div className="space-y-6 text-lg">
+                <p>If this page ends… It's lying.</p>
+                <p>If the system says COMPLETE… You've missed something.</p>
+                
+                <div className="text-center mt-10">
+                  <Button
+                    onClick={handleCompleteTraining}
+                    className="bg-dust-blue hover:bg-dust-blue/80 text-black px-8 py-6 text-lg"
+                  >
+                    Complete Training
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Hidden text */}
+          <div className="text-white text-opacity-0 hover:text-opacity-10 text-xs mt-10 transition-all select-none">
+            → Use command: breakTheLoop()
+          </div>
+        </div>
       </div>
     </div>
   );

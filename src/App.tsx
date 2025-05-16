@@ -40,6 +40,10 @@ import ShadowInitiation from "./pages/ShadowInitiation";
 import ReEntry from "./pages/ReEntry";
 import Distortions from "./pages/Distortions";
 
+// New breadcrumb pages
+import WebCatch from "./pages/WebCatch";
+import QuietMode from "./pages/QuietMode";
+
 const queryClient = new QueryClient();
 
 // Expose the displayRandomJoke function to the window object
@@ -111,6 +115,10 @@ const App = () => {
             {/* Book-connected pages */}
             <Route path="/re-entry" element={<ReEntry />} />
             <Route path="/distortions" element={<Distortions />} />
+            
+            {/* Breadcrumb pages */}
+            <Route path="/web-catch" element={<WebCatch />} />
+            <Route path="/quiet-mode" element={<QuietMode />} />
             
             {/* Secret pages */}
             <Route path="/monster" element={<Monster />} />

@@ -19,6 +19,13 @@ const Summerhouse = () => {
   const [scanProgress, setScanProgress] = useState(0);
   const [currentRule, setCurrentRule] = useState(0);
   const [glitchActive, setGlitchActive] = useState(false);
+  const [scentActive, setScentActive] = useState(false);
+  
+  // Check if site scent is active from localStorage
+  useEffect(() => {
+    const siteScentActive = localStorage.getItem('siteScentActive') === 'true';
+    setScentActive(siteScentActive);
+  }, []);
   
   // Hostel rules that will rotate and occasionally show horror messages
   const hostelRules = [
@@ -103,6 +110,9 @@ const Summerhouse = () => {
   useEffect(() => {
     trackEvent('visited_summerhouse');
     showConsoleMessages();
+    
+    // Add DidgeriPOO console message for breadcrumb
+    console.log("DidgeriPOO registered.");
   }, [trackEvent, showConsoleMessages]);
   
   // Get current rule or horror message text
@@ -122,9 +132,33 @@ const Summerhouse = () => {
     cursor: 'none'
   };
 
+  // Handle teen panic form submission
+  const handleTeenPanicSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const input = (e.currentTarget.elements.namedItem('teen-panic') as HTMLInputElement);
+    if (input && input.value.toLowerCase() === 'teen panic') {
+      localStorage.setItem('siteScentActive', 'true');
+      setScentActive(true);
+      input.value = '';
+      
+      // Show success message
+      const form = e.currentTarget;
+      const successMsg = document.createElement('div');
+      successMsg.className = 'text-dust-red text-xs mt-1';
+      successMsg.textContent = 'Site scent changed.';
+      form.appendChild(successMsg);
+      
+      setTimeout(() => {
+        if (form.contains(successMsg)) {
+          form.removeChild(successMsg);
+        }
+      }, 3000);
+    }
+  };
+
   return (
     <div 
-      className="min-h-screen bg-[#2E2E2E] text-white font-sans relative overflow-hidden"
+      className={`min-h-screen ${scentActive ? 'bg-[#2a2a28]' : 'bg-[#2E2E2E]'} text-white font-sans relative overflow-hidden`}
       style={cursorStyle}
     >
       {/* Custom cursor */}
@@ -156,8 +190,14 @@ const Summerhouse = () => {
         }`}
       ></div>
       
-      {/* Mold texture overlay */}
-      <div className="fixed inset-0 bg-opacity-20 pointer-events-none z-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii4wNSIgbnVtT2N0YXZlcz0iMiIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAuMSAwIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI2EpIi8+PC9zdmc+')]"></div>
+      {/* Mold texture overlay - different based on site scent */}
+      <div 
+        className={`fixed inset-0 bg-opacity-20 pointer-events-none z-20 ${
+          scentActive 
+            ? 'bg-[url(\'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii4wNyIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAuMTUgMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIvPjwvc3ZnPg==\')'
+            : 'bg-[url(\'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii4wNSIgbnVtT2N0YXZlcz0iMiIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAuMSAwIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI2EpIi8+PC9zdmc+\')'
+        }`}
+      ></div>
       
       <div className="container mx-auto px-4 py-12 relative z-10">
         {/* Header */}
@@ -172,6 +212,12 @@ const Summerhouse = () => {
               className="text-xl tracking-wide opacity-80"
             />
           </div>
+          
+          {scentActive && (
+            <div className="mt-2 text-xs text-dust-red/80 animate-pulse">
+              [Site scent active: Mold/Teen Panic]
+            </div>
+          )}
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
@@ -225,6 +271,27 @@ const Summerhouse = () => {
           </section>
         </div>
         
+        {/* Hidden Teen Panic Form (for the breadcrumb) */}
+        <section className="bg-black/30 p-6 border border-gray-700 mb-8">
+          <h2 className="uppercase tracking-wider text-2xl mb-6 font-bold text-dust-blue">SITE PROTECTION</h2>
+          
+          <form onSubmit={handleTeenPanicSubmit} className="flex flex-col md:flex-row gap-3">
+            <input 
+              type="text" 
+              id="teen-panic"
+              name="teen-panic"
+              placeholder="Enter protection code" 
+              className="bg-gray-800 border border-gray-700 px-3 py-2 rounded flex-grow"
+            />
+            <Button type="submit" variant="outline" className="border-gray-700">
+              Submit
+            </Button>
+          </form>
+          <div className="mt-2 text-xs opacity-50">
+            For guests with authorized cleansing access only
+          </div>
+        </section>
+        
         {/* Refund Status Bar */}
         <section className="bg-black/30 p-6 border border-gray-700 mb-8">
           <h2 className="uppercase tracking-wider text-2xl mb-6 font-bold text-dust-blue">REFUND STATUS</h2>
@@ -235,6 +302,15 @@ const Summerhouse = () => {
             Booking.com refund in progress... <span className="animate-pulse">Loading...</span>
           </p>
         </section>
+        
+        {/* Cleansing Protocol Link */}
+        {scentActive && (
+          <div className="text-center mt-8">
+            <Link to="/cleansing" className="text-dust-red hover:text-red-400 transition-colors text-sm">
+              Activate Cleansing Protocol
+            </Link>
+          </div>
+        )}
         
         {/* Back to Gate link */}
         <div className="text-center mt-12">
@@ -249,6 +325,7 @@ const Summerhouse = () => {
         <p>The walls aren't soundproof.</p>
         <p>Room 7 was sealed for a reason.</p>
         <p>The manager is always listening.</p>
+        <meta name="description" content="MinistryOfSmell-v0.2" />
       </div>
     </div>
   );
