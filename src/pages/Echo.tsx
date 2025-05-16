@@ -1,67 +1,60 @@
 
-import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { useTrackingSystem } from "@/hooks/useTrackingSystem";
 
 export default function Echo() {
+  const navigate = useNavigate();
   const { trackEvent } = useTrackingSystem();
 
   useEffect(() => {
-    document.title = "Echo Chamber";
+    document.title = "Echo";
     trackEvent("page_view_echo");
     
-    // Console breadcrumb
-    console.log("Echo chamber accessed. Timestamp: " + new Date().toISOString());
-    console.log("Use 'echo()' in the console to resonate.");
+    // Add console triggers for ARG
+    console.log("Echo protocol initiated...");
+    console.log("Listening for resonance...");
+    
+    setTimeout(() => {
+      console.log("Try typing 'echo()' in the console...");
+    }, 3000);
   }, [trackEvent]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 flex flex-col">
-      <div className="max-w-3xl mx-auto w-full py-16">
-        <h1 className="text-4xl md:text-6xl font-bold mb-8 text-dust-blue">Echo Chamber</h1>
-        
-        <div className="space-y-6 font-typewriter">
-          <p className="text-xl text-dust-orange">
-            Your request has been received.
-          </p>
-          
-          <div className="my-12 p-6 border border-gray-800 bg-gray-900/50 rounded-lg">
-            <p className="mb-4 text-silver">Scanning for resonance patterns...</p>
-            
-            <div className="my-4 font-mono text-sm text-gray-500 bg-gray-800/50 p-4 rounded overflow-auto">
-              <p>{'>'} Searching gate records...</p>
-              <p>{'>'} Validating access patterns...</p>
-              <p>{'>'} Echo delay: calculating...</p>
-              <p>{'>'} Connection established to node [REDACTED]</p>
-              <p>{'>'} ...</p>
-              <p>{'>'} Request logged. Awaiting gatekeeper approval.</p>
-            </div>
-            
-            <p className="text-dust-blue italic">
-              The waters are deep. The shadows, deeper still.
-            </p>
-          </div>
-          
-          <div className="mt-8">
-            <p className="text-gray-400 mb-4">
-              You've reached the edge of the known map.
-            </p>
-            
-            <Link to="/gate">
-              <Button variant="outline" className="border-dust-blue text-dust-blue hover:bg-dust-blue/10">
-                Return to The Gate
-              </Button>
-            </Link>
-          </div>
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
+      <div className="max-w-lg mx-auto text-center">
+        <div className="mb-6 text-red-500">
+          <div className="text-3xl font-bold mb-1 glitch-text" data-text="SIGNAL LOST">SIGNAL LOST</div>
+          <div className="text-xl text-gray-400">Error: Echo chamber not detected</div>
         </div>
+        
+        <div className="mb-10 space-y-4 text-gray-300">
+          <p className="animate-pulse">File access pending...</p>
+          <p className="opacity-60">Triangulating last known location</p>
+          <p className="opacity-40">Signal corruption at 78%</p>
+        </div>
+        
+        <div className="font-mono text-xs text-gray-500 my-8 text-left">
+          <p>&gt; reconnecting...</p>
+          <p>&gt; signal interference detected</p>
+          <p>&gt; checking for echoes_</p>
+        </div>
+        
+        <Button 
+          onClick={() => navigate("/")}
+          variant="destructive" 
+          className="mt-4"
+        >
+          Return to safety
+        </Button>
       </div>
       
-      {/* Hidden trigger for console clues */}
+      {/* Hidden trigger for console command */}
       <div 
-        className="fixed bottom-4 right-4 h-4 w-4 opacity-0 cursor-default"
+        className="absolute bottom-4 right-4 opacity-0 hover:opacity-10 w-6 h-6 cursor-default"
         onClick={() => {
-          console.log("%cResonance detected. Try 'echo()' command.", "color:#0088cc;");
+          console.log("%cThe echo responds.", "color: #FF4136;");
         }}
       />
     </div>

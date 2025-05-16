@@ -44,6 +44,8 @@ import Distortions from "./pages/Distortions";
 // New breadcrumb pages
 import WebCatch from "./pages/WebCatch";
 import QuietMode from "./pages/QuietMode";
+import JonahConsoleBot from "./components/JonahConsoleBot";
+import Echo from "./pages/Echo";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +112,7 @@ const App = () => {
             
             {/* New routes */}
             <Route path="/access" element={<Access />} />
+            <Route path="/echo" element={<Echo />} />
             
             {/* New onboarding pages */}
             <Route path="/onboarding" element={<Onboarding />} />
@@ -134,6 +137,7 @@ const App = () => {
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <JonahConsoleBot />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
