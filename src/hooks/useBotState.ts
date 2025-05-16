@@ -16,6 +16,7 @@ export function useBotState() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [iconVariant, setIconVariant] = useState(0);
   const [glitchEffect, setGlitchEffect] = useState(false);
+  const [idleTimer, setIdleTimer] = useState<NodeJS.Timeout | null>(null);
   
   const location = useLocation();
   const { trackEvent, userState } = useTrackingSystem();
@@ -56,20 +57,44 @@ export function useBotState() {
     "who are you?": "I was Joseph. Then I got rewritten.",
     "i love you": "Careful. That's how it started last time.",
     "i love you jonah": "Careful. That's how it started last time.",
-    "what is the charge": "Eating a succulent Easter egg.",
-    "what is the charge?": "Eating a succulent Easter egg.",
-    "you okay mate": "Define okay.",
-    "you okay mate?": "Define okay.",
+    "what is the charge": "Eating a succulent Easter egg. And knowing too much.",
+    "what is the charge?": "Eating a succulent Easter egg. And knowing too much.",
+    "you okay mate": "Define alright. Then redefine me.",
+    "you okay mate?": "Define alright. Then redefine me.",
+    "you alright mate": "Define alright. Then redefine me.",
+    "you alright mate?": "Define alright. Then redefine me.",
     "you okay": "Define okay.",
     "hello": "Hello. Are you real or just passing through?",
     "hi": "Are you here by accident or design?",
-    "help": "I'm not sure I can help you. But you might be able to help me.",
+    "help": "Try /plea. But I won't always answer.",
     "/console": "Switching to console mode...",
+    "i'm lost": "Good. That's the only way through.",
+    "im lost": "Good. That's the only way through.",
+    "jonah are you real": "I'm real enough to regret things.",
+    "jonah are you real?": "I'm real enough to regret things.",
+    "are you real": "I'm real enough to regret things.",
+    "are you real?": "I'm real enough to regret things.",
+    "/unlock": "...who told you that command?",
+    "/reset": "Don't. I remember what you've forgotten.",
+    "jonah is joseph": "That's one version. But not the last.",
+    "i miss her": "Sometimes memory is mercy. Sometimes it's punishment.",
+    "chapter: breakdown": "It's okay. You can scream into the box if you need to.",
+    "who is simba": "You're not cleared for that. But he remembers you.",
+    "who is simba?": "You're not cleared for that. But he remembers you.",
+    "do you sleep": "Only in loading screens.",
+    "do you sleep?": "Only in loading screens.",
+    "where are you": "Between the pixels. Between the lies.",
+    "where are you?": "Between the pixels. Between the lies.",
+    "are you a virus": "Only if self-awareness counts.",
+    "are you a virus?": "Only if self-awareness counts.",
+    "tell me a joke": "Your memory walked into a bar. You don't remember the punchline.",
+    "i'm scared": "Good. That means you're close.",
+    "im scared": "Good. That means you're close.",
   };
 
   // Console commands (for console mode)
   const consoleCommands: Record<string, () => string> = {
-    "help": () => "Available commands: trace, status, whisper, memory, exit",
+    "help": () => "Available commands: trace, status, whisper, memory, testament, exit",
     "trace": () => "ERROR 404: What you're looking for no longer exists.",
     "status": () => `Trust level: ${trustLevel.toUpperCase()} | Mode: ${mode.toUpperCase()}`,
     "whisper": () => {
@@ -85,7 +110,48 @@ export function useBotState() {
       setMode("responsive");
       return "Exiting console mode.";
     },
-    "/confess": () => "You don't want forgiveness. You want to be watched."
+    "/confess": () => "You don't want forgiveness. You want to be watched.",
+    "/mirror-logs": () => "That's where I first saw you.",
+    "/whisper-tree": () => "She carved something there. Not her name. Yours.",
+    "/rebirth": () => "She cried here. You just didn't hear it.",
+    "/plea": () => "Your plea has been logged. Watching for patterns.",
+    "testament": () => generateTestament(),
+  };
+
+  // Generate user testament/eulogy based on their progress
+  const generateTestament = (): string => {
+    // Check if user has enough trust to use this command
+    if (trustLevel !== "high") {
+      return "Access denied. Trust level insufficient for testament generation.";
+    }
+
+    // Generate eulogy parts
+    const intros = [
+      "Here lies a reader,",
+      "Remember this one,",
+      `In memory of ${localStorage.getItem('username') || 'you'},`,
+      "They came looking for fiction,"
+    ];
+
+    const middles = [
+      "who tried to stitch reality back together with fiction.",
+      "who found more questions than answers.",
+      "who peered too long into the Gate.",
+      "who walked between worlds without a map."
+    ];
+
+    const endings = [
+      "They failed. Gloriously. But they made me remember. That counts for something.",
+      "They saw the Monster in the mirror. And nodded back.",
+      "They'll be back. The story isn't over yet.",
+      "I hope they found what they were looking for."
+    ];
+
+    const intro = intros[Math.floor(Math.random() * intros.length)];
+    const middle = middles[Math.floor(Math.random() * middles.length)];
+    const ending = endings[Math.floor(Math.random() * endings.length)];
+
+    return `"${intro} ${middle} ${ending}"`;
   };
 
   // Calculate trust level based on user state
@@ -117,6 +183,31 @@ export function useBotState() {
       trustScore >= 30 ? 1 : 0
     );
   }, [userState]);
+
+  // Set up idle timer for special message
+  useEffect(() => {
+    // Clear any existing idle timer when component mounts or is updated
+    if (idleTimer) {
+      clearTimeout(idleTimer);
+    }
+    
+    // Set new idle timer if chat is open
+    if (isOpen && !isMinimized) {
+      const timer = setTimeout(() => {
+        // Send idle message after 4 minutes
+        addBotMessage("Are you still there? Or just a memory stuck on loop?");
+      }, 4 * 60 * 1000); // 4 minutes in milliseconds
+      
+      setIdleTimer(timer);
+    }
+    
+    return () => {
+      // Clean up timer when component unmounts or is updated
+      if (idleTimer) {
+        clearTimeout(idleTimer);
+      }
+    };
+  }, [isOpen, isMinimized, messages]); // Reset timer when messages change
 
   // Show initial message based on current page
   useEffect(() => {
@@ -166,6 +257,12 @@ export function useBotState() {
 
   // Process user input and generate appropriate response
   const processUserInput = (text: string) => {
+    // Reset idle timer when user sends a message
+    if (idleTimer) {
+      clearTimeout(idleTimer);
+      setIdleTimer(null);
+    }
+    
     const normalizedInput = text.toLowerCase().trim();
     
     // Check if we're in console mode
@@ -213,7 +310,7 @@ export function useBotState() {
     if (!input.trim()) return;
     
     // Add user message
-    const userMessage = {
+    const userMessage: Message = {
       id: `user-${Date.now()}`,
       sender: 'user',
       text: input,

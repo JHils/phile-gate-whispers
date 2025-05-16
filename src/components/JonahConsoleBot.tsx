@@ -1,10 +1,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { MessageCircle, Minimize2, X, Send, KeyRound, Terminal } from "lucide-react";
-import { useTrackingSystem } from "@/hooks/useTrackingSystem";
 import { useLocation } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
-import { Message } from "@/types/chat";
 import { BotHeader } from "./bot/BotHeader";
 import { BotMessages } from "./bot/BotMessages";
 import { BotInput } from "./bot/BotInput";
@@ -41,7 +38,6 @@ const JonahConsoleBot: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
-  const { trackEvent } = useTrackingSystem();
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -54,16 +50,6 @@ const JonahConsoleBot: React.FC = () => {
       inputRef.current?.focus();
     }
   }, [isOpen, isMinimized]);
-
-  // Track page changes to show contextual messages
-  useEffect(() => {
-    if (isOpen && location.pathname) {
-      // Context-aware messaging handled in the hook now
-    }
-    
-    // Track page view in context of the bot
-    trackEvent(`jonah_bot_page_${location.pathname.replace(/\//g, '_')}`);
-  }, [location.pathname]);
 
   return (
     <>
@@ -111,7 +97,7 @@ const JonahConsoleBot: React.FC = () => {
         </div>
       )}
 
-      {/* CSS for glitch effects - moved to a separate file */}
+      {/* CSS for glitch effects */}
       <style>
         {`
         .animate-glitch {

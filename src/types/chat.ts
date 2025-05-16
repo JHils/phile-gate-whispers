@@ -24,3 +24,18 @@ export interface DialogueEntry {
   tags?: string[]; // Optional tags for filtering
   pages?: string[]; // Pages where this message might appear
 }
+
+// ARG specific tracking interfaces
+export interface ARGProgress {
+  qrCodesScanned: string[];
+  consoleCluesTouched: string[];
+  keyholeClicks: number;
+  storyFlags: string[];
+}
+
+export interface TestamentData {
+  username?: string;
+  trustLevel: TrustLevel;
+  visitedPages: string[];
+  unlockedSecrets: string[];
+}

@@ -17,6 +17,13 @@ export interface JonahConsoleState {
     encountered: boolean;
     lastSeen?: string;
   };
+  argData: {
+    keyholeClicks: number;
+    consoleCluesTouched: string[];
+    qrScans: string[];
+    memoryFragments: string[];
+    lastIdleTime?: number;
+  };
 }
 
 // Define StoryFlag interface
@@ -41,6 +48,22 @@ export interface WhisperMaster {
   updateLeaderboard: (name: string) => void;
   showMap: () => void;
   showLeaderboard: () => void;
+}
+
+// Define ARG items and tracking
+export interface ARGItem {
+  id: string;
+  name: string;
+  discovered: boolean;
+  linkedClues: string[];
+  description: string;
+}
+
+// Define console command response based on trust level
+export interface TrustLeveledResponse {
+  low: string;
+  medium: string;
+  high: string;
 }
 
 // Declare global types to be available throughout the application
@@ -85,6 +108,11 @@ declare global {
     relocate: () => void;
     loopGesture: () => void;
     sixEleven: () => void;
+    testament: () => void;
+    // New ARG commands
+    mirrorLogs: () => void;
+    whisperTree: () => void;
+    plea: () => void;
     // Story flag functions
     discoverStoryFlag: (flagId: string) => boolean;
     storyFlags: () => void;

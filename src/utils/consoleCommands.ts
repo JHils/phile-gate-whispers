@@ -19,6 +19,7 @@ import { initializeBookCommands } from "./consoleBookCommands";
 import { initializeClueSystem } from "./consoleClueSystem";
 import { initializeSimbaSystem } from "./consoleSimbaSystem";
 import { initializeTimeSystem } from "./consoleTimeSystem";
+import { initializeARGCommands } from "./argTracking";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -30,17 +31,6 @@ type GetUserRankFunction = () => Promise<{
 
 // Define type for trackEvent function
 type TrackEventFunction = (eventName: string) => void;
-
-// Game state interface for console interactions
-interface JonahConsoleState {
-  usedCommands: string[];
-  score: number;
-  failCount: number;
-  rank: string;
-  lastCommand?: string;
-  sessionStartTime: number;
-  whispersFound: string[];
-}
 
 // Initialize console functions on the window object
 export const initializeConsoleCommands = (
@@ -62,6 +52,12 @@ export const initializeConsoleCommands = (
       bookCodes: [],
       simba: {
         encountered: false
+      },
+      argData: {
+        keyholeClicks: 0,
+        consoleCluesTouched: [],
+        qrScans: [],
+        memoryFragments: []
       }
     };
   }
@@ -170,6 +166,13 @@ Time in session: ${formatSessionTime()}`;
         console.log("%cDiscovered commands: " + commands.join(", "), "color: #8B3A40; font-size:14px;");
       }, 2500);
       
+      // Special response for keyholder rank (high trust)
+      if (rank.toLowerCase() === 'gatekeeper' || rank.toLowerCase() === 'monster') {
+        setTimeout(() => {
+          console.log("%cAlright. I'll give you coordinates. Don't come alone.", "color: #8B3A40; font-size:16px; font-style:italic;");
+        }, 4000);
+      }
+      
       trackCommandExecution('showStatus');
     } catch (error) {
       console.error("Error retrieving status:", error);
@@ -194,6 +197,9 @@ Time in session: ${formatSessionTime()}`;
   
   // Initialize time-sensitive features
   initializeTimeSystem(trackCommandExecution);
+  
+  // Initialize ARG commands
+  initializeARGCommands(trackCommandExecution);
 };
 
 // Add additional command types to the global window interface
@@ -201,5 +207,9 @@ declare global {
   interface Window {
     displayRandomJoke: () => void;
     showStatus: () => Promise<void>;
+    mirrorLogs: () => void;
+    whisperTree: () => void;
+    plea: () => void;
+    testament: () => void;
   }
 }
