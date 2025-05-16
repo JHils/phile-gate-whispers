@@ -88,11 +88,3 @@ export const initializeTimeSystem = (trackCommandExecution: TrackCommandFunction
     });
   };
 };
-
-// Add time system commands to the global interface
-declare global {
-  interface Window {
-    timeCheck: () => void;
-    isSpecialTimeWindow: () => boolean;
-  }
-}

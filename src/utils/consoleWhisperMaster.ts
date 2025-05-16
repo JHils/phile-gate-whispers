@@ -2,24 +2,9 @@
 /**
  * WhisperMaster functionality for side quests
  */
+import { WhisperMaster } from './consoleTypes';
 
-// Define the WhisperMaster interface for TypeScript
-interface WhisperMaster {
-  map: {[key: number]: string};
-  audioFiles: string[];
-  unlock: (index: number, playerName?: string) => void;
-  playSound: (index: number) => void;
-  updateLeaderboard: (name: string) => void;
-  showMap: () => void;
-  showLeaderboard: () => void;
-}
-
-// Declare WhisperMaster on Window object
-declare global {
-  interface Window {
-    WhisperMaster?: WhisperMaster;
-  }
-}
+// Declare WhisperMaster on Window object is now handled in consoleTypes.ts
 
 /**
  * Initialize the WhisperMaster for side quests

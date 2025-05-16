@@ -376,14 +376,14 @@ const checkForKoalaKiss = () => {
   // For now, we'll just set up the infrastructure
   if ('webkitSpeechRecognition' in window) {
     // Speech recognition is available
-    const SpeechRecognition = window.webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     
     recognition.continuous = false;
     recognition.lang = 'en-AU';
     recognition.interimResults = false;
     
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript.toLowerCase();
       if (transcript.includes('koala kiss')) {
         console.log('Hydration prompt: Koalas need water too.');
@@ -805,7 +805,7 @@ export const setupNoSignalIcon = () => {
 };
 
 // Play Social Static audio
-const playSocialStaticAudio = () => {
+export const playSocialStaticAudio = () => {
   const audio = new Audio('/assets/sounds/social-static.mp3');
   audio.volume = 0.3;
   audio.play().catch(err => console.error('Audio play failed:', err));
@@ -870,62 +870,10 @@ const createFallingWoolworths = () => {
   }, 15000);
 };
 
-// Export functions for use in components
-export {
-  initializeBreadcrumbSystem,
-  activateSlangGlossary,
-  activateCompassOverlay,
-  checkForKoalaKiss,
-  playSocialStaticAudio
-};
-
-// Add CSS for breadcrumb effects
-const addBreadcrumbStyles = () => {
-  const style = document.createElement('style');
-  style.textContent = `
-    .no-signal-trigger {
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .no-signal-trigger:hover {
-      text-shadow: 0 0 2px rgba(255,255,255,0.5);
-    }
-    .signal-clicked {
-      transform: scale(1.05);
-    }
-    
-    .whittos-active {
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .quiet-mode {
-      filter: grayscale(0.5) brightness(0.9);
-    }
-    
-    [data-identity-trigger="true"] {
-      cursor: pointer;
-      position: relative;
-    }
-    [data-identity-trigger="true"]:after {
-      content: "";
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      background-color: rgba(139, 58, 64, 0.3);
-    }
-  `;
-  document.head.appendChild(style);
-};
-
 // Call this when DOM is loaded
 if (typeof document !== 'undefined') {
-  addBreadcrumbStyles();
   document.addEventListener('DOMContentLoaded', () => {
     initializeBreadcrumbSystem();
     setupNoSignalIcon();
   });
 }
-

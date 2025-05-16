@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
-import { playSocialStaticAudio } from '@/utils/breadcrumbSystem';
+import { setupNoSignalIcon, playSocialStaticAudio } from '@/utils/breadcrumbSystem';
 
 const WebCatch: React.FC = () => {
   const { trackEvent } = useTrackingSystem();
@@ -13,6 +13,9 @@ const WebCatch: React.FC = () => {
     
     // Easter egg in console
     console.log("%cThe web can't catch what it can't see.", "color: #8B3A40; font-size:16px;");
+    
+    // Setup the "no signal" click handler
+    setupNoSignalIcon();
   }, [trackEvent]);
   
   return (

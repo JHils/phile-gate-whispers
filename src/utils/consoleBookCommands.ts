@@ -1,184 +1,196 @@
 
-import { glitchEffectLog, typewriterLog, speak, flickerLog } from "./consoleEffects";
+import { typewriterLog, flickerLog, glitchEffectLog, speak } from "./consoleEffects";
 
 type TrackCommandFunction = (commandName: string) => void;
 
-// Store book codes and their status
-interface BookCode {
-  code: string;
-  page: number;
-  unlocked: boolean;
-  description: string;
-}
-
-// Initialize the book commands
+// Initialize book-locked commands
 export const initializeBookCommands = (trackCommandExecution: TrackCommandFunction) => {
-  // Initialize the book codes if they don't exist
-  if (!window.JonahConsole.bookCodes) {
-    window.JonahConsole.bookCodes = [
-      { code: "BLRYLSK", page: 23, unlocked: false, description: "The Boat Haven sequence" },
-      { code: "SMBWLKS", page: 56, unlocked: false, description: "Simba's first appearance" },
-      { code: "GRFNDRZ", page: 78, unlocked: false, description: "The Griff interview" },
-      { code: "RDRPSSW", page: 112, unlocked: false, description: "The reader's password" },
-      { code: "SHRDHST", page: 145, unlocked: false, description: "Jonah's shared history" },
-      { code: "MNSTRMT", page: 189, unlocked: false, description: "The Monster meets Jonah" },
-      { code: "GTKPRCD", page: 207, unlocked: false, description: "The Gatekeeper's code" },
-      { code: "LSTCHPT", page: 231, unlocked: false, description: "The final chapter" }
-    ];
+  // Reading page numbers in secret order unlocks content
+  window.readPage = function(pageNum) {
+    // Convert to number if string
+    const page = parseInt(String(pageNum).trim(), 10);
     
-    // Check localStorage for already unlocked codes
-    const unlockedCodes = JSON.parse(localStorage.getItem('unlockedBookCodes') || '[]');
-    if (unlockedCodes.length > 0) {
-      unlockedCodes.forEach((code: string) => {
-        const foundCode = window.JonahConsole.bookCodes.find(bc => bc.code === code);
-        if (foundCode) foundCode.unlocked = true;
-      });
-    }
-  }
-
-  // Main command to verify book codes
-  window.bookCode = function(code) {
-    if (!code) {
-      console.log("%cEnter a code from the physical book. Format: bookCode('CODE')", "color: #475B74; font-size:14px;");
+    if (isNaN(page) || page < 1 || page > 300) {
+      console.log("%cInvalid page number. The book has pages 1-300.", "color: #475B74; font-size:14px;");
       return;
     }
     
-    const cleanCode = String(code).toUpperCase().trim();
-    const bookCode = window.JonahConsole.bookCodes.find(bc => bc.code === cleanCode);
+    // Get book reading history
+    const bookCodes = JSON.parse(localStorage.getItem('bookCodes') || '{"unlockedCodes":[],"totalCodesUnlocked":0}');
+    const readHistory = JSON.parse(localStorage.getItem('readPageHistory') || '[]');
     
-    if (bookCode) {
-      if (bookCode.unlocked) {
-        typewriterLog(`This code (page ${bookCode.page}) has already been unlocked.`);
-        speak("This code has already been unlocked");
+    // Add to reading history
+    readHistory.push({
+      page,
+      timestamp: Date.now()
+    });
+    
+    if (readHistory.length > 10) {
+      readHistory.shift(); // Keep only the last 10 page reads
+    }
+    
+    localStorage.setItem('readPageHistory', JSON.stringify(readHistory));
+    
+    // Check for specific page numbers that unlock content
+    const specialPages = {
+      42: "genesis-code",
+      87: "threshold-map",
+      111: "mirror-sequence", 
+      127: "digital-pulse",
+      183: "liminal-space",
+      205: "void-stare",
+      255: "signal-decay",
+      273: "final-echo"
+    };
+    
+    if (specialPages[page]) {
+      const codeId = specialPages[page];
+      
+      if (!bookCodes.unlockedCodes.includes(codeId)) {
+        bookCodes.unlockedCodes.push(codeId);
+        bookCodes.lastCodeEnteredAt = Date.now();
+        bookCodes.totalCodesUnlocked = (bookCodes.totalCodesUnlocked || 0) + 1;
+        localStorage.setItem('bookCodes', JSON.stringify(bookCodes));
+        
+        if (codeId === "genesis-code") {
+          glitchEffectLog("Genesis Code activated. The book remembers you.");
+          speak("Genesis Code activated");
+        } else if (codeId === "threshold-map") {
+          typewriterLog("Threshold map unlocked. New coordinates available.");
+          speak("Threshold map unlocked");
+        } else if (codeId === "mirror-sequence") {
+          flickerLog("Mirror sequence initiated. The reflection knows.");
+          speak("Mirror sequence initiated");
+        } else if (codeId === "digital-pulse") {
+          glitchEffectLog("Digital pulse detected. Signal origin: unknown.");
+          speak("Digital pulse detected");
+        } else if (codeId === "liminal-space") {
+          typewriterLog("Liminal space breach confirmed. The between-place opens.");
+          speak("Liminal space breach confirmed");
+        } else if (codeId === "void-stare") {
+          flickerLog("Void stare engaged. Something watches back.");
+          speak("Void stare engaged");
+        } else if (codeId === "signal-decay") {
+          glitchEffectLog("Signal decay accelerating. Time buffer corrupted.");
+          speak("Signal decay accelerating");
+        } else if (codeId === "final-echo") {
+          typewriterLog("Final echo recorded. The circle closes.");
+          speak("Final echo recorded");
+        }
+        
+        // Award points for finding book codes
+        window.JonahConsole.score += 40;
+        
+        // Special effect for completing the full set
+        if (bookCodes.totalCodesUnlocked >= 8) {
+          setTimeout(() => {
+            console.log("%cAll codes unlocked. The book has given all it can.", "color: #8B3A40; font-size:16px; font-weight:bold;");
+            setTimeout(() => {
+              console.log("%cBut there is always a deeper layer...", "color: #475B74; font-size:14px; font-style:italic;");
+            }, 2000);
+          }, 3000);
+          window.JonahConsole.score += 100;
+        }
       } else {
-        glitchEffectLog(`Code authenticated. Page ${bookCode.page} unlocked: ${bookCode.description}`);
-        speak(`Code authenticated. Page ${bookCode.page} unlocked`);
+        console.log(`%cPage ${page} code already activated: ${codeId}`, "color: #475B74; font-size:14px;");
+      }
+    } else {
+      // Check for special reading sequences
+      checkReadingSequence(readHistory);
+      
+      // Generic response for normal pages
+      console.log(`%cPage ${page} processed. Nothing unusual detected.`, "color: #475B74; font-size:14px;");
+    }
+    
+    trackCommandExecution('readPage');
+  };
+  
+  // Check for special reading sequences
+  const checkReadingSequence = (history) => {
+    if (history.length < 3) return;
+    
+    // Get the last 3 page numbers
+    const last3 = history.slice(-3).map(h => h.page);
+    
+    // Special sequence: reading pages 7, 7, 7 in succession
+    if (last3[0] === 7 && last3[1] === 7 && last3[2] === 7) {
+      flickerLog("7-7-7 sequence detected. Lucky numbers invoke the abyss.");
+      speak("Lucky numbers invoke the abyss");
+      window.JonahConsole.score += 30;
+    }
+    
+    // Special sequence: reading pages in descending order (any 3 consecutive descending numbers)
+    if (last3[0] > last3[1] && last3[1] > last3[2]) {
+      flickerLog("Countdown sequence detected. Time shifts in reverse.");
+      speak("Countdown sequence detected");
+      window.JonahConsole.score += 20;
+    }
+    
+    // Special sequence: reading first page, last page, first page (1, 300, 1)
+    if (last3[0] === 1 && last3[1] === 300 && last3[2] === 1) {
+      glitchEffectLog("Alpha-Omega-Alpha circuit complete. The loop is acknowledged.");
+      speak("Alpha Omega Alpha circuit complete");
+      
+      // Unlock special command
+      window.bridgeCollapse = function() {
+        typewriterLog("Bridge collapse initiated. The way back is severed.");
+        speak("Bridge collapse initiated");
         
-        // Mark as unlocked and save to localStorage
-        bookCode.unlocked = true;
-        const unlockedCodes = window.JonahConsole.bookCodes
-          .filter(bc => bc.unlocked)
-          .map(bc => bc.code);
-        localStorage.setItem('unlockedBookCodes', JSON.stringify(unlockedCodes));
-        
-        // Award points based on page number (higher page = more points)
-        const pointsAwarded = 15 + Math.floor(bookCode.page / 20);
-        window.JonahConsole.score += pointsAwarded;
         setTimeout(() => {
-          console.log(`%c+${pointsAwarded} points added to your score.`, "color: #8B3A40; font-size:14px;");
+          console.log("%cYou can never return to who you were before reading this book.", "color: #8B3A40; font-size:14px;");
         }, 2000);
         
-        // Check for special unlocks
-        checkSpecialUnlocks();
-      }
-    } else {
-      flickerLog("Invalid book code. Check the page again.");
-      speak("Invalid book code");
-    }
-    
-    trackCommandExecution('bookCode');
-  };
-
-  // Command to list unlocked and locked book codes
-  window.bookStatus = function() {
-    const unlockedCount = window.JonahConsole.bookCodes.filter(bc => bc.unlocked).length;
-    const totalCount = window.JonahConsole.bookCodes.length;
-    
-    console.log(`%cBook Codes: ${unlockedCount}/${totalCount} unlocked`, "color: #8B3A40; font-size:16px; font-weight:bold;");
-    
-    if (unlockedCount === 0) {
-      console.log("%cYou haven't unlocked any book codes yet.", "color: #475B74; font-size:14px;");
-      console.log("%cTry looking for codes in the physical book and enter them using bookCode('CODE')", "color: #475B74; font-size:14px;");
-    } else {
-      window.JonahConsole.bookCodes.forEach(bc => {
-        if (bc.unlocked) {
-          console.log(`%c✓ ${bc.code} (Page ${bc.page}): ${bc.description}`, "color: #4B8E4B; font-size:14px;");
-        } else {
-          console.log(`%c□ Page ${bc.page}: [Locked]`, "color: #475B74; font-size:14px;");
-        }
-      });
-      
-      // Show special unlocks if any
-      const unlockedSpecial = checkSpecialUnlocks(true);
-      if (unlockedSpecial) {
-        console.log("%cSpecial commands unlocked:", "color: #8B3A40; font-size:14px; font-weight:bold;");
-        if (unlockedCount >= 3) console.log("%c- mirrorCheck()", "color: #4B8E4B; font-size:14px;");
-        if (unlockedCount >= 5) console.log("%c- traceSimba()", "color: #4B8E4B; font-size:14px;");
-        if (unlockedCount >= 7) console.log("%c- bridgeCollapse()", "color: #4B8E4B; font-size:14px;");
-      }
-    }
-    
-    trackCommandExecution('bookStatus');
-  };
-
-  // Hidden command that gets revealed once certain codes are unlocked
-  window.readBetweenLines = function() {
-    const unlockedCount = window.JonahConsole.bookCodes.filter(bc => bc.unlocked).length;
-    
-    if (unlockedCount >= 2) {
-      typewriterLog("The margins hide more than notes.");
-      speak("The margins hide more than notes");
+        window.JonahConsole.score += 50;
+      };
       
       setTimeout(() => {
-        console.log("%cTry finding the word that repeats on pages 23, 56, and 78.", "color: #475B74; font-size:14px; font-style:italic;");
-      }, 2000);
+        console.log("%cNew command unlocked: bridgeCollapse()", "color: #8B3A40; font-size:14px;");
+      }, 3000);
       
-      window.JonahConsole.score += 25;
-    } else {
-      typewriterLog("There's something you missed. Try reading between the lines. Literally.");
-      speak("There's something you missed. Try reading between the lines");
+      window.JonahConsole.score += 75;
     }
-    
-    trackCommandExecution('readBetweenLines');
   };
-
-  // Check if special commands should be unlocked based on book code progress
-  const checkSpecialUnlocks = (silentCheck = false) => {
-    const unlockedCount = window.JonahConsole.bookCodes.filter(bc => bc.unlocked).length;
-    let unlockedSomething = false;
-    
-    // Unlock mirrorCheck after 3 codes
-    if (unlockedCount >= 3 && !window.mirrorCheck) {
-      unlockedSomething = true;
-      if (!silentCheck) {
-        setTimeout(() => {
-          console.log("%cNew command unlocked: mirrorCheck()", "color: #8B3A40; font-size:16px;");
-        }, 3000);
-      }
+  
+  // Code verification command
+  window.verifyCode = function(code) {
+    if (!code) {
+      console.log("%cPlease provide a code to verify.", "color: #475B74; font-size:14px;");
+      return;
     }
     
-    // Unlock traceSimba after 5 codes
-    if (unlockedCount >= 5 && !window.traceSimba) {
-      unlockedSomething = true;
-      if (!silentCheck) {
-        setTimeout(() => {
-          console.log("%cNew command unlocked: traceSimba()", "color: #8B3A40; font-size:16px;");
-        }, 3500);
-      }
+    const cleanCode = String(code).trim().toLowerCase().replace(/-/g, '');
+    
+    const bookCodes = JSON.parse(localStorage.getItem('bookCodes') || '{"unlockedCodes":[],"totalCodesUnlocked":0}');
+    
+    if (cleanCode === "genesiscode" && bookCodes.unlockedCodes.includes("genesis-code")) {
+      typewriterLog("Genesis Code verified. Initialization sequence: valid.");
+      speak("Genesis Code verified");
+    } else if (cleanCode === "thresholdmap" && bookCodes.unlockedCodes.includes("threshold-map")) {
+      typewriterLog("Threshold Map verified. Coordinate system: aligned.");
+      speak("Threshold Map verified");
+    } else if (cleanCode === "mirrorsequence" && bookCodes.unlockedCodes.includes("mirror-sequence")) {
+      typewriterLog("Mirror Sequence verified. Reflection protocol: active.");
+      speak("Mirror Sequence verified");
+    } else if (cleanCode === "digitalpulse" && bookCodes.unlockedCodes.includes("digital-pulse")) {
+      typewriterLog("Digital Pulse verified. Signal transmission: stable.");
+      speak("Digital Pulse verified");
+    } else if (cleanCode === "liminalspace" && bookCodes.unlockedCodes.includes("liminal-space")) {
+      typewriterLog("Liminal Space verified. Threshold access: granted.");
+      speak("Liminal Space verified");
+    } else if (cleanCode === "voidstare" && bookCodes.unlockedCodes.includes("void-stare")) {
+      typewriterLog("Void Stare verified. Observer status: recognized.");
+      speak("Void Stare verified");
+    } else if (cleanCode === "signaldecay" && bookCodes.unlockedCodes.includes("signal-decay")) {
+      typewriterLog("Signal Decay verified. Entropy management: engaged.");
+      speak("Signal Decay verified");
+    } else if (cleanCode === "finalecho" && bookCodes.unlockedCodes.includes("final-echo")) {
+      typewriterLog("Final Echo verified. Loop completion: acknowledged.");
+      speak("Final Echo verified");
+    } else {
+      flickerLog("Code verification failed. Sequence unknown or incomplete.");
+      speak("Code verification failed");
     }
     
-    // Unlock bridgeCollapse after 7 codes
-    if (unlockedCount >= 7 && !window.bridgeCollapse) {
-      unlockedSomething = true;
-      if (!silentCheck) {
-        setTimeout(() => {
-          console.log("%cNew command unlocked: bridgeCollapse()", "color: #8B3A40; font-size:16px;");
-        }, 4000);
-      }
-    }
-    
-    return unlockedSomething;
+    trackCommandExecution('verifyCode');
   };
 };
-
-// Add book commands to the global interface
-declare global {
-  interface Window {
-    bookCode: (code?: string) => void;
-    bookStatus: () => void;
-    readBetweenLines: () => void;
-    JonahConsole: any & {
-      bookCodes?: Array<BookCode>;
-    };
-  }
-}
