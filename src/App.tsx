@@ -30,6 +30,7 @@ import Fleet from "./pages/Fleet";
 import Map from "./pages/Map";
 import Characters from "./pages/Characters";
 import NotFound from "./pages/NotFound";
+import Access from "./pages/Access";
 
 // New onboarding pages
 import Onboarding from "./pages/Onboarding";

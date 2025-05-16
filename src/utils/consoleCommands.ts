@@ -56,7 +56,13 @@ export const initializeConsoleCommands = (
       failCount: 0,
       rank: localStorage.getItem('phileRank') || "drifter",
       sessionStartTime: Date.now(),
-      whispersFound: []
+      whispersFound: [],
+      jokesDisplayed: [],
+      storyFlags: [],
+      bookCodes: [],
+      simba: {
+        encountered: false
+      }
     };
   }
   
