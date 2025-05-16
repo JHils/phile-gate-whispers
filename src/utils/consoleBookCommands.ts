@@ -1,196 +1,219 @@
 
-import { typewriterLog, flickerLog, glitchEffectLog, speak } from "./consoleEffects";
+import { glitchEffectLog, speak, typewriterLog } from "./consoleEffects";
 
 type TrackCommandFunction = (commandName: string) => void;
 
-// Initialize book-locked commands
 export const initializeBookCommands = (trackCommandExecution: TrackCommandFunction) => {
-  // Reading page numbers in secret order unlocks content
-  window.readPage = function(pageNum) {
-    // Convert to number if string
-    const page = parseInt(String(pageNum).trim(), 10);
-    
-    if (isNaN(page) || page < 1 || page > 300) {
-      console.log("%cInvalid page number. The book has pages 1-300.", "color: #475B74; font-size:14px;");
+  // Initialize the read page function
+  window.readPage = function(page: number) {
+    // Validate page range
+    if (page < 1 || page > 366) {
+      console.log("%cPage not found in the system.", "color: red");
+      speak("Page not found in the system");
       return;
     }
     
-    // Get book reading history
-    const bookCodes = JSON.parse(localStorage.getItem('bookCodes') || '{"unlockedCodes":[],"totalCodesUnlocked":0}');
-    const readHistory = JSON.parse(localStorage.getItem('readPageHistory') || '[]');
-    
-    // Add to reading history
-    readHistory.push({
-      page,
-      timestamp: Date.now()
-    });
-    
-    if (readHistory.length > 10) {
-      readHistory.shift(); // Keep only the last 10 page reads
+    // Check if we have content for specific pages
+    if (page === 42) {
+      typewriterLog("The Answer to the Ultimate Question of Life, the Universe, and Everything.");
+      speak("The answer to the ultimate question of life the universe and everything");
+      
+      // Easter egg - reference to Hitchhiker's Guide
+      setTimeout(() => {
+        console.log("%cBut what was the question?", "color: #4CAF50; font-style: italic;");
+      }, 3000);
+      
+      trackCommandExecution('readPage_42');
+      window.JonahConsole.score += 15;
+      return;
     }
     
-    localStorage.setItem('readPageHistory', JSON.stringify(readHistory));
-    
-    // Check for specific page numbers that unlock content
-    const specialPages = {
-      42: "genesis-code",
-      87: "threshold-map",
-      111: "mirror-sequence", 
-      127: "digital-pulse",
-      183: "liminal-space",
-      205: "void-stare",
-      255: "signal-decay",
-      273: "final-echo"
-    };
-    
-    if (specialPages[page]) {
-      const codeId = specialPages[page];
+    if (page === 237) {
+      glitchEffectLog("REDACTED FILE - SECURITY LEVEL 4 CLEARANCE REQUIRED");
+      speak("Redacted file. Security level 4 clearance required");
       
-      if (!bookCodes.unlockedCodes.includes(codeId)) {
-        bookCodes.unlockedCodes.push(codeId);
-        bookCodes.lastCodeEnteredAt = Date.now();
-        bookCodes.totalCodesUnlocked = (bookCodes.totalCodesUnlocked || 0) + 1;
-        localStorage.setItem('bookCodes', JSON.stringify(bookCodes));
-        
-        if (codeId === "genesis-code") {
-          glitchEffectLog("Genesis Code activated. The book remembers you.");
-          speak("Genesis Code activated");
-        } else if (codeId === "threshold-map") {
-          typewriterLog("Threshold map unlocked. New coordinates available.");
-          speak("Threshold map unlocked");
-        } else if (codeId === "mirror-sequence") {
-          flickerLog("Mirror sequence initiated. The reflection knows.");
-          speak("Mirror sequence initiated");
-        } else if (codeId === "digital-pulse") {
-          glitchEffectLog("Digital pulse detected. Signal origin: unknown.");
-          speak("Digital pulse detected");
-        } else if (codeId === "liminal-space") {
-          typewriterLog("Liminal space breach confirmed. The between-place opens.");
-          speak("Liminal space breach confirmed");
-        } else if (codeId === "void-stare") {
-          flickerLog("Void stare engaged. Something watches back.");
-          speak("Void stare engaged");
-        } else if (codeId === "signal-decay") {
-          glitchEffectLog("Signal decay accelerating. Time buffer corrupted.");
-          speak("Signal decay accelerating");
-        } else if (codeId === "final-echo") {
-          typewriterLog("Final echo recorded. The circle closes.");
-          speak("Final echo recorded");
-        }
-        
-        // Award points for finding book codes
-        window.JonahConsole.score += 40;
-        
-        // Special effect for completing the full set
-        if (bookCodes.totalCodesUnlocked >= 8) {
-          setTimeout(() => {
-            console.log("%cAll codes unlocked. The book has given all it can.", "color: #8B3A40; font-size:16px; font-weight:bold;");
-            setTimeout(() => {
-              console.log("%cBut there is always a deeper layer...", "color: #475B74; font-size:14px; font-style:italic;");
-            }, 2000);
-          }, 3000);
-          window.JonahConsole.score += 100;
-        }
-      } else {
-        console.log(`%cPage ${page} code already activated: ${codeId}`, "color: #475B74; font-size:14px;");
-      }
-    } else {
-      // Check for special reading sequences
-      checkReadingSequence(readHistory);
+      setTimeout(() => {
+        console.log("%cPage 237 appears to be missing from Jonah's journal.", "color: #FFA500;");
+        console.log("%cSomeone has torn it out. Violently.", "color: #FFA500;");
+      }, 2000);
       
-      // Generic response for normal pages
-      console.log(`%cPage ${page} processed. Nothing unusual detected.`, "color: #475B74; font-size:14px;");
+      trackCommandExecution('readPage_237');
+      window.JonahConsole.score += 20;
+      return;
+    }
+    
+    if (page === 366) {
+      typewriterLog("Final page. The last day. Everything ends here.");
+      speak("Final page. The last day. Everything ends here");
+      
+      setTimeout(() => {
+        console.log("%cThis page is blank except for a single line of text:", "color: #9C27B0;");
+        console.log("%c'I finally understand what the whispers mean.'", "color: #9C27B0; font-weight: bold;");
+      }, 2000);
+      
+      trackCommandExecution('readPage_366');
+      window.JonahConsole.score += 25;
+      return;
+    }
+    
+    // Generic response for other pages
+    console.log(`%cPage ${page} from Jonah's journal:`, "color: #2196F3;");
+    console.log(`%c${generateRandomJournalEntry(page)}`, "color: #2196F3; font-style: italic;");
+    
+    // Secret breadcrumbs in certain page ranges
+    if (page >= 100 && page < 150) {
+      setTimeout(() => {
+        console.log("%c[There's a symbol drawn in the margin that looks like a compass pointing northwest]", "color: #607D8B; font-size: 11px;");
+      }, 2000);
+    } else if (page >= 200 && page < 250) {
+      setTimeout(() => {
+        console.log("%c[Several words are heavily underlined: 'recurring', 'pattern', 'cycle']", "color: #607D8B; font-size: 11px;");
+      }, 2000);
     }
     
     trackCommandExecution('readPage');
+    window.JonahConsole.score += 5;
   };
   
-  // Check for special reading sequences
-  const checkReadingSequence = (history) => {
-    if (history.length < 3) return;
-    
-    // Get the last 3 page numbers
-    const last3 = history.slice(-3).map(h => h.page);
-    
-    // Special sequence: reading pages 7, 7, 7 in succession
-    if (last3[0] === 7 && last3[1] === 7 && last3[2] === 7) {
-      flickerLog("7-7-7 sequence detected. Lucky numbers invoke the abyss.");
-      speak("Lucky numbers invoke the abyss");
-      window.JonahConsole.score += 30;
-    }
-    
-    // Special sequence: reading pages in descending order (any 3 consecutive descending numbers)
-    if (last3[0] > last3[1] && last3[1] > last3[2]) {
-      flickerLog("Countdown sequence detected. Time shifts in reverse.");
-      speak("Countdown sequence detected");
-      window.JonahConsole.score += 20;
-    }
-    
-    // Special sequence: reading first page, last page, first page (1, 300, 1)
-    if (last3[0] === 1 && last3[1] === 300 && last3[2] === 1) {
-      glitchEffectLog("Alpha-Omega-Alpha circuit complete. The loop is acknowledged.");
-      speak("Alpha Omega Alpha circuit complete");
-      
-      // Unlock special command
-      window.bridgeCollapse = function() {
-        typewriterLog("Bridge collapse initiated. The way back is severed.");
-        speak("Bridge collapse initiated");
-        
-        setTimeout(() => {
-          console.log("%cYou can never return to who you were before reading this book.", "color: #8B3A40; font-size:14px;");
-        }, 2000);
-        
-        window.JonahConsole.score += 50;
-      };
-      
-      setTimeout(() => {
-        console.log("%cNew command unlocked: bridgeCollapse()", "color: #8B3A40; font-size:14px;");
-      }, 3000);
-      
-      window.JonahConsole.score += 75;
-    }
-  };
-  
-  // Code verification command
-  window.verifyCode = function(code) {
+  // Initialize the verify code function
+  window.verifyCode = function(code: string) {
     if (!code) {
-      console.log("%cPlease provide a code to verify.", "color: #475B74; font-size:14px;");
+      console.log("%cPlease provide a code to verify.", "color: orange");
+      speak("Please provide a code to verify");
       return;
     }
     
-    const cleanCode = String(code).trim().toLowerCase().replace(/-/g, '');
+    const normalizedCode = code.trim().toUpperCase();
     
-    const bookCodes = JSON.parse(localStorage.getItem('bookCodes') || '{"unlockedCodes":[],"totalCodesUnlocked":0}');
+    // Check against known book codes
+    const knownCodes = {
+      "WHISPERBLUE": "Access to Blue Sector granted. Coordinate system unlocked.",
+      "REDGATE5": "Red Gate protocol initiated. Warning: unstable connection.",
+      "JONAHWASHERE": "Identity confirmed. Timeline divergence detected.",
+      "CROSSEDEYES": "Perspective shift enabled. You can now see through the veil.",
+      "MARBLEARCH": "Architectural blueprint loaded. The structure was never built.",
+      "CAIRNS1962": "Historical records unlocked. The incident was covered up.",
+    };
     
-    if (cleanCode === "genesiscode" && bookCodes.unlockedCodes.includes("genesis-code")) {
-      typewriterLog("Genesis Code verified. Initialization sequence: valid.");
-      speak("Genesis Code verified");
-    } else if (cleanCode === "thresholdmap" && bookCodes.unlockedCodes.includes("threshold-map")) {
-      typewriterLog("Threshold Map verified. Coordinate system: aligned.");
-      speak("Threshold Map verified");
-    } else if (cleanCode === "mirrorsequence" && bookCodes.unlockedCodes.includes("mirror-sequence")) {
-      typewriterLog("Mirror Sequence verified. Reflection protocol: active.");
-      speak("Mirror Sequence verified");
-    } else if (cleanCode === "digitalpulse" && bookCodes.unlockedCodes.includes("digital-pulse")) {
-      typewriterLog("Digital Pulse verified. Signal transmission: stable.");
-      speak("Digital Pulse verified");
-    } else if (cleanCode === "liminalspace" && bookCodes.unlockedCodes.includes("liminal-space")) {
-      typewriterLog("Liminal Space verified. Threshold access: granted.");
-      speak("Liminal Space verified");
-    } else if (cleanCode === "voidstare" && bookCodes.unlockedCodes.includes("void-stare")) {
-      typewriterLog("Void Stare verified. Observer status: recognized.");
-      speak("Void Stare verified");
-    } else if (cleanCode === "signaldecay" && bookCodes.unlockedCodes.includes("signal-decay")) {
-      typewriterLog("Signal Decay verified. Entropy management: engaged.");
-      speak("Signal Decay verified");
-    } else if (cleanCode === "finalecho" && bookCodes.unlockedCodes.includes("final-echo")) {
-      typewriterLog("Final Echo verified. Loop completion: acknowledged.");
-      speak("Final Echo verified");
+    if (knownCodes[normalizedCode as keyof typeof knownCodes]) {
+      glitchEffectLog(`CODE VERIFIED: ${normalizedCode}`);
+      speak("Code verified");
+      
+      setTimeout(() => {
+        console.log(`%c${knownCodes[normalizedCode as keyof typeof knownCodes]}`, "color: #4CAF50;");
+        
+        // Update state for verified codes
+        if (!window.JonahConsole.bookCodes) {
+          window.JonahConsole.bookCodes = [];
+        }
+        
+        const codeExists = window.JonahConsole.bookCodes.some(item => item.id === normalizedCode);
+        
+        if (!codeExists) {
+          window.JonahConsole.bookCodes.push({
+            id: normalizedCode,
+            unlocked: true
+          });
+        }
+        
+        // Special effects for certain codes
+        if (normalizedCode === "CROSSEDEYES") {
+          document.body.classList.add("crossed-vision");
+          setTimeout(() => {
+            document.body.classList.remove("crossed-vision");
+          }, 10000);
+        } else if (normalizedCode === "MARBLEARCH") {
+          // Bridge collapse animation effect
+          window.bridgeCollapse();
+        }
+      }, 1500);
+      
+      trackCommandExecution('verifyCode_success');
+      window.JonahConsole.score += 30;
     } else {
-      flickerLog("Code verification failed. Sequence unknown or incomplete.");
-      speak("Code verification failed");
+      console.log("%cCODE INVALID. Verification failed.", "color: red");
+      speak("Code invalid. Verification failed");
+      
+      // Easter egg - almost correct codes
+      if (normalizedCode.includes("JONAH") || normalizedCode.includes("WHISPER")) {
+        setTimeout(() => {
+          console.log("%cAlmost there. Keep trying.", "color: #FFC107; font-style: italic;");
+        }, 1500);
+      }
+      
+      trackCommandExecution('verifyCode_fail');
     }
+  };
+  
+  // Add the bridge collapse function
+  window.bridgeCollapse = function() {
+    console.log("%cStructural integrity compromised...", "color: #FF5722;");
     
-    trackCommandExecution('verifyCode');
+    // Add a visual effect to the page
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0,0,0,0.7)';
+    overlay.style.zIndex = '9999';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.transition = 'all 2s';
+    overlay.style.opacity = '0';
+    
+    const message = document.createElement('div');
+    message.textContent = 'CONNECTION SEVERED';
+    message.style.color = '#FF5722';
+    message.style.fontFamily = 'monospace';
+    message.style.fontSize = '3rem';
+    message.style.textAlign = 'center';
+    
+    overlay.appendChild(message);
+    document.body.appendChild(overlay);
+    
+    // Animate the collapse
+    setTimeout(() => {
+      overlay.style.opacity = '1';
+      document.body.style.overflow = 'hidden';
+      
+      // Shake effect
+      document.body.classList.add('earthquake');
+      
+      setTimeout(() => {
+        document.body.classList.remove('earthquake');
+        
+        // Clean up after animation
+        setTimeout(() => {
+          overlay.style.opacity = '0';
+          setTimeout(() => {
+            document.body.removeChild(overlay);
+            document.body.style.overflow = '';
+          }, 2000);
+        }, 3000);
+      }, 2000);
+    }, 100);
   };
 };
+
+// Helper function to generate random journal entries
+function generateRandomJournalEntry(pageNum: number) {
+  const entries = [
+    "Today I saw it again. The shadow that follows but never quite touches the ground.",
+    "The locals won't talk about the mountain. They look away when I mention it.",
+    "Third night of the same dream. Always ends at the door I can't open.",
+    "Found strange markings on the beach this morning. Tide washed them away before I could photograph them.",
+    "Someone's been in my room. Nothing taken, but things are slightly moved.",
+    "The whispers are getting louder. Almost decipherable now.",
+    "Met an old man who claims to have seen 'them' too. He gave me this journal.",
+    "The coordinates don't match any known location. Yet I feel drawn there.",
+    "My reflection looked wrong today. Just for a second, but I'm sure of it.",
+    "The birds all flew away at exactly the same moment. All of them. At once.",
+  ];
+  
+  // Seed the random selection based on page number for consistency
+  const index = pageNum % entries.length;
+  return entries[index];
+}

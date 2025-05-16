@@ -107,6 +107,9 @@ const App = () => {
             <Route path="/map" element={<Map />} />
             <Route path="/characters" element={<Characters />} />
             
+            {/* New routes */}
+            <Route path="/access" element={<Access />} />
+            
             {/* New onboarding pages */}
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/onboarding/failure" element={<OnboardingFailure />} />

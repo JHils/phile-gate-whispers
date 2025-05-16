@@ -1,3 +1,4 @@
+
 // Define a central file for all console-related types to prevent duplications
 
 // Game state interface for console interactions
@@ -9,10 +10,10 @@ export interface JonahConsoleState {
   lastCommand?: string;
   sessionStartTime: number;
   whispersFound: string[];
-  jokesDisplayed?: string[];
-  storyFlags?: StoryFlag[];
-  bookCodes?: BookCode[];
-  simba?: {
+  jokesDisplayed: string[];
+  storyFlags: StoryFlag[];
+  bookCodes: BookCode[];
+  simba: {
     encountered: boolean;
     lastSeen?: string;
   };
@@ -49,7 +50,7 @@ declare global {
     WhisperMaster?: WhisperMaster;
     isSpecialTimeWindow: () => boolean;
     triggerSimbaComment: (pageId: string) => boolean;
-    bridgeCollapse?: () => void;
+    bridgeCollapse: () => void;
     
     // Console system commands
     timeCheck: () => void;
