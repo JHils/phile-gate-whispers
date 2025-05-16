@@ -30,7 +30,32 @@ export interface ARGProgress {
 
 // Initialize ARG tracking in window.JonahConsole
 export const initializeARGTracking = () => {
-  if (!window.JonahConsole.argData) {
+  if (!window.JonahConsole) {
+    window.JonahConsole = {
+      usedCommands: [],
+      score: 0,
+      failCount: 0,
+      rank: 'drifter',
+      sessionStartTime: Date.now(),
+      whispersFound: [],
+      jokesDisplayed: [],
+      storyFlags: [],
+      bookCodes: [],
+      simba: {
+        encountered: false
+      },
+      argData: {
+        keyholeClicks: 0,
+        consoleCluesTouched: [],
+        qrScans: [],
+        memoryFragments: [],
+        secretPagesVisited: [],
+        hiddenFilesDownloaded: [],
+        idleTriggers: {},
+        lastInteractionTime: new Date()
+      }
+    };
+  } else if (!window.JonahConsole.argData) {
     window.JonahConsole.argData = {
       keyholeClicks: 0,
       consoleCluesTouched: [],
@@ -41,6 +66,20 @@ export const initializeARGTracking = () => {
       idleTriggers: {},
       lastInteractionTime: new Date()
     };
+  } else {
+    // Ensure all properties exist on existing argData object
+    if (!window.JonahConsole.argData.secretPagesVisited) {
+      window.JonahConsole.argData.secretPagesVisited = [];
+    }
+    if (!window.JonahConsole.argData.hiddenFilesDownloaded) {
+      window.JonahConsole.argData.hiddenFilesDownloaded = [];
+    }
+    if (!window.JonahConsole.argData.idleTriggers) {
+      window.JonahConsole.argData.idleTriggers = {};
+    }
+    if (!window.JonahConsole.argData.lastInteractionTime) {
+      window.JonahConsole.argData.lastInteractionTime = new Date();
+    }
   }
 };
 

@@ -22,6 +22,10 @@ export interface JonahConsoleState {
     consoleCluesTouched: string[];
     qrScans: string[];
     memoryFragments: string[];
+    secretPagesVisited: string[];
+    hiddenFilesDownloaded: string[];
+    idleTriggers: {[page: string]: boolean};
+    lastInteractionTime: Date | null;
     lastIdleTime?: number;
   };
 }

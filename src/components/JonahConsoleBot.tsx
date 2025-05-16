@@ -8,6 +8,7 @@ import { BotInput } from "./bot/BotInput";
 import { useBotState } from "@/hooks/useBotState";
 import { BotIcon } from "./bot/BotIcon";
 import { 
+  initializeARGTracking, 
   updateInteractionTime, 
   checkIdleTime, 
   trackSecretPageVisit, 
@@ -15,6 +16,11 @@ import {
 } from "@/utils/argTracking";
 
 const JonahConsoleBot: React.FC = () => {
+  // Make sure ARG tracking is initialized first
+  useEffect(() => {
+    initializeARGTracking();
+  }, []);
+
   // Use our extracted hook for bot state management
   const {
     isOpen,
@@ -63,6 +69,9 @@ const JonahConsoleBot: React.FC = () => {
 
   // Set up idle detection
   useEffect(() => {
+    // Initialize ARG tracking before checking idle time
+    initializeARGTracking();
+    
     // Clear existing interval when component unmounts or dependencies change
     if (idleCheckInterval) {
       clearInterval(idleCheckInterval);
@@ -88,10 +97,13 @@ const JonahConsoleBot: React.FC = () => {
         clearInterval(idleCheckInterval);
       }
     };
-  }, [isOpen, isMinimized, location.pathname]);
+  }, [isOpen, isMinimized, location.pathname, addBotMessage]);
 
   // Track user interaction with the page
   useEffect(() => {
+    // Initialize ARG tracking before updating interaction time
+    initializeARGTracking();
+    
     const handleUserInteraction = () => {
       updateInteractionTime();
     };
@@ -112,6 +124,9 @@ const JonahConsoleBot: React.FC = () => {
 
   // Track page navigation for trust modifications and secret pages
   useEffect(() => {
+    // Initialize ARG tracking before checking path changes
+    initializeARGTracking();
+    
     const currentPath = location.pathname;
     
     // Only process if path has changed
