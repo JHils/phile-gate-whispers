@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { UserState } from "@/hooks/useTrackingSystem";
+import { UserState } from "@/types/tracking";
 
 interface ConsoleMessagesProps {
   storageKey: string;

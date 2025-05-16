@@ -1,15 +1,6 @@
-
 import { useEffect, useState } from 'react';
 import { useTrackingSystem } from "@/hooks/useTrackingSystem";
-
-interface LeaderboardEntry {
-  position: number;
-  displayName: string;
-  userHash: string;
-  rank: string;
-  score: number;
-  lastSeen: string;
-}
+import { LeaderboardEntry } from '@/types/tracking';
 
 interface LeaderboardProps {
   className?: string;
