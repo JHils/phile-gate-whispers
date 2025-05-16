@@ -1,3 +1,4 @@
+
 import { trackCommand } from "./consoleTrackingUtils";
 import { typewriterLog, glitchEffectLog } from "./consoleEffects";
 
@@ -83,29 +84,41 @@ export const generateTestament = (username?: string) => {
   
   const rank = localStorage.getItem('phileRank') || 'drifter';
   const phileScore = parseInt(localStorage.getItem('phileScore') || '0');
+  const trustLevel = parseInt(localStorage.getItem('jonahTrustScore') || '0');
   
   // Generate eulogy parts based on user progress
   const intros = [
     `Here lies ${username || 'the reader'},`,
     `Remember ${username || 'this one'},`,
-    "They came seeking answers,"
+    "They came seeking answers,",
+    `In memory of ${username || 'you'},`,
+    "They came looking for fiction,"
   ];
   
   const middles = [
     "who tried to stitch reality back together with fiction.",
     "who found the Gate wasn't just a metaphor.",
-    `who reached the rank of ${rank}.`
+    `who reached the rank of ${rank}.`,
+    "who found more questions than answers.",
+    "who peered too long into the Gate.",
+    "who walked between worlds without a map."
   ];
   
   const endings = [
     "They failed. Gloriously. But they made me remember.",
     "They saw the Monster in the mirror. And nodded back.",
-    "Will they come back? The pages always turn."
+    "Will they come back? The pages always turn.",
+    "They'll be back. The story isn't over yet.",
+    "I hope they found what they were looking for."
   ];
   
   // Add special endings based on unique accomplishments
   if (phileScore > 500) {
     endings.push("Few get this far. Fewer understand what they've found.");
+  }
+  
+  if (trustLevel > 70) {
+    middles.push("who I trusted more than most.");
   }
   
   if (window.JonahConsole.argData.qrScans.length > 0) {

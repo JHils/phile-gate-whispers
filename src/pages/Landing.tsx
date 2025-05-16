@@ -66,6 +66,17 @@ const Landing = () => {
       }
     }, 45000); // Check every 45 seconds
     
+    // Increase trust if user visits landing page and triggers a special QR code
+    const trustUpdateValue = localStorage.getItem('jonahBotQrTrust');
+    if (trustUpdateValue) {
+      // Dispatch an event that the bot can listen for
+      const trustEvent = new CustomEvent('jonahTrustChange', { 
+        detail: { value: parseInt(trustUpdateValue, 10) } 
+      });
+      window.dispatchEvent(trustEvent);
+      localStorage.removeItem('jonahBotQrTrust');
+    }
+    
     // Add hint for console users
     console.log("Psst. Try typing: help()");
     

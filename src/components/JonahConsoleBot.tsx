@@ -22,6 +22,8 @@ const JonahConsoleBot: React.FC = () => {
     mode,
     setMode,
     trustLevel,
+    trustScore,
+    modifyTrust,
     isTyping,
     setIsTyping,
     hasInteracted,
@@ -51,9 +53,28 @@ const JonahConsoleBot: React.FC = () => {
     }
   }, [isOpen, isMinimized]);
 
+  // Track page navigation for trust modifications
+  useEffect(() => {
+    // Special hidden pages that boost trust
+    const hiddenPages = ['/rebirth', '/mirror-logs', '/legacy', '/monster', '/gatekeeper', '/philes'];
+    const currentPath = location.pathname;
+    
+    if (hiddenPages.includes(currentPath)) {
+      // Award trust points for visiting hidden pages
+      modifyTrust(10);
+      
+      // For very special pages, add a unique comment
+      if (currentPath === '/mirror-logs') {
+        setTimeout(() => {
+          addBotMessage("You found this place. I'm... impressed.");
+        }, 2000);
+      }
+    }
+  }, [location.pathname, modifyTrust, addBotMessage]);
+
   return (
     <>
-      {/* Chat icon */}
+      {/* Chat icon with trust level indicator */}
       <BotIcon 
         isOpen={isOpen}
         iconVariant={iconVariant}
@@ -73,6 +94,8 @@ const JonahConsoleBot: React.FC = () => {
             isMinimized={isMinimized}
             minimizeChat={minimizeChat}
             closeChat={closeChat}
+            trustLevel={trustLevel}
+            trustScore={trustScore}
           />
 
           {/* Messages area - only shown when not minimized */}
