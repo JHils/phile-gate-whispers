@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { initializeConsoleCommands } from "../utils/consoleCommands";
 const Landing = () => {
   const [fadeIn, setFadeIn] = useState(false);
   const [textReveal, setTextReveal] = useState(false);
+  const [isSpecialTimeContent, setIsSpecialTimeContent] = useState(false);
   const { userState, trackEvent, getUserRank } = useTrackingSystem();
   const { showConsoleMessages } = useConsoleMessages({ 
     storageKey: 'console_messages_shown',
@@ -41,6 +43,18 @@ const Landing = () => {
       initializeConsoleCommands(trackEvent, getUserRank, userState);
     }
     
+    // Check for special time-sensitive content
+    if (typeof window.isSpecialTimeWindow === 'function') {
+      setIsSpecialTimeContent(window.isSpecialTimeWindow());
+    }
+    
+    // Trigger Simba comment if available
+    setTimeout(() => {
+      if (typeof window.triggerSimbaComment === 'function') {
+        window.triggerSimbaComment('landing');
+      }
+    }, 5000);
+    
     // Set up a periodic random joke in the console (if user has it open)
     const jokeInterval = setInterval(() => {
       // Only show a joke 15% of the time the check runs
@@ -55,11 +69,25 @@ const Landing = () => {
     // Add hint for console users
     console.log("Psst. Try typing: help()");
     
-    return () => clearInterval(jokeInterval);
+    // Recheck time-sensitive content periodically
+    const timeCheckInterval = setInterval(() => {
+      if (typeof window.isSpecialTimeWindow === 'function') {
+        setIsSpecialTimeContent(window.isSpecialTimeWindow());
+      }
+    }, 60000); // Check every minute
+    
+    return () => {
+      clearInterval(jokeInterval);
+      clearInterval(timeCheckInterval);
+    };
   }, [trackEvent, userState, getUserRank, showConsoleMessages]);
 
   // Determine which message to show based on user's state
   const getLandingMessage = () => {
+    if (isSpecialTimeContent) {
+      return "The Gate shifts during this hour. New paths emerge.";
+    }
+    
     if (userState.survivorMode) {
       return "Welcome back, survivor.";
     } else if (userState.permanentlyCollapsed) {
@@ -89,8 +117,15 @@ const Landing = () => {
       {/* <!-- helpMe() if you dare --> */}
       {/* <!-- trousers() for binding, tea() for redemption --> */}
       
+      {/* New clues for book codes */}
+      {/* <!-- Check page 23: BLRYLSK --> */}
+      {/* <!-- The ferry log mentions SMBWLKS --> */}
+      {/* <!-- Read between lines for GRFNDRZ --> */}
+      
       <div className="phile-container text-center z-10 px-4">
-        <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">THE GATE IS OPEN.</h1>
+        <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">
+          {isSpecialTimeContent ? "THE GATE SHIFTS." : "THE GATE IS OPEN."}
+        </h1>
         
         <div className={`mt-12 space-y-5 transition-opacity duration-1000 ${textReveal ? 'opacity-100' : 'opacity-0'}`}>
           <p className="text-xl md:text-2xl text-dust-orange font-typewriter">
@@ -105,6 +140,12 @@ const Landing = () => {
             This is a survival protocol for the mind.
           </p>
           
+          {isSpecialTimeContent && (
+            <p className="text-xl md:text-2xl text-dust-red font-typewriter animate-pulse">
+              Time window active: Different paths are visible.
+            </p>
+          )}
+          
           <p className="text-xl md:text-2xl text-phile-light font-typewriter mt-8">
             Enter if you've felt the Monster before.
           </p>
@@ -118,6 +159,17 @@ const Landing = () => {
               Begin
             </Button>
           </Link>
+          
+          {/* Special time button */}
+          {isSpecialTimeContent && (
+            <Link to="/rebirth" className="ml-4">
+              <Button 
+                className="bg-black/50 hover:bg-black/70 text-dust-red hover:text-dust-orange border border-dust-red/30 px-8 py-6 text-lg transition-all animate-pulse"
+              >
+                Alternative Path
+              </Button>
+            </Link>
+          )}
         </div>
         
         <p className={`text-lg text-dust-blue font-typewriter mt-16 transition-all duration-1000 ${textReveal ? 'opacity-80' : 'opacity-0'}`}>
@@ -138,6 +190,13 @@ const Landing = () => {
           Who needs a console when the real story plays out inside your head?<br />
           <em>Unless you mean… <strong>that</strong> console. In which case, inspect… closely.</em>
         </p>
+        
+        {/* Book code hint - only visible during special time windows */}
+        {isSpecialTimeContent && (
+          <p className="font-typewriter mt-6 text-dust-orange animate-subtle-flicker" style={{ fontSize: "0.85rem", opacity: 0.7 }}>
+            bookCode('BLRYLSK') might unlock something from page 23.
+          </p>
+        )}
       </div>
       
       <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>

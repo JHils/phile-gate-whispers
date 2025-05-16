@@ -15,6 +15,10 @@ import { initializeBasicCommands } from "./consoleBasicCommands";
 import { initializeStoryCommands } from "./consoleStoryCommands";
 import { initializeHumorCommands } from "./consoleHumorCommands";
 import { initializeNewCommands } from "./consoleNewCommands";
+import { initializeBookCommands } from "./consoleBookCommands";
+import { initializeClueSystem } from "./consoleClueSystem";
+import { initializeSimbaSystem } from "./consoleSimbaSystem";
+import { initializeTimeSystem } from "./consoleTimeSystem";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -172,6 +176,18 @@ Time in session: ${formatSessionTime()}`;
   initializeStoryCommands(trackCommandExecution, recordFailAttempt);
   initializeHumorCommands(trackCommandExecution);
   initializeNewCommands(trackCommandExecution);
+  
+  // Initialize the new book-locked content system
+  initializeBookCommands(trackCommandExecution);
+  
+  // Initialize the layered clue system
+  initializeClueSystem(trackCommandExecution);
+  
+  // Initialize Simba presence
+  initializeSimbaSystem(trackCommandExecution);
+  
+  // Initialize time-sensitive features
+  initializeTimeSystem(trackCommandExecution);
 };
 
 // Add additional command types to the global window interface

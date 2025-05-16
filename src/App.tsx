@@ -31,6 +31,10 @@ import Map from "./pages/Map";
 import Characters from "./pages/Characters";
 import NotFound from "./pages/NotFound";
 
+// New route for QR code destination
+import ReEntry from "./pages/ReEntry";
+import Distortions from "./pages/Distortions";
+
 const queryClient = new QueryClient();
 
 // Expose the displayRandomJoke function to the window object
@@ -93,6 +97,11 @@ const App = () => {
             <Route path="/fleet" element={<Fleet />} />
             <Route path="/map" element={<Map />} />
             <Route path="/characters" element={<Characters />} />
+            
+            {/* Book-connected pages */}
+            <Route path="/re-entry" element={<ReEntry />} />
+            <Route path="/distortions" element={<Distortions />} />
+            
             {/* Secret pages */}
             <Route path="/monster" element={<Monster />} />
             <Route path="/legacy" element={<Legacy />} />
