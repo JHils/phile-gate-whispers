@@ -1,5 +1,5 @@
 
-// Define common types for console commands
+// Define the console state interface
 export interface JonahConsoleState {
   usedCommands: string[];
   score: number;
@@ -8,13 +8,19 @@ export interface JonahConsoleState {
   lastCommand?: string;
   sessionStartTime: number;
   whispersFound: string[];
-  jokesDisplayed?: string[];
-  bookCodes?: any[];
-  storyFlags?: any[];
-  simba?: any;
+  bookCodes?: {
+    codes: string[];
+    unlockedPages: number[];
+  };
+  simba?: {
+    encountered: boolean;
+    awarenessLevel: number;
+    interactions: any[];
+    lastInteraction: number;
+  };
 }
 
-// Add console commands to the global window interface
+// Global window interface
 declare global {
   interface Window {
     JonahConsole: JonahConsoleState;
@@ -26,7 +32,7 @@ declare global {
     philes: () => void;
     monster: () => void;
     legacy: () => void;
-    hint: () => void;
+    showStatus: () => Promise<void>;
     flipcoin: () => void;
     glitch: () => void;
     whisper: () => void;
@@ -37,11 +43,31 @@ declare global {
     coinToss: () => void;
     relocate: () => void;
     bridgeCollapse?: () => void;
-    WhisperMaster?: any;
-    bookCode?: (code?: string) => void;
-    bookStatus?: () => void;
-    readBetweenLines?: () => void;
-    mirrorCheck?: () => void;
-    traceSimba?: () => void;
+    // New commands
+    bookCode: (code?: string) => void;
+    bookStatus: () => void;
+    readBetweenLines: () => void;
+    mirrorCheck: () => void;
+    storyFlags: () => void;
+    findAnomaly: (text?: string) => void;
+    timeCheck: () => void;
+    traceSimba: () => void;
+    simbaStatus: () => void;
+    decodeSimba: (code?: string) => void;
+    // Bird and new commands
+    avianBlessing: () => void;
+    blessMe: () => void;
+    initiateBirdProtocol: () => void;
+    fleetSeenYou: () => void;
+    messageYourself: () => void;
+    bullsBalls: () => void;
+    gav007: () => void;
+    louisBarton: () => void;
+    bridgeWhisperer: () => void;
+    // Whisper functionality
+    displayRandomJoke: () => void;
+    griffProtocol: () => void;
+    loopGesture: () => void;
+    sixEleven: () => void;
   }
 }

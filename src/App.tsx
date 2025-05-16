@@ -31,7 +31,12 @@ import Map from "./pages/Map";
 import Characters from "./pages/Characters";
 import NotFound from "./pages/NotFound";
 
-// New route for QR code destination
+// New onboarding pages
+import Onboarding from "./pages/Onboarding";
+import OnboardingFailure from "./pages/OnboardingFailure";
+import ShadowInitiation from "./pages/ShadowInitiation";
+
+// QR code destination pages
 import ReEntry from "./pages/ReEntry";
 import Distortions from "./pages/Distortions";
 
@@ -97,6 +102,11 @@ const App = () => {
             <Route path="/fleet" element={<Fleet />} />
             <Route path="/map" element={<Map />} />
             <Route path="/characters" element={<Characters />} />
+            
+            {/* New onboarding pages */}
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/onboarding/failure" element={<OnboardingFailure />} />
+            <Route path="/shadow/initiation" element={<ShadowInitiation />} />
             
             {/* Book-connected pages */}
             <Route path="/re-entry" element={<ReEntry />} />
