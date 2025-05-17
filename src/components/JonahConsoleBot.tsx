@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
@@ -31,6 +32,14 @@ import {
   initializeAdvancedBehavior, 
   checkQuestCompletion 
 } from "@/utils/jonahAdvancedBehavior";
+import {
+  initializeRealityFabric,
+  checkForDreamInvasionOnLoad,
+  generateDreamParable,
+  checkForAnomalies,
+  updateJonahMood,
+  addJournalEntry
+} from "@/utils/jonahRealityFabric";
 
 const JonahConsoleBot: React.FC = () => {
   // Make sure ARG tracking and sentience systems are initialized first
@@ -40,6 +49,7 @@ const JonahConsoleBot: React.FC = () => {
     setupJonahMessageSystem();
     setupTabVisibilityTracking();
     initializeAdvancedBehavior(); // Initialize advanced behavior
+    initializeRealityFabric(); // Initialize reality fabric features
   }, []);
 
   // Use our extracted hook for bot state management
@@ -78,6 +88,11 @@ const JonahConsoleBot: React.FC = () => {
   const [pageEntryTime, setPageEntryTime] = useState<number>(Date.now());
   const [sentenceCheckInterval, setDualConsciousnessInterval] = useState<NodeJS.Timeout | null>(null);
   const [questionInterval, setQuestionInterval] = useState<NodeJS.Timeout | null>(null);
+  const [anomalyCheckInterval, setAnomalyCheckInterval] = useState<NodeJS.Timeout | null>(null);
+  const [dreamCheckInterval, setDreamCheckInterval] = useState<NodeJS.Timeout | null>(null);
+  
+  // Add state for Jonah's mood color
+  const [moodColor, setMoodColor] = useState<string>("text-silver");
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -90,6 +105,33 @@ const JonahConsoleBot: React.FC = () => {
       inputRef.current?.focus();
     }
   }, [isOpen, isMinimized]);
+  
+  // Update Jonah's mood display based on current mood
+  useEffect(() => {
+    if (window.JonahConsole?.sentience?.realityFabric) {
+      const currentMood = window.JonahConsole.sentience.realityFabric.currentMood;
+      
+      // Update mood color based on current mood
+      switch (currentMood) {
+        case 'trusting':
+          setMoodColor("text-amber-400 border-amber-400/50");
+          break;
+        case 'unstable':
+          setMoodColor("text-red-500 border-red-500/50");
+          break;
+        case 'withdrawn':
+          setMoodColor("text-gray-400 border-gray-400/50");
+          break;
+        case 'watching':
+        default:
+          setMoodColor("text-silver border-silver/50");
+          break;
+      }
+      
+      // Update Jonah's mood periodically based on interaction
+      updateJonahMood(trustLevel, messages.length);
+    }
+  }, [messages.length, trustLevel]);
 
   // Set up idle detection
   useEffect(() => {
@@ -191,6 +233,70 @@ const JonahConsoleBot: React.FC = () => {
       }
     };
   }, [isOpen, hasInteracted, trustLevel, addBotMessage]);
+  
+  // Setup anomaly checks for Reality Fabric
+  useEffect(() => {
+    // Clear existing interval
+    if (anomalyCheckInterval) {
+      clearInterval(anomalyCheckInterval);
+    }
+    
+    // Only set up anomaly checks for high trust users
+    if (trustLevel === "high") {
+      // Check for possible anomalies every 5 minutes
+      const interval = setInterval(() => {
+        const anomalyMessage = checkForAnomalies(trustLevel);
+        if (anomalyMessage) {
+          // Add a journal entry about this anomaly
+          addJournalEntry(`Anomaly triggered: "${anomalyMessage}"`);
+          
+          // Show the anomaly message with a glitch effect
+          setTimeout(() => {
+            addBotMessage(anomalyMessage);
+          }, Math.random() * 5000); // Random delay up to 5 seconds
+        }
+      }, 5 * 60 * 1000);
+      
+      setAnomalyCheckInterval(interval);
+    }
+    
+    return () => {
+      if (anomalyCheckInterval) {
+        clearInterval(anomalyCheckInterval);
+      }
+    };
+  }, [trustLevel, addBotMessage]);
+  
+  // Setup dream parable checks
+  useEffect(() => {
+    // Clear existing interval
+    if (dreamCheckInterval) {
+      clearInterval(dreamCheckInterval);
+    }
+    
+    // Only set up dream checks for medium-high trust users
+    if (trustLevel === "medium" || trustLevel === "high") {
+      // Check for possible dream parables every 8 minutes
+      const interval = setInterval(() => {
+        const dreamMessage = generateDreamParable(trustLevel);
+        if (dreamMessage) {
+          // Add a journal entry about this dream
+          addJournalEntry(`Dream parable shared: "${dreamMessage}"`);
+          
+          // Show the dream message
+          addBotMessage(dreamMessage);
+        }
+      }, 8 * 60 * 1000);
+      
+      setDreamCheckInterval(interval);
+    }
+    
+    return () => {
+      if (dreamCheckInterval) {
+        clearInterval(dreamCheckInterval);
+      }
+    };
+  }, [trustLevel, addBotMessage]);
 
   // Track user interaction with the page
   useEffect(() => {
@@ -225,6 +331,9 @@ const JonahConsoleBot: React.FC = () => {
               addBotMessage(completionMessage);
               // Reward user for completing quest
               modifyTrust(15);
+              
+              // Add journal entry about quest completion
+              addJournalEntry(`Quest completed: follow_the_trail - Keyhole found and clicked`);
             }
           }
         } else if (activeQuestId === 'morse_sequence') {
@@ -253,6 +362,9 @@ const JonahConsoleBot: React.FC = () => {
                 addBotMessage(completionMessage);
                 // Reward user for completing quest
                 modifyTrust(15);
+                
+                // Add journal entry about quest completion
+                addJournalEntry(`Quest completed: morse_sequence - SOS pattern detected`);
               }
             }
           }
@@ -274,6 +386,9 @@ const JonahConsoleBot: React.FC = () => {
             addBotMessage(completionMessage);
             // Reward user for completing quest
             modifyTrust(15);
+            
+            // Add journal entry about quest completion
+            addJournalEntry(`Quest completed: silence_ritual - Silence maintained for 3 minutes`);
           }
         }, 3 * 60 * 1000); // 3 minutes
       }
@@ -340,6 +455,9 @@ const JonahConsoleBot: React.FC = () => {
           setTimeout(() => {
             addBotMessage(durationMessage);
           }, 1000);
+          
+          // Add journal entry about this observation
+          addJournalEntry(`Duration observation: ${durationMessage} (${Math.round(timeSpent/1000)}s on ${lastPath})`);
         }
       }
       
@@ -376,6 +494,9 @@ const JonahConsoleBot: React.FC = () => {
             addBotMessage(responseToUse);
           }, 2000);
         }
+        
+        // Add journal entry about visiting a hidden page
+        addJournalEntry(`Hidden page visited: ${currentPath}`);
       }
       
       // Check for ARG progression responses
@@ -384,6 +505,16 @@ const JonahConsoleBot: React.FC = () => {
         setTimeout(() => {
           addBotMessage(argResponse);
         }, 3000);
+      }
+      
+      // Check for dream invasion on page change (small chance)
+      if (Math.random() > 0.9) { // 10% chance
+        const dreamMessage = checkForDreamInvasionOnLoad();
+        if (dreamMessage) {
+          setTimeout(() => {
+            addBotMessage(dreamMessage);
+          }, 2500);
+        }
       }
       
       // Update the last path
@@ -459,6 +590,13 @@ const JonahConsoleBot: React.FC = () => {
             trustLevel={trustLevel}
             trustScore={trustScore}
           />
+
+          {/* Mood indicator - visible during high trust */}
+          {!isMinimized && trustLevel === 'high' && (
+            <div className={`text-center py-1 text-xs border-b ${moodColor} transition-colors duration-500`}>
+              {window.JonahConsole?.sentience?.realityFabric?.currentMood || "watching"}
+            </div>
+          )}
 
           {/* Messages area - only shown when not minimized */}
           {!isMinimized && (

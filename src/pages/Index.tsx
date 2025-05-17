@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SpinningCoin from "../components/SpinningCoin";
@@ -7,12 +8,16 @@ import { useTrackingSystem } from "../hooks/useTrackingSystem";
 import { Button } from "@/components/ui/button";
 import { useConsoleMessages } from "../hooks/useConsoleMessages";
 import { initializeConsoleCommands } from "../utils/consoleCommands";
+import JonahMoodIndicator from "../components/JonahMoodIndicator";
+import JonahCrossSiteWhisper from "../components/JonahCrossSiteWhisper";
+import { checkForDreamInvasionOnLoad } from "../utils/jonahRealityFabric";
 
 // Reference the global interface from consoleCommands.ts
 /// <reference path="../utils/consoleCommands.ts" />
 
 const Index = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
+  const [trustLevel, setTrustLevel] = useState<string>("low");
   const { userState, trackEvent, getUserRank } = useTrackingSystem();
   const { showConsoleMessages } = useConsoleMessages({ 
     storageKey: 'index_console_messages_shown',
@@ -94,6 +99,19 @@ const Index = () => {
       initializeConsoleCommands(trackEvent, getUserRank, userState);
     }
     
+    // Get current trust level from localStorage
+    const storedTrustLevel = localStorage.getItem('jonahTrustLevel') || 'low';
+    setTrustLevel(storedTrustLevel);
+    
+    // Check for dream invasion message
+    const dreamMessage = checkForDreamInvasionOnLoad();
+    if (dreamMessage && typeof window.triggerJonahMessage === 'function') {
+      // Show the dream message after a delay
+      setTimeout(() => {
+        window.triggerJonahMessage(dreamMessage);
+      }, 3000);
+    }
+    
     // Call on load to reflect any existing progress
     setTimeout(updateUIBasedOnProgress, 1000);
     
@@ -102,6 +120,25 @@ const Index = () => {
     
     return () => clearInterval(intervalId);
   }, [trackEvent, getUserRank, userState, showConsoleMessages]);
+  
+  // Check for dream messages on tab visibility change
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Check for dream invasion when user returns to tab
+        const dreamMessage = checkForDreamInvasionOnLoad();
+        if (dreamMessage && typeof window.triggerJonahMessage === 'function') {
+          window.triggerJonahMessage(dreamMessage);
+        }
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   return (
     <div 
@@ -116,8 +153,28 @@ const Index = () => {
       {/* <!-- Left was never right. --> */}
       {/* <!-- Coin Toss initiated. --> */}
       {/* <!-- Try typing 'who am i?' in the console --> */}
+      {/* <!-- Try dreamJournal() to read Jonah's latest thoughts --> */}
+      {/* <!-- Try rememberMe() to see what's been stored about you --> */}
+      
+      {/* Hidden keyhole element for micro-quest */}
+      <div 
+        className="keyhole absolute h-3 w-3 bg-transparent rounded-full opacity-5 hover:opacity-20 transition-opacity duration-300 cursor-default"
+        style={{ top: '30%', right: '8%' }}
+        id="index-keyhole"
+        title="A tiny anomaly in the code"
+      />
+      
+      {/* Cross-site whisper - appears rarely */}
+      <JonahCrossSiteWhisper 
+        trustLevel={trustLevel} 
+        className="absolute top-2 left-1/2 transform -translate-x-1/2" 
+      />
       
       <div className="phile-container text-center z-10">
+        <div className="flex justify-end px-4 py-2">
+          <JonahMoodIndicator trustLevel={trustLevel} />
+        </div>
+        
         <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">Jonah's Philes</h1>
         
         <SpinningCoin />
@@ -185,6 +242,19 @@ const Index = () => {
                 Toggle Market
               </Button>
             </Link>
+            
+            {/* Ultra-hidden link to Journal - only visible to high trust or special time */}
+            {(trustLevel === 'high' || (typeof window.isSpecialTimeWindow === 'function' && window.isSpecialTimeWindow())) && (
+              <Link to="/i-see-you" aria-label="Journal">
+                <Button 
+                  variant="ghost" 
+                  className="text-dust-red/5 hover:text-dust-red/30 hover:bg-black/20 border border-transparent hover:border-dust-red/20 text-[0.6rem]"
+                  style={{ opacity: 0.05 }}
+                >
+                  I See You
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -208,6 +278,15 @@ const Index = () => {
           </Link>
         </p>
       </div>
+      
+      {/* Hidden data attributes for cross-site presence */}
+      <div
+        className="hidden"
+        data-jonah-presence="true"
+        data-user-rank={userState.rank}
+        data-visit-count={userState.visitCount}
+        data-whisper-code="GRFNDRZ"
+      />
     </div>
   );
 };

@@ -1,146 +1,206 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
-import { checkRedemptionTime, resetCollapseState, showRedemptionMessage, checkSurvivorEligibility } from "./utils/chronoLayer";
-import { displayRandomJoke } from "./utils/consoleEffects";
-import Landing from "./pages/Landing";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Inspect from "./pages/Inspect";
-import Philes from "./pages/Philes";
-import Contact from "./pages/Contact";
-import Monster from "./pages/Monster";
-import Legacy from "./pages/Legacy";
-import Gatekeeper from "./pages/Gatekeeper";
-import Survivor from "./pages/Survivor";
-import PhilesFinal from "./pages/PhilesFinal";
-import Rebirth from "./pages/Rebirth";
-import Campfire from "./pages/Campfire";
-import OutbackHostel from "./pages/OutbackHostel";
-import GovWatch from "./pages/GovWatch";
-import Summerhouse from "./pages/Summerhouse";
-import WebFail from "./pages/WebFail";
-import Kuranda from "./pages/Kuranda";
-import ToggleMarket from "./pages/ToggleMarket";
-import Fleet from "./pages/Fleet";
-import Map from "./pages/Map";
-import Characters from "./pages/Characters";
-import NotFound from "./pages/NotFound";
-import Access from "./pages/Access";
+import React, { useEffect, useState } from 'react';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { Toaster } from '@/components/ui/toaster';
+import { useTrackingSystem } from './hooks/useTrackingSystem';
 
-// New onboarding pages
-import Onboarding from "./pages/Onboarding";
-import OnboardingFailure from "./pages/OnboardingFailure";
-import ShadowInitiation from "./pages/ShadowInitiation";
+import Landing from './pages/Landing';
+import Index from './pages/Index';
+import Campfire from './pages/Campfire';
+import Summerhouse from './pages/Summerhouse';
+import WebFail from './pages/WebFail';
+import WebCatch from './pages/WebCatch';
+import Fleet from './pages/Fleet';
+import Kuranda from './pages/Kuranda';
+import Rebirth from './pages/Rebirth';
+import Philes from './pages/Philes';
+import Gatekeeper from './pages/Gatekeeper';
+import Monster from './pages/Monster';
+import Legacy from './pages/Legacy';
+import Echo from './pages/Echo';
+import Distortions from './pages/Distortions';
+import GovWatch from './pages/GovWatch';
+import Inspect from './pages/Inspect';
+import ToggleMarket from './pages/ToggleMarket';
+import OutbackHostel from './pages/OutbackHostel';
+import Map from './pages/Map';
+import NotFound from './pages/NotFound';
+import Contact from './pages/Contact';
+import About from './pages/About';
+import PhilesFinal from './pages/PhilesFinal';
+import ShadowInitiation from './pages/ShadowInitiation';
+import OnboardingFailure from './pages/OnboardingFailure';
+import Onboarding from './pages/Onboarding';
+import Access from './pages/Access';
+import Characters from './pages/Characters';
+import ReEntry from './pages/ReEntry';
+import Survivor from './pages/Survivor';
+import QuietMode from './pages/QuietMode';
 
-// QR code destination pages
-import ReEntry from "./pages/ReEntry";
-import Distortions from "./pages/Distortions";
+// New pages for Reality Fabric expansion
+import ISeeYou from './pages/ISeeYou';
 
-// New breadcrumb pages
-import WebCatch from "./pages/WebCatch";
-import QuietMode from "./pages/QuietMode";
-import JonahConsoleBot from "./components/JonahConsoleBot";
-import Echo from "./pages/Echo";
+import JonahConsoleBot from './components/JonahConsoleBot';
+import './App.css';
 
-const queryClient = new QueryClient();
-
-// Expose the displayRandomJoke function to the window object
-if (typeof window !== "undefined") {
-  window.displayRandomJoke = displayRandomJoke;
-}
-
-// Add the function to the global window interface
-declare global {
-  interface Window {
-    displayRandomJoke: () => void;
-  }
-}
-
-const App = () => {
+const App: React.FC = () => {
+  const { userState, updateUserState } = useTrackingSystem();
+  
   useEffect(() => {
-    // Check for redemption time when the app loads
-    const permanentlyCollapsed = localStorage.getItem("permanentlyCollapsed");
+    // Increment visit count
+    updateUserState({
+      visitCount: userState.visitCount + 1,
+      lastVisit: Date.now()
+    });
     
-    if (permanentlyCollapsed === "true") {
-      // Check if they qualify for survivor path first (30+ days)
-      if (checkSurvivorEligibility()) {
-        // User has waited 30+ days - redirect to survivor path
-        localStorage.removeItem("permanentlyCollapsed");
-        localStorage.removeItem("gateCollapseTime");
-        localStorage.setItem("survivorMode", "true");
-        window.location.href = "/survivor";
-        return;
-      }
-      
-      // Otherwise check for normal redemption (7+ days)
-      if (checkRedemptionTime()) {
-        // User has waited long enough for redemption
-        resetCollapseState();
-        showRedemptionMessage();
-      }
+  }, [userState.visitCount, updateUserState]);
+
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <Landing />
+    },
+    {
+      path: '/gate',
+      element: <Index />
+    },
+    {
+      path: '/campfire',
+      element: <Campfire />
+    },
+    {
+      path: '/summerhouse',
+      element: <Summerhouse />
+    },
+    {
+      path: '/webfail',
+      element: <WebFail />
+    },
+    {
+      path: '/webcatch',
+      element: <WebCatch />
+    },
+    {
+      path: '/fleet',
+      element: <Fleet />
+    },
+    {
+      path: '/kuranda',
+      element: <Kuranda />
+    },
+    {
+      path: '/rebirth',
+      element: <Rebirth />
+    },
+    {
+      path: '/philes',
+      element: <Philes />
+    },
+    {
+      path: '/gatekeeper',
+      element: <Gatekeeper />
+    },
+    {
+      path: '/monster',
+      element: <Monster />
+    },
+    {
+      path: '/legacy',
+      element: <Legacy />
+    },
+    {
+      path: '/echo',
+      element: <Echo />
+    },
+    {
+      path: '/distortions',
+      element: <Distortions />
+    },
+    {
+      path: '/govwatch',
+      element: <GovWatch />
+    },
+    {
+      path: '/inspect',
+      element: <Inspect />
+    },
+    {
+      path: '/toggle-market',
+      element: <ToggleMarket />
+    },
+    {
+      path: '/outback-hostel',
+      element: <OutbackHostel />
+    },
+    {
+      path: '/map',
+      element: <Map />
+    },
+    {
+      path: '/not-found',
+      element: <NotFound />
+    },
+    {
+      path: '/contact',
+      element: <Contact />
+    },
+    {
+      path: '/about',
+      element: <About />
+    },
+    {
+      path: '/philes-final',
+      element: <PhilesFinal />
+    },
+    {
+      path: '/shadow-initiation',
+      element: <ShadowInitiation />
+    },
+    {
+      path: '/onboarding-failure',
+      element: <OnboardingFailure />
+    },
+    {
+      path: '/onboarding',
+      element: <Onboarding />
+    },
+    {
+      path: '/access',
+      element: <Access />
+    },
+    {
+      path: '/characters',
+      element: <Characters />
+    },
+    {
+      path: '/re-entry',
+      element: <ReEntry />
+    },
+    {
+      path: '/survivor',
+      element: <Survivor />
+    },
+    {
+      path: '/quiet-mode',
+      element: <QuietMode />
+    },
+    // New Reality Fabric routes
+    {
+      path: '/i-see-you',
+      element: <ISeeYou />
+    },
+    {
+      path: '*',
+      element: <NotFound />
     }
-  }, []);
+  ]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/gate" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/inspect" element={<Inspect />} />
-            <Route path="/philes" element={<Philes />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/campfire" element={<Campfire />} />
-            <Route path="/outbackhostel" element={<OutbackHostel />} />
-            <Route path="/govwatch" element={<GovWatch />} />
-            <Route path="/summerhouse" element={<Summerhouse />} />
-            <Route path="/webfail" element={<WebFail />} />
-            <Route path="/kuranda" element={<Kuranda />} />
-            <Route path="/toggle-market" element={<ToggleMarket />} />
-            <Route path="/fleet" element={<Fleet />} />
-            <Route path="/map" element={<Map />} />
-            <Route path="/characters" element={<Characters />} />
-            
-            {/* New routes */}
-            <Route path="/access" element={<Access />} />
-            <Route path="/echo" element={<Echo />} />
-            
-            {/* New onboarding pages */}
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/onboarding/failure" element={<OnboardingFailure />} />
-            <Route path="/shadow/initiation" element={<ShadowInitiation />} />
-            
-            {/* Book-connected pages */}
-            <Route path="/re-entry" element={<ReEntry />} />
-            <Route path="/distortions" element={<Distortions />} />
-            
-            {/* Breadcrumb pages */}
-            <Route path="/web-catch" element={<WebCatch />} />
-            <Route path="/quiet-mode" element={<QuietMode />} />
-            
-            {/* Secret pages */}
-            <Route path="/monster" element={<Monster />} />
-            <Route path="/legacy" element={<Legacy />} />
-            <Route path="/gatekeeper" element={<Gatekeeper />} />
-            <Route path="/survivor" element={<Survivor />} />
-            <Route path="/philes/final" element={<PhilesFinal />} />
-            <Route path="/rebirth" element={<Rebirth />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <JonahConsoleBot />
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <>
+      <RouterProvider router={router} />
+      <JonahConsoleBot />
+      <Toaster />
+    </>
   );
 };
 

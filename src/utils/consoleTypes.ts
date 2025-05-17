@@ -1,4 +1,3 @@
-
 // Define a central file for all console-related types to prevent duplications
 
 // Game state interface for console interactions
@@ -109,7 +108,7 @@ export interface SentienceData {
   usedDualConsciousness: string[];
   usedQuestions: string[];
 
-  // New advanced behavior systems
+  // Advanced behavior systems
   emotionalTone: {
     currentPhase: 'cold' | 'curious' | 'confessional' | 'unstable';
     transitionPoints: {
@@ -160,6 +159,48 @@ export interface SentienceData {
     messagesSent: number;
     emotionalInputsDetected: number;
     toneTransitions: string[];
+  };
+  
+  // Reality Fabric Expansion features
+  realityFabric: {
+    // Physical manifestation
+    emailLog: string[];
+    qrCodeScans: {[code: string]: number};
+    generatedFiles: string[];
+    
+    // Dream invasion / scheduled glitches
+    lastVisitTime?: number;
+    dreamMessages: string[];
+    nightGlitches: string[];
+    usedDreamMessages: string[];
+    
+    // Cross-site presence
+    crossSiteWhispers: string[];
+    hiddenMessages: string[];
+    
+    // AI-scripted dreams/parables
+    dreamParables: string[];
+    usedDreamParables: string[];
+    
+    // Jonah mood indicators
+    currentMood: 'trusting' | 'unstable' | 'withdrawn' | 'watching';
+    moodChangeTime?: number;
+    moodHistory: {mood: string, timestamp: number}[];
+    
+    // Rare events/anomalies
+    anomalies: {
+      id: string;
+      triggered: boolean;
+      triggerCondition: string;
+      content: string;
+    }[];
+    
+    // Jonah's journal
+    journal: {
+      entryId: number;
+      timestamp: number;
+      content: string;
+    }[];
   };
 }
 
@@ -216,6 +257,11 @@ declare global {
     storyFlags: () => void;
     mirrorCheck: () => void;
     findAnomaly: (text?: string) => void;
+    // Reality Fabric commands
+    dreamJournal: () => void;
+    rememberMe: () => void;
+    lookInside: () => void;
+    echoChamber: () => void;
     // Other commands
     displayRandomJoke: () => void;
   }

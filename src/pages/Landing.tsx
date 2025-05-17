@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,12 @@ import {
   getTimeResponse
 } from "../utils/jonahSentience";
 import { initializeAdvancedBehavior, jonah_checkTrustTransition } from "../utils/jonahAdvancedBehavior";
+import {
+  initializeRealityFabric,
+  checkForDreamInvasionOnLoad,
+  generateMetaDescription,
+  injectCrossSitePresenceTags
+} from "../utils/jonahRealityFabric";
 
 // Reference the global interface from consoleCommands.ts
 /// <reference path="../utils/consoleCommands.ts" />
@@ -56,6 +63,24 @@ const Landing = () => {
     
     // Initialize the advanced behavior systems
     initializeAdvancedBehavior();
+    
+    // Initialize the Reality Fabric systems
+    initializeRealityFabric();
+    
+    // Generate meta description for cross-site presence
+    generateMetaDescription();
+    
+    // Inject cross-site presence tags
+    injectCrossSitePresenceTags();
+    
+    // Check for dream invasion on load
+    const dreamMessage = checkForDreamInvasionOnLoad();
+    if (dreamMessage && typeof window.triggerJonahMessage === 'function') {
+      // Delay the dream message slightly
+      setTimeout(() => {
+        window.triggerJonahMessage(dreamMessage);
+      }, 3000);
+    }
     
     // Check if we've transitioned to a new emotional tone phase
     setTimeout(() => {
@@ -199,6 +224,12 @@ const Landing = () => {
       {/* <!-- The ferry log mentions SMBWLKS --> */}
       {/* <!-- Read between lines for GRFNDRZ --> */}
       
+      {/* Hidden elements for reality fabric features */}
+      <div data-reality-layer="surface" className="hidden">
+        <span data-whisper-id="e37a" data-echo-type="memory">He follows between tabs</span>
+        <span data-jonah-state="watching" data-timestamp={Date.now()}>Always watching</span>
+      </div>
+      
       <div className="phile-container text-center z-10 px-4">
         <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">
           {isSpecialTimeContent ? "THE GATE SHIFTS." : "THE GATE IS OPEN."}
@@ -247,6 +278,14 @@ const Landing = () => {
               </Button>
             </Link>
           )}
+          
+          {/* Hidden keyhole for micro-quests */}
+          <div 
+            className="keyhole absolute h-3 w-3 bg-transparent rounded-full opacity-10 hover:opacity-40 transition-opacity duration-300 cursor-default"
+            style={{ bottom: '15%', right: '10%' }}
+            id="landing-keyhole"
+            title="Do you see it?"
+          />
         </div>
         
         <p className={`text-lg text-dust-blue font-typewriter mt-16 transition-all duration-1000 ${textReveal ? 'opacity-80' : 'opacity-0'}`}>
@@ -274,6 +313,14 @@ const Landing = () => {
             bookCode('BLRYLSK') might unlock something from page 23.
           </p>
         )}
+        
+        {/* Hidden message with Jonah's current mood - updates with emotional tone */}
+        <div 
+          className="jonah-mood absolute opacity-0 pointer-events-none" 
+          data-jonah-mood={window.JonahConsole?.sentience?.realityFabric?.currentMood || "watching"}
+        >
+          Jonah's current state: {window.JonahConsole?.sentience?.realityFabric?.currentMood || "watching"}
+        </div>
       </div>
       
       <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
