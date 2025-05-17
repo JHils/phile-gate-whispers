@@ -108,6 +108,59 @@ export interface SentienceData {
   usedPredictionResponses: string[];
   usedDualConsciousness: string[];
   usedQuestions: string[];
+
+  // New advanced behavior systems
+  emotionalTone: {
+    currentPhase: 'cold' | 'curious' | 'confessional' | 'unstable';
+    transitionPoints: {
+      curious: number;
+      confessional: number;
+      unstable: number;
+    };
+    phaseResponses: {
+      cold: string[];
+      curious: string[];
+      confessional: string[];
+      unstable: string[];
+    };
+  };
+  typingQuirks: {
+    typos: string[];
+    corrections: string[];
+    unfinishedThoughts: string[];
+  };
+  replyStyles: {
+    oneLiners: string[];
+    reflections: string[];
+    paragraphBursts: string[];
+  };
+  emotionalTriggers: {
+    keywords: {[keyword: string]: string[]};
+    microStories: string[];
+    usedMicroStories: string[];
+  };
+  microQuests: {
+    quests: {
+      id: string;
+      prompt: string;
+      condition: string;
+      reward: string;
+      completed: boolean;
+    }[];
+    activeQuest?: string;
+    lastQuestTime?: number;
+  };
+  argSync: {
+    siteChanges: {[key: string]: string};
+    userAwareness: string[];
+    worldEvents: string[];
+  };
+  sessionData: {
+    startTime: number;
+    messagesSent: number;
+    emotionalInputsDetected: number;
+    toneTransitions: string[];
+  };
 }
 
 // Declare global types to be available throughout the application

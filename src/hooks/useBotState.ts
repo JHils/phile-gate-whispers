@@ -3,6 +3,16 @@ import { useLocation } from "react-router-dom";
 import { useTrackingSystem } from "@/hooks/useTrackingSystem";
 import { Message, TrustLevel, BotMode, DialogueEntry } from "@/types/chat";
 import { generateTestament } from "@/utils/argTracking";
+import {
+  initializeAdvancedBehavior,
+  getEmotionalToneResponse,
+  applyTypingQuirks,
+  getVaryingLengthResponse,
+  checkEmotionalTriggers,
+  getMicroQuest,
+  getARGSyncMessage,
+  jonah_checkTrustTransition
+} from "@/utils/jonahAdvancedBehavior";
 
 export function useBotState() {
   // State management
@@ -304,6 +314,9 @@ export function useBotState() {
       else if (score >= 30) setTrustLevel("medium");
       else setTrustLevel("low");
     }
+
+    // Initialize advanced behavior systems
+    initializeAdvancedBehavior();
   }, []);
 
   // Calculate trust level based on user state
@@ -473,23 +486,37 @@ export function useBotState() {
     return vulnerableInputPatterns.some(pattern => pattern.test(input));
   };
 
-  // Add a message from the bot
+  // Add a message from the bot with enhanced typing effects
   const addBotMessage = (text: string) => {
+    // Apply advanced behavior modifiers to the message text
+    let enhancedText = text;
+    
+    // Apply typing quirks (typos, corrections, unfinished thoughts)
+    enhancedText = applyTypingQuirks(enhancedText);
+    
     setIsTyping(true);
     
-    // Simulate typing delay based on message length
+    // Calculate typing delay based on message length and complexity
+    // Longer messages take more time, emotional/unstable messages have variable timing
+    const baseDelay = Math.min(1000, enhancedText.length * 30);
+    const emotionalFactor = enhancedText.includes('?') || 
+                          enhancedText.includes('!') || 
+                          enhancedText.toUpperCase() === enhancedText ? 1.5 : 1;
+    const typingDelay = baseDelay * emotionalFactor;
+    
+    // Simulate typing delay based on message length and emotion
     setTimeout(() => {
       setMessages(prev => [
         ...prev, 
         {
           id: `bot-${Date.now()}`,
           sender: 'character',
-          text,
+          text: enhancedText,
           timestamp: new Date()
         }
       ]);
       setIsTyping(false);
-    }, Math.min(1000, text.length * 30));
+    }, typingDelay);
   };
 
   // Process user input and generate appropriate response
@@ -565,6 +592,21 @@ export function useBotState() {
       return;
     }
     
+    // Check for trust level transition first
+    const transitionMessage = jonah_checkTrustTransition(trustScore);
+    if (transitionMessage) {
+      addBotMessage(transitionMessage);
+      return;
+    }
+    
+    // Check for emotional triggers in user input
+    const emotionalResponse = checkEmotionalTriggers(text);
+    if (emotionalResponse) {
+      addBotMessage(emotionalResponse);
+      modifyTrust(3); // Reward emotional connection
+      return;
+    }
+    
     // Check for rude inputs
     if (isRude(normalizedInput)) {
       addBotMessage(getNonRepeatingResponse(dialogueBank.rudeInputs));
@@ -594,7 +636,35 @@ export function useBotState() {
       return;
     }
     
-    // Get regular responses based on trust level
+    // Occasionally offer a micro-quest if trust is high
+    const questPrompt = getMicroQuest(trustLevel);
+    if (questPrompt) {
+      addBotMessage(questPrompt);
+      return;
+    }
+    
+    // Occasionally send an ARG sync message
+    const argSyncMessage = getARGSyncMessage();
+    if (argSyncMessage) {
+      addBotMessage(argSyncMessage);
+      return;
+    }
+
+    // First try getting a response based on current emotional tone
+    const toneResponse = getEmotionalToneResponse();
+    if (toneResponse) {
+      addBotMessage(toneResponse);
+      return;
+    }
+    
+    // Try getting a varying length response (one-liner, reflection, paragraph)
+    const varyingResponse = getVaryingLengthResponse();
+    if (Math.random() < 0.3 && varyingResponse) {
+      addBotMessage(varyingResponse);
+      return;
+    }
+    
+    // Fall back to regular responses based on trust level
     const trustResponses = 
       trustLevel === "high" ? dialogueBank.trustHigh :
       trustLevel === "medium" ? dialogueBank.trustMedium : 
@@ -605,6 +675,11 @@ export function useBotState() {
       addBotMessage(getNonRepeatingResponse(dialogueBank.humorousGlitches));
     } else {
       addBotMessage(getNonRepeatingResponse(trustResponses));
+    }
+    
+    // Track message in session data
+    if (window.JonahConsole?.sentience?.sessionData) {
+      window.JonahConsole.sentience.sessionData.messagesSent++;
     }
   };
 

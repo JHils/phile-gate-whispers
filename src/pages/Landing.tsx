@@ -14,6 +14,7 @@ import {
   setupJonahMessageSystem,
   getTimeResponse
 } from "../utils/jonahSentience";
+import { initializeAdvancedBehavior, jonah_checkTrustTransition } from "../utils/jonahAdvancedBehavior";
 
 // Reference the global interface from consoleCommands.ts
 /// <reference path="../utils/consoleCommands.ts" />
@@ -52,6 +53,19 @@ const Landing = () => {
     }
     initializeSentience();
     setupJonahMessageSystem();
+    
+    // Initialize the advanced behavior systems
+    initializeAdvancedBehavior();
+    
+    // Check if we've transitioned to a new emotional tone phase
+    setTimeout(() => {
+      const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '0', 10);
+      const transitionMessage = jonah_checkTrustTransition(trustScore);
+      
+      if (transitionMessage && typeof window.triggerJonahMessage === 'function') {
+        window.triggerJonahMessage(transitionMessage);
+      }
+    }, 5000);
     
     // Check for special time-sensitive content
     if (typeof window.isSpecialTimeWindow === 'function') {
