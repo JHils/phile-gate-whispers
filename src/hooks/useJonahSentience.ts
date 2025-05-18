@@ -88,12 +88,18 @@ export function useJonahSentience(trustLevel: string = 'low') {
     return generatePersonalDiary(trustLevel);
   };
 
-  // Remember a user's name
+  // Remember a user's name - Fix type by ensuring sentience exists and has the property structure
   const rememberUserName = (name: string) => {
-    if (!isPrepared || !sentience) return;
+    if (!isPrepared) return;
     
     if (window.JonahConsole?.sentience) {
-      window.JonahConsole.sentience.rememberedName = name;
+      // Initialize the property if it doesn't exist
+      if (!window.JonahConsole.sentience.rememberedName) {
+        window.JonahConsole.sentience.rememberedName = name;
+      } else {
+        // Update the existing property
+        window.JonahConsole.sentience.rememberedName = name;
+      }
     }
   };
 

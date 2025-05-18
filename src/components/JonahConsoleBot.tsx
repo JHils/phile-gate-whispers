@@ -14,7 +14,7 @@ import {
 import BotIntervalManagement from "./bot/BotIntervalManagement";
 import BotQuestSystem from "./bot/BotQuestSystem";
 import BotPageNavigation from "./bot/BotPageNavigation";
-import BotMoodManager from "./bot/BotMoodManager";
+import { getMoodClassName } from "./bot/BotMoodManager";
 import { useLocation } from "react-router-dom";
 
 interface JonahConsoleBotProps {
@@ -67,9 +67,8 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
   const inputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
   
-  // Get mood state from BotMoodManager
-  const moodState = BotMoodManager({ trustLevel, messages });
-  const moodColor = moodState.className || '';
+  // Get mood state from getMoodClassName helper
+  const moodColor = getMoodClassName(trustLevel, messages);
 
   // Scroll to bottom when messages change
   React.useEffect(() => {
@@ -139,7 +138,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
           {/* Mood indicator - visible during high trust */}
           {!isMinimized && trustLevel === 'high' && (
             <div className={`text-center py-1 text-xs border-b ${moodColor} transition-colors duration-500`}>
-              {window.JonahConsole?.sentience?.realityFabric?.currentMood || "watching"}
+              {window.JonahConsole?.sentience?.realTimeMood || "watching"}
             </div>
           )}
 

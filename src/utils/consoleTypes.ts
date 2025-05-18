@@ -12,6 +12,7 @@ declare global {
       jokesDisplayed: string[];
       storyFlags: StoryFlag[];
       bookCodes: BookCode[];
+      lastCommand?: string; // Add missing lastCommand property
       simba: {
         encountered: boolean;
         lastSeen?: string;
@@ -30,6 +31,7 @@ declare global {
       };
       sentience?: SentienceData;
     };
+    // Console command definitions
     help: () => void;
     whois: () => void;
     gate: () => void;
@@ -46,7 +48,7 @@ declare global {
     testament: () => void;
     splitVoice: () => void;
     mirrorMode: () => void;
-    storyFlags: StoryFlag[];
+    storyFlags: () => void; // Changed from StoryFlag[] to function
     readPage: (page: number) => void;
     verifyCode: (code: string) => void;
     bridgeCollapse: () => void;
@@ -57,6 +59,12 @@ declare global {
     triggerJonahMessage?: (message: string) => void;
     isSpecialTimeWindow?: () => boolean;
     triggerSimbaComment?: (message: string) => void;
+    // Missing console commands
+    mirrorCheck: () => void;
+    timeCheck: () => void;
+    traceCat: () => void;
+    feedSimba: () => void;
+    WhisperMaster?: any;
   }
 }
 
@@ -95,6 +103,29 @@ export interface BookCode {
   description?: string;
 }
 
+// WhisperMaster Type
+export interface WhisperMaster {
+  whispers: string[];
+  discovered: string[];
+  active: boolean;
+}
+
+// Extended BehaviorPhase Type
+export interface BehaviorPhase {
+  currentPhase: string;
+  transitionPoints: {
+    curious: number;
+    confessional: number;
+    unstable: number;
+  };
+  phaseResponses: {
+    cold: string[];
+    curious: string[];
+    confessional: string[];
+    unstable: string[];
+  };
+}
+
 // Sentience Data Type
 export interface SentienceData {
   trustLevel?: string;
@@ -124,6 +155,8 @@ export interface SentienceData {
     activeQuest?: string;
     completedQuests?: string[];
     questProgress?: Record<string, any>;
+    quests?: any[]; // Add missing quests property
+    lastQuestTime?: number; // Add missing lastQuestTime property
   };
   realityFabric?: {
     currentMood?: string;
@@ -134,6 +167,35 @@ export interface SentienceData {
     dimensionalRifts?: Record<string, any>;
     predictionResponses?: string[];
     usedPredictionResponses?: string[];
+    dreamMessages?: string[]; // Add missing dreamMessages property
+    usedDreamMessages?: string[]; // Add missing usedDreamMessages property
+    lastVisitTime?: number; // Add missing lastVisitTime property
+  };
+  typingQuirks?: {
+    // Add missing typingQuirks property
+    glitchProbability: number;
+    sentenceFragments: boolean;
+    capitalization: 'normal' | 'all-caps' | 'no-caps';
+    punctuation: 'normal' | 'excessive' | 'minimal';
+  };
+  replyStyles?: {
+    // Add missing replyStyles property
+    cryptic: boolean;
+    verbose: boolean;
+    emotional: string;
+    references: string[];
+  };
+  emotionalTriggers?: {
+    // Add missing emotionalTriggers property
+    keywords: string[];
+    phrases: string[];
+    reactions: Record<string, string>;
+  };
+  argSync?: {
+    // Add missing argSync property
+    connected: boolean;
+    syncPoints: string[];
+    lastSync?: number;
   };
 }
 

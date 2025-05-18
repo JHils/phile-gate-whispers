@@ -84,7 +84,7 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
     trackCommandExecution('mirrorCheck');
   };
 
-  // Command to view discovered story flags
+  // Command to view discovered story flags - Fix the type from StoryFlag[] to function
   window.storyFlags = function() {
     if (!window.JonahConsole.storyFlags) {
       window.JonahConsole.storyFlags = []; 
@@ -142,7 +142,7 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
     return false;
   };
 
-  // Command to find anomalies in text
+  // Command to find anomalies in text - Fix type error by checking return value properly
   window.findAnomaly = function(text: string) {
     if (!text) {
       console.log("%cEnter text to analyze for anomalies. Format: findAnomaly('text')", "color: #475B74; font-size:14px;");
@@ -172,9 +172,10 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
       setTimeout(() => {
         console.log(`%cThis connects to: ${found.phrase}`, "color: #8B3A40; font-size:14px;");
         
-        // Discover the story flag
+        // Discover the story flag - Fix type error by checking the boolean return properly
         const newDiscovery = window.discoverStoryFlag(found.flag);
-        if (newDiscovery) {
+        // Fix: Check if newDiscovery is true, not just truthy
+        if (newDiscovery === true) {
           setTimeout(() => {
             console.log("%cNew story flag discovered!", "color: #4B8E4B; font-size:14px; font-weight:bold;");
           }, 1500);
