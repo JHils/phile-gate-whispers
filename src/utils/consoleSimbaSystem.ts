@@ -1,143 +1,158 @@
 
-import { typewriterLog, flickerLog, speak } from "./consoleEffects";
+import { typewriterLog, glitchEffectLog, speak } from "./consoleEffects";
 
 type TrackCommandFunction = (commandName: string) => void;
 
 export const initializeSimbaSystem = (trackCommandExecution: TrackCommandFunction) => {
+  // Initialize Simba tracking if not already done
+  if (!window.JonahConsole.simba) {
+    window.JonahConsole.simba = {
+      encountered: false,
+      interactions: 0
+    };
+  }
+  
   // Initialize the traceCat command
   window.traceCat = function() {
-    // Initialize simba data if needed
-    if (!window.JonahConsole.simba) {
-      window.JonahConsole.simba = {
-        encountered: false
-      };
+    // First time encounter
+    if (!window.JonahConsole.simba.encountered) {
+      console.log("%c...", "color: #475B74; font-size:14px;");
+      
+      setTimeout(() => {
+        console.log("%c...", "color: #475B74; font-size:14px;");
+      }, 1000);
+      
+      setTimeout(() => {
+        console.log("%c...", "color: #475B74; font-size:14px;");
+      }, 2000);
+      
+      setTimeout(() => {
+        console.log("%c*quiet meowing in the distance*", "color: #C97D60; font-size:14px; font-style: italic;");
+        speak("meow", { rate: 0.4, pitch: 1.5 });
+        
+        // Mark as encountered
+        window.JonahConsole.simba.encountered = true;
+        window.JonahConsole.simba.lastSeen = new Date().toISOString();
+        window.JonahConsole.simba.interactions = 1;
+        
+        // Award points
+        window.JonahConsole.score += 10;
+        localStorage.setItem('phileScore', window.JonahConsole.score.toString());
+      }, 3000);
     }
-    
-    // Simba appearance is random and rare
-    const roll = Math.random();
-    if (roll > 0.7 || window.JonahConsole.simba.encountered) {
-      window.JonahConsole.simba.encountered = true;
+    // Subsequent encounters
+    else {
+      const interactions = window.JonahConsole.simba.interactions || 0;
+      
+      // Update tracking
+      window.JonahConsole.simba.interactions = interactions + 1;
       window.JonahConsole.simba.lastSeen = new Date().toISOString();
       
-      // Initialize or increment interaction count
-      if (!window.JonahConsole.simba.interactions) {
-        window.JonahConsole.simba.interactions = 1;
-      } else {
-        window.JonahConsole.simba.interactions++;
+      // Different responses based on number of interactions
+      if (interactions < 3) {
+        console.log("%c*the cat observes you from a distance*", "color: #C97D60; font-size:14px; font-style: italic;");
+        speak("meow", { rate: 0.4, pitch: 1.5 });
       }
-      
-      // Save to localStorage for persistence
-      localStorage.setItem('simbaData', JSON.stringify(window.JonahConsole.simba));
-      
-      // Display Simba's presence
-      flickerLog("A subtle movement in the corner of your screen...");
-      
-      setTimeout(() => {
-        console.log("%c/ᐠ｡ꞈ｡ᐟ\\", "color: #FFA500; font-size:24px;");
-        speak("meow", 0.4);
+      else if (interactions < 6) {
+        console.log("%c*the cat comes closer, tilting its head*", "color: #C97D60; font-size:14px; font-style: italic;");
+        speak("purr", { rate: 0.4, pitch: 1.5 });
         
         setTimeout(() => {
-          console.log("%cSimba watches you from a distance.", "color: #FFA500; font-size:14px; font-style:italic;");
+          console.log("%cIts collar has a name tag: 'SIMBA'", "color: #475B74; font-size:14px;");
+        }, 2000);
+      }
+      else {
+        console.log("%c*Simba jumps onto the console and walks across it*", "color: #C97D60; font-size:14px; font-style: italic;");
+        
+        setTimeout(() => {
+          // Cat walking on keyboard effect
+          const keys = "nmbvcxzlkjhgfdsapoiuytrewq";
+          let randomKeys = "";
+          const keyCount = Math.floor(Math.random() * 10) + 5;
           
-          // Award points
-          window.JonahConsole.score += 5;
-          
-          // Special interaction if they've seen Simba multiple times
-          if (window.JonahConsole.simba.interactions && window.JonahConsole.simba.interactions > 3) {
-            setTimeout(() => {
-              console.log("%cHe seems to be getting more comfortable with you.", "color: #FFA500; font-size:14px;");
-              console.log("%cTry feedSimba() next time.", "color: #FFA500; font-size:14px; font-style:italic;");
-            }, 2000);
+          for (let i = 0; i < keyCount; i++) {
+            randomKeys += keys[Math.floor(Math.random() * keys.length)];
           }
-        }, 1000);
-      }, 1500);
-    } else {
-      // No Simba this time
-      typewriterLog("You sense a presence, but nothing appears...");
-      setTimeout(() => {
-        console.log("%cTry again later. Cats are fickle creatures.", "color: #475B74; font-size:14px; font-style:italic;");
-      }, 1500);
+          
+          console.log(`%c${randomKeys}`, "color: #C97D60; font-size:14px;");
+          
+          // Hint at the feed command after enough interactions
+          if (interactions >= 7 && !window.JonahConsole.usedCommands.includes('feedSimba')) {
+            setTimeout(() => {
+              console.log("%cSimba seems hungry...", "color: #475B74; font-size:14px; font-style:italic;");
+            }, 1500);
+          }
+        }, 1500);
+      }
     }
     
     trackCommandExecution('traceCat');
   };
-  
+
   // Initialize the feedSimba command
   window.feedSimba = function() {
-    // Check if Simba has been encountered first
-    if (!window.JonahConsole.simba || !window.JonahConsole.simba.encountered) {
-      console.log("%cYou don't have anyone to feed yet.", "color: #475B74; font-size:14px;");
-      console.log("%cTry traceCat() first to find a friend.", "color: #475B74; font-size:14px; font-style:italic;");
+    if (!window.JonahConsole.simba.encountered) {
+      typewriterLog("You don't have anyone to feed yet.");
+      speak("You don't have anyone to feed yet", { rate: 0.3, pitch: 0.2 });
       return;
     }
     
-    // Simba's reaction depends on interaction count
-    const interactions = window.JonahConsole.simba.interactions || 0;
+    console.log("%c*you offer some food*", "color: #C97D60; font-size:14px; font-style: italic;");
     
-    // First feeding
-    if (interactions < 2) {
-      typewriterLog("You offer some digital kibble...");
+    setTimeout(() => {
+      console.log("%c*Simba approaches cautiously*", "color: #C97D60; font-size:14px; font-style: italic;");
+    }, 1500);
+    
+    setTimeout(() => {
+      console.log("%c*Simba eats the food happily*", "color: #C97D60; font-size:14px; font-style: italic;");
+      speak("purr", { rate: 0.5, pitch: 1.5 });
+    }, 3000);
+    
+    setTimeout(() => {
+      // After eating, Simba might reveal a clue
+      const interactions = window.JonahConsole.simba.interactions || 0;
       
-      setTimeout(() => {
-        console.log("%cThe cat watches cautiously from a distance.", "color: #FFA500; font-size:14px;");
-        console.log("%c/ᐠ｡ᴗ｡ᐟ\\︵‿︵‿︵‿︵", "color: #FFA500; font-size:24px;");
-        speak("meow", 0.4);
-        
-        window.JonahConsole.simba.interactions = interactions + 1;
-        localStorage.setItem('simbaData', JSON.stringify(window.JonahConsole.simba));
-      }, 1500);
-    } 
-    // Multiple feedings
-    else if (interactions < 5) {
-      typewriterLog("You place some premium virtual treats...");
-      
-      setTimeout(() => {
-        console.log("%cSimba approaches cautiously and nibbles the treats.", "color: #FFA500; font-size:14px;");
-        console.log("%c/ᐠ｡ﻌ｡ᐟ\\", "color: #FFA500; font-size:24px;");
-        speak("purr", 0.3);
-        
-        // Award points for feeding
-        window.JonahConsole.score += 5;
-        window.JonahConsole.simba.interactions = interactions + 1;
-        localStorage.setItem('simbaData', JSON.stringify(window.JonahConsole.simba));
-      }, 1500);
-    }
-    // Many interactions - special event
-    else {
-      flickerLog("You offer some rare digital fish...");
-      
-      setTimeout(() => {
-        console.log("%cSimba happily eats the fish and rubs against your cursor.", "color: #FFA500; font-size:14px;");
-        console.log("%c/ᐠ≧ᴥ≦ᐟ\\", "color: #FFA500; font-size:24px;");
-        speak("purr purr", 0.5);
+      if (interactions > 5) {
+        console.log("%c*Simba drops something shiny from its collar*", "color: #C97D60; font-size:14px;");
         
         setTimeout(() => {
-          console.log("%cHe drops something at your feet: a glowing keycard.", "color: #8B3A40; font-size:14px; font-weight:bold;");
-          console.log("%c[SIMBA_ACCESS_GRANTED]", "color: #8B3A40; font-size:14px;");
+          console.log("%cIt's a tiny key with the number '427' engraved on it.", "color: #475B74; font-size:14px;");
           
-          // Add story flag
-          if (window.JonahConsole.storyFlags && 
-              window.discoverStoryFlag && 
-              typeof window.discoverStoryFlag === 'function') {
-            window.discoverStoryFlag('simba_friend');
-          }
-          
-          // Award significant points
-          window.JonahConsole.score += 50;
-          window.JonahConsole.simba.interactions = interactions + 1;
-          localStorage.setItem('simbaData', JSON.stringify(window.JonahConsole.simba));
+          // Award points for finding the key
+          window.JonahConsole.score += 15;
         }, 2000);
-      }, 1500);
-    }
+      } else {
+        console.log("%c*Simba purrs and rubs against the screen*", "color: #C97D60; font-size:14px;");
+      }
+      
+      // Increment interactions
+      window.JonahConsole.simba.interactions = interactions + 1;
+      window.JonahConsole.simba.lastSeen = new Date().toISOString();
+    }, 4500);
     
     trackCommandExecution('feedSimba');
   };
+
+  // Enable the system to respond to "Simba" mentions
+  window.triggerSimbaComment = function(message) {
+    if (!window.JonahConsole.simba.encountered) return;
+    
+    if (message.toLowerCase().includes('simba') || 
+        message.toLowerCase().includes('cat')) {
+      
+      // Add a small delay before Simba responds
+      setTimeout(() => {
+        console.log("%c*Simba's ears perk up at hearing its name*", "color: #C97D60; font-size:14px; font-style: italic;");
+      }, 2000);
+    }
+  };
 };
 
-// Declare the new Simba-related console functions in global scope
+// Declare the global functions for TypeScript
 declare global {
   interface Window {
     traceCat: () => void;
     feedSimba: () => void;
+    triggerSimbaComment?: (message: string) => void;
   }
 }

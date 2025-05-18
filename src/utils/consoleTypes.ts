@@ -52,7 +52,7 @@ declare global {
     readPage: (page: number) => void;
     verifyCode: (code: string) => void;
     bridgeCollapse: () => void;
-    discoverStoryFlag: (flagId: string) => void;
+    discoverStoryFlag: (flagId: string) => boolean;
     findAnomaly: (text: string) => void;
     processUserMessage?: (message: string) => string | undefined;
     clearJonahOnPathChange?: boolean;
@@ -64,6 +64,12 @@ declare global {
     timeCheck: () => void;
     traceCat: () => void;
     feedSimba: () => void;
+    addWhisper: (whisper: string) => boolean;
+    // Console functions from jonahSentience.ts
+    dreamJournal: () => string;
+    rememberMe: () => Record<string, any>;
+    lookInside: () => void; 
+    echoChamber: () => void;
     WhisperMaster?: WhisperMaster;
   }
 }
@@ -110,7 +116,7 @@ export interface WhisperMaster {
   active: boolean;
 }
 
-// Extended BehaviorPhase Type - Changed from string to proper interface
+// Extended BehaviorPhase Type
 export interface BehaviorPhase {
   currentPhase: string;
   transitionPoints: {
@@ -126,10 +132,10 @@ export interface BehaviorPhase {
   };
 }
 
-// Sentience Data Type - Expanded with all needed properties
+// Sentience Data Type - Adding all required properties
 export interface SentienceData {
   trustLevel?: string;
-  emotionalTone?: string;
+  emotionalTone?: BehaviorPhase;
   selfAwareness?: number;
   memoryFragments?: string[];
   realTimeMood?: string;
@@ -151,11 +157,27 @@ export interface SentienceData {
     lateClick: string[];
   };
   usedPredictionResponses: string[];
+  dualConsciousness?: string[];
+  usedDualConsciousness?: string[];
+  jonahQuestions?: string[];
+  usedQuestions?: string[];
+  timeOfDayResponses?: Record<string, string>;
+  nameEchoResponses?: string[];
+  personalDiaryTemplates?: string[];
+  lastQuestion?: string;
+  lastQuestionTime?: number;
+  lastDualConsciousness?: number;
   microQuests?: {
     activeQuest?: string;
     completedQuests?: string[];
     questProgress?: Record<string, any>;
-    quests?: any[];
+    quests?: Array<{
+      id: string;
+      prompt: string;
+      condition: string;
+      reward: string;
+      completed: boolean;
+    }>;
     lastQuestTime?: number;
   };
   realityFabric?: {
@@ -172,10 +194,23 @@ export interface SentienceData {
     lastVisitTime?: number;
     dreamParables?: string[];
     usedDreamParables?: string[];
-    anomalies?: string[];
-    journal?: string[];
-    moodHistory?: string[];
+    anomalies?: Array<{
+      id: string;
+      triggered: boolean;
+      triggerCondition: string;
+      content: string;
+    }>;
+    journal?: Array<{
+      entryId: number;
+      timestamp: number;
+      content: string;
+    }>;
+    moodHistory?: Array<{
+      mood: string;
+      timestamp: number;
+    }>;
     crossSiteWhispers?: string[];
+    hiddenMessages?: string[];
   };
   typingQuirks?: {
     glitchProbability: number;
@@ -196,7 +231,7 @@ export interface SentienceData {
     paragraphBursts?: string[];
   };
   emotionalTriggers?: {
-    keywords: string[];
+    keywords: Record<string, string[]>;
     phrases: string[];
     reactions: Record<string, string>;
     microStories?: string[];
@@ -206,8 +241,8 @@ export interface SentienceData {
     connected: boolean;
     syncPoints: string[];
     lastSync?: number;
-    siteChanges?: string[];
-    userAwareness?: boolean;
+    siteChanges?: Record<string, string>;
+    userAwareness?: string[];
     worldEvents?: string[];
   };
 }

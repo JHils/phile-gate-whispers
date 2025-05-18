@@ -29,7 +29,7 @@ export const initializeWhisperMaster = () => {
 
   // Whisper command
   window.whisperTree = function() {
-    const master = window.WhisperMaster;
+    const master = window.WhisperMaster as WhisperMaster;
     
     if (!master) {
       console.log("%cWhisper system initializing...", "color: #6A0572; font-style:italic;");
@@ -77,21 +77,23 @@ export const initializeWhisperMaster = () => {
   };
   
   // Helper function to add a whisper to discovered list
-  window.addWhisper = function(whisper) {
-    if (!window.WhisperMaster || 
-        !window.WhisperMaster.active || 
-        !whisper) return;
+  window.addWhisper = function(whisper: string): boolean {
+    const master = window.WhisperMaster as WhisperMaster;
+    
+    if (!master || 
+        !master.active || 
+        !whisper) return false;
     
     // Check if this whisper exists and isn't already discovered
-    const exists = window.WhisperMaster.whispers.includes(whisper);
-    const alreadyFound = window.WhisperMaster.discovered.includes(whisper);
+    const exists = master.whispers.includes(whisper);
+    const alreadyFound = master.discovered.includes(whisper);
     
     if (exists && !alreadyFound) {
-      window.WhisperMaster.discovered.push(whisper);
+      master.discovered.push(whisper);
       
       // Save to localStorage
       localStorage.setItem('discoveredWhispers', 
-                         JSON.stringify(window.WhisperMaster.discovered));
+                         JSON.stringify(master.discovered));
       
       // Award points
       if (window.JonahConsole) {
@@ -105,10 +107,3 @@ export const initializeWhisperMaster = () => {
     return false;
   };
 };
-
-// Declare addWhisper function in global scope
-declare global {
-  interface Window {
-    addWhisper: (whisper: string) => boolean;
-  }
-}

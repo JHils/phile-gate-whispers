@@ -57,7 +57,7 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
               });
           }
           
-          // Show a connecting phrase at the end
+          // Add a connecting phrase at the end
           setTimeout(() => {
             typewriterLog("These fragments form a pattern. The truth hides in plain sight.");
             
@@ -84,7 +84,7 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
     trackCommandExecution('mirrorCheck');
   };
 
-  // Command to view discovered story flags - Fix the type from StoryFlag[] to function
+  // Command to view discovered story flags
   window.storyFlags = function() {
     if (!window.JonahConsole.storyFlags) {
       window.JonahConsole.storyFlags = []; 
@@ -119,7 +119,7 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
   };
 
   // Function to discover a story flag (called from various pages)
-  window.discoverStoryFlag = function(flagId: string) {
+  window.discoverStoryFlag = function(flagId: string): boolean {
     if (!window.JonahConsole.storyFlags) {
       return false;
     }
@@ -142,7 +142,7 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
     return false;
   };
 
-  // Command to find anomalies in text - Fix type error by checking return value properly
+  // Command to find anomalies in text
   window.findAnomaly = function(text: string) {
     if (!text) {
       console.log("%cEnter text to analyze for anomalies. Format: findAnomaly('text')", "color: #475B74; font-size:14px;");
@@ -174,7 +174,7 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
         
         // Discover the story flag - Fix type error by storing the result and checking it
         const newDiscovery = window.discoverStoryFlag(found.flag);
-        if (newDiscovery) {
+        if (newDiscovery === true) { // Explicitly check against true
           setTimeout(() => {
             console.log("%cNew story flag discovered!", "color: #4B8E4B; font-size:14px; font-weight:bold;");
           }, 1500);
@@ -188,3 +188,13 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
     trackCommandExecution('findAnomaly');
   };
 };
+
+// Declare the necessary global functions
+declare global {
+  interface Window {
+    discoverStoryFlag: (flagId: string) => boolean;
+    mirrorCheck: () => void;
+    storyFlags: () => void;
+    findAnomaly: (text: string) => void;
+  }
+}

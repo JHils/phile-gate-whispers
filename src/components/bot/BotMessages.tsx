@@ -1,9 +1,9 @@
 
-import React from "react";
-import { Message } from "@/types/chat";
+import React from 'react';
+import { BotMessage } from '@/hooks/useBotState/types';
 
 interface BotMessagesProps {
-  messages: Message[];
+  messages: BotMessage[];
   isTyping: boolean;
   messagesEndRef: React.RefObject<HTMLDivElement>;
 }
@@ -14,30 +14,37 @@ export const BotMessages: React.FC<BotMessagesProps> = ({
   messagesEndRef 
 }) => {
   return (
-    <div className="flex-1 p-4 overflow-y-auto h-[calc(100%-104px)]">
-      {messages.map((message) => (
-        <div 
-          key={message.id} 
-          className={`mb-3 ${message.sender === 'user' ? 'text-right' : 'text-left'}`}
-        >
-          <div 
-            className={`inline-block p-2 rounded-lg max-w-[80%] ${
-              message.sender === 'user' 
-                ? 'bg-indigo-600 text-white' 
-                : 'bg-gray-800 text-white'
-            }`}
-          >
-            {message.text}
-          </div>
-        </div>
-      ))}
-      {isTyping && (
-        <div className="flex space-x-2 p-2 bg-gray-800 text-white rounded-lg inline-block">
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-100"></div>
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-200"></div>
+    <div className="bg-gray-900 h-64 overflow-y-auto p-3 flex flex-col gap-2 custom-scrollbar">
+      {/* Display welcome message if no messages yet */}
+      {messages.length === 0 && (
+        <div className="text-gray-500 text-center italic text-sm p-6">
+          No conversation yet. Type a message to begin.
         </div>
       )}
+      
+      {/* Display actual messages */}
+      {messages.map((message) => (
+        <div 
+          key={message.id}
+          className={`rounded-lg px-3 py-2 max-w-[85%] ${
+            message.type === 'bot'
+              ? 'bg-gray-800 text-gray-200 self-start'
+              : 'bg-blue-900 text-white self-end'
+          } ${message.special ? 'border border-red-500' : ''}`}
+        >
+          {message.content}
+        </div>
+      ))}
+      
+      {/* Display typing indicator */}
+      {isTyping && (
+        <div className="bg-gray-800 text-gray-200 self-start rounded-lg px-3 py-2 flex items-center space-x-1">
+          <span className="animate-bounce duration-200">●</span>
+          <span className="animate-bounce duration-200 delay-75">●</span>
+          <span className="animate-bounce duration-200 delay-150">●</span>
+        </div>
+      )}
+      
       <div ref={messagesEndRef} />
     </div>
   );

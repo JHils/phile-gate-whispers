@@ -68,8 +68,9 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
   const inputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
   
-  // Get mood state from getMoodClassName helper
-  const moodColor = getMoodClassName(trustLevel, messages as BotMessage[]);
+  // Get mood state from getMoodClassName helper - Cast messages to BotMessage[]
+  const botMessages = messages as unknown as BotMessage[];
+  const moodColor = getMoodClassName(trustLevel, botMessages);
 
   // Scroll to bottom when messages change
   React.useEffect(() => {
@@ -146,7 +147,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
           {/* Messages area - only shown when not minimized */}
           {!isMinimized && (
             <BotMessages 
-              messages={messages as BotMessage[]}
+              messages={botMessages}
               isTyping={isTyping}
               messagesEndRef={messagesEndRef}
             />

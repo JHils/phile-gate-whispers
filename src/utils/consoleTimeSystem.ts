@@ -27,7 +27,7 @@ export const initializeTimeSystem = (trackCommandExecution: TrackCommandFunction
         if (hours === 3) {
           setTimeout(() => {
             glitchEffectLog("THE VEIL IS THIN NOW");
-            speak("veil is thin", 0.4);
+            speak("veil is thin", { rate: 0.4, pitch: 0.2 });
             
             // Award points for checking at the special hour
             window.JonahConsole.score += 15;
@@ -79,5 +79,6 @@ export const initializeTimeSystem = (trackCommandExecution: TrackCommandFunction
 declare global {
   interface Window {
     timeCheck: () => void;
+    isSpecialTimeWindow?: () => boolean;
   }
 }
