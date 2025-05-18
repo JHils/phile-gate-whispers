@@ -315,8 +315,7 @@ export function initializeSentience() {
       
       // Reality Fabric Expansion features (added in phase 3)
       realityFabric: {
-        // Physical manifestation - removed emailLog as it doesn't exist in the type
-        qrCodeScans: {},
+        // Physical manifestation
         generatedFiles: [],
         
         // Dream invasion / scheduled glitches
@@ -375,7 +374,11 @@ export function initializeSentience() {
         journalEntries: [],
         anomalyCount: 0,
         dimensionalRifts: {},
-        predictionResponses: []
+        predictionResponses: [],
+        
+        // Adding qrScans as an alternative to qrCodeScans
+        qrScans: {},
+        lastVisitTime: Date.now()
       }
     };
     
