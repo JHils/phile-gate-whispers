@@ -262,6 +262,9 @@ declare global {
     rememberMe: () => void;
     lookInside: () => void;
     echoChamber: () => void;
+    // Split voice & mirror site commands
+    splitVoice: () => void;
+    mirrorMode: () => void;
     // Other commands
     displayRandomJoke: () => void;
   }

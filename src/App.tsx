@@ -39,6 +39,8 @@ import QuietMode from './pages/QuietMode';
 
 // New pages for Reality Fabric expansion
 import ISeeYou from './pages/ISeeYou';
+import SplitVoice from './pages/SplitVoice';
+import MirrorPhile from './pages/MirrorPhile';
 
 import JonahConsoleBot from './components/JonahConsoleBot';
 import './App.css';
@@ -188,6 +190,15 @@ const App: React.FC = () => {
     {
       path: '/i-see-you',
       element: <ISeeYou />
+    },
+    // New Split Voice and Mirror pages
+    {
+      path: '/split-voice',
+      element: <SplitVoice />
+    },
+    {
+      path: '/mirror_phile/:mirrorId',
+      element: <MirrorPhile />
     },
     {
       path: '*',

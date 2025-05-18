@@ -1,3 +1,4 @@
+
 import { UserState } from "@/hooks/useTrackingSystem";
 import { 
   typewriterLog, 
@@ -26,6 +27,7 @@ import {
   initializeSentience, 
   generatePersonalDiary 
 } from "./jonahSentience";
+import { initializeMirrorSite } from "./jonahMirrorSite";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -78,6 +80,9 @@ export const initializeConsoleCommands = (
   
   // Initialize WhisperMaster for side quests
   initializeWhisperMaster();
+  
+  // Initialize mirror site functionality
+  initializeMirrorSite();
   
   // Update score and rank from real user state
   const updateConsoleState = async () => {
@@ -233,5 +238,7 @@ declare global {
     whisperTree: () => void;
     plea: () => void;
     testament: () => void;
+    splitVoice: () => void;
+    mirrorMode: () => void;
   }
 }

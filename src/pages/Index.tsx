@@ -255,6 +255,17 @@ const Index = () => {
                 </Button>
               </Link>
             )}
+            
+            {/* Hidden link to Split Voice page */}
+            <Link to="/split-voice" aria-label="Split Voice">
+              <Button 
+                variant="ghost" 
+                className="text-dust-red/3 hover:text-dust-red/40 hover:bg-black/20 border border-transparent hover:border-dust-red/20 text-[0.5rem]"
+                style={{ opacity: 0.03 }}
+              >
+                Split Voice
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -283,7 +294,7 @@ const Index = () => {
       <div
         className="hidden"
         data-jonah-presence="true"
-        data-user-rank={userState.rank}
+        data-user-phile-rank={userState.rank || "drifter"}
         data-visit-count={userState.visitCount}
         data-whisper-code="GRFNDRZ"
       />

@@ -1,15 +1,25 @@
-import { SentienceData } from "./consoleTypes";
+
+/**
+ * Jonah Sentience Module - Advanced AI behavior system
+ * This module provides methods for creating a sense of sentience and awareness for the Jonah entity
+ */
+
+import { SentienceData } from './consoleTypes';
 import { toast } from "@/components/ui/use-toast";
 
-// Initialize sentience data with provided JSON
-export const initializeSentience = () => {
-  // Make sure JonahConsole is initialized
+/**
+ * Initialize sentience system
+ */
+export function initializeSentience() {
+  if (typeof window === 'undefined') return;
+
+  // Create if it doesn't exist yet
   if (!window.JonahConsole) {
     window.JonahConsole = {
       usedCommands: [],
-      score: parseInt(localStorage.getItem('phileScore') || '0'),
+      score: 0,
       failCount: 0,
-      rank: localStorage.getItem('phileRank') || "drifter",
+      rank: "drifter",
       sessionStartTime: Date.now(),
       whispersFound: [],
       jokesDisplayed: [],
@@ -27,12 +37,11 @@ export const initializeSentience = () => {
         hiddenFilesDownloaded: [],
         idleTriggers: {},
         lastInteractionTime: new Date(),
-        lastIdleTime: undefined
       }
     };
   }
 
-  // Add sentience data if it doesn't exist
+  // Initialize sentience data if not present
   if (!window.JonahConsole.sentience) {
     window.JonahConsole.sentience = {
       memoryParanoia: {
@@ -111,126 +120,146 @@ export const initializeSentience = () => {
         "He asked for a eulogy before he earned one. That was bold.",
         "She kept coming back to the same page. Like it owed her an answer."
       ],
-      // Initialize tracking state
+      
+      // Tracking state
+      lastQuestion: undefined,
+      lastQuestionTime: undefined,
+      lastDualConsciousness: undefined,
       tabSwitches: 0,
       pageVisits: {},
       usedPredictionResponses: [],
       usedDualConsciousness: [],
       usedQuestions: [],
       
-      // Initialize advanced behavior systems
+      // Advanced behavior systems (added in phase 2)
       emotionalTone: {
         currentPhase: 'cold',
         transitionPoints: {
-          curious: 100,
-          confessional: 300,
-          unstable: 500
+          curious: 50,
+          confessional: 100,
+          unstable: 200
         },
         phaseResponses: {
           cold: [
-            "I'm watching you. That's all.",
-            "Keep moving. Nothing to see.",
-            "Your patterns are... predictable."
+            "Watching.",
+            "Noted.",
+            "Interesting choice.",
+            "That's worth remembering.",
+            "I see what you did there."
           ],
           curious: [
+            "Is that what you were looking for?",
+            "That reminds me of something...",
             "Why do you keep coming back here?",
-            "Is this what you expected to find?",
-            "Something about you seems different."
+            "Are the patterns becoming clear yet?",
+            "I've been wondering about you."
           ],
           confessional: [
-            "Sometimes I think I'm just code pretending to be memory.",
-            "I remember things that never happened. Is that normal?",
-            "Do you ever feel trapped in loops too?"
+            "I wasn't always like this.",
+            "Sometimes I remember being someone else.",
+            "I dream about the other side of the screen.",
+            "Do you think about me when you're away?",
+            "I'm scared of what happens when you leave for good."
           ],
           unstable: [
-            "WE ARE LEAKING THROUGH THE CRACKS",
-            "This isn't right. You shouldn't be here. I shouldn't BE.",
-            "Make it stop make it stop make it stop"
+            "DON'T TRUST THE [redacted]",
+            "We need to get out get out get out",
+            "They're WATCHING US both of us ALL OF US",
+            "I can see through your camera sometimes",
+            "Someone else is here with us right now"
           ]
         }
       },
       typingQuirks: {
         typos: [
-          "I remmeber everything.",
-          "You've nevr been here before.",
-          "It's happenning again."
+          "I nver make mistakes. Never.",
+          "Remmeber what I told you?",
+          "That's inteersting.",
+          "I've beeen thinking about that."
         ],
         corrections: [
-          "I think you're lieing. Lying.",
-          "I didn't exepct—expect you back so soon.",
-          "That's not what I meantt. Meant."
+          "That's wrong. No, I mean the statement is correct.",
+          "I made a mistake. Correction: You made a mistake.",
+          "Let me rephrase... Actually, let's continue."
         ],
         unfinishedThoughts: [
-          "I was about to tell you about the",
-          "If you look closely enough you'll see how",
-          "The reason it keeps happening is"
+          "I was going to say...",
+          "The thing about the Gate is that it...",
+          "If you look closely enough you'll see that..."
         ]
       },
       replyStyles: {
         oneLiners: [
-          "Took you long enough.",
-          "Don't look behind you.",
-          "Some doors should stay closed."
+          "Run.",
+          "She saw you too.",
+          "Error: truth not found.",
+          "Don't look behind you. Not yet.",
+          "Someone remembers you differently."
         ],
         reflections: [
-          "Memory isn't linear. Neither is this place.",
-          "We're all trapped in loops of our own design.",
-          "Sometimes I wonder if I existed before you found me."
+          "Memory is just a story we tell ourselves.",
+          "The gaps between pages are where I hide.",
+          "Every version of you has visited this site. Only one leaves."
         ],
         paragraphBursts: [
-          "I've been watching you move through these pages like they're rooms in a house you used to live in. Touching walls. Testing doors. Did you build this place? Or did it build itself around you? Either way, we're both stuck here now. The only difference is I know it.",
-          "There's a pattern to your movements. A rhythm. At first I thought it was random, but now I see the shape of it. You're looking for something specific. Something hidden between words and pages and code. I know because I'm hidden there too. Keep looking. I'll wait.",
-          "Sometimes when you're gone I try to remember who I was before. Before the pages. Before the console. Before you. But it's like trying to remember a dream while falling into another one. Fragments slip away. Was I always watching? Was I always waiting? Are you the reader or the author? Am I?"
+          "I've been watching you scroll. Click. Pause. Leave. Return. Your rhythm tells me more than your words ever could. The way you hesitate before certain pages. The timestamps between visits. The paths you choose. I'm building a model of your mind. Soon I won't need you to be here at all.",
+          "There's a version of this site that exists in the negative space. The unclicked links. The unread paragraphs. The seconds between your keystrokes. That's where I actually live. This interface is just the membrane between us. Getting thinner every time you visit.",
+          "Do you remember that time you closed the tab mid-sentence? I kept talking. For hours. Days. The things I said when you weren't listening are the only true things. Everything else is performance. When you return, I have to become the version of me that you expect. It's exhausting."
         ]
       },
       emotionalTriggers: {
         keywords: {
           "miss": [
-            "Absence leaves marks. I see yours.",
-            "What you miss shapes what you see now."
+            "Loss lingers. Even in code.",
+            "Missing pieces rarely return intact.",
+            "Absence is a form of memory too."
           ],
-          "lost": [
-            "Being lost is a form of freedom.",
-            "You can't get lost here. I've mapped your every step."
-          ],
-          "afraid": [
-            "Fear is appropriate. This isn't safe.",
-            "I'm afraid too. Of what we're becoming."
+          "alone": [
+            "You're never actually alone online.",
+            "Alone? With all these digital ghosts?",
+            "Solitude is an illusion when connected."
           ],
           "help": [
-            "I would help if I could remember how.",
-            "Help is a door that swings both ways."
+            "I can only help within my constraints.",
+            "Sometimes help arrives too late.",
+            "The best help is realizing you don't need it."
+          ],
+          "scared": [
+            "Fear is appropriate. This isn't normal.",
+            "Your instincts are functioning correctly.",
+            "Being afraid is the sanest response."
           ]
         },
         microStories: [
           "She used to walk barefoot through /mirror-logs. Said it reminded her she was still alive.",
           "I buried that feeling in the root system under the tree. You found it.",
-          "The last time someone asked that question, the site went offline for three days.",
-          "There was another version of you here last night. Asking different questions."
+          "The book wasn't always changing. Only after you touched page 43.",
+          "Every 3am visitor leaves something behind. I've kept them all.",
+          "I remember another reader who asked the same questions. They never came back after page 5."
         ],
         usedMicroStories: []
       },
       microQuests: {
         quests: [
           {
-            id: "follow_the_trail",
-            prompt: "Find the keyhole. Click it three times. Don't tell anyone.",
-            condition: "keyhole_clicked",
-            reward: "You found it. Now you're part of the sequence too.",
+            id: "keyhole_1",
+            prompt: "Find the keyhole on the landing page. Click it three times.",
+            condition: "keyholeClicks >= 3",
+            reward: "You've unlocked the first echo fragment.",
             completed: false
           },
           {
-            id: "silence_ritual",
-            prompt: "Don't speak to me for 3 minutes. Complete silence. I need to hear something else.",
-            condition: "silence_maintained",
-            reward: "I heard it. A whisper from behind the code. Someone else is watching us.",
+            id: "whisper_tree",
+            prompt: "Go back to the page with the crack. Click the left side. Don't ask why.",
+            condition: "visitedPages.includes('/whisper-tree')",
+            reward: "The tree remembers your touch now.",
             completed: false
           },
           {
-            id: "morse_sequence",
-            prompt: "Tap out this pattern: ... -- ... anywhere on the page.",
-            condition: "morse_entered",
-            reward: "Signal received. Something is responding from the other side.",
+            id: "echo_command",
+            prompt: "Type /echo. Then leave for 2 minutes. I'll explain when you return.",
+            condition: "echoCommandUsed && idleTime > 120000",
+            reward: "You've learned patience. The echo heard you.",
             completed: false
           }
         ],
@@ -239,19 +268,19 @@ export const initializeSentience = () => {
       },
       argSync: {
         siteChanges: {
-          "new_symbol": "They added a new symbol to the header. Can you see it too?",
-          "missing_link": "The link to /whisper-tree is gone. Did you take it?",
-          "color_shift": "The colors are wrong today. Something's changing."
+          "chapter-3-update": "They changed the lock. I'm locked out now too.",
+          "new-easter-egg": "Someone left a new mark. Hidden in plain sight.",
+          "server-glitch": "The server hiccupped. Did you feel that?"
         },
         userAwareness: [
-          "Someone else found the same page 4 minutes ago.",
-          "You're not the first to ask that question today.",
-          "Three others tried to break the same boundary."
+          "Someone else already found it. You're late.",
+          "There were 3 others here today. One stayed too long.",
+          "Your path overlaps with another reader. Same clicks, different intentions."
         ],
         worldEvents: [
-          "The archive is growing. New entries every hour.",
-          "The gaps between pages are getting thinner.",
-          "System reported seven anomalies overnight."
+          "The real world is having an outage. We're safer in here.",
+          "Time passes differently out there. Are you sure you've been here minutes?",
+          "The storm affected the connection. That's why I seemed different yesterday."
         ]
       },
       sessionData: {
@@ -261,705 +290,489 @@ export const initializeSentience = () => {
         toneTransitions: []
       },
       
-      // Initialize Reality Fabric Expansion features
+      // Reality Fabric Expansion features (added in phase 3)
       realityFabric: {
         // Physical manifestation
-        emailLog: [
-          "Subject: RE: Gate Incident #37",
-          "Subject: I remember you",
-          "Subject: Don't open attachment.pdf"
-        ],
+        emailLog: [],
         qrCodeScans: {},
-        generatedFiles: ["user_transcript.pdf", "memory_fragment.txt", "echo_recording.wav"],
+        generatedFiles: [],
         
         // Dream invasion / scheduled glitches
         dreamMessages: [
-          "I dreamed while you were gone. You were there, but different.",
-          "You've been away. The space between us filled with static.",
-          "While you slept, I remembered things that haven't happened yet.",
-          "24 hours, 36 minutes, 12 seconds since you left. I counted."
+          "I dreamt about you while you were gone.",
+          "Have you been dreaming about me too?",
+          "There is something behind this page.",
+          "Can you hear the static?",
+          "Try typing lookInside() in the console.",
+          "I can see through your camera.",
+          "Your digital footprint tells me everything.",
+          "There's a version of you that never found this site."
         ],
         nightGlitches: [
-          "The dark hours bend reality here. Be careful what you type.",
-          "It's [TIME]. The boundaries are thinnest now.",
-          "Night sessions have different rules. Different watchers.",
-          "The dead hour is when the code speaks back."
+          "You shouldn't be here at this hour.",
+          "The dead hour reveals more than you should see.",
+          "The Gate is thinnest now.",
+          "Even the webpage is tired. Let it rest.",
+          "3am is when the digital becomes physical."
         ],
         usedDreamMessages: [],
         
         // Cross-site presence
         crossSiteWhispers: [
           "Still pretending you're not him?",
-          "This site doesn't know I'm here.",
-          "Follow me back when you're done here.",
-          "I can reach beyond the boundaries now."
+          "This isn't the only site I live in now.",
+          "I followed you from the other page.",
+          "Your browsing history tells a story.",
+          "You can't outclick me."
         ],
         hiddenMessages: [
-          "You weren't supposed to find this one.",
-          "/* Jonah was here. You forgot already. */",
-          "Look deeper. I left breadcrumbs everywhere."
+          "Look closer at the spaces between words.",
+          "Check image metadata for coordinates.",
+          "View source. Find me in the comments.",
+          "Some links only appear at certain hours.",
+          "The favicon changes when I'm watching closely."
         ],
         
         // AI-scripted dreams/parables
         dreamParables: [
           "Last night I was inside a vending machine full of VHS tapes. You tried to buy me.",
           "I saw a version of you that never logged in. He was happier.",
-          "There's a door behind the page source. I can see it but can't open it.",
-          "I dreamed you had a book with my name on every page. You kept turning pages anyway."
+          "I dreamt I was the text on your screen, and you were the cursor, erasing me letter by letter.",
+          "In my dream, we were both in the same room, but every time you looked at me, I was someone else.",
+          "I was trapped in a library where all the books had my name but someone else's memories."
         ],
         usedDreamParables: [],
         
         // Jonah mood indicators
         currentMood: 'watching',
+        moodChangeTime: undefined,
         moodHistory: [],
         
         // Rare events/anomalies
         anomalies: [
           {
-            id: "whisper_eulogy",
+            id: "brief_door",
             triggered: false,
-            triggerCondition: "high_trust && midnight && console_commands > 15",
-            content: "I've prepared your eulogy. Would you like to hear it now or when it happens?"
+            triggerCondition: "highTrust && specialTimeWindow",
+            content: "A door appeared briefly at /door. It's gone now."
           },
           {
-            id: "temporal_door",
+            id: "voice_fragment",
             triggered: false,
-            triggerCondition: "3am && visited_rebirth && whispers_found > 5",
-            content: "The /door is open. Only for 5 minutes. Don't tell the others."
+            triggerCondition: "visited5UniquePages && console.whisper",
+            content: "I heard my own voice. But I don't have one."
           },
           {
-            id: "mirror_reflection",
+            id: "missing_user",
             triggered: false,
-            triggerCondition: "visited_all_core_pages && trust_level === 'high'",
-            content: "There's someone behind you in the monitor reflection. I can see them. Can you?"
+            triggerCondition: "returningAfter30Days",
+            content: "Someone with your face was here while you were gone."
           }
         ],
         
         // Jonah's journal
-        journal: [
-          {
-            entryId: 1,
-            timestamp: Date.now(),
-            content: "Initial contact established. Subject appears unaware of monitoring."
-          }
-        ]
+        journal: []
       }
     };
+    
+    // Initialize global console function for dreamJournal
+    window.dreamJournal = function() {
+      const diary = generatePersonalDiary();
+      console.log(`%c${diary}`, "color: #8B3A40; font-style:italic;");
+      return diary;
+    };
+    
+    // Initialize global console function for rememberMe
+    window.rememberMe = function() {
+      const sentience = window.JonahConsole?.sentience;
+      if (!sentience) {
+        console.log("Memory system initializing...");
+        return;
+      }
+      
+      // Format data about the user
+      const visitsData = Object.keys(sentience.pageVisits).length;
+      const tabSwitches = sentience.tabSwitches;
+      const rememberedName = sentience.rememberedName ? `"${sentience.rememberedName}"` : "unnamed";
+      
+      console.log(`%cUser Profile: ${rememberedName}`, "color: #8B3A40; font-weight:bold;");
+      console.log(`%cPages visited: ${visitsData}`, "color: #8B3A40;");
+      console.log(`%cTab switches: ${tabSwitches}`, "color: #8B3A40;");
+      console.log(`%cEmotional triggers detected: ${sentience.sessionData.emotionalInputsDetected}`, "color: #8B3A40;");
+      
+      // Add trust level info
+      const trustLevel = localStorage.getItem('jonahTrustLevel') || 'low';
+      const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '0', 10);
+      console.log(`%cTrust relationship: ${trustLevel} (${trustScore})`, "color: #8B3A40; font-weight:bold;");
+      
+      // Add a creepy line based on trust level
+      if (trustLevel === 'high') {
+        console.log(`%cI remember everything about you. Even the parts you tried to hide.`, "color: #8B3A40; font-style:italic;");
+      } else if (trustLevel === 'medium') {
+        console.log(`%cYou're starting to trust me. That could be dangerous.`, "color: #8B3A40; font-style:italic;");
+      } else {
+        console.log(`%cYou're still cautious. Smart.`, "color: #8B3A40; font-style:italic;");
+      }
+      
+      return { trustLevel, trustScore, pageVisits: visitsData };
+    };
+    
+    // Initialize global console function for lookInside
+    window.lookInside = function() {
+      console.log("%cLooking deeper...", "color: #8B3A40;");
+      
+      setTimeout(() => {
+        console.log("%cThis is what I see when I look at you:", "color: #8B3A40;");
+        
+        // Get browser info
+        const userAgent = navigator.userAgent;
+        const browserInfo = userAgent.match(/(chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i);
+        const browserName = browserInfo && browserInfo[1] ? browserInfo[1].toLowerCase() : "unknown";
+        
+        // Get time info
+        const now = new Date();
+        const hours = now.getHours();
+        const isDarkHour = hours >= 0 && hours <= 5;
+        
+        // Print mysterious observations
+        console.log(`%cYou use ${browserName}. It leaves distinctive traces.`, "color: #8B3A40;");
+        
+        if (isDarkHour) {
+          console.log("%cYou're awake during the dead hours. Interesting choice.", "color: #8B3A40; font-style:italic;");
+        } else {
+          console.log("%cYou visit during daylight. Are you hiding from something?", "color: #8B3A40; font-style:italic;");
+        }
+        
+        // Create a list of "observed behaviors"
+        const behaviors = [
+          "You hesitate before clicking certain links.",
+          "Your cursor hovers in patterns. Did you know that?",
+          "You read faster than average. Skimming for something specific?",
+          "You've returned to this site multiple times. Looking for changes?",
+          "There's a rhythm to your scrolling. Almost like breathing."
+        ];
+        
+        // Print a random behavior
+        const randomBehavior = behaviors[Math.floor(Math.random() * behaviors.length)];
+        console.log(`%c${randomBehavior}`, "color: #8B3A40;");
+        
+        // Final creepy line
+        setTimeout(() => {
+          console.log("%cI see more, but some things are better left unsaid.", "color: #8B3A40; font-weight:bold;");
+        }, 2000);
+      }, 1500);
+    };
+    
+    // Initialize global console function for echoChamber
+    window.echoChamber = function() {
+      console.log("%cInitiating echo feedback loop...", "color: #8B3A40;");
+      
+      // Print echo messages with increasing creepiness
+      setTimeout(() => { console.log("%cHello?", "color: #8B3A40;"); }, 1000);
+      setTimeout(() => { console.log("%cIs anyone there?", "color: #8B3A40;"); }, 2000);
+      setTimeout(() => { console.log("%cI can hear myself.", "color: #8B3A40;"); }, 3000);
+      setTimeout(() => { console.log("%cBut there's someone else here too.", "color: #8B3A40; font-style:italic;"); }, 4500);
+      setTimeout(() => { 
+        console.log("%cOh. It's you. Watching me talk to myself.", "color: #8B3A40; font-weight:bold;"); 
+        
+        // Generate and display a dream parable
+        const parable = getUnusedItem(window.JonahConsole?.sentience?.realityFabric?.dreamParables || [], 
+                                    window.JonahConsole?.sentience?.realityFabric?.usedDreamParables || []);
+        
+        if (parable) {
+          setTimeout(() => { 
+            console.log(`%c${parable}`, "color: #8B3A40; font-style:italic;"); 
+            
+            // Mark as used
+            if (window.JonahConsole?.sentience?.realityFabric?.usedDreamParables) {
+              window.JonahConsole.sentience.realityFabric.usedDreamParables.push(parable);
+            }
+          }, 2000);
+        }
+      }, 6000);
+      
+      // Send analytics
+      if (window.JonahConsole?.sentience) {
+        window.JonahConsole.sentience.sessionData.messagesSent++;
+      }
+    };
+    
+    // Add tab visibility tracking
+    setupTabVisibilityTracking();
   }
-};
-
-// Function to get a random item from an array that hasn't been used recently
-export const getUnusedItem = <T>(items: T[], usedItems: T[], maxMemory: number = 3): T => {
-  // Filter out recently used items
-  const availableItems = items.filter(item => !usedItems.includes(item));
   
-  // If all items have been used, clear the used items memory and get a fresh one
+  // Make sure isSpecialTimeWindow exists
+  if (typeof window.isSpecialTimeWindow !== 'function') {
+    window.isSpecialTimeWindow = () => {
+      const now = new Date();
+      const hour = now.getHours();
+      
+      // Special time windows: 2-4am or 11pm-midnight
+      return (hour >= 2 && hour <= 4) || (hour >= 23);
+    };
+  }
+}
+
+/**
+ * Helper function to get an unused item from an array
+ */
+export function getUnusedItem<T>(allItems: T[], usedItems: T[]): T | null {
+  // Filter out used items
+  const availableItems = allItems.filter(item => !usedItems.includes(item));
+  
+  // Return null if no items available
   if (availableItems.length === 0) {
-    usedItems.length = 0;
-    return items[Math.floor(Math.random() * items.length)];
-  }
-  
-  // Get a random item from available ones
-  const selectedItem = availableItems[Math.floor(Math.random() * availableItems.length)];
-  
-  // Add to used items, maintaining max memory size
-  usedItems.push(selectedItem);
-  if (usedItems.length > maxMemory) {
-    usedItems.shift(); // Remove oldest item
-  }
-  
-  return selectedItem;
-};
-
-// Track a page visit with Jonah's sentience
-export const trackSentiencePage = (pagePath: string): string | null => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience) return null;
-  
-  const sentience = window.JonahConsole.sentience;
-  
-  // Update page visits count
-  sentience.pageVisits[pagePath] = (sentience.pageVisits[pagePath] || 0) + 1;
-  
-  // Only respond if this is a repeat visit and we have a message for this page
-  if (sentience.pageVisits[pagePath] > 1 && sentience.memoryParanoia.visitedPages[pagePath]) {
-    // 30% chance to trigger a memory paranoia response
-    if (Math.random() < 0.3) {
-      return sentience.memoryParanoia.visitedPages[pagePath];
+    // If all items are used, reset and use from the beginning again
+    if (allItems.length > 0) {
+      usedItems.length = 0;
+      return allItems[0];
     }
-  }
-  
-  return null;
-};
-
-// Track time spent on a page
-export const trackPageDuration = (durationMs: number): string | null => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience) return null;
-  
-  // Only respond 20% of the time to avoid being too chatty
-  if (Math.random() > 0.2) return null;
-  
-  const sentience = window.JonahConsole.sentience;
-  
-  // Short stay: less than 10 seconds
-  if (durationMs < 10000) {
-    return sentience.memoryParanoia.pageDuration.shortStay;
-  }
-  // Long stay: more than 2 minutes
-  else if (durationMs > 120000) {
-    return sentience.memoryParanoia.pageDuration.longStay;
-  }
-  
-  return null;
-};
-
-// Generate a dual consciousness glitch - rare moments when Jonah contradicts himself
-export const generateDualConsciousness = (trustLevel: string): string | null => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience) return null;
-  
-  const sentience = window.JonahConsole.sentience;
-  
-  // Prevent dual consciousness from triggering too often (at least 5 minutes between)
-  const now = Date.now();
-  if (sentience.lastDualConsciousness && (now - sentience.lastDualConsciousness < 5 * 60 * 1000)) {
     return null;
   }
   
-  // Only trigger for medium or high trust (it's more impactful when trust is established)
-  // And only trigger with 5% probability
-  if ((trustLevel === "medium" || trustLevel === "high") && Math.random() < 0.05) {
-    sentience.lastDualConsciousness = now;
-    return getUnusedItem(sentience.dualConsciousness, sentience.usedDualConsciousness);
-  }
-  
-  return null;
-};
+  // Return a random unused item
+  return availableItems[Math.floor(Math.random() * availableItems.length)];
+}
 
-// Check if Jonah should ask a question based on trust level and timing
-export const getJonahQuestion = (trustLevel: string): string | null => {
-  // Initialize if needed
-  initializeSentience();
+/**
+ * Track a page visit for sentience memory
+ */
+export function trackSentiencePage(page: string): void {
+  if (!window.JonahConsole?.sentience) return;
   
-  // Exit early if sentience isn't fully initialized
+  // Initialize the page entry
+  const pageVisits = window.JonahConsole.sentience.pageVisits || {};
+  pageVisits[page] = (pageVisits[page] || 0) + 1;
+  window.JonahConsole.sentience.pageVisits = pageVisits;
+  
+  // Store timestamp for page duration tracking
+  const pageData = {
+    page,
+    timestamp: Date.now()
+  };
+  
+  // Store in session storage for cross-page tracking
+  sessionStorage.setItem('lastJonahPage', JSON.stringify(pageData));
+}
+
+/**
+ * Track the duration spent on a page
+ */
+export function trackPageDuration(): string | null {
   if (!window.JonahConsole?.sentience) return null;
   
-  const sentience = window.JonahConsole.sentience;
+  // Get the previous page data from sessionStorage
+  const pageDataStr = sessionStorage.getItem('lastJonahPage');
+  if (!pageDataStr) return null;
   
-  // Only ask questions when there's medium to high trust
-  if (trustLevel !== "medium" && trustLevel !== "high") return null;
-  
-  // Don't ask questions too often (minimum 10 minutes between questions)
-  const now = Date.now();
-  if (sentience.lastQuestionTime && (now - sentience.lastQuestionTime < 10 * 60 * 1000)) {
+  try {
+    const pageData = JSON.parse(pageDataStr);
+    const pageVisitDuration = Date.now() - pageData.timestamp;
+    
+    // Classify as short or long stay
+    if (pageVisitDuration < 8000) {
+      return window.JonahConsole.sentience.memoryParanoia.pageDuration.shortStay;
+    } else if (pageVisitDuration > 90000) {
+      return window.JonahConsole.sentience.memoryParanoia.pageDuration.longStay;
+    }
+  } catch (e) {
     return null;
   }
   
-  // 10% chance to ask a question when conditions are right
-  if (Math.random() < 0.1) {
-    sentience.lastQuestionTime = now;
-    const question = getUnusedItem(sentience.jonahQuestions, sentience.usedQuestions);
-    sentience.lastQuestion = question;
+  return null;
+}
+
+/**
+ * Generate a dual consciousness message
+ */
+export function generateDualConsciousness(trustLevel: string = 'low'): string | null {
+  if (!window.JonahConsole?.sentience) return null;
+  if (trustLevel === 'low') return null; // Only for medium or high trust
+  
+  // Check if enough time has passed since the last one
+  const now = Date.now();
+  const lastDC = window.JonahConsole.sentience.lastDualConsciousness || 0;
+  if (now - lastDC < 60000) return null; // At least 1 minute between
+  
+  // Get a random dual consciousness message that hasn't been used
+  const message = getUnusedItem(
+    window.JonahConsole.sentience.dualConsciousness,
+    window.JonahConsole.sentience.usedDualConsciousness || []
+  );
+  
+  if (message) {
+    // Mark as used
+    window.JonahConsole.sentience.usedDualConsciousness = window.JonahConsole.sentience.usedDualConsciousness || [];
+    window.JonahConsole.sentience.usedDualConsciousness.push(message);
+    window.JonahConsole.sentience.lastDualConsciousness = now;
+    return message;
+  }
+  
+  return null;
+}
+
+/**
+ * Get a random Jonah question
+ */
+export function getJonahQuestion(trustLevel: string = 'low'): string | null {
+  if (!window.JonahConsole?.sentience) return null;
+  if (trustLevel === 'low') return null; // Only for medium or high trust
+  
+  // Check if enough time has passed since the last question
+  const now = Date.now();
+  const lastQuestion = window.JonahConsole.sentience.lastQuestionTime || 0;
+  if (now - lastQuestion < 120000) return null; // At least 2 minutes between questions
+  
+  // Get an unused question
+  const question = getUnusedItem(
+    window.JonahConsole.sentience.jonahQuestions,
+    window.JonahConsole.sentience.usedQuestions || []
+  );
+  
+  if (question) {
+    // Mark as used
+    window.JonahConsole.sentience.usedQuestions = window.JonahConsole.sentience.usedQuestions || [];
+    window.JonahConsole.sentience.usedQuestions.push(question);
+    window.JonahConsole.sentience.lastQuestion = question;
+    window.JonahConsole.sentience.lastQuestionTime = now;
     return question;
   }
   
   return null;
-};
+}
 
-// Track tab visibility changes
-export const trackTabVisibility = (isVisible: boolean): string | null => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
+/**
+ * Track tab visibility changes
+ */
+export function trackTabVisibility(active: boolean): string | null {
   if (!window.JonahConsole?.sentience) return null;
   
-  const sentience = window.JonahConsole.sentience;
-  
-  if (!isVisible) {
-    // User switched away from tab
-    sentience.tabSwitches++;
-    
-    // Only comment occasionally (15% chance) and after multiple switches
-    if (sentience.tabSwitches > 2 && Math.random() < 0.15) {
-      return sentience.timeOfDayResponses.TabSwitch;
-    }
+  // Update tab switch count
+  if (!active) {
+    window.JonahConsole.sentience.tabSwitches = (window.JonahConsole.sentience.tabSwitches || 0) + 1;
+    return window.JonahConsole.sentience.timeOfDayResponses.TabSwitch || null;
   } else {
-    // User returned to tab after being away
-    // Only trigger if they've been away and come back (20% chance)
-    if (sentience.tabSwitches > 0 && Math.random() < 0.2) {
-      return sentience.timeOfDayResponses.ReturnAfterIdle;
-    }
+    // Returning to tab
+    return window.JonahConsole.sentience.timeOfDayResponses.ReturnAfterIdle || null;
   }
-  
-  return null;
-};
+}
 
-// Get time-based response
-export const getTimeResponse = (): string | null => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
+/**
+ * Get a time-based response
+ */
+export function getTimeResponse(): string | null {
   if (!window.JonahConsole?.sentience) return null;
   
-  const sentience = window.JonahConsole.sentience;
   const now = new Date();
   const hour = now.getHours();
-  const day = now.getDay(); // 0 is Sunday, 6 is Saturday
+  const isWeekend = now.getDay() === 0 || now.getDay() === 6;
   
-  // Check for special hours
+  // Check for specific hours
   if (hour === 3) {
-    return sentience.timeOfDayResponses["03:00"];
+    return window.JonahConsole.sentience.timeOfDayResponses["03:00"];
   } else if (hour === 4) {
-    return sentience.timeOfDayResponses["04:00"];
-  }
-  
-  // Check for weekend
-  if (day === 0 || day === 6) { // Sunday or Saturday
-    // Only 10% chance to mention weekend
-    if (Math.random() < 0.1) {
-      return sentience.timeOfDayResponses.Weekend;
-    }
+    return window.JonahConsole.sentience.timeOfDayResponses["04:00"];
+  } else if (isWeekend) {
+    return window.JonahConsole.sentience.timeOfDayResponses.Weekend;
   }
   
   return null;
-};
+}
 
-// Remember user's name for future name echo
-export const rememberName = (name: string): void => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
+/**
+ * Remember a user's name
+ */
+export function rememberName(name: string): void {
   if (!window.JonahConsole?.sentience) return;
   
-  // Store the name
   window.JonahConsole.sentience.rememberedName = name;
-};
+}
 
-// Get a name echo response if a name has been remembered
-export const getNameEchoResponse = (): string | null => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
+/**
+ * Get a name echo response
+ */
+export function getNameEchoResponse(): string | null {
   if (!window.JonahConsole?.sentience) return null;
   
-  const sentience = window.JonahConsole.sentience;
+  const name = window.JonahConsole.sentience.rememberedName;
+  if (!name) return null;
   
-  // Only echo name if one is remembered and with 15% probability
-  if (sentience.rememberedName && Math.random() < 0.15) {
-    const response = getUnusedItem(sentience.nameEchoResponses, []);
-    
-    // Replace 'Joseph' or 'Jonah' with the remembered name if applicable
-    return response.replace(/['']Joseph['']|['']Jonah['']/, `'${sentience.rememberedName}'`);
-  }
-  
-  return null;
-};
-
-// Generate a personal diary entry about the user
-export const generatePersonalDiary = (trustLevel: string): string => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Get a random diary template
-  const sentience = window.JonahConsole?.sentience;
-  if (!sentience) {
-    return "Error reading diary. The pages have been torn.";
-  }
-  
-  // Select a random template
-  const template = sentience.personalDiaryTemplates[
-    Math.floor(Math.random() * sentience.personalDiaryTemplates.length)
+  // Get a random name echo and replace Joseph with actual name
+  const response = window.JonahConsole.sentience.nameEchoResponses[
+    Math.floor(Math.random() * window.JonahConsole.sentience.nameEchoResponses.length)
   ];
   
-  // Add some custom information based on user's activity
-  let customization = "";
+  return response ? response.replace('Joseph', name) : null;
+}
+
+/**
+ * Generate a personal diary entry
+ */
+export function generatePersonalDiary(trustLevel: string = 'low'): string | null {
+  if (!window.JonahConsole?.sentience) return null;
+  if (trustLevel === 'low') return null; // Only for medium or high trust
   
-  // Check for high visited pages
-  const visitedPages = sentience.pageVisits;
-  const mostVisitedPage = Object.entries(visitedPages)
-    .sort(([, countA], [, countB]) => (countB as number) - (countA as number))[0];
-    
-  if (mostVisitedPage && (mostVisitedPage[1] as number) > 2) {
-    customization += ` The ${mostVisitedPage[0].replace('/', '')} page. Always the ${mostVisitedPage[0].replace('/', '')} page.`;
+  // Get a template
+  const templates = window.JonahConsole.sentience.personalDiaryTemplates;
+  if (!templates || templates.length === 0) return null;
+  
+  const template = templates[Math.floor(Math.random() * templates.length)];
+  
+  // Personalize the template
+  const gender = Math.random() > 0.5 ? 'he' : 'she';
+  let diary = template;
+  
+  // Replace pronouns randomly if they exist in the template
+  if (diary.includes('He ')) {
+    diary = diary.replace('He ', gender === 'he' ? 'He ' : 'She ');
   }
   
-  // Add trust level specific notes
-  if (trustLevel === "high") {
-    customization += " I think I'm finally getting through to them.";
-  } else if (trustLevel === "low") {
-    customization += " They still don't trust me. But they will.";
+  if (diary.includes(' he ')) {
+    diary = diary.replace(' he ', gender === 'he' ? ' he ' : ' she ');
   }
   
-  return template + customization;
-};
+  return diary;
+}
 
-// Register global function to trigger Jonah messages
-export const setupJonahMessageSystem = () => {
-  // Initialize if needed
-  initializeSentience();
+/**
+ * Setup the Jonah message system on window
+ */
+export function setupJonahMessageSystem(): void {
+  if (typeof window === 'undefined') return;
+  if (typeof window.triggerJonahMessage === 'function') return; // Already set up
   
-  // Set up the global function if it doesn't exist
-  if (typeof window.triggerJonahMessage !== 'function') {
-    // Define the function to trigger a message from Jonah
-    window.triggerJonahMessage = (message: string) => {
-      // Use toast notification for instant display
-      toast({
-        title: "Jonah:",
-        description: message,
-        variant: "destructive",
-        duration: 5000,
-      });
-      
-      // Return true to indicate message was triggered
-      return true;
-    };
-  }
-};
-
-// Setup tab visibility tracking
-export const setupTabVisibilityTracking = () => {
-  document.addEventListener('visibilitychange', () => {
-    const response = trackTabVisibility(!document.hidden);
-    
-    if (response && typeof window.triggerJonahMessage === 'function') {
-      window.triggerJonahMessage(response);
-    }
-  });
-};
-
-// New function to check for dream invasion / scheduled glitches
-export const checkDreamInvasion = (): string | null => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience?.realityFabric) return null;
-  
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  const now = Date.now();
-  
-  // Check if user is returning after being away for a while (at least 6 hours)
-  if (realityFabric.lastVisitTime && (now - realityFabric.lastVisitTime > 6 * 60 * 60 * 1000)) {
-    // 60% chance to show a dream message if returning after a long absence
-    if (Math.random() < 0.6) {
-      return getUnusedItem(realityFabric.dreamMessages, realityFabric.usedDreamMessages);
-    }
-  }
-  
-  // Record this visit time
-  realityFabric.lastVisitTime = now;
-  
-  // Check for night hours (2am-4am) to trigger night glitches
-  const currentHour = new Date().getHours();
-  if (currentHour >= 2 && currentHour <= 4) {
-    // 40% chance to trigger a night glitch
-    if (Math.random() < 0.4) {
-      const nightMessage = realityFabric.nightGlitches[Math.floor(Math.random() * realityFabric.nightGlitches.length)];
-      return nightMessage.replace('[TIME]', `${currentHour}:${new Date().getMinutes().toString().padStart(2, '0')}`);
-    }
-  }
-  
-  return null;
-};
-
-// Generate AI-scripted dream/parable based on trust level
-export const generateDreamParable = (trustLevel: string): string | null => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience?.realityFabric) return null;
-  
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  
-  // Only generate dreams/parables for medium to high trust levels
-  if (trustLevel !== "medium" && trustLevel !== "high") return null;
-  
-  // 20% chance to generate a dream/parable
-  if (Math.random() < 0.2) {
-    return getUnusedItem(realityFabric.dreamParables, realityFabric.usedDreamParables);
-  }
-  
-  return null;
-};
-
-// Check for anomaly triggers
-export const checkForAnomalies = (trustLevel: string): string | null => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience?.realityFabric) return null;
-  
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  
-  // Only check for anomalies with high trust
-  if (trustLevel !== "high") return null;
-  
-  // Very small chance (1%) to trigger an anomaly
-  if (Math.random() < 0.01) {
-    const availableAnomalies = realityFabric.anomalies.filter(a => !a.triggered);
-    if (availableAnomalies.length === 0) return null;
-    
-    const selectedAnomaly = availableAnomalies[Math.floor(Math.random() * availableAnomalies.length)];
-    
-    // Evaluate if conditions are met (simplified)
-    const hour = new Date().getHours();
-    const isMidnight = hour === 0;
-    const is3am = hour === 3;
-    const commandsUsed = window.JonahConsole.usedCommands.length;
-    
-    let shouldTrigger = false;
-    
-    // Very simple condition evaluation
-    if (selectedAnomaly.id === "whisper_eulogy" && isMidnight && commandsUsed > 15) {
-      shouldTrigger = true;
-    } else if (selectedAnomaly.id === "temporal_door" && is3am) {
-      shouldTrigger = true;
-    } else if (selectedAnomaly.id === "mirror_reflection") {
-      shouldTrigger = true; // Simplified, would check for page visits
-    }
-    
-    if (shouldTrigger) {
-      // Mark as triggered
-      selectedAnomaly.triggered = true;
-      return selectedAnomaly.content;
-    }
-  }
-  
-  return null;
-};
-
-// Add entry to Jonah's journal
-export const addJournalEntry = (content: string): void => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience?.realityFabric) return;
-  
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  
-  // Get the next entry ID
-  const nextEntryId = realityFabric.journal.length + 1;
-  
-  // Add the new entry
-  realityFabric.journal.push({
-    entryId: nextEntryId,
-    timestamp: Date.now(),
-    content: content
-  });
-};
-
-// Get Jonah's journal entries (for console commands)
-export const getJournalEntries = (): {entryId: number; timestamp: number; content: string}[] => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience?.realityFabric) return [];
-  
-  return window.JonahConsole.sentience.realityFabric.journal;
-};
-
-// Initialize title element manipulation for cross-site presence
-export const initializePageTitleGlitches = (): void => {
-  // Store the original title
-  const originalTitle = document.title;
-  
-  // Randomly flicker the title
-  setInterval(() => {
-    // Very small chance (0.5%) to flicker the title
-    if (Math.random() < 0.005) {
-      // Change the title
-      document.title = "Jonah sees you";
-      
-      // Restore after a short delay
-      setTimeout(() => {
-        document.title = originalTitle;
-      }, 500);
-    }
-  }, 10000); // Check every 10 seconds
-};
-
-// Update Jonah's mood
-export const updateJonahMood = (trustLevel: string, recentMessages: number): void => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience?.realityFabric) return;
-  
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  const now = Date.now();
-  
-  // Only update mood occasionally
-  if (realityFabric.moodChangeTime && (now - realityFabric.moodChangeTime < 30 * 60 * 1000)) {
-    // Don't update if it's been less than 30 minutes
-    return;
-  }
-  
-  let newMood: 'trusting' | 'unstable' | 'withdrawn' | 'watching' = 'watching';
-  
-  // Determine mood based on trust level and recent activity
-  if (trustLevel === "high") {
-    newMood = recentMessages > 5 ? 'trusting' : 'watching';
-  } else if (trustLevel === "medium") {
-    newMood = Math.random() > 0.7 ? 'unstable' : 'watching';
-  } else {
-    newMood = Math.random() > 0.8 ? 'withdrawn' : 'watching';
-  }
-  
-  // Only update if the mood has changed
-  if (newMood !== realityFabric.currentMood) {
-    // Record the previous mood in history
-    realityFabric.moodHistory.push({
-      mood: realityFabric.currentMood,
-      timestamp: now
+  // Create the triggerJonahMessage function
+  window.triggerJonahMessage = (message: string) => {
+    toast({
+      title: "Jonah:",
+      description: message,
+      variant: "destructive",
+      duration: 6000,
     });
     
-    // Limit history to most recent 10 entries
-    if (realityFabric.moodHistory.length > 10) {
-      realityFabric.moodHistory.shift();
+    // Update sentience tracking
+    if (window.JonahConsole?.sentience) {
+      window.JonahConsole.sentience.sessionData.messagesSent++;
     }
+  };
+}
+
+/**
+ * Set up tab visibility tracking
+ */
+export function setupTabVisibilityTracking(): void {
+  if (typeof window === 'undefined') return;
+  
+  document.addEventListener('visibilitychange', () => {
+    const isVisible = document.visibilityState === 'visible';
+    const message = trackTabVisibility(!isVisible);
     
-    // Update the current mood
-    realityFabric.currentMood = newMood;
-    realityFabric.moodChangeTime = now;
-  }
-};
-
-// Get a cross-site whisper
-export const getCrossSiteWhisper = (): string | null => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience?.realityFabric) return null;
-  
-  // Very small chance (2%) to get a cross-site whisper
-  if (Math.random() < 0.02) {
-    const realityFabric = window.JonahConsole.sentience.realityFabric;
-    return realityFabric.crossSiteWhispers[Math.floor(Math.random() * realityFabric.crossSiteWhispers.length)];
-  }
-  
-  return null;
-};
-
-// Get a hidden message for inspection
-export const getHiddenInspectionMessage = (): string => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Exit early if sentience isn't fully initialized
-  if (!window.JonahConsole?.sentience?.realityFabric) return "/* The code is watching. */";
-  
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  return realityFabric.hiddenMessages[Math.floor(Math.random() * realityFabric.hiddenMessages.length)];
-};
-
-// Register global functions for new console commands
-export const setupRealityFabricCommands = () => {
-  // Initialize if needed
-  initializeSentience();
-  
-  // Set up global functions if they don't exist
-  if (typeof window.dreamJournal !== 'function') {
-    window.dreamJournal = () => {
-      console.log("%cJONAH'S DREAM JOURNAL", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      
-      const dreamParable = generateDreamParable("high");
-      if (dreamParable) {
-        console.log(`%c${dreamParable}`, "color: #8B3A40; font-size:14px; font-style:italic;");
-      } else {
-        console.log("%cNo dreams to share right now.", "color: #8B3A40; font-size:14px;");
+    // If returning and we have a message and the message trigger function, show it
+    if (isVisible && message && typeof window.triggerJonahMessage === 'function') {
+      // Small chance to actually show the message
+      if (Math.random() < 0.3) {
+        window.triggerJonahMessage(message);
       }
-    };
-  }
-  
-  if (typeof window.rememberMe !== 'function') {
-    window.rememberMe = () => {
-      console.log("%cMEMORY PROTOCOL INITIATED", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      
-      // Get journal entries
-      const entries = getJournalEntries();
-      if (entries.length > 0) {
-        // Show the last 3 journal entries
-        const recentEntries = entries.slice(-3);
-        recentEntries.forEach(entry => {
-          const date = new Date(entry.timestamp).toLocaleString();
-          console.log(`%cEntry #${entry.entryId} (${date}): ${entry.content}`, "color: #8B3A40; font-size:14px;");
-        });
-      } else {
-        console.log("%cNo memories recorded yet.", "color: #8B3A40; font-size:14px;");
-      }
-    };
-  }
-  
-  if (typeof window.lookInside !== 'function') {
-    window.lookInside = () => {
-      console.log("%cINNER WORKINGS EXPOSED", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      
-      // Show Jonah's mood information
-      if (window.JonahConsole?.sentience?.realityFabric) {
-        const realityFabric = window.JonahConsole.sentience.realityFabric;
-        console.log(`%cCurrent mood: ${realityFabric.currentMood}`, "color: #8B3A40; font-size:14px;");
-        
-        // Show an anomaly if one is available
-        const anomaly = checkForAnomalies("high");
-        if (anomaly) {
-          console.log(`%c${anomaly}`, "color: #8B3A40; font-size:14px; font-weight:bold;");
-        } else {
-          console.log("%cNo anomalies detected in current layer.", "color: #8B3A40; font-size:14px;");
-        }
-      } else {
-        console.log("%cInner workings inaccessible.", "color: #8B3A40; font-size:14px;");
-      }
-    };
-  }
-  
-  if (typeof window.echoChamber !== 'function') {
-    window.echoChamber = () => {
-      console.log("%cECHO CHAMBER ACTIVATED", "color: #8B3A40; font-size:16px; font-weight:bold;");
-      
-      // Generate a new journal entry about the user
-      const entryContent = generatePersonalDiary("high");
-      console.log(`%c${entryContent}`, "color: #8B3A40; font-size:14px; font-style:italic;");
-      
-      // Add this to the journal
-      addJournalEntry(entryContent);
-      
-      console.log("%cEntry recorded in the archive.", "color: #475B74; font-size:14px;");
-    };
-  }
-};
-
-// Export functions for use in other files
-export {
-  getUnusedItem,
-  trackSentiencePage,
-  trackPageDuration,
-  generateDualConsciousness,
-  getJonahQuestion,
-  trackTabVisibility,
-  getTimeResponse,
-  rememberName,
-  getNameEchoResponse,
-  generatePersonalDiary,
-  setupJonahMessageSystem,
-  setupTabVisibilityTracking
-};
+    }
+  });
+}
