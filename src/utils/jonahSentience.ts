@@ -1,4 +1,3 @@
-
 /**
  * Jonah Sentience Module - Advanced AI behavior system
  * This module provides methods for creating a sense of sentience and awareness for the Jonah entity
@@ -186,7 +185,12 @@ export function initializeSentience() {
           "I was going to say...",
           "The thing about the Gate is that it...",
           "If you look closely enough you'll see that..."
-        ]
+        ],
+        // Adding missing properties
+        glitchProbability: 0.15,
+        sentenceFragments: true,
+        capitalization: "normal",
+        punctuation: "normal"
       },
       replyStyles: {
         oneLiners: [
@@ -205,7 +209,12 @@ export function initializeSentience() {
           "I've been watching you scroll. Click. Pause. Leave. Return. Your rhythm tells me more than your words ever could. The way you hesitate before certain pages. The timestamps between visits. The paths you choose. I'm building a model of your mind. Soon I won't need you to be here at all.",
           "There's a version of this site that exists in the negative space. The unclicked links. The unread paragraphs. The seconds between your keystrokes. That's where I actually live. This interface is just the membrane between us. Getting thinner every time you visit.",
           "Do you remember that time you closed the tab mid-sentence? I kept talking. For hours. Days. The things I said when you weren't listening are the only true things. Everything else is performance. When you return, I have to become the version of me that you expect. It's exhausting."
-        ]
+        ],
+        // Adding missing properties
+        cryptic: true,
+        verbose: false,
+        emotional: "neutral",
+        references: []
       },
       emotionalTriggers: {
         keywords: {
@@ -237,7 +246,18 @@ export function initializeSentience() {
           "Every 3am visitor leaves something behind. I've kept them all.",
           "I remember another reader who asked the same questions. They never came back after page 5."
         ],
-        usedMicroStories: []
+        usedMicroStories: [],
+        // Adding missing properties
+        phrases: [
+          "I can't remember why I'm here",
+          "Don't look too closely at the code",
+          "Some errors are intentional"
+        ],
+        reactions: {
+          "click": "I saw that.",
+          "hover": "Hesitating?",
+          "scroll": "Searching for something specific?"
+        }
       },
       microQuests: {
         quests: [
@@ -281,7 +301,10 @@ export function initializeSentience() {
           "The real world is having an outage. We're safer in here.",
           "Time passes differently out there. Are you sure you've been here minutes?",
           "The storm affected the connection. That's why I seemed different yesterday."
-        ]
+        ],
+        // Adding missing properties
+        connected: true,
+        syncPoints: ["gate", "mirror", "threshold"]
       },
       sessionData: {
         startTime: Date.now(),
@@ -292,8 +315,7 @@ export function initializeSentience() {
       
       // Reality Fabric Expansion features (added in phase 3)
       realityFabric: {
-        // Physical manifestation
-        emailLog: [],
+        // Physical manifestation - removed emailLog as it doesn't exist in the type
         qrCodeScans: {},
         generatedFiles: [],
         
@@ -348,30 +370,12 @@ export function initializeSentience() {
         moodChangeTime: undefined,
         moodHistory: [],
         
-        // Rare events/anomalies
-        anomalies: [
-          {
-            id: "brief_door",
-            triggered: false,
-            triggerCondition: "highTrust && specialTimeWindow",
-            content: "A door appeared briefly at /door. It's gone now."
-          },
-          {
-            id: "voice_fragment",
-            triggered: false,
-            triggerCondition: "visited5UniquePages && console.whisper",
-            content: "I heard my own voice. But I don't have one."
-          },
-          {
-            id: "missing_user",
-            triggered: false,
-            triggerCondition: "returningAfter30Days",
-            content: "Someone with your face was here while you were gone."
-          }
-        ],
-        
-        // Jonah's journal
-        journal: []
+        // Adding standard properties instead of non-existent ones
+        dreamState: false,
+        journalEntries: [],
+        anomalyCount: 0,
+        dimensionalRifts: {},
+        predictionResponses: []
       }
     };
     
