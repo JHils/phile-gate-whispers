@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { UserState, UserRank, LeaderboardEntry } from '@/types/tracking';
 import { syncUserStateWithSupabase, getUserRank, getLeaderboard } from '@/services/userTrackingService';
@@ -9,7 +10,14 @@ const SYNC_COOLDOWN = 60000; // 1 minute cooldown between syncs
 let lastSyncTime = 0;
 
 export const useTrackingSystem = () => {
-  const [userState, setUserState] = useState<UserState>(loadUserState());
+  const [userState, setUserState] = useState<UserState>(() => {
+    // Load user state and ensure console.rank is initialized
+    const loadedState = loadUserState();
+    if (!loadedState.console.rank) {
+      loadedState.console.rank = localStorage.getItem('phileRank') || 'drifter';
+    }
+    return loadedState;
+  });
 
   // Save state to localStorage whenever it changes
   useEffect(() => {
@@ -86,6 +94,9 @@ export const useTrackingSystem = () => {
       
       const rank = determineRank(score);
       localStorage.setItem('phileRank', rank.toLowerCase());
+      
+      // Update rank in userState.console
+      newState.console.rank = rank.toLowerCase();
       
       // Only sync with Supabase occasionally
       if (Date.now() - lastSyncTime > SYNC_COOLDOWN) {

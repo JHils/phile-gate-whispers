@@ -17,6 +17,7 @@ export interface UserState {
     legacyCalled: boolean;
     revealCalled: boolean;
     reincarnateCalled: boolean;
+    rank?: string; // Add optional rank property
   };
   bookCodes?: {
     unlockedCodes: string[];
