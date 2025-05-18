@@ -14,7 +14,7 @@ import {
   jonah_checkTrustTransition
 } from "@/utils/jonahAdvancedBehavior";
 
-export function useBotState() {
+export function useBotState(skipLocationCheck = false) {
   // State management
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -30,7 +30,8 @@ export function useBotState() {
   const [idleTimer, setIdleTimer] = useState<NodeJS.Timeout | null>(null);
   const [usedResponses, setUsedResponses] = useState<string[]>([]);
   
-  const location = useLocation();
+  // Only use location if not skipping the check
+  const location = skipLocationCheck ? { pathname: '/' } : useLocation();
   const { trackEvent, userState } = useTrackingSystem();
   const recentInputsRef = useRef<string[]>([]);
 

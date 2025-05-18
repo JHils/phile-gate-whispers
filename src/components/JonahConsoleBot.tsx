@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
@@ -40,7 +41,11 @@ import {
   addJournalEntry
 } from "@/utils/jonahRealityFabric";
 
-const JonahConsoleBot: React.FC = () => {
+interface JonahConsoleBotProps {
+  insideRouter?: boolean;
+}
+
+const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false }) => {
   // Make sure ARG tracking and sentience systems are initialized first
   useEffect(() => {
     initializeARGTracking();
@@ -52,6 +57,7 @@ const JonahConsoleBot: React.FC = () => {
   }, []);
 
   // Use our extracted hook for bot state management
+  // Skip location check if not inside router
   const {
     isOpen,
     setIsOpen,
@@ -77,11 +83,11 @@ const JonahConsoleBot: React.FC = () => {
     toggleChat,
     minimizeChat,
     closeChat
-  } = useBotState();
+  } = useBotState(!insideRouter);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const location = useLocation();
+  const location = insideRouter ? useLocation() : { pathname: '/' };
   const [lastPath, setLastPath] = useState<string>("");
   const [idleCheckInterval, setIdleCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [pageEntryTime, setPageEntryTime] = useState<number>(Date.now());

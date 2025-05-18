@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { useTrackingSystem } from './hooks/useTrackingSystem';
@@ -42,8 +42,20 @@ import ISeeYou from './pages/ISeeYou';
 import SplitVoice from './pages/SplitVoice';
 import MirrorPhile from './pages/MirrorPhile';
 
+// Import JonahConsoleBot but we'll use it differently
 import JonahConsoleBot from './components/JonahConsoleBot';
 import './App.css';
+
+// Create a layout component that includes the console bot within router context
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <>
+      {children}
+      <JonahConsoleBot insideRouter={true} />
+      <Toaster />
+    </>
+  );
+};
 
 const App: React.FC = () => {
   const { userState, updateUserState } = useTrackingSystem();
@@ -60,158 +72,154 @@ const App: React.FC = () => {
   const router = createBrowserRouter([
     {
       path: '/',
-      element: <Landing />
+      element: <Layout><Landing /></Layout>
     },
     {
       path: '/gate',
-      element: <Index />
+      element: <Layout><Index /></Layout>
     },
     {
       path: '/campfire',
-      element: <Campfire />
+      element: <Layout><Campfire /></Layout>
     },
     {
       path: '/summerhouse',
-      element: <Summerhouse />
+      element: <Layout><Summerhouse /></Layout>
     },
     {
       path: '/webfail',
-      element: <WebFail />
+      element: <Layout><WebFail /></Layout>
     },
     {
       path: '/webcatch',
-      element: <WebCatch />
+      element: <Layout><WebCatch /></Layout>
     },
     {
       path: '/fleet',
-      element: <Fleet />
+      element: <Layout><Fleet /></Layout>
     },
     {
       path: '/kuranda',
-      element: <Kuranda />
+      element: <Layout><Kuranda /></Layout>
     },
     {
       path: '/rebirth',
-      element: <Rebirth />
+      element: <Layout><Rebirth /></Layout>
     },
     {
       path: '/philes',
-      element: <Philes />
+      element: <Layout><Philes /></Layout>
     },
     {
       path: '/gatekeeper',
-      element: <Gatekeeper />
+      element: <Layout><Gatekeeper /></Layout>
     },
     {
       path: '/monster',
-      element: <Monster />
+      element: <Layout><Monster /></Layout>
     },
     {
       path: '/legacy',
-      element: <Legacy />
+      element: <Layout><Legacy /></Layout>
     },
     {
       path: '/echo',
-      element: <Echo />
+      element: <Layout><Echo /></Layout>
     },
     {
       path: '/distortions',
-      element: <Distortions />
+      element: <Layout><Distortions /></Layout>
     },
     {
       path: '/govwatch',
-      element: <GovWatch />
+      element: <Layout><GovWatch /></Layout>
     },
     {
       path: '/inspect',
-      element: <Inspect />
+      element: <Layout><Inspect /></Layout>
     },
     {
       path: '/toggle-market',
-      element: <ToggleMarket />
+      element: <Layout><ToggleMarket /></Layout>
     },
     {
       path: '/outback-hostel',
-      element: <OutbackHostel />
+      element: <Layout><OutbackHostel /></Layout>
     },
     {
       path: '/map',
-      element: <Map />
+      element: <Layout><Map /></Layout>
     },
     {
       path: '/not-found',
-      element: <NotFound />
+      element: <Layout><NotFound /></Layout>
     },
     {
       path: '/contact',
-      element: <Contact />
+      element: <Layout><Contact /></Layout>
     },
     {
       path: '/about',
-      element: <About />
+      element: <Layout><About /></Layout>
     },
     {
       path: '/philes-final',
-      element: <PhilesFinal />
+      element: <Layout><PhilesFinal /></Layout>
     },
     {
       path: '/shadow-initiation',
-      element: <ShadowInitiation />
+      element: <Layout><ShadowInitiation /></Layout>
     },
     {
       path: '/onboarding-failure',
-      element: <OnboardingFailure />
+      element: <Layout><OnboardingFailure /></Layout>
     },
     {
       path: '/onboarding',
-      element: <Onboarding />
+      element: <Layout><Onboarding /></Layout>
     },
     {
       path: '/access',
-      element: <Access />
+      element: <Layout><Access /></Layout>
     },
     {
       path: '/characters',
-      element: <Characters />
+      element: <Layout><Characters /></Layout>
     },
     {
       path: '/re-entry',
-      element: <ReEntry />
+      element: <Layout><ReEntry /></Layout>
     },
     {
       path: '/survivor',
-      element: <Survivor />
+      element: <Layout><Survivor /></Layout>
     },
     {
       path: '/quiet-mode',
-      element: <QuietMode />
+      element: <Layout><QuietMode /></Layout>
     },
     // New Reality Fabric routes
     {
       path: '/i-see-you',
-      element: <ISeeYou />
+      element: <Layout><ISeeYou /></Layout>
     },
     // New Split Voice and Mirror pages
     {
       path: '/split-voice',
-      element: <SplitVoice />
+      element: <Layout><SplitVoice /></Layout>
     },
     {
       path: '/mirror_phile/:mirrorId',
-      element: <MirrorPhile />
+      element: <Layout><MirrorPhile /></Layout>
     },
     {
       path: '*',
-      element: <NotFound />
+      element: <Layout><NotFound /></Layout>
     }
   ]);
 
   return (
-    <>
-      <RouterProvider router={router} />
-      <JonahConsoleBot />
-      <Toaster />
-    </>
+    <RouterProvider router={router} />
   );
 };
 
