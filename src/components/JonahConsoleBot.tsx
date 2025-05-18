@@ -16,6 +16,7 @@ import BotQuestSystem from "./bot/BotQuestSystem";
 import BotPageNavigation from "./bot/BotPageNavigation";
 import { getMoodClassName } from "./bot/BotMoodManager";
 import { useLocation } from "react-router-dom";
+import { BotMessage } from "@/hooks/useBotState/types";
 
 interface JonahConsoleBotProps {
   insideRouter?: boolean;
@@ -68,7 +69,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
   const location = useLocation();
   
   // Get mood state from getMoodClassName helper
-  const moodColor = getMoodClassName(trustLevel, messages);
+  const moodColor = getMoodClassName(trustLevel, messages as BotMessage[]);
 
   // Scroll to bottom when messages change
   React.useEffect(() => {
@@ -145,7 +146,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
           {/* Messages area - only shown when not minimized */}
           {!isMinimized && (
             <BotMessages 
-              messages={messages}
+              messages={messages as BotMessage[]}
               isTyping={isTyping}
               messagesEndRef={messagesEndRef}
             />

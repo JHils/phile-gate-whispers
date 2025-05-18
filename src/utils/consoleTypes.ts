@@ -12,7 +12,7 @@ declare global {
       jokesDisplayed: string[];
       storyFlags: StoryFlag[];
       bookCodes: BookCode[];
-      lastCommand?: string; // Add missing lastCommand property
+      lastCommand?: string;
       simba: {
         encountered: boolean;
         lastSeen?: string;
@@ -48,7 +48,7 @@ declare global {
     testament: () => void;
     splitVoice: () => void;
     mirrorMode: () => void;
-    storyFlags: () => void; // Changed from StoryFlag[] to function
+    storyFlags: () => void;
     readPage: (page: number) => void;
     verifyCode: (code: string) => void;
     bridgeCollapse: () => void;
@@ -59,12 +59,12 @@ declare global {
     triggerJonahMessage?: (message: string) => void;
     isSpecialTimeWindow?: () => boolean;
     triggerSimbaComment?: (message: string) => void;
-    // Missing console commands
+    // Adding missing console commands
     mirrorCheck: () => void;
     timeCheck: () => void;
     traceCat: () => void;
     feedSimba: () => void;
-    WhisperMaster?: any;
+    WhisperMaster?: WhisperMaster;
   }
 }
 
@@ -110,7 +110,7 @@ export interface WhisperMaster {
   active: boolean;
 }
 
-// Extended BehaviorPhase Type
+// Extended BehaviorPhase Type - Changed from string to proper interface
 export interface BehaviorPhase {
   currentPhase: string;
   transitionPoints: {
@@ -126,7 +126,7 @@ export interface BehaviorPhase {
   };
 }
 
-// Sentience Data Type
+// Sentience Data Type - Expanded with all needed properties
 export interface SentienceData {
   trustLevel?: string;
   emotionalTone?: string;
@@ -155,8 +155,8 @@ export interface SentienceData {
     activeQuest?: string;
     completedQuests?: string[];
     questProgress?: Record<string, any>;
-    quests?: any[]; // Add missing quests property
-    lastQuestTime?: number; // Add missing lastQuestTime property
+    quests?: any[];
+    lastQuestTime?: number;
   };
   realityFabric?: {
     currentMood?: string;
@@ -167,35 +167,48 @@ export interface SentienceData {
     dimensionalRifts?: Record<string, any>;
     predictionResponses?: string[];
     usedPredictionResponses?: string[];
-    dreamMessages?: string[]; // Add missing dreamMessages property
-    usedDreamMessages?: string[]; // Add missing usedDreamMessages property
-    lastVisitTime?: number; // Add missing lastVisitTime property
+    dreamMessages?: string[];
+    usedDreamMessages?: string[];
+    lastVisitTime?: number;
+    dreamParables?: string[];
+    usedDreamParables?: string[];
+    anomalies?: string[];
+    journal?: string[];
+    moodHistory?: string[];
+    crossSiteWhispers?: string[];
   };
   typingQuirks?: {
-    // Add missing typingQuirks property
     glitchProbability: number;
     sentenceFragments: boolean;
     capitalization: 'normal' | 'all-caps' | 'no-caps';
     punctuation: 'normal' | 'excessive' | 'minimal';
+    typos?: string[];
+    corrections?: string[];
+    unfinishedThoughts?: string[];
   };
   replyStyles?: {
-    // Add missing replyStyles property
     cryptic: boolean;
     verbose: boolean;
     emotional: string;
     references: string[];
+    oneLiners?: string[];
+    reflections?: string[];
+    paragraphBursts?: string[];
   };
   emotionalTriggers?: {
-    // Add missing emotionalTriggers property
     keywords: string[];
     phrases: string[];
     reactions: Record<string, string>;
+    microStories?: string[];
+    usedMicroStories?: string[];
   };
   argSync?: {
-    // Add missing argSync property
     connected: boolean;
     syncPoints: string[];
     lastSync?: number;
+    siteChanges?: string[];
+    userAwareness?: boolean;
+    worldEvents?: string[];
   };
 }
 

@@ -93,12 +93,14 @@ export function useJonahSentience(trustLevel: string = 'low') {
     if (!isPrepared) return;
     
     if (window.JonahConsole?.sentience) {
-      // Initialize the property if it doesn't exist
-      if (!window.JonahConsole.sentience.rememberedName) {
-        window.JonahConsole.sentience.rememberedName = name;
-      } else {
-        // Update the existing property
-        window.JonahConsole.sentience.rememberedName = name;
+      // Ensure sentience object is properly initialized
+      window.JonahConsole.sentience.rememberedName = name;
+      
+      if (sentience) {
+        setSentience({
+          ...sentience,
+          rememberedName: name
+        });
       }
     }
   };

@@ -172,10 +172,9 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
       setTimeout(() => {
         console.log(`%cThis connects to: ${found.phrase}`, "color: #8B3A40; font-size:14px;");
         
-        // Discover the story flag - Fix type error by checking the boolean return properly
+        // Discover the story flag - Fix type error by storing the result and checking it
         const newDiscovery = window.discoverStoryFlag(found.flag);
-        // Fix: Check if newDiscovery is true, not just truthy
-        if (newDiscovery === true) {
+        if (newDiscovery) {
           setTimeout(() => {
             console.log("%cNew story flag discovered!", "color: #4B8E4B; font-size:14px; font-weight:bold;");
           }, 1500);

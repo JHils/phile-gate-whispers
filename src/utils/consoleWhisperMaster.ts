@@ -1,6 +1,6 @@
 
 import { typewriterLog, delayedLog, speak, glitchEffectLog } from './consoleEffects';
-import { WhisperMaster } from './consoleTypes'; // Updated import to use the WhisperMaster type
+import { WhisperMaster } from './consoleTypes'; 
 
 export const initializeWhisperMaster = () => {
   // Initialize the whisper master system
