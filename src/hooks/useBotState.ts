@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useTrackingSystem } from "@/hooks/useTrackingSystem";
@@ -6,11 +7,11 @@ import { generateTestament } from "@/utils/argTracking";
 import {
   initializeAdvancedBehavior,
   getEmotionalToneResponse,
-  applyTypingQuirks,
+  getQuirkyMessage as applyTypingQuirks,
   getVaryingLengthResponse,
-  checkEmotionalTriggers,
+  getEmotionalResponse as checkEmotionalTriggers,
   getMicroQuest,
-  getARGSyncMessage,
+  getArgSyncInfo as getARGSyncMessage,
   jonah_checkTrustTransition
 } from "@/utils/jonahAdvancedBehavior";
 

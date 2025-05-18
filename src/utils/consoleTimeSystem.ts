@@ -1,3 +1,4 @@
+
 import { typewriterLog, glitchEffectLog, speak } from "./consoleEffects";
 
 type TrackCommandFunction = (commandName: string) => void;
@@ -26,7 +27,7 @@ export const initializeTimeSystem = (trackCommandExecution: TrackCommandFunction
         if (hours === 3) {
           setTimeout(() => {
             glitchEffectLog("THE VEIL IS THIN NOW");
-            speak("veil is thin", { rate: 0.4, pitch: 0.2 });
+            speak("veil is thin", { rate: 0.4, pitch: 0.2, volume: 1 });
             
             // Award points for checking at the special hour
             window.JonahConsole.score += 15;

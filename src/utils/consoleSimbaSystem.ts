@@ -1,3 +1,4 @@
+
 import { typewriterLog, glitchEffectLog, speak } from "./consoleEffects";
 
 type TrackCommandFunction = (commandName: string) => void;
@@ -27,7 +28,7 @@ export const initializeSimbaSystem = (trackCommandExecution: TrackCommandFunctio
       
       setTimeout(() => {
         console.log("%c*quiet meowing in the distance*", "color: #C97D60; font-size:14px; font-style: italic;");
-        speak("meow", { rate: 0.4, pitch: 1.5 });
+        speak("meow", { rate: 0.4, pitch: 1.5, volume: 1 });
         
         // Mark as encountered
         window.JonahConsole.simba.encountered = true;
@@ -50,11 +51,11 @@ export const initializeSimbaSystem = (trackCommandExecution: TrackCommandFunctio
       // Different responses based on number of interactions
       if (interactions < 3) {
         console.log("%c*the cat observes you from a distance*", "color: #C97D60; font-size:14px; font-style: italic;");
-        speak("meow", { rate: 0.4, pitch: 1.5 });
+        speak("meow", { rate: 0.4, pitch: 1.5, volume: 1 });
       }
       else if (interactions < 6) {
         console.log("%c*the cat comes closer, tilting its head*", "color: #C97D60; font-size:14px; font-style: italic;");
-        speak("purr", { rate: 0.4, pitch: 1.5 });
+        speak("purr", { rate: 0.4, pitch: 1.5, volume: 1 });
         
         setTimeout(() => {
           console.log("%cIts collar has a name tag: 'SIMBA'", "color: #475B74; font-size:14px;");
@@ -92,7 +93,7 @@ export const initializeSimbaSystem = (trackCommandExecution: TrackCommandFunctio
   window.feedSimba = function() {
     if (!window.JonahConsole.simba.encountered) {
       typewriterLog("You don't have anyone to feed yet.");
-      speak("You don't have anyone to feed yet", { rate: 0.3, pitch: 0.2 });
+      speak("You don't have anyone to feed yet", { rate: 0.3, pitch: 0.2, volume: 1 });
       return;
     }
     
@@ -104,7 +105,7 @@ export const initializeSimbaSystem = (trackCommandExecution: TrackCommandFunctio
     
     setTimeout(() => {
       console.log("%c*Simba eats the food happily*", "color: #C97D60; font-size:14px; font-style: italic;");
-      speak("purr", { rate: 0.5, pitch: 1.5 });
+      speak("purr", { rate: 0.5, pitch: 1.5, volume: 1 });
     }, 3000);
     
     setTimeout(() => {

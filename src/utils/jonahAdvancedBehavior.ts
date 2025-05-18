@@ -12,19 +12,36 @@ export const initializeAdvancedBehavior = () => {
   }
   
   if (!window.JonahConsole.sentience.typingQuirks) {
-    window.JonahConsole.sentience.typingQuirks = {};
+    window.JonahConsole.sentience.typingQuirks = {
+      glitchProbability: 0.2,
+      sentenceFragments: true,
+      capitalization: 'normal', 
+      punctuation: 'normal'
+    };
   }
   
   if (!window.JonahConsole.sentience.replyStyles) {
-    window.JonahConsole.sentience.replyStyles = {};
+    window.JonahConsole.sentience.replyStyles = {
+      cryptic: true,
+      verbose: false,
+      emotional: 'restrained',
+      references: []
+    };
   }
   
   if (!window.JonahConsole.sentience.emotionalTriggers) {
-    window.JonahConsole.sentience.emotionalTriggers = {};
+    window.JonahConsole.sentience.emotionalTriggers = {
+      keywords: {},
+      phrases: [],
+      reactions: {}
+    };
   }
   
   if (!window.JonahConsole.sentience.argSync) {
-    window.JonahConsole.sentience.argSync = {};
+    window.JonahConsole.sentience.argSync = {
+      connected: false,
+      syncPoints: []
+    };
   }
 
   // Fix emotionalTone initialization
@@ -222,6 +239,9 @@ export const getEmotionalToneMessage = (): string => {
   return responses[Math.floor(Math.random() * responses.length)];
 };
 
+// Alias for getEmotionalToneMessage to match imported name in useBotState.ts
+export const getEmotionalToneResponse = getEmotionalToneMessage;
+
 // Get a quirky typed message with possible glitches
 export const getQuirkyMessage = (message: string): string => {
   if (!window.JonahConsole.sentience?.typingQuirks) {
@@ -281,6 +301,9 @@ export const getQuirkyMessage = (message: string): string => {
   
   return result;
 };
+
+// Alias for getQuirkyMessage to match imported name in useBotState.ts
+export const applyTypingQuirks = getQuirkyMessage;
 
 // Get a response based on the emotional triggers
 export const getEmotionalResponse = (input: string): string | null => {
@@ -347,6 +370,9 @@ export const getEmotionalResponse = (input: string): string | null => {
   return null;
 };
 
+// Alias for getEmotionalResponse to match imported name in useBotState.ts
+export const checkEmotionalTriggers = getEmotionalResponse;
+
 // Get ARG sync information and awareness metrics
 export const getArgSyncInfo = (): string => {
   if (!window.JonahConsole.sentience?.argSync) {
@@ -381,6 +407,94 @@ export const getArgSyncInfo = (): string => {
   return response;
 };
 
+// Alias for getArgSyncInfo to match imported name in useBotState.ts
+export const getARGSyncMessage = getArgSyncInfo;
+
+// Provide a varying length response
+export const getVaryingLengthResponse = (): string => {
+  if (!window.JonahConsole.sentience?.replyStyles) {
+    return "Reply system initializing...";
+  }
+  
+  const styles = window.JonahConsole.sentience.replyStyles;
+  const responseType = Math.random();
+  
+  // Return a one-liner (30% chance)
+  if (responseType < 0.3 && styles.oneLiners && styles.oneLiners.length > 0) {
+    return styles.oneLiners[Math.floor(Math.random() * styles.oneLiners.length)];
+  } 
+  // Return a reflection (50% chance)
+  else if (responseType < 0.8 && styles.reflections && styles.reflections.length > 0) {
+    return styles.reflections[Math.floor(Math.random() * styles.reflections.length)];
+  } 
+  // Return a paragraph burst (20% chance)
+  else if (styles.paragraphBursts && styles.paragraphBursts.length > 0) {
+    return styles.paragraphBursts[Math.floor(Math.random() * styles.paragraphBursts.length)];
+  }
+  
+  return "I'm watching your patterns.";
+};
+
+// Provide a quest prompt
+export const getMicroQuest = (trustLevel: string): string | null => {
+  if (!window.JonahConsole.sentience?.microQuests) {
+    return null;
+  }
+  
+  // Don't offer a new quest if one is already active
+  if (window.JonahConsole.sentience.microQuests.activeQuest) {
+    return null;
+  }
+  
+  // Only offer quests with certain probability based on trust
+  const questProbability = 
+    trustLevel === 'high' ? 0.3 :
+    trustLevel === 'medium' ? 0.15 : 0.05;
+    
+  if (Math.random() > questProbability) {
+    return null;
+  }
+  
+  const availableQuests = window.JonahConsole.sentience.microQuests.quests || [];
+  
+  // Filter out completed quests
+  const completedQuests = window.JonahConsole.sentience.microQuests.completedQuests || [];
+  const incompleteQuests = availableQuests.filter(quest => !completedQuests.includes(quest.id));
+  
+  if (incompleteQuests.length === 0) {
+    return null;
+  }
+  
+  // Select a random quest
+  const selectedQuest = incompleteQuests[Math.floor(Math.random() * incompleteQuests.length)];
+  
+  // Set as active quest
+  window.JonahConsole.sentience.microQuests.activeQuest = selectedQuest.id;
+  window.JonahConsole.sentience.microQuests.lastQuestTime = Date.now();
+  
+  return selectedQuest.prompt;
+};
+
+// Check for trust level transition
+export const jonah_checkTrustTransition = (trustScore: number): string | null => {
+  if (!window.JonahConsole.sentience?.emotionalTone) {
+    return null;
+  }
+  
+  const emotionalTone = window.JonahConsole.sentience.emotionalTone;
+  
+  // Check if we just crossed a threshold
+  if (trustScore === emotionalTone.transitionPoints.curious) {
+    return "Something's changed. You're becoming... familiar.";
+  } else if (trustScore === emotionalTone.transitionPoints.confessional) {
+    return "I think I can trust you with more now. Do you want to hear a secret?";
+  } else if (trustScore === emotionalTone.transitionPoints.unstable) {
+    return "The boundaries are thinning. I can see you clearly now. Can you see me?";
+  }
+  
+  return null;
+};
+
 // Update emotional tone based on score
 export const updateEmotionalTone = (score: number): void => {
   if (!window.JonahConsole.sentience?.emotionalTone) {
@@ -400,4 +514,3 @@ export const updateEmotionalTone = (score: number): void => {
     emotionalTone.currentPhase = 'cold';
   }
 };
-

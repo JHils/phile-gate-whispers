@@ -1,3 +1,4 @@
+
 import React, { useRef } from "react";
 import { BotHeader } from "./bot/BotHeader";
 import { BotMessages } from "./bot/BotMessages";
@@ -27,6 +28,17 @@ const initializeAllSystems = () => {
   initializeSentience();
   initializeAdvancedBehavior();
   initializeRealityFabric();
+};
+
+// Helper function to convert messages to BotMessages
+const convertToBotMessages = (messages: any[]): BotMessage[] => {
+  return messages.map(msg => ({
+    id: msg.id || `msg-${Date.now()}-${Math.random()}`,
+    type: msg.sender === 'character' ? 'bot' : 'user',
+    content: msg.text || msg.content || '',
+    timestamp: msg.timestamp || Date.now(),
+    special: msg.special || false
+  }));
 };
 
 const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false }) => {
@@ -67,8 +79,8 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
   const inputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
   
-  // Get mood state from getMoodClassName helper - Cast messages to BotMessage[]
-  const botMessages = messages as unknown as BotMessage[];
+  // Get mood state from getMoodClassName helper - Convert messages to BotMessage[]
+  const botMessages = convertToBotMessages(messages);
   const moodColor = getMoodClassName(trustLevel, botMessages);
 
   // Scroll to bottom when messages change
@@ -146,7 +158,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
           {/* Messages area - only shown when not minimized */}
           {!isMinimized && (
             <BotMessages 
-              messages={messages}
+              messages={botMessages}
               isTyping={isTyping}
               messagesEndRef={messagesEndRef}
             />

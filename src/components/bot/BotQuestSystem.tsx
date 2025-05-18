@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { addJournalEntry } from '@/utils/jonahRealityFabric';
 import { checkQuestCompletion } from '@/utils/jonahAdvancedBehavior';
@@ -31,7 +32,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
           if (target.classList.contains('keyhole')) {
             // Check if quest was completed
             const completionMessage = checkQuestCompletion('keyhole_clicked');
-            if (completionMessage && isOpen) {
+            if (typeof completionMessage === 'string' && isOpen) {
               addBotMessage(completionMessage);
               // Reward user for completing quest
               modifyTrust(15);
@@ -62,7 +63,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
             // Check for 3 quick clicks, longer pause, 2 quick clicks pattern
             if (gaps[0] < 500 && gaps[1] < 500 && gaps[2] > 1000 && gaps[3] < 500) {
               const completionMessage = checkQuestCompletion('morse_entered');
-              if (completionMessage && isOpen) {
+              if (typeof completionMessage === 'string' && isOpen) {
                 addBotMessage(completionMessage);
                 // Reward user for completing quest
                 modifyTrust(15);
@@ -86,7 +87,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
       if (window.JonahConsole?.sentience?.microQuests?.activeQuest === 'silence_ritual') {
         silenceTimer = window.setTimeout(() => {
           const completionMessage = checkQuestCompletion('silence_maintained');
-          if (completionMessage && isOpen) {
+          if (typeof completionMessage === 'string' && isOpen) {
             addBotMessage(completionMessage);
             // Reward user for completing quest
             modifyTrust(15);
