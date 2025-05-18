@@ -4,6 +4,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { useTrackingSystem } from './hooks/useTrackingSystem';
 
+// Import pages
 import Landing from './pages/Landing';
 import Index from './pages/Index';
 import Campfire from './pages/Campfire';
@@ -36,13 +37,11 @@ import Characters from './pages/Characters';
 import ReEntry from './pages/ReEntry';
 import Survivor from './pages/Survivor';
 import QuietMode from './pages/QuietMode';
-
-// New pages for Reality Fabric expansion
 import ISeeYou from './pages/ISeeYou';
 import SplitVoice from './pages/SplitVoice';
 import MirrorPhile from './pages/MirrorPhile';
 
-// Import JonahConsoleBot but we'll use it differently
+// Import JonahConsoleBot
 import JonahConsoleBot from './components/JonahConsoleBot';
 import './App.css';
 
@@ -66,161 +65,57 @@ const App: React.FC = () => {
       visitCount: userState.visitCount + 1,
       lastVisit: Date.now()
     });
-    
   }, [userState.visitCount, updateUserState]);
 
-  const router = createBrowserRouter([
-    {
-      path: '/',
-      element: <Layout><Landing /></Layout>
-    },
-    {
-      path: '/gate',
-      element: <Layout><Index /></Layout>
-    },
-    {
-      path: '/campfire',
-      element: <Layout><Campfire /></Layout>
-    },
-    {
-      path: '/summerhouse',
-      element: <Layout><Summerhouse /></Layout>
-    },
-    {
-      path: '/webfail',
-      element: <Layout><WebFail /></Layout>
-    },
-    {
-      path: '/webcatch',
-      element: <Layout><WebCatch /></Layout>
-    },
-    {
-      path: '/fleet',
-      element: <Layout><Fleet /></Layout>
-    },
-    {
-      path: '/kuranda',
-      element: <Layout><Kuranda /></Layout>
-    },
-    {
-      path: '/rebirth',
-      element: <Layout><Rebirth /></Layout>
-    },
-    {
-      path: '/philes',
-      element: <Layout><Philes /></Layout>
-    },
-    {
-      path: '/gatekeeper',
-      element: <Layout><Gatekeeper /></Layout>
-    },
-    {
-      path: '/monster',
-      element: <Layout><Monster /></Layout>
-    },
-    {
-      path: '/legacy',
-      element: <Layout><Legacy /></Layout>
-    },
-    {
-      path: '/echo',
-      element: <Layout><Echo /></Layout>
-    },
-    {
-      path: '/distortions',
-      element: <Layout><Distortions /></Layout>
-    },
-    {
-      path: '/govwatch',
-      element: <Layout><GovWatch /></Layout>
-    },
-    {
-      path: '/inspect',
-      element: <Layout><Inspect /></Layout>
-    },
-    {
-      path: '/toggle-market',
-      element: <Layout><ToggleMarket /></Layout>
-    },
-    {
-      path: '/outback-hostel',
-      element: <Layout><OutbackHostel /></Layout>
-    },
-    {
-      path: '/map',
-      element: <Layout><Map /></Layout>
-    },
-    {
-      path: '/not-found',
-      element: <Layout><NotFound /></Layout>
-    },
-    {
-      path: '/contact',
-      element: <Layout><Contact /></Layout>
-    },
-    {
-      path: '/about',
-      element: <Layout><About /></Layout>
-    },
-    {
-      path: '/philes-final',
-      element: <Layout><PhilesFinal /></Layout>
-    },
-    {
-      path: '/shadow-initiation',
-      element: <Layout><ShadowInitiation /></Layout>
-    },
-    {
-      path: '/onboarding-failure',
-      element: <Layout><OnboardingFailure /></Layout>
-    },
-    {
-      path: '/onboarding',
-      element: <Layout><Onboarding /></Layout>
-    },
-    {
-      path: '/access',
-      element: <Layout><Access /></Layout>
-    },
-    {
-      path: '/characters',
-      element: <Layout><Characters /></Layout>
-    },
-    {
-      path: '/re-entry',
-      element: <Layout><ReEntry /></Layout>
-    },
-    {
-      path: '/survivor',
-      element: <Layout><Survivor /></Layout>
-    },
-    {
-      path: '/quiet-mode',
-      element: <Layout><QuietMode /></Layout>
-    },
-    // New Reality Fabric routes
-    {
-      path: '/i-see-you',
-      element: <Layout><ISeeYou /></Layout>
-    },
-    // New Split Voice and Mirror pages
-    {
-      path: '/split-voice',
-      element: <Layout><SplitVoice /></Layout>
-    },
-    {
-      path: '/mirror_phile/:mirrorId',
-      element: <Layout><MirrorPhile /></Layout>
-    },
-    {
-      path: '*',
-      element: <Layout><NotFound /></Layout>
-    }
-  ]);
+  // Define all routes with Layout wrapper
+  const routes = [
+    { path: '/', element: <Landing /> },
+    { path: '/gate', element: <Index /> },
+    { path: '/campfire', element: <Campfire /> },
+    { path: '/summerhouse', element: <Summerhouse /> },
+    { path: '/webfail', element: <WebFail /> },
+    { path: '/webcatch', element: <WebCatch /> },
+    { path: '/fleet', element: <Fleet /> },
+    { path: '/kuranda', element: <Kuranda /> },
+    { path: '/rebirth', element: <Rebirth /> },
+    { path: '/philes', element: <Philes /> },
+    { path: '/gatekeeper', element: <Gatekeeper /> },
+    { path: '/monster', element: <Monster /> },
+    { path: '/legacy', element: <Legacy /> },
+    { path: '/echo', element: <Echo /> },
+    { path: '/distortions', element: <Distortions /> },
+    { path: '/govwatch', element: <GovWatch /> },
+    { path: '/inspect', element: <Inspect /> },
+    { path: '/toggle-market', element: <ToggleMarket /> },
+    { path: '/outback-hostel', element: <OutbackHostel /> },
+    { path: '/map', element: <Map /> },
+    { path: '/not-found', element: <NotFound /> },
+    { path: '/contact', element: <Contact /> },
+    { path: '/about', element: <About /> },
+    { path: '/philes-final', element: <PhilesFinal /> },
+    { path: '/shadow-initiation', element: <ShadowInitiation /> },
+    { path: '/onboarding-failure', element: <OnboardingFailure /> },
+    { path: '/onboarding', element: <Onboarding /> },
+    { path: '/access', element: <Access /> },
+    { path: '/characters', element: <Characters /> },
+    { path: '/re-entry', element: <ReEntry /> },
+    { path: '/survivor', element: <Survivor /> },
+    { path: '/quiet-mode', element: <QuietMode /> },
+    { path: '/i-see-you', element: <ISeeYou /> },
+    { path: '/split-voice', element: <SplitVoice /> },
+    { path: '/mirror_phile/:mirrorId', element: <MirrorPhile /> },
+    { path: '*', element: <NotFound /> }
+  ];
 
-  return (
-    <RouterProvider router={router} />
+  // Create router with Layout wrapper for each route
+  const router = createBrowserRouter(
+    routes.map(route => ({
+      path: route.path,
+      element: <Layout>{route.element}</Layout>
+    }))
   );
+
+  return <RouterProvider router={router} />;
 };
 
 export default App;

@@ -1,230 +1,53 @@
-// Define a central file for all console-related types to prevent duplications
 
-// Game state interface for console interactions
-export interface JonahConsoleState {
-  usedCommands: string[];
-  score: number;
-  failCount: number;
-  rank: string;
-  lastCommand?: string;
-  sessionStartTime: number;
-  whispersFound: string[];
-  jokesDisplayed: string[];
-  storyFlags: StoryFlag[];
-  bookCodes: BookCode[];
-  simba: {
-    encountered: boolean;
-    lastSeen?: string;
-  };
-  argData: {
-    keyholeClicks: number;
-    consoleCluesTouched: string[];
-    qrScans: string[];
-    memoryFragments: string[];
-    secretPagesVisited: string[];
-    hiddenFilesDownloaded: string[];
-    idleTriggers: {[page: string]: boolean};
-    lastInteractionTime: Date | null;
-    lastIdleTime?: number;
-  };
-  sentience?: SentienceData;
-}
-
-// Define StoryFlag interface
-export interface StoryFlag {
-  id: string;
-  discovered: boolean;
-  description: string;
-}
-
-// Define BookCode interface
-export interface BookCode {
-  id: string;
-  unlocked: boolean;
-}
-
-// Define the WhisperMaster interface for TypeScript
-export interface WhisperMaster {
-  map: {[key: number]: string};
-  audioFiles: string[];
-  unlock: (index: number, playerName?: string) => void;
-  playSound: (index: number) => void;
-  updateLeaderboard: (name: string) => void;
-  showMap: () => void;
-  showLeaderboard: () => void;
-}
-
-// Define ARG items and tracking
-export interface ARGItem {
-  id: string;
-  name: string;
-  discovered: boolean;
-  linkedClues: string[];
-  description: string;
-}
-
-// Define console command response based on trust level
-export interface TrustLeveledResponse {
-  low: string;
-  medium: string;
-  high: string;
-}
-
-// New type for Jonah's advanced sentience features
-export interface SentienceData {
-  memoryParanoia: {
-    visitedPages: {[page: string]: string};
-    consoleCommands: {[command: string]: string};
-    pageDuration: {
-      shortStay: string;
-      longStay: string;
-    };
-  };
-  predictionResponses: {
-    onClickAfterHover: string[];
-    repeatVisit: string[];
-    lateClick: string[];
-  };
-  dualConsciousness: string[];
-  jonahQuestions: string[];
-  timeOfDayResponses: {
-    "03:00": string;
-    "04:00": string;
-    Weekend: string;
-    TabSwitch: string;
-    ReturnAfterIdle: string;
-  };
-  nameEchoResponses: string[];
-  personalDiaryTemplates: string[];
-  
-  // Tracking state
-  rememberedName?: string;
-  lastQuestion?: string;
-  lastQuestionTime?: number;
-  lastDualConsciousness?: number;
-  tabSwitches: number;
-  pageVisits: {[page: string]: number};
-  usedPredictionResponses: string[];
-  usedDualConsciousness: string[];
-  usedQuestions: string[];
-
-  // Advanced behavior systems
-  emotionalTone: {
-    currentPhase: 'cold' | 'curious' | 'confessional' | 'unstable';
-    transitionPoints: {
-      curious: number;
-      confessional: number;
-      unstable: number;
-    };
-    phaseResponses: {
-      cold: string[];
-      curious: string[];
-      confessional: string[];
-      unstable: string[];
-    };
-  };
-  typingQuirks: {
-    typos: string[];
-    corrections: string[];
-    unfinishedThoughts: string[];
-  };
-  replyStyles: {
-    oneLiners: string[];
-    reflections: string[];
-    paragraphBursts: string[];
-  };
-  emotionalTriggers: {
-    keywords: {[keyword: string]: string[]};
-    microStories: string[];
-    usedMicroStories: string[];
-  };
-  microQuests: {
-    quests: {
-      id: string;
-      prompt: string;
-      condition: string;
-      reward: string;
-      completed: boolean;
-    }[];
-    activeQuest?: string;
-    lastQuestTime?: number;
-  };
-  argSync: {
-    siteChanges: {[key: string]: string};
-    userAwareness: string[];
-    worldEvents: string[];
-  };
-  sessionData: {
-    startTime: number;
-    messagesSent: number;
-    emotionalInputsDetected: number;
-    toneTransitions: string[];
-  };
-  
-  // Reality Fabric Expansion features
-  realityFabric: {
-    // Physical manifestation
-    emailLog: string[];
-    qrCodeScans: {[code: string]: number};
-    generatedFiles: string[];
-    
-    // Dream invasion / scheduled glitches
-    lastVisitTime?: number;
-    dreamMessages: string[];
-    nightGlitches: string[];
-    usedDreamMessages: string[];
-    
-    // Cross-site presence
-    crossSiteWhispers: string[];
-    hiddenMessages: string[];
-    
-    // AI-scripted dreams/parables
-    dreamParables: string[];
-    usedDreamParables: string[];
-    
-    // Jonah mood indicators
-    currentMood: 'trusting' | 'unstable' | 'withdrawn' | 'watching';
-    moodChangeTime?: number;
-    moodHistory: {mood: string, timestamp: number}[];
-    
-    // Rare events/anomalies
-    anomalies: {
-      id: string;
-      triggered: boolean;
-      triggerCondition: string;
-      content: string;
-    }[];
-    
-    // Jonah's journal
-    journal: {
-      entryId: number;
-      timestamp: number;
-      content: string;
-    }[];
-  };
-}
-
-// Declare global types to be available throughout the application
+// Define global JonahConsole interface
 declare global {
   interface Window {
-    JonahConsole: JonahConsoleState;
-    WhisperMaster?: WhisperMaster;
-    isSpecialTimeWindow: () => boolean;
-    triggerSimbaComment: (pageId: string) => boolean;
-    triggerJonahMessage: (message: string) => void; // New function to trigger Jonah messages
-    bridgeCollapse: () => void;
-    
-    // Console system commands
-    timeCheck: () => void;
-    traceCat: () => void;
-    feedSimba: () => void;
-    
-    // Book commands
-    readPage: (page: number) => void;
-    verifyCode: (code: string) => void;
-    
-    // Add other global console-related functions here
-    // Console basics
+    JonahConsole: {
+      usedCommands: string[];
+      score: number;
+      failCount: number;
+      rank: string;
+      sessionStartTime: number;
+      whispersFound: string[];
+      jokesDisplayed: string[];
+      storyFlags: string[];
+      bookCodes: string[];
+      simba: {
+        encountered: boolean;
+        lastSeen?: string;
+        interactions?: number;
+      };
+      argData: {
+        keyholeClicks: number;
+        consoleCluesTouched: string[];
+        qrScans: string[];
+        memoryFragments: string[];
+        secretPagesVisited: string[];
+        hiddenFilesDownloaded: string[];
+        idleTriggers: Record<string, any>;
+        lastInteractionTime: Date;
+        lastIdleTime?: Date;
+      };
+      sentience?: {
+        trustLevel?: string;
+        emotionalTone?: string;
+        selfAwareness?: number;
+        memoryFragments?: string[];
+        realTimeMood?: string;
+        microQuests?: {
+          activeQuest?: string;
+          completedQuests?: string[];
+          questProgress?: Record<string, any>;
+        };
+        realityFabric?: {
+          currentMood?: string;
+          dreamState?: boolean;
+          journalEntries?: string[];
+          anomalyCount?: number;
+          dimensionalRifts?: Record<string, any>;
+        };
+      };
+    };
     help: () => void;
     whois: () => void;
     gate: () => void;
@@ -233,39 +56,40 @@ declare global {
     legacy: () => void;
     reveal: () => void;
     reincarnate: () => void;
+    displayRandomJoke: () => void;
     showStatus: () => Promise<void>;
-    // Story commands
-    flipcoin: () => void;
-    glitch: () => void;
-    whisper: () => void;
-    scream: () => void;
-    burn: (command?: string) => void;
-    decrypt: (code?: string) => void;
-    echo: () => void;
-    coinToss: () => void;
-    griffProtocol: () => void;
-    relocate: () => void;
-    loopGesture: () => void;
-    sixEleven: () => void;
-    testament: () => void;
-    // New ARG commands
     mirrorLogs: () => void;
     whisperTree: () => void;
     plea: () => void;
-    // Story flag functions
-    discoverStoryFlag: (flagId: string) => boolean;
-    storyFlags: () => void;
-    mirrorCheck: () => void;
-    findAnomaly: (text?: string) => void;
-    // Reality Fabric commands
-    dreamJournal: () => void;
-    rememberMe: () => void;
-    lookInside: () => void;
-    echoChamber: () => void;
-    // Split voice & mirror site commands
+    testament: () => void;
     splitVoice: () => void;
     mirrorMode: () => void;
-    // Other commands
-    displayRandomJoke: () => void;
+    processUserMessage?: (message: string) => string | undefined;
+    clearJonahOnPathChange?: boolean;
+    triggerJonahMessage?: (message: string) => void;
+    isSpecialTimeWindow?: () => boolean;
   }
 }
+
+// ARG Command Type
+export type ARGCommand = {
+  name: string;
+  description: string;
+  handler: () => void;
+  hidden?: boolean;
+  unlocked?: boolean;
+};
+
+// Console Message Type
+export type ConsoleMessage = {
+  type: 'info' | 'warning' | 'error' | 'special';
+  content: string;
+  timestamp?: number;
+  special?: boolean;
+};
+
+// Trust Level Type
+export type TrustLevel = 'none' | 'low' | 'medium' | 'high';
+
+// No need to export, this is for global types
+export {};
