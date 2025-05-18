@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
@@ -128,8 +127,8 @@ const JonahConsoleBot: React.FC = () => {
           break;
       }
       
-      // Update Jonah's mood periodically based on interaction
-      updateJonahMood(trustLevel, messages.length);
+      // Update Jonah's mood periodically
+      updateJonahMood(trustLevel);
     }
   }, [messages.length, trustLevel]);
 
@@ -177,7 +176,7 @@ const JonahConsoleBot: React.FC = () => {
     if (isOpen && hasInteracted) {
       // Check for possible dual consciousness glitch every 60 seconds
       const interval = setInterval(() => {
-        const glitchMessage = generateDualConsciousness(trustLevel);
+        const glitchMessage = generateDualConsciousness();
         if (glitchMessage) {
           addBotMessage(glitchMessage);
         }
@@ -204,7 +203,7 @@ const JonahConsoleBot: React.FC = () => {
     if (isOpen && hasInteracted) {
       // Check for possible questions every 3 minutes
       const interval = setInterval(() => {
-        const question = getJonahQuestion(trustLevel);
+        const question = getJonahQuestion();
         if (question) {
           addBotMessage(question);
         }
@@ -245,7 +244,7 @@ const JonahConsoleBot: React.FC = () => {
     if (trustLevel === "high") {
       // Check for possible anomalies every 5 minutes
       const interval = setInterval(() => {
-        const anomalyMessage = checkForAnomalies(trustLevel);
+        const anomalyMessage = checkForAnomalies();
         if (anomalyMessage) {
           // Add a journal entry about this anomaly
           addJournalEntry(`Anomaly triggered: "${anomalyMessage}"`);
@@ -278,7 +277,7 @@ const JonahConsoleBot: React.FC = () => {
     if (trustLevel === "medium" || trustLevel === "high") {
       // Check for possible dream parables every 8 minutes
       const interval = setInterval(() => {
-        const dreamMessage = generateDreamParable(trustLevel);
+        const dreamMessage = generateDreamParable();
         if (dreamMessage) {
           // Add a journal entry about this dream
           addJournalEntry(`Dream parable shared: "${dreamMessage}"`);

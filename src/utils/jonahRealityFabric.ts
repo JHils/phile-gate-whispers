@@ -159,13 +159,16 @@ export function initializePageTitleGlitches(): void {
 }
 
 // Update Jonah's mood
-export function updateJonahMood(mood: 'trusting' | 'unstable' | 'withdrawn' | 'watching'): void {
+export function updateJonahMood(mood: string): void {
   if (!window.JonahConsole?.sentience?.realityFabric) return;
   
   const realityFabric = window.JonahConsole.sentience.realityFabric;
   
+  // Cast the string to the proper type
+  const typedMood = mood as 'trusting' | 'unstable' | 'withdrawn' | 'watching';
+  
   // Only update if mood is different
-  if (realityFabric.currentMood !== mood) {
+  if (realityFabric.currentMood !== typedMood) {
     // Record previous mood in history
     realityFabric.moodHistory.push({
       mood: realityFabric.currentMood,
@@ -173,7 +176,7 @@ export function updateJonahMood(mood: 'trusting' | 'unstable' | 'withdrawn' | 'w
     });
     
     // Update current mood
-    realityFabric.currentMood = mood;
+    realityFabric.currentMood = typedMood;
     realityFabric.moodChangeTime = Date.now();
   }
 }

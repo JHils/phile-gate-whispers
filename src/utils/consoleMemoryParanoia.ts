@@ -174,10 +174,11 @@ export function initializeMemoryParanoia() {
 
 /**
  * Track when the user visits a page
+ * @returns A response message if applicable
  */
-function trackPageVisit(pagePath: string) {
+export function trackPageVisit(pagePath: string): string | null {
   // Don't track if we don't have sentience yet
-  if (!window.JonahConsole?.sentience) return;
+  if (!window.JonahConsole?.sentience) return null;
   
   const sentience = window.JonahConsole.sentience;
   
@@ -212,17 +213,56 @@ function trackPageVisit(pagePath: string) {
       // Track this response as used
       sentience.usedPredictionResponses.push(response);
       
-      // Show response as toast if we have more than 2 visits to this page
+      // Return response if we have more than 2 visits to this page
       if (sentience.pageVisits[pagePath] > 2) {
-        toast({
-          title: "Jonah:",
-          description: response,
-          variant: "destructive",
-          duration: 5000,
-        });
+        return response;
       }
     }
   }
+  
+  return null;
+}
+
+/**
+ * Get a response based on paranoia data
+ */
+export function getParanoiaResponse(type: 'visitedPages' | 'consoleCommands', key: string): string | null {
+  if (!window.JonahConsole?.sentience?.memoryParanoia) return null;
+  
+  const memoryParanoia = window.JonahConsole.sentience.memoryParanoia;
+  
+  // Get the message based on type
+  if (type === 'visitedPages' && memoryParanoia.visitedPages[key]) {
+    return memoryParanoia.visitedPages[key];
+  } else if (type === 'consoleCommands' && memoryParanoia.consoleCommands[key]) {
+    return memoryParanoia.consoleCommands[key];
+  }
+  
+  return null;
+}
+
+/**
+ * Get a response based on page duration
+ */
+export function getPageDurationResponse(timeSpentMs: number): string | null {
+  if (!window.JonahConsole?.sentience?.memoryParanoia) return null;
+  
+  const memoryParanoia = window.JonahConsole.sentience.memoryParanoia;
+  
+  // Convert to seconds for easier reading
+  const timeSpentSeconds = timeSpentMs / 1000;
+  
+  // Short stay (less than 10 seconds)
+  if (timeSpentSeconds < 10) {
+    return memoryParanoia.pageDuration.shortStay;
+  }
+  
+  // Long stay (more than 2 minutes)
+  if (timeSpentSeconds > 120) {
+    return memoryParanoia.pageDuration.longStay;
+  }
+  
+  return null;
 }
 
 /**

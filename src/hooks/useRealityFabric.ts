@@ -1,102 +1,97 @@
 
-import { useState, useEffect } from "react";
-import {
-  initializeRealityFabric,
-  updateJonahMood,
-  checkForDreamInvasionOnLoad,
-  checkForAnomalies,
-  generateDreamParable,
-  addJournalEntry
-} from "@/utils/jonahRealityFabric";
+import { useState, useEffect } from 'react';
+import { 
+  updateJonahMood, 
+  checkForAnomalies, 
+  generateDreamParable 
+} from '@/utils/jonahRealityFabric';
+import { getJonahQuestion } from '@/utils/jonahSentience';
 
-export const useRealityFabric = (trustLevel: string = "low") => {
-  const [currentMood, setCurrentMood] = useState<string>("watching");
-  const [lastAnomaly, setLastAnomaly] = useState<string | null>(null);
-  const [lastDream, setLastDream] = useState<string | null>(null);
-  
-  // Initialize Reality Fabric on mount
+export function useRealityFabric(trustLevel: string) {
+  const [mood, setMood] = useState<string>('watching');
+  const [lastMoodChange, setLastMoodChange] = useState<number>(Date.now());
+  const [dreamMessages, setDreamMessages] = useState<string[]>([]);
+  const [anomalies, setAnomalies] = useState<string[]>([]);
+  const [jonahQuestions, setJonahQuestions] = useState<string[]>([]);
+
+  // Update Jonah's mood periodically
   useEffect(() => {
-    initializeRealityFabric();
-  }, []);
-  
-  // Update mood data
-  useEffect(() => {
+    // Function to check and update mood
     const checkMood = () => {
       if (window.JonahConsole?.sentience?.realityFabric) {
-        const mood = window.JonahConsole.sentience.realityFabric.currentMood;
-        setCurrentMood(mood);
+        const currentMood = window.JonahConsole.sentience.realityFabric.currentMood;
+        setMood(currentMood);
+        
+        // Track last mood change time
+        if (window.JonahConsole.sentience.realityFabric.moodChangeTime) {
+          setLastMoodChange(window.JonahConsole.sentience.realityFabric.moodChangeTime);
+        }
       }
     };
     
-    // Check initially
+    // Check mood immediately
     checkMood();
     
-    // Set up interval
-    const interval = setInterval(checkMood, 10000);
+    // Set up interval to update mood
+    const moodInterval = setInterval(() => {
+      updateJonahMood(trustLevel);
+      checkMood();
+    }, 60000); // Check every minute
     
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(moodInterval);
+  }, [trustLevel]);
   
   // Check for anomalies periodically
   useEffect(() => {
-    // Only check for high trust
-    if (trustLevel === "high") {
-      const checkAnomalyInterval = setInterval(() => {
-        const anomalyMessage = checkForAnomalies(trustLevel);
-        if (anomalyMessage) {
-          setLastAnomaly(anomalyMessage);
-        }
-      }, 2 * 60 * 1000); // Every 2 minutes
-      
-      return () => clearInterval(checkAnomalyInterval);
-    }
-  }, [trustLevel]);
-  
-  // Check for dream messages periodically
-  useEffect(() => {
-    // Only for medium to high trust
-    if (trustLevel === "medium" || trustLevel === "high") {
-      const checkDreamInterval = setInterval(() => {
-        const dreamMessage = generateDreamParable(trustLevel);
-        if (dreamMessage) {
-          setLastDream(dreamMessage);
-        }
-      }, 4 * 60 * 1000); // Every 4 minutes
-      
-      return () => clearInterval(checkDreamInterval);
-    }
-  }, [trustLevel]);
-  
-  // Method to force check for dream invasion
-  const checkForDreamInvasion = () => {
-    const dreamMessage = checkForDreamInvasionOnLoad();
-    if (dreamMessage) {
-      setLastDream(dreamMessage);
-    }
-    return dreamMessage;
-  };
-  
-  // Method to add custom journal entry
-  const addCustomJournalEntry = (content: string) => {
-    addJournalEntry(content);
-  };
-  
-  // Method to update Jonah's mood manually
-  const updateMood = (recentMessages: number) => {
-    updateJonahMood(trustLevel, recentMessages);
+    if (trustLevel !== 'high') return;
     
-    // Update local state
-    if (window.JonahConsole?.sentience?.realityFabric) {
-      setCurrentMood(window.JonahConsole.sentience.realityFabric.currentMood);
-    }
-  };
+    // Set up interval to check for anomalies
+    const anomalyInterval = setInterval(() => {
+      const anomalyMessage = checkForAnomalies();
+      if (anomalyMessage) {
+        setAnomalies(prev => [...prev, anomalyMessage]);
+      }
+    }, 5 * 60 * 1000); // Check every 5 minutes
+    
+    return () => clearInterval(anomalyInterval);
+  }, [trustLevel]);
   
+  // Generate dream parables occasionally
+  useEffect(() => {
+    if (trustLevel !== 'medium' && trustLevel !== 'high') return;
+    
+    // Set up interval for dream parables
+    const dreamInterval = setInterval(() => {
+      const dreamMessage = generateDreamParable();
+      if (dreamMessage) {
+        setDreamMessages(prev => [...prev, dreamMessage]);
+      }
+    }, 8 * 60 * 1000); // Check every 8 minutes
+    
+    return () => clearInterval(dreamInterval);
+  }, [trustLevel]);
+  
+  // Check for Jonah questions occasionally
+  useEffect(() => {
+    if (trustLevel === 'low') return;
+    
+    // Set up interval for Jonah questions
+    const questionInterval = setInterval(() => {
+      const question = getJonahQuestion();
+      if (question) {
+        setJonahQuestions(prev => [...prev, question]);
+      }
+    }, 10 * 60 * 1000); // Check every 10 minutes
+    
+    return () => clearInterval(questionInterval);
+  }, [trustLevel]);
+  
+  // Return the current mood and collected messages
   return {
-    currentMood,
-    lastAnomaly,
-    lastDream,
-    checkForDreamInvasion,
-    addCustomJournalEntry,
-    updateMood
+    mood,
+    lastMoodChange,
+    dreamMessages,
+    anomalies,
+    jonahQuestions
   };
-};
+}

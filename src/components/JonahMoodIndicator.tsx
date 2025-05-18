@@ -58,8 +58,8 @@ const JonahMoodIndicator: React.FC<JonahMoodIndicatorProps> = ({
       // Only glow occasionally
       setGlowing(Math.random() > 0.7);
       
-      // Also update Jonah's mood (with recent messages = 0 as this is passive observation)
-      updateJonahMood(trustLevel, 0);
+      // Also update Jonah's mood (only passing the trust level)
+      updateJonahMood(trustLevel);
     }, 5000);
     
     return () => {
