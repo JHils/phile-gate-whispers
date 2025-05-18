@@ -71,6 +71,16 @@ declare global {
     lookInside: () => void; 
     echoChamber: () => void;
     WhisperMaster?: WhisperMaster;
+    helpMe: () => void;
+    tea: () => void;
+    trousers: () => void;
+    moustache: () => void;
+    funny: () => void;
+    seenMyself: () => void;
+    youWereHimFirst: () => void;
+    wearingYouNow: () => void;
+    toggleWrath: () => void;
+    hint: () => void;
   }
 }
 

@@ -1,4 +1,3 @@
-
 import { typewriterLog, glitchEffectLog, speak } from "./consoleEffects";
 
 type TrackCommandFunction = (commandName: string) => void;

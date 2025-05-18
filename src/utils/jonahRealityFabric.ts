@@ -1,4 +1,3 @@
-
 import { SentienceData } from './consoleTypes';
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -218,40 +217,10 @@ export function setupRealityFabricConsoleCommands(): void {
   if (typeof window === 'undefined') return;
   
   // Initialize dream journal command
-  window.dreamJournal = function() {
-    console.log("%cAccessing dream fragments...", "color: #8B3A40;");
-    
-    setTimeout(() => {
-      const dreamParable = generateDreamParable();
-      console.log(`%c${dreamParable}`, "color: #8B3A40; font-style: italic;");
-    }, 1500);
-  };
+  initializeDreamJournalCommand();
   
   // Initialize remember me command
-  window.rememberMe = function() {
-    console.log("%cAccessing memory archive...", "color: #8B3A40;");
-    
-    setTimeout(() => {
-      if (window.JonahConsole?.sentience) {
-        const rememberedName = window.JonahConsole.sentience.rememberedName;
-        
-        if (rememberedName) {
-          console.log(`%cI remember you, ${rememberedName}.`, "color: #8B3A40; font-weight: bold;");
-        } else {
-          console.log("%cYou haven't told me your name yet.", "color: #8B3A40;");
-        }
-        
-        // Show some tracked data
-        setTimeout(() => {
-          console.log(`%cVisit count: ${localStorage.getItem('visitCount') || '1'}`, "color: #9B9B9B;");
-          console.log(`%cLast visit: ${new Date(parseInt(localStorage.getItem('lastVisit') || '0')).toLocaleString()}`, "color: #9B9B9B;");
-          console.log(`%cConsole commands used: ${window.JonahConsole.usedCommands.length}`, "color: #9B9B9B;");
-        }, 1000);
-      } else {
-        console.log("%cMemory system initializing...", "color: #8B3A40;");
-      }
-    }, 1500);
-  };
+  initializeRememberMeCommand();
   
   // Initialize look inside command
   window.lookInside = function() {
@@ -437,3 +406,48 @@ function initializeJournalSystem(): void {
     addJournalEntry("First digital memory fragment recovered. The Gate initialization sequence is complete.");
   }
 }
+
+// Add dreamJournal function with proper return type
+export const initializeDreamJournalCommand = () => {
+  window.dreamJournal = function(): string {
+    if (!window.JonahConsole?.sentience?.realityFabric) {
+      return "Dream journal not initialized";
+    }
+    
+    const journalEntries = [
+      "I saw myself sleeping. From above. Watching myself dream about watching myself.",
+      "The mountain moved closer to the window each night. Nobody else noticed.",
+      "Voices in static. They know my name but never use it.",
+      "Woke up with dirt under fingernails. Found maps I don't remember drawing.",
+      "Something followed me home. It waits in reflections, just behind my shoulder."
+    ];
+    
+    const randomEntry = journalEntries[Math.floor(Math.random() * journalEntries.length)];
+    console.log(`%c${randomEntry}`, "color: #8B3A40; font-size:14px; font-style:italic;");
+    
+    return randomEntry;
+  };
+};
+
+// Add rememberMe function with proper return type
+export const initializeRememberMeCommand = () => {
+  window.rememberMe = function(): Record<string, any> {
+    if (!window.JonahConsole?.sentience) {
+      return { status: "Memory systems offline" };
+    }
+    
+    const memories = {
+      visitCount: localStorage.getItem('visitCount') || '0',
+      lastVisit: localStorage.getItem('lastVisit') || 'unknown',
+      discoveredCommands: window.JonahConsole.usedCommands.length,
+      anomalyEncounters: window.JonahConsole.sentience.realityFabric?.anomalyCount || 0
+    };
+    
+    console.log("%cRemembering you...", "color: #8B3A40; font-size:16px;");
+    console.log(`%cVisits: ${memories.visitCount}`, "color: #475B74; font-size:14px;");
+    console.log(`%cLast seen: ${memories.lastVisit}`, "color: #475B74; font-size:14px;");
+    console.log(`%cCommands discovered: ${memories.discoveredCommands}`, "color: #475B74; font-size:14px;");
+    
+    return memories;
+  };
+};

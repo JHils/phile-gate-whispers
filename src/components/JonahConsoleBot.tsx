@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { BotHeader } from "./bot/BotHeader";
 import { BotMessages } from "./bot/BotMessages";
@@ -147,7 +146,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
           {/* Messages area - only shown when not minimized */}
           {!isMinimized && (
             <BotMessages 
-              messages={botMessages}
+              messages={messages}
               isTyping={isTyping}
               messagesEndRef={messagesEndRef}
             />
