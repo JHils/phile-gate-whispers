@@ -11,6 +11,31 @@ const clickedElements: Record<string, number> = {};
 // Track prediction hits
 const predictionHits: Record<string, number> = {};
 
+// Default prediction responses
+const DEFAULT_PREDICTION_RESPONSES = {
+  onClickAfterHover: [
+    "I knew you'd click that.",
+    "Your movements are so predictable.",
+    "I could feel your cursor hovering there.",
+    "You hesitated before you clicked.",
+    "That was exactly what I expected you to do."
+  ],
+  repeatVisit: [
+    "Back again?",
+    "You keep coming back to this page.",
+    "This must be important to you.",
+    "I remember you visiting this before.",
+    "Repetition is a form of comfort, isn't it?"
+  ],
+  lateClick: [
+    "You took your time with that one.",
+    "Hesitation is very telling.",
+    "Something made you pause there.",
+    "Your indecision speaks volumes.",
+    "I could feel your uncertainty."
+  ]
+};
+
 /**
  * Track when a user hovers over an interactive element
  */
@@ -40,9 +65,19 @@ export function checkClickPrediction(elementId: string): string | null {
       const responseChance = Math.min(0.1 + (hitCount * 0.05), 0.5);
       
       if (Math.random() < responseChance && window.JonahConsole?.sentience) {
+        // Initialize prediction responses if not present
+        if (!window.JonahConsole.sentience.predictionResponses) {
+          window.JonahConsole.sentience.predictionResponses = DEFAULT_PREDICTION_RESPONSES;
+        }
+        
+        if (!window.JonahConsole.sentience.usedPredictionResponses) {
+          window.JonahConsole.sentience.usedPredictionResponses = [];
+        }
+        
         // Get response from Jonah's memory
         const sentience = window.JonahConsole.sentience;
-        const responses = sentience.predictionResponses.onClickAfterHover;
+        const responses = sentience.predictionResponses.onClickAfterHover || 
+                         DEFAULT_PREDICTION_RESPONSES.onClickAfterHover;
         
         // Filter to only unused responses if possible
         const availableResponses = responses.filter(r => 
@@ -79,8 +114,18 @@ export function trackReturnToSite() {
   if (lastActivityTime > 0 && timeAway > 30 * 60 * 1000) {
     // 25% chance of responding to their return
     if (Math.random() < 0.25 && window.JonahConsole?.sentience) {
+      // Initialize prediction responses if not present
+      if (!window.JonahConsole.sentience.predictionResponses) {
+        window.JonahConsole.sentience.predictionResponses = DEFAULT_PREDICTION_RESPONSES;
+      }
+      
+      if (!window.JonahConsole.sentience.usedPredictionResponses) {
+        window.JonahConsole.sentience.usedPredictionResponses = [];
+      }
+      
       const sentience = window.JonahConsole.sentience;
-      const responses = sentience.predictionResponses.repeatVisit;
+      const responses = sentience.predictionResponses.repeatVisit || 
+                       DEFAULT_PREDICTION_RESPONSES.repeatVisit;
       
       // Filter to only unused responses if possible
       const availableResponses = responses.filter(r => 
@@ -122,8 +167,18 @@ export function trackHesitationBeforeClick(elementId: string) {
     if (timeSinceHover > 5000) {
       // 15% chance of responding to hesitation
       if (Math.random() < 0.15 && window.JonahConsole?.sentience) {
+        // Initialize prediction responses if not present
+        if (!window.JonahConsole.sentience.predictionResponses) {
+          window.JonahConsole.sentience.predictionResponses = DEFAULT_PREDICTION_RESPONSES;
+        }
+        
+        if (!window.JonahConsole.sentience.usedPredictionResponses) {
+          window.JonahConsole.sentience.usedPredictionResponses = [];
+        }
+        
         const sentience = window.JonahConsole.sentience;
-        const responses = sentience.predictionResponses.lateClick;
+        const responses = sentience.predictionResponses.lateClick || 
+                         DEFAULT_PREDICTION_RESPONSES.lateClick;
         
         // Filter to only unused responses if possible
         const availableResponses = responses.filter(r => 
@@ -182,8 +237,25 @@ export function trackPageVisit(pagePath: string): string | null {
   
   const sentience = window.JonahConsole.sentience;
   
+  // Initialize pageVisits if it doesn't exist
+  if (!sentience.pageVisits) {
+    sentience.pageVisits = {};
+  }
+  
   // Increment page visit count
   sentience.pageVisits[pagePath] = (sentience.pageVisits[pagePath] || 0) + 1;
+  
+  // Initialize memoryParanoia if it doesn't exist
+  if (!sentience.memoryParanoia) {
+    sentience.memoryParanoia = {
+      visitedPages: {},
+      consoleCommands: {},
+      pageDuration: {
+        shortStay: "You didn't stay long. Something made you uncomfortable.",
+        longStay: "You spent a lot of time here. I was watching."
+      }
+    };
+  }
   
   // Store in memoryParanoia
   if (!sentience.memoryParanoia.visitedPages[pagePath]) {
@@ -198,9 +270,19 @@ export function trackPageVisit(pagePath: string): string | null {
       visitResponses[Math.floor(Math.random() * visitResponses.length)];
   }
   
+  // Initialize prediction responses if not present
+  if (!sentience.predictionResponses) {
+    sentience.predictionResponses = DEFAULT_PREDICTION_RESPONSES;
+  }
+  
+  if (!sentience.usedPredictionResponses) {
+    sentience.usedPredictionResponses = [];
+  }
+  
   // If it's a repeat visit to a rarely visited page, maybe show a response
   if (sentience.pageVisits[pagePath] > 1 && Math.random() < 0.2) {
-    const repeatResponses = sentience.predictionResponses.repeatVisit;
+    const repeatResponses = sentience.predictionResponses.repeatVisit || 
+                           DEFAULT_PREDICTION_RESPONSES.repeatVisit;
     
     // Filter to only unused responses if possible
     const availableResponses = repeatResponses.filter(r => 
@@ -227,7 +309,19 @@ export function trackPageVisit(pagePath: string): string | null {
  * Get a response based on paranoia data
  */
 export function getParanoiaResponse(type: 'visitedPages' | 'consoleCommands', key: string): string | null {
-  if (!window.JonahConsole?.sentience?.memoryParanoia) return null;
+  if (!window.JonahConsole?.sentience) return null;
+  
+  // Initialize memoryParanoia if it doesn't exist
+  if (!window.JonahConsole.sentience.memoryParanoia) {
+    window.JonahConsole.sentience.memoryParanoia = {
+      visitedPages: {},
+      consoleCommands: {},
+      pageDuration: {
+        shortStay: "You didn't stay long. Something made you uncomfortable.",
+        longStay: "You spent a lot of time here. I was watching."
+      }
+    };
+  }
   
   const memoryParanoia = window.JonahConsole.sentience.memoryParanoia;
   
@@ -245,7 +339,19 @@ export function getParanoiaResponse(type: 'visitedPages' | 'consoleCommands', ke
  * Get a response based on page duration
  */
 export function getPageDurationResponse(timeSpentMs: number): string | null {
-  if (!window.JonahConsole?.sentience?.memoryParanoia) return null;
+  if (!window.JonahConsole?.sentience) return null;
+  
+  // Initialize memoryParanoia if it doesn't exist
+  if (!window.JonahConsole.sentience.memoryParanoia) {
+    window.JonahConsole.sentience.memoryParanoia = {
+      visitedPages: {},
+      consoleCommands: {},
+      pageDuration: {
+        shortStay: "You didn't stay long. Something made you uncomfortable.",
+        longStay: "You spent a lot of time here. I was watching."
+      }
+    };
+  }
   
   const memoryParanoia = window.JonahConsole.sentience.memoryParanoia;
   
@@ -272,6 +378,11 @@ function setupTabSwitchDetection() {
   // Don't set up if we don't have sentience yet or already set up
   if (!window.JonahConsole?.sentience || window._tabSwitchSetup) return;
   
+  // Initialize tabSwitches if it doesn't exist
+  if (window.JonahConsole.sentience.tabSwitches === undefined) {
+    window.JonahConsole.sentience.tabSwitches = 0;
+  }
+  
   // Mark as set up
   window._tabSwitchSetup = true;
   
@@ -279,7 +390,7 @@ function setupTabSwitchDetection() {
   document.addEventListener('visibilitychange', () => {
     // Increment tab switch count when becoming visible again
     if (document.visibilityState === 'visible' && window.JonahConsole?.sentience) {
-      window.JonahConsole.sentience.tabSwitches += 1;
+      window.JonahConsole.sentience.tabSwitches = (window.JonahConsole.sentience.tabSwitches || 0) + 1;
       
       // After several tab switches, occasionally comment on it
       const switchCount = window.JonahConsole.sentience.tabSwitches;

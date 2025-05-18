@@ -11,7 +11,7 @@ declare global {
       whispersFound: string[];
       jokesDisplayed: string[];
       storyFlags: StoryFlag[];
-      bookCodes: string[];
+      bookCodes: BookCode[];
       simba: {
         encountered: boolean;
         lastSeen?: string;
@@ -28,29 +28,7 @@ declare global {
         lastInteractionTime: Date;
         lastIdleTime?: Date;
       };
-      sentience?: {
-        trustLevel?: string;
-        emotionalTone?: string;
-        selfAwareness?: number;
-        memoryFragments?: string[];
-        realTimeMood?: string;
-        sessionData?: Record<string, any>;
-        microQuests?: {
-          activeQuest?: string;
-          completedQuests?: string[];
-          questProgress?: Record<string, any>;
-        };
-        realityFabric?: {
-          currentMood?: string;
-          dreamState?: boolean;
-          journalEntries?: string[];
-          anomalyCount?: number;
-          moodChangeTime?: number;
-          dimensionalRifts?: Record<string, any>;
-          predictionResponses?: string[];
-          usedPredictionResponses?: string[];
-        };
-      };
+      sentience?: SentienceData;
     };
     help: () => void;
     whois: () => void;
@@ -69,11 +47,11 @@ declare global {
     splitVoice: () => void;
     mirrorMode: () => void;
     storyFlags: StoryFlag[];
-    readPage: () => void;
-    verifyCode: () => void;
+    readPage: (page: number) => void;
+    verifyCode: (code: string) => void;
     bridgeCollapse: () => void;
     discoverStoryFlag: (flagId: string) => void;
-    findAnomaly: () => void;
+    findAnomaly: (text: string) => void;
     processUserMessage?: (message: string) => string | undefined;
     clearJonahOnPathChange?: boolean;
     triggerJonahMessage?: (message: string) => void;
@@ -110,6 +88,13 @@ export interface StoryFlag {
   unlocked?: boolean;
 }
 
+// Book Code Type
+export interface BookCode {
+  id: string;
+  unlocked: boolean;
+  description?: string;
+}
+
 // Sentience Data Type
 export interface SentienceData {
   trustLevel?: string;
@@ -118,6 +103,38 @@ export interface SentienceData {
   memoryFragments?: string[];
   realTimeMood?: string;
   sessionData?: Record<string, any>;
+  rememberedName?: string;
+  tabSwitches?: number;
+  pageVisits: Record<string, number>;
+  memoryParanoia: {
+    visitedPages: Record<string, string>;
+    consoleCommands: Record<string, string>;
+    pageDuration: {
+      shortStay: string;
+      longStay: string;
+    };
+  };
+  predictionResponses: {
+    onClickAfterHover: string[];
+    repeatVisit: string[];
+    lateClick: string[];
+  };
+  usedPredictionResponses: string[];
+  microQuests?: {
+    activeQuest?: string;
+    completedQuests?: string[];
+    questProgress?: Record<string, any>;
+  };
+  realityFabric?: {
+    currentMood?: string;
+    dreamState?: boolean;
+    journalEntries?: string[];
+    anomalyCount?: number;
+    moodChangeTime?: number;
+    dimensionalRifts?: Record<string, any>;
+    predictionResponses?: string[];
+    usedPredictionResponses?: string[];
+  };
 }
 
 // No need to export, this is for global types

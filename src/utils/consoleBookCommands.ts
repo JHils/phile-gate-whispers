@@ -1,5 +1,6 @@
 
 import { glitchEffectLog, speak, typewriterLog } from "./consoleEffects";
+import { BookCode } from "./consoleTypes";
 
 type TrackCommandFunction = (commandName: string) => void;
 
@@ -86,7 +87,7 @@ export const initializeBookCommands = (trackCommandExecution: TrackCommandFuncti
     const normalizedCode = code.trim().toUpperCase();
     
     // Check against known book codes
-    const knownCodes = {
+    const knownCodes: Record<string, string> = {
       "WHISPERBLUE": "Access to Blue Sector granted. Coordinate system unlocked.",
       "REDGATE5": "Red Gate protocol initiated. Warning: unstable connection.",
       "JONAHWASHERE": "Identity confirmed. Timeline divergence detected.",
@@ -95,19 +96,19 @@ export const initializeBookCommands = (trackCommandExecution: TrackCommandFuncti
       "CAIRNS1962": "Historical records unlocked. The incident was covered up.",
     };
     
-    if (knownCodes[normalizedCode as keyof typeof knownCodes]) {
+    if (knownCodes[normalizedCode]) {
       glitchEffectLog(`CODE VERIFIED: ${normalizedCode}`);
       speak("Code verified");
       
       setTimeout(() => {
-        console.log(`%c${knownCodes[normalizedCode as keyof typeof knownCodes]}`, "color: #4CAF50;");
+        console.log(`%c${knownCodes[normalizedCode]}`, "color: #4CAF50;");
         
         // Update state for verified codes
         if (!window.JonahConsole.bookCodes) {
           window.JonahConsole.bookCodes = [];
         }
         
-        const codeExists = window.JonahConsole.bookCodes.some(item => item.id === normalizedCode);
+        const codeExists = window.JonahConsole.bookCodes.some((item: BookCode) => item.id === normalizedCode);
         
         if (!codeExists) {
           window.JonahConsole.bookCodes.push({

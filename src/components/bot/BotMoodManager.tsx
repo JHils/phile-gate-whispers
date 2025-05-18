@@ -30,7 +30,8 @@ const BotMoodManager: React.FC<BotMoodManagerProps> = ({ trustLevel, messages })
     moodColor = 'border-blue-400 bg-blue-900/10';
   }
   
-  return <div className={moodColor}>Mood indicator</div>;
+  // Return className string instead of a React element
+  return { className: moodColor };
 };
 
 export default BotMoodManager;

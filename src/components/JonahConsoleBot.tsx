@@ -69,7 +69,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
   
   // Get mood state from BotMoodManager
   const moodState = BotMoodManager({ trustLevel, messages });
-  const moodColor = moodState.props.className || '';
+  const moodColor = moodState.className || '';
 
   // Scroll to bottom when messages change
   React.useEffect(() => {

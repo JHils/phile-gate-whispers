@@ -119,7 +119,7 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
   };
 
   // Function to discover a story flag (called from various pages)
-  window.discoverStoryFlag = function(flagId) {
+  window.discoverStoryFlag = function(flagId: string) {
     if (!window.JonahConsole.storyFlags) {
       return false;
     }
@@ -143,7 +143,7 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
   };
 
   // Command to find anomalies in text
-  window.findAnomaly = function(text) {
+  window.findAnomaly = function(text: string) {
     if (!text) {
       console.log("%cEnter text to analyze for anomalies. Format: findAnomaly('text')", "color: #475B74; font-size:14px;");
       return;

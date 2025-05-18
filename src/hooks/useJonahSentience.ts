@@ -92,7 +92,9 @@ export function useJonahSentience(trustLevel: string = 'low') {
   const rememberUserName = (name: string) => {
     if (!isPrepared || !sentience) return;
     
-    sentience.rememberedName = name;
+    if (window.JonahConsole?.sentience) {
+      window.JonahConsole.sentience.rememberedName = name;
+    }
   };
 
   return {
