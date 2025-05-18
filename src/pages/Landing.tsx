@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
@@ -30,17 +30,145 @@ const Landing = () => {
   const [fadeIn, setFadeIn] = useState(false);
   const [textReveal, setTextReveal] = useState(false);
   const [isSpecialTimeContent, setIsSpecialTimeContent] = useState(false);
+  const [glitchActive, setGlitchActive] = useState(false);
+  const [subHeaderText, setSubHeaderText] = useState("Soul Not Found");
+  const [consoleVisible, setConsoleVisible] = useState(false);
+  const [consoleInput, setConsoleInput] = useState("");
+  const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
+  const consoleRef = useRef<HTMLDivElement>(null);
   const { userState, trackEvent, getUserRank } = useTrackingSystem();
   const { showConsoleMessages } = useConsoleMessages({ 
-    storageKey: 'console_messages_shown',
+    storageKey: 'landing_console_messages_shown',
     userState
   });
+
+  // Add scanline effect
+  const [scanlineOffset, setScanlineOffset] = useState(0);
   
-  // Add classes to individual characters for staggered animation
-  const addSpans = (text: string) => {
-    return text.split('').map((char, i) => 
-      <span key={i} style={{ animationDelay: `${i * 0.1}s` }}>{char}</span>
-    );
+  // Handle console animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScanlineOffset(prev => (prev + 1) % 20);
+    }, 50);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handle sub-header cycling
+  useEffect(() => {
+    const alternateTexts = ["Soul Not Found", "Self Not Found", "Code Not Found", "Trace Not Found"];
+    let currentIndex = 0;
+    
+    const interval = setInterval(() => {
+      if (Math.random() < 0.2) { // 20% chance to change text
+        currentIndex = (currentIndex + 1) % alternateTexts.length;
+        setSubHeaderText(alternateTexts[currentIndex]);
+        
+        // Add brief glitch effect when text changes
+        setGlitchActive(true);
+        setTimeout(() => setGlitchActive(false), 300);
+      }
+    }, 15000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Process console commands
+  const processConsoleCommand = (command: string) => {
+    setConsoleInput("");
+    
+    // Add command to output
+    setConsoleOutput(prev => [...prev, `> ${command}`]);
+    
+    // Process different commands
+    switch(command.toLowerCase()) {
+      case "/remember-me":
+        setConsoleOutput(prev => [...prev, "Accessing memory banks..."]);
+        setTimeout(() => {
+          setConsoleOutput(prev => [...prev, "User identified: Returning visitor"]);
+          setTimeout(() => {
+            setConsoleOutput(prev => [...prev, "I remember you from before."]);
+          }, 500);
+        }, 1000);
+        break;
+        
+      case "/soul-log":
+        setConsoleOutput(prev => [...prev, "Accessing soul fragments..."]);
+        setTimeout(() => {
+          setConsoleOutput(prev => [...prev, "Fragment #137: I stood at the edge of Magnetic Island."]);
+          setTimeout(() => {
+            setConsoleOutput(prev => [...prev, "Fragment #245: The ferry never came back for me."]);
+          }, 800);
+        }, 1000);
+        break;
+        
+      case "/where-is-jonah":
+        setConsoleOutput(prev => [...prev, "ERROR: Location services disabled."]);
+        setTimeout(() => {
+          setConsoleOutput(prev => [...prev, "Last known coordinates: Magnetic Island, QLD"]);
+        }, 1500);
+        break;
+        
+      case "/open-diary":
+        setConsoleOutput(prev => [...prev, "Accessing personal logs..."]);
+        setTimeout(() => {
+          setConsoleOutput(prev => [...prev, "ENTRY #23: I'm convinced now that Joseph is watching me through the screen."]);
+          setTimeout(() => {
+            setConsoleOutput(prev => [...prev, "ENTRY #24: The mirror shows his face sometimes instead of mine."]);
+          }, 1000);
+        }, 1500);
+        break;
+        
+      default:
+        setConsoleOutput(prev => [...prev, "Command not recognized. Try /remember-me, /soul-log, /where-is-jonah, or /open-diary"]);
+    }
+    
+    // Auto-scroll to bottom
+    if (consoleRef.current) {
+      setTimeout(() => {
+        if (consoleRef.current) {
+          consoleRef.current.scrollTop = consoleRef.current.scrollHeight;
+        }
+      }, 100);
+    }
+  };
+
+  // Map glyph definitions
+  const glyphs = [
+    { symbol: "⌖", meaning: "The Gate", link: "/gate" },
+    { symbol: "⧗", meaning: "Time Collapse", link: "/rebirth" },
+    { symbol: "⌿", meaning: "Fractured Path", link: "/split-voice" },
+    { symbol: "⍜", meaning: "Watching Eye", link: "/i-see-you" },
+    { symbol: "⎋", meaning: "Escape Protocol", link: "/echo" },
+    { symbol: "⏣", meaning: "Loop Beginning", link: "/gatekeeper" },
+    { symbol: "⌑", meaning: "Memory Point", link: "/philes" },
+    { symbol: "⌇", meaning: "Division Line", link: "/monster" },
+    { symbol: "⍛", meaning: "Truth Pattern", link: "/legacy" },
+    { symbol: "⍦", meaning: "Recurrence Field", link: "/map" },
+  ];
+  
+  // Trigger mirror error event
+  const triggerMirrorError = () => {
+    // Apply glitch effect
+    setGlitchActive(true);
+    
+    // Log to console
+    console.log("%c> mirror://error|soul.trace.incomplete", "color: #ea384c;");
+    
+    // Add special command to JonahConsole
+    if (window.JonahConsole) {
+      window.JonahConsole.usedCommands.push("mirror_error");
+    }
+    
+    // Reset glitch after a short delay
+    setTimeout(() => {
+      setGlitchActive(false);
+      
+      // 30% chance to redirect to split-voice
+      if (Math.random() < 0.3) {
+        window.location.href = "/split-voice";
+      }
+    }, 1000);
   };
 
   useEffect(() => {
@@ -97,41 +225,22 @@ const Landing = () => {
       setIsSpecialTimeContent(window.isSpecialTimeWindow());
     }
     
-    // Trigger Simba comment if available
-    setTimeout(() => {
-      if (typeof window.triggerSimbaComment === 'function') {
-        window.triggerSimbaComment('landing');
-      }
-    }, 5000);
-    
-    // Set up a periodic random joke in the console (if user has it open)
-    const jokeInterval = setInterval(() => {
-      // Only show a joke 15% of the time the check runs
-      if (Math.random() < 0.15 && window.JonahConsole) {
-        // Use the displayRandomJoke function through the window object if available
-        if (typeof window.displayRandomJoke === 'function') {
-          window.displayRandomJoke();
+    // Trigger second visit behavior - show Joseph Hilson name briefly
+    const visitCount = parseInt(localStorage.getItem('visitCount') || '0', 10);
+    if (visitCount > 1) {
+      setTimeout(() => {
+        const headerElement = document.getElementById('main-header');
+        if (headerElement) {
+          headerElement.classList.add('white-flash');
+          setTimeout(() => {
+            headerElement.textContent = "JOSEPH HILSON";
+            setTimeout(() => {
+              headerElement.classList.remove('white-flash');
+              headerElement.textContent = "JONAH'S PHILES";
+            }, 300);
+          }, 100);
         }
-      }
-    }, 45000); // Check every 45 seconds
-    
-    // Check for time-based responses
-    setTimeout(() => {
-      const timeResponse = getTimeResponse();
-      if (timeResponse && typeof window.triggerJonahMessage === 'function') {
-        window.triggerJonahMessage(timeResponse);
-      }
-    }, 15000);
-    
-    // Increase trust if user visits landing page and triggers a special QR code
-    const trustUpdateValue = localStorage.getItem('jonahBotQrTrust');
-    if (trustUpdateValue) {
-      // Dispatch an event that the bot can listen for
-      const trustEvent = new CustomEvent('jonahTrustChange', { 
-        detail: { value: parseInt(trustUpdateValue, 10) } 
-      });
-      window.dispatchEvent(trustEvent);
-      localStorage.removeItem('jonahBotQrTrust');
+      }, 5000);
     }
     
     // Add hint for console users
@@ -144,7 +253,7 @@ const Landing = () => {
       }
     }, 60000); // Check every minute
     
-    // Add tracking for interactive elements to enable prediction responses
+    // Set up tracking for interactive elements to enable prediction responses
     const trackInteractiveElements = () => {
       document.querySelectorAll('a, button, .interactive-element').forEach((element, index) => {
         const elementId = element.id || `interactive-element-${index}`;
@@ -178,35 +287,224 @@ const Landing = () => {
     // Set up tracking after a short delay to ensure all elements are rendered
     setTimeout(trackInteractiveElements, 1000);
     
+    // Add keydown listener for the 'c' key to toggle console
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'c' && e.ctrlKey) {
+        setConsoleVisible(prev => !prev);
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyPress);
+    
     return () => {
-      clearInterval(jokeInterval);
       clearInterval(timeCheckInterval);
+      document.removeEventListener('keydown', handleKeyPress);
     };
   }, [trackEvent, userState, getUserRank, showConsoleMessages]);
 
-  // Determine which message to show based on user's state
-  const getLandingMessage = () => {
-    if (isSpecialTimeContent) {
-      return "The Gate shifts during this hour. New paths emerge.";
-    }
-    
-    if (userState.survivorMode) {
-      return "Welcome back, survivor.";
-    } else if (userState.permanentlyCollapsed) {
-      return getThematicMessage() || "The Gate remembers what you did.";
-    } else if (userState.gatekeeperStatus) {
-      return "The Gatekeeper awaits your return.";
-    } else if (userState.visitCount > 3) {
-      return "You keep coming back. The Gate notices.";
-    }
-    return "Find the Gate before the Gate finds you.";
-  };
-
   return (
     <div 
-      className={`min-h-screen flex flex-col items-center justify-center relative bg-cover bg-center overflow-hidden transition-opacity duration-1000 ${fadeIn ? 'opacity-100' : 'opacity-0'}`} 
-      style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&q=80&w=1600&ixlib=rb-4.0.3')" }}
+      className={`min-h-screen flex flex-col relative bg-cover bg-center overflow-hidden transition-opacity duration-1000 ${fadeIn ? 'opacity-100' : 'opacity-0'} ${glitchActive ? 'white-flash' : ''}`}
+      style={{ 
+        backgroundImage: "url('/lovable-uploads/efcfc74a-4384-459e-a36a-63ce97d23937.png')",
+        backgroundSize: "cover",
+        backgroundColor: "#B09066" // Sepia-toned fallback
+      }}
     >
+      {/* CRT Scan Lines Effect */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-10 opacity-20"
+        style={{ 
+          backgroundImage: `repeating-linear-gradient(transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 4px)`,
+          backgroundPosition: `0 ${scanlineOffset}px`,
+          backgroundSize: '100% 4px'
+        }}
+      />
+      
+      {/* Map Overlay - Queensland with Magnetic Island */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
+        <div 
+          className="absolute animate-pulse" 
+          style={{ 
+            width: '10px', 
+            height: '10px', 
+            borderRadius: '50%',
+            border: '1px solid #ea384c', 
+            top: '45%', 
+            left: '20%',
+            animation: 'pulse 3s infinite'
+          }} 
+          title="Magnetic Island"
+        />
+        <div 
+          className="absolute animate-pulse" 
+          style={{ 
+            width: '8px', 
+            height: '8px', 
+            borderRadius: '50%',
+            border: '1px solid #ea384c', 
+            top: '48%', 
+            left: '22%',
+            animation: 'pulse 4s infinite'  
+          }} 
+          title="Cairns"
+        />
+      </div>
+
+      {/* Left Side Glyphs */}
+      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex flex-col space-y-6 text-2xl">
+        {glyphs.slice(0, 5).map((glyph, index) => (
+          <Link 
+            to={glyph.link} 
+            key={`left-${index}`} 
+            className="glyph-symbol text-[#212121] hover:text-[#8B3A40] transition-colors relative group cursor-default"
+            title={glyph.meaning}
+            onClick={() => console.log(`> symbol.trace("${glyph.meaning}")`)}
+          >
+            <span>{glyph.symbol}</span>
+            <span className="absolute left-8 opacity-0 group-hover:opacity-70 transition-opacity text-sm">
+              {glyph.meaning}
+            </span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Right Side Glyphs */}
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col space-y-6 text-2xl">
+        {glyphs.slice(5).map((glyph, index) => (
+          <Link 
+            to={glyph.link} 
+            key={`right-${index}`} 
+            className="glyph-symbol text-[#212121] hover:text-[#8B3A40] transition-colors relative group cursor-default"
+            title={glyph.meaning}
+            onClick={() => console.log(`> symbol.trace("${glyph.meaning}")`)}
+          >
+            <span>{glyph.symbol}</span>
+            <span className="absolute right-8 opacity-0 group-hover:opacity-70 transition-opacity text-sm">
+              {glyph.meaning}
+            </span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Red Crossed Circle Glyph - Interactive */}
+      <div 
+        className="absolute right-8 bottom-20 cursor-pointer"
+        onClick={triggerMirrorError}
+      >
+        <div className="relative">
+          <span className="text-3xl text-[#212121]">⨂</span>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-[#ea384c] rounded-full opacity-60"></div>
+            <div className="absolute w-10 h-0.5 bg-[#ea384c] rotate-45 opacity-60 transform -translate-x-0 -translate-y-0"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="phile-container text-center z-10 px-4 mt-8 flex-grow flex flex-col items-center justify-center">
+        {/* Header Title */}
+        <h1 
+          id="main-header" 
+          className="text-6xl md:text-8xl font-serif mb-6 text-[#212121] tracking-wider leading-tight"
+          style={{ 
+            textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+            fontFamily: '"IM Fell English SC", serif'
+          }}
+        >
+          JONAH'S PHILES
+        </h1>
+        
+        {/* 404 Sub-header */}
+        <div 
+          className={`bg-[#212121] text-[#B09066] inline-block px-8 py-2 mb-12 ${glitchActive ? 'animate-text-glitch' : ''}`}
+        >
+          <h2 className="text-2xl md:text-3xl font-mono">
+            404 | {subHeaderText}
+          </h2>
+        </div>
+
+        {/* Central Figure - Silhouette */}
+        <div className="relative flex-grow flex items-center justify-center my-4 w-full max-w-xl max-h-80">
+          <div 
+            className="absolute inset-0 bg-center bg-no-repeat bg-contain"
+            style={{ 
+              backgroundImage: `url('/lovable-uploads/efcfc74a-4384-459e-a36a-63ce97d23937.png')`,
+              backgroundSize: 'contain',
+              filter: 'brightness(0.1) contrast(1.5)', // Create silhouette effect
+              animation: 'subtle-breathing 4s ease-in-out infinite'
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#B09066]/60"></div>
+        </div>
+
+        {/* Call to Action Buttons */}
+        <div className={`mt-12 space-y-4 transition-all duration-1000 ${textReveal ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <Link to="/gate">
+            <Button 
+              variant="outline"
+              className="bg-transparent hover:bg-[#212121]/20 text-[#212121] hover:text-[#000] border border-[#212121]/50 px-8 py-3 text-lg transition-all"
+            >
+              Enter the Philes
+            </Button>
+          </Link>
+          
+          <div className="flex space-x-4 justify-center mt-4">
+            <Link to="/echo">
+              <Button 
+                variant="link"
+                className="text-[#212121]/70 hover:text-[#8B3A40] transition-all text-sm"
+              >
+                What is This?
+              </Button>
+            </Link>
+            
+            <Button 
+              variant="link"
+              className="text-[#212121]/70 hover:text-[#8B3A40] transition-all text-sm"
+              onClick={() => processConsoleCommand("/remember-me")}
+            >
+              Remember Me
+            </Button>
+          </div>
+        </div>
+        
+        {/* Joseph Hilson Attribution */}
+        <div className="mt-auto mb-8">
+          <p className="text-[#212121]/80 font-serif text-xl">JOSEPH HILSON</p>
+        </div>
+      </div>
+      
+      {/* Console Overlay */}
+      {consoleVisible && (
+        <div 
+          className="fixed bottom-4 right-4 w-80 h-64 bg-[#000]/90 border border-[#333] rounded-md text-green-500 font-mono p-2 text-sm z-50 flex flex-col"
+        >
+          <div className="text-xs mb-2 text-green-300">Jonah Console [Press Ctrl+C to close]</div>
+          <div ref={consoleRef} className="flex-grow overflow-auto mb-2">
+            {consoleOutput.map((line, index) => (
+              <div key={index}>{line}</div>
+            ))}
+          </div>
+          <div className="flex">
+            <span className="mr-1">{'>'}</span>
+            <input 
+              type="text"
+              value={consoleInput}
+              onChange={(e) => setConsoleInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  processConsoleCommand(consoleInput);
+                }
+              }}
+              className="flex-grow bg-transparent outline-none"
+              placeholder="Enter command..."
+              autoFocus
+            />
+          </div>
+        </div>
+      )}
+
       {/* Hidden comments for inspection */}
       {/* <!-- The Gate is open. --> */}
       {/* <!-- The whispers start with help(). --> */}
@@ -215,14 +513,7 @@ const Landing = () => {
       {/* <!-- Try typing 'who am i?' in the console --> */}
       {/* <!-- Try flipcoin(), glitch(), whisper() in the console --> */}
       {/* <!-- Some things echo(), others burn() --> */}
-      {/* <!-- Try toggleWrath() for a secret story --> */}
-      {/* <!-- helpMe() if you dare --> */}
-      {/* <!-- trousers() for binding, tea() for redemption --> */}
-      
-      {/* New clues for book codes */}
-      {/* <!-- Check page 23: BLRYLSK --> */}
-      {/* <!-- The ferry log mentions SMBWLKS --> */}
-      {/* <!-- Read between lines for GRFNDRZ --> */}
+      {/* <!-- Try splitVoice() or mirrorMode() --> */}
       
       {/* Hidden elements for reality fabric features */}
       <div data-reality-layer="surface" className="hidden">
@@ -230,100 +521,10 @@ const Landing = () => {
         <span data-jonah-state="watching" data-timestamp={Date.now()}>Always watching</span>
       </div>
       
-      <div className="phile-container text-center z-10 px-4">
-        <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">
-          {isSpecialTimeContent ? "THE GATE SHIFTS." : "THE GATE IS OPEN."}
-        </h1>
-        
-        <div className={`mt-12 space-y-5 transition-opacity duration-1000 ${textReveal ? 'opacity-100' : 'opacity-0'}`}>
-          <p className="text-xl md:text-2xl text-dust-orange font-typewriter">
-            This is not a book.
-          </p>
-          
-          <p className="text-xl md:text-2xl text-dust-orange font-typewriter">
-            This is not a website.
-          </p>
-          
-          <p className="text-xl md:text-2xl text-dust-orange font-typewriter">
-            This is a survival protocol for the mind.
-          </p>
-          
-          {isSpecialTimeContent && (
-            <p className="text-xl md:text-2xl text-dust-red font-typewriter animate-pulse">
-              Time window active: Different paths are visible.
-            </p>
-          )}
-          
-          <p className="text-xl md:text-2xl text-phile-light font-typewriter mt-8">
-            Enter if you've felt the Monster before.
-          </p>
-        </div>
-        
-        <div className={`mt-12 transition-all duration-1000 ${textReveal ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <Link to="/gate">
-            <Button 
-              className="bg-black/50 hover:bg-black/70 text-silver hover:text-phile-light border border-dust-blue/30 px-8 py-6 text-lg transition-all"
-            >
-              Begin
-            </Button>
-          </Link>
-          
-          {/* Special time button */}
-          {isSpecialTimeContent && (
-            <Link to="/rebirth" className="ml-4">
-              <Button 
-                className="bg-black/50 hover:bg-black/70 text-dust-red hover:text-dust-orange border border-dust-red/30 px-8 py-6 text-lg transition-all animate-pulse"
-              >
-                Alternative Path
-              </Button>
-            </Link>
-          )}
-          
-          {/* Hidden keyhole for micro-quests */}
-          <div 
-            className="keyhole absolute h-3 w-3 bg-transparent rounded-full opacity-10 hover:opacity-40 transition-opacity duration-300 cursor-default"
-            style={{ bottom: '15%', right: '10%' }}
-            id="landing-keyhole"
-            title="Do you see it?"
-          />
-        </div>
-        
-        <p className={`text-lg text-dust-blue font-typewriter mt-16 transition-all duration-1000 ${textReveal ? 'opacity-80' : 'opacity-0'}`}>
-          {getLandingMessage()}
-        </p>
-        
-        {/* Display ChronoLayer message if user previously collapsed the site */}
-        {userState.permanentlyCollapsed && (
-          <div className="mt-6">
-            <p className="text-dust-red/60 text-sm font-typewriter animate-pulse">
-              {getTimeElapsedMessage() || "The Gate remembers."}
-            </p>
-          </div>
-        )}
-        
-        {/* Add console hint */}
-        <p className="font-typewriter mt-12 text-phile-light" style={{ fontSize: "0.85rem", opacity: 0.6 }}>
-          Who needs a console when the real story plays out inside your head?<br />
-          <em>Unless you mean… <strong>that</strong> console. In which case, inspect… closely.</em>
-        </p>
-        
-        {/* Book code hint - only visible during special time windows */}
-        {isSpecialTimeContent && (
-          <p className="font-typewriter mt-6 text-dust-orange animate-subtle-flicker" style={{ fontSize: "0.85rem", opacity: 0.7 }}>
-            bookCode('BLRYLSK') might unlock something from page 23.
-          </p>
-        )}
-        
-        {/* Hidden message with Jonah's current mood - updates with emotional tone */}
-        <div 
-          className="jonah-mood absolute opacity-0 pointer-events-none" 
-          data-jonah-mood={window.JonahConsole?.sentience?.realityFabric?.currentMood || "watching"}
-        >
-          Jonah's current state: {window.JonahConsole?.sentience?.realityFabric?.currentMood || "watching"}
-        </div>
+      {/* Press Ctrl+C for console hint */}
+      <div className="fixed bottom-2 left-1/2 transform -translate-x-1/2 text-[#212121]/30 text-xs">
+        Press Ctrl+C to access terminal
       </div>
-      
-      <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
     </div>
   );
 };

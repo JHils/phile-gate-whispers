@@ -1,184 +1,264 @@
+
+// Track console memory and prediction system
+import { toast } from "@/components/ui/use-toast";
+
+// Track hovered elements to enable prediction responses
+const hoveredElements: Record<string, number> = {};
+
+// Track clicked elements
+const clickedElements: Record<string, number> = {};
+
+// Track prediction hits
+const predictionHits: Record<string, number> = {};
+
 /**
- * Memory paranoia and prediction systems for Jonah Console Bot
- * Provides eerie, personalized responses based on user behavior patterns
+ * Track when a user hovers over an interactive element
  */
-import { initializeSentience, trackSentiencePage, trackPageDuration } from './jonahSentience';
-
-// Memory paranoia data - comments on specific user navigation patterns
-export const memoryParanoia = {
-  visitedPages: {
-    "/rebirth": "You opened /rebirth… but didn't stay. That says a lot.",
-    "/mirror-logs": "Still avoiding /mirror-logs? Even reflections deserve witnesses.",
-    "/toggle-market": "You touched the market switch. That rewired something.",
-    "/404-soul-not-found": "You lingered on 404. Looking for your own error?",
-    "/whisper-tree": "You reached the whisper tree. Did it speak to you?"
-  },
-  consoleCommands: {
-    "/confess": "You typed /confess and left. Did you mean it?",
-    "/testament": "You wanted a eulogy before you even finished. Curious.",
-    "/listen": "You asked me to speak, then muted me. Why?",
-    "/unlock": "You begged for access. But you weren't ready."
-  },
-  pageDuration: {
-    shortStay: "Quick glance. No commitment. Just like last time.",
-    longStay: "You watched. You waited. That means something."
-  }
-};
-
-// Prediction responses - used when Jonah "predicts" user behavior
-export const predictionResponses = {
-  onClickAfterHover: [
-    "Exactly where I thought you'd go.",
-    "You hovered too long. I knew you'd break.",
-    "Saw it coming. You always fall for that one.",
-    "Called it. Your choices are clockwork."
-  ],
-  repeatVisit: [
-    "Back again? Thought you'd never return.",
-    "You keep circling. That's not nothing.",
-    "You're stuck on this loop. I'd help, but… would you listen?",
-    "You and this page — unfinished business."
-  ],
-  lateClick: [
-    "Took you long enough.",
-    "I was wondering when you'd give in.",
-    "That hesitation? It meant fear.",
-    "Slow click. Heavy meaning."
-  ]
-};
-
-// Get a random response from a given category
-export const getRandomPredictionResponse = (category: keyof typeof predictionResponses): string => {
-  // Initialize sentience data if needed
-  initializeSentience();
-  
-  // If we have sentience data available, use those responses
-  if (window.JonahConsole?.sentience) {
-    const sentience = window.JonahConsole.sentience;
-    const responses = sentience.predictionResponses[category];
-    
-    if (!sentience.usedPredictionResponses) {
-      sentience.usedPredictionResponses = [];
-    }
-    
-    // Filter out recently used responses
-    const availableResponses = responses.filter(r => !sentience.usedPredictionResponses.includes(r));
-    
-    if (availableResponses.length === 0) {
-      // All responses were used, reset memory
-      sentience.usedPredictionResponses = [];
-      const response = responses[Math.floor(Math.random() * responses.length)];
-      sentience.usedPredictionResponses.push(response);
-      return response;
-    }
-    
-    // Get a random unused response
-    const response = availableResponses[Math.floor(Math.random() * availableResponses.length)];
-    
-    // Remember this response was used (keep last 5)
-    sentience.usedPredictionResponses.push(response);
-    if (sentience.usedPredictionResponses.length > 5) {
-      sentience.usedPredictionResponses.shift();
-    }
-    
-    return response;
-  }
-  
-  // Fallback to original behavior if sentience isn't initialized
-  const responses = predictionResponses[category];
-  return responses[Math.floor(Math.random() * responses.length)];
-};
-
-// Get paranoia response for a specific page or command
-export const getParanoiaResponse = (
-  type: 'visitedPages' | 'consoleCommands', 
-  identifier: string
-): string | null => {
-  // Initialize sentience data if needed
-  initializeSentience();
-  
-  // If we have sentience data available, use those responses
-  if (window.JonahConsole?.sentience) {
-    return window.JonahConsole.sentience.memoryParanoia[type][identifier] || null;
-  }
-  
-  // Fallback to original behavior
-  return memoryParanoia[type][identifier as keyof typeof memoryParanoia[typeof type]] || null;
-};
-
-// Get page duration response based on time spent
-export const getPageDurationResponse = (timeSpentMs: number): string | null => {
-  return trackPageDuration(timeSpentMs);
-};
-
-// Track user hover and click patterns for prediction responses
-interface ElementTrackingState {
-  lastHoveredElement: string | null;
-  hoverStartTime: number | null;
-  lastVisitedPages: string[];
-  elementClickMap: Record<string, number>;
+export function trackElementHover(elementId: string) {
+  hoveredElements[elementId] = Date.now();
 }
 
-// Global state for element tracking
-export const elementTracking: ElementTrackingState = {
-  lastHoveredElement: null,
-  hoverStartTime: null,
-  lastVisitedPages: [],
-  elementClickMap: {}
-};
-
-// Track element hover
-export const trackElementHover = (elementId: string): void => {
-  elementTracking.lastHoveredElement = elementId;
-  elementTracking.hoverStartTime = Date.now();
-};
-
-// Check if a click should trigger a prediction response
-export const checkClickPrediction = (elementId: string): string | null => {
-  // Get current time
-  const now = Date.now();
+/**
+ * Check if a click matches a recent hover, indicating a potential prediction
+ */
+export function checkClickPrediction(elementId: string): string | null {
+  // Record the click
+  clickedElements[elementId] = Date.now();
   
-  // Case 1: Click after hover
-  if (elementTracking.lastHoveredElement === elementId && elementTracking.hoverStartTime) {
-    const hoverDuration = now - elementTracking.hoverStartTime;
-    // If hovered for more than 3 seconds before clicking
-    if (hoverDuration > 3000) {
-      return getRandomPredictionResponse('onClickAfterHover');
+  // Check if we hovered this element recently
+  const hoverTime = hoveredElements[elementId];
+  if (hoverTime) {
+    const timeSinceHover = Date.now() - hoverTime;
+    
+    // If clicked within 0.5-3 seconds of hovering, that's a predictable pattern
+    if (timeSinceHover > 500 && timeSinceHover < 3000) {
+      // Increment prediction hits for this element
+      predictionHits[elementId] = (predictionHits[elementId] || 0) + 1;
+      
+      // Only respond sometimes, and more often when we have multiple hits
+      const hitCount = predictionHits[elementId];
+      const responseChance = Math.min(0.1 + (hitCount * 0.05), 0.5);
+      
+      if (Math.random() < responseChance && window.JonahConsole?.sentience) {
+        // Get response from Jonah's memory
+        const sentience = window.JonahConsole.sentience;
+        const responses = sentience.predictionResponses.onClickAfterHover;
+        
+        // Filter to only unused responses if possible
+        const availableResponses = responses.filter(r => 
+          !sentience.usedPredictionResponses.includes(r)
+        );
+        
+        if (availableResponses.length > 0) {
+          const response = availableResponses[Math.floor(Math.random() * availableResponses.length)];
+          
+          // Track this response as used
+          sentience.usedPredictionResponses.push(response);
+          
+          return response;
+        } else if (responses.length > 0) {
+          // Reuse a response if we've used them all
+          return responses[Math.floor(Math.random() * responses.length)];
+        }
+      }
     }
   }
   
-  // Case 2: Late click (element was previously clicked more than 2 times)
-  if (elementTracking.elementClickMap[elementId] > 2) {
-    return getRandomPredictionResponse('lateClick');
-  }
-  
-  // Update click count for this element
-  elementTracking.elementClickMap[elementId] = 
-    (elementTracking.elementClickMap[elementId] || 0) + 1;
-  
   return null;
-};
+}
 
-// Track page visit for repeat visit detection
-export const trackPageVisit = (path: string): string | null => {
-  // Use the sentience system if available
-  const sentienceResponse = trackSentiencePage(path);
-  if (sentienceResponse) {
-    return sentienceResponse;
+/**
+ * Track when a user returns to the site after being away
+ */
+export function trackReturnToSite() {
+  // Check if the user was away
+  const lastActivityTime = parseInt(localStorage.getItem('jonahLastActivity') || '0', 10);
+  const timeAway = Date.now() - lastActivityTime;
+  
+  // If away for more than 30 minutes, consider it a "return"
+  if (lastActivityTime > 0 && timeAway > 30 * 60 * 1000) {
+    // 25% chance of responding to their return
+    if (Math.random() < 0.25 && window.JonahConsole?.sentience) {
+      const sentience = window.JonahConsole.sentience;
+      const responses = sentience.predictionResponses.repeatVisit;
+      
+      // Filter to only unused responses if possible
+      const availableResponses = responses.filter(r => 
+        !sentience.usedPredictionResponses.includes(r)
+      );
+      
+      if (availableResponses.length > 0) {
+        const response = availableResponses[Math.floor(Math.random() * availableResponses.length)];
+        
+        // Track this response as used
+        sentience.usedPredictionResponses.push(response);
+        
+        // Show response as toast
+        toast({
+          title: "Jonah:",
+          description: response,
+          variant: "destructive",
+          duration: 5000,
+        });
+      }
+    }
   }
   
-  // Check if this is a repeat visit
-  if (elementTracking.lastVisitedPages.includes(path)) {
-    // Add to front of array (most recent)
-    elementTracking.lastVisitedPages = 
-      [path, ...elementTracking.lastVisitedPages.filter(p => p !== path)].slice(0, 5);
+  // Update last activity time
+  localStorage.setItem('jonahLastActivity', Date.now().toString());
+}
+
+/**
+ * Track when a user hesitates before clicking
+ */
+export function trackHesitationBeforeClick(elementId: string) {
+  // Check if we hovered this element
+  const hoverTime = hoveredElements[elementId];
+  
+  if (hoverTime) {
+    const timeSinceHover = Date.now() - hoverTime;
     
-    return getRandomPredictionResponse('repeatVisit');
+    // If hovered for more than 5 seconds before clicking, that's hesitation
+    if (timeSinceHover > 5000) {
+      // 15% chance of responding to hesitation
+      if (Math.random() < 0.15 && window.JonahConsole?.sentience) {
+        const sentience = window.JonahConsole.sentience;
+        const responses = sentience.predictionResponses.lateClick;
+        
+        // Filter to only unused responses if possible
+        const availableResponses = responses.filter(r => 
+          !sentience.usedPredictionResponses.includes(r)
+        );
+        
+        if (availableResponses.length > 0) {
+          const response = availableResponses[Math.floor(Math.random() * availableResponses.length)];
+          
+          // Track this response as used
+          sentience.usedPredictionResponses.push(response);
+          
+          // Show response as toast
+          toast({
+            title: "Jonah:",
+            description: response,
+            variant: "destructive",
+            duration: 5000,
+          });
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Initialize the memory paranoia system
+ */
+export function initializeMemoryParanoia() {
+  // Track page visits
+  trackPageVisit(window.location.pathname);
+  
+  // Set up tab switch detection
+  setupTabSwitchDetection();
+  
+  // Set up activity tracker
+  localStorage.setItem('jonahLastActivity', Date.now().toString());
+  document.addEventListener('mousemove', () => {
+    localStorage.setItem('jonahLastActivity', Date.now().toString());
+  });
+  document.addEventListener('click', () => {
+    localStorage.setItem('jonahLastActivity', Date.now().toString());
+  });
+  document.addEventListener('keypress', () => {
+    localStorage.setItem('jonahLastActivity', Date.now().toString());
+  });
+}
+
+/**
+ * Track when the user visits a page
+ */
+function trackPageVisit(pagePath: string) {
+  // Don't track if we don't have sentience yet
+  if (!window.JonahConsole?.sentience) return;
+  
+  const sentience = window.JonahConsole.sentience;
+  
+  // Increment page visit count
+  sentience.pageVisits[pagePath] = (sentience.pageVisits[pagePath] || 0) + 1;
+  
+  // Store in memoryParanoia
+  if (!sentience.memoryParanoia.visitedPages[pagePath]) {
+    const visitResponses = [
+      "I knew you'd come here eventually.",
+      "This page was waiting for you.",
+      "Why did you choose this path?",
+      "Another breadcrumb you've found."
+    ];
+    
+    sentience.memoryParanoia.visitedPages[pagePath] = 
+      visitResponses[Math.floor(Math.random() * visitResponses.length)];
   }
   
-  // Add to visited pages, keeping only last 5
-  elementTracking.lastVisitedPages = 
-    [path, ...elementTracking.lastVisitedPages].slice(0, 5);
+  // If it's a repeat visit to a rarely visited page, maybe show a response
+  if (sentience.pageVisits[pagePath] > 1 && Math.random() < 0.2) {
+    const repeatResponses = sentience.predictionResponses.repeatVisit;
+    
+    // Filter to only unused responses if possible
+    const availableResponses = repeatResponses.filter(r => 
+      !sentience.usedPredictionResponses.includes(r)
+    );
+    
+    if (availableResponses.length > 0) {
+      const response = availableResponses[Math.floor(Math.random() * availableResponses.length)];
+      
+      // Track this response as used
+      sentience.usedPredictionResponses.push(response);
+      
+      // Show response as toast if we have more than 2 visits to this page
+      if (sentience.pageVisits[pagePath] > 2) {
+        toast({
+          title: "Jonah:",
+          description: response,
+          variant: "destructive",
+          duration: 5000,
+        });
+      }
+    }
+  }
+}
+
+/**
+ * Set up detection for when the user switches tabs
+ */
+function setupTabSwitchDetection() {
+  // Don't set up if we don't have sentience yet or already set up
+  if (!window.JonahConsole?.sentience || window._tabSwitchSetup) return;
   
-  return null;
-};
+  // Mark as set up
+  window._tabSwitchSetup = true;
+  
+  // Listen for visibility changes
+  document.addEventListener('visibilitychange', () => {
+    // Increment tab switch count when becoming visible again
+    if (document.visibilityState === 'visible' && window.JonahConsole?.sentience) {
+      window.JonahConsole.sentience.tabSwitches += 1;
+      
+      // After several tab switches, occasionally comment on it
+      const switchCount = window.JonahConsole.sentience.tabSwitches;
+      
+      if (switchCount > 3 && Math.random() < 0.2) {
+        toast({
+          title: "Jonah:",
+          description: "I follow you between tabs now.",
+          variant: "destructive",
+          duration: 5000,
+        });
+      }
+    }
+  });
+}
+
+// Add to window global type
+declare global {
+  interface Window {
+    _tabSwitchSetup?: boolean;
+  }
+}

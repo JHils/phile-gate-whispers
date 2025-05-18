@@ -294,7 +294,7 @@ const Index = () => {
       <div
         className="hidden"
         data-jonah-presence="true"
-        data-user-phile-rank={userState.rank || "drifter"}
+        data-user-phile-rank={userState?.console?.rank || "drifter"}
         data-visit-count={userState.visitCount}
         data-whisper-code="GRFNDRZ"
       />

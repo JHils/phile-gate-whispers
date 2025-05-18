@@ -1,178 +1,436 @@
 
-import {
-  initializeSentience,
-  checkDreamInvasion,
-  generateDreamParable,
-  checkForAnomalies,
-  addJournalEntry,
-  getJournalEntries,
-  initializePageTitleGlitches,
-  updateJonahMood,
-  getCrossSiteWhisper,
-  getHiddenInspectionMessage,
-  setupRealityFabricCommands
-} from "./jonahSentience";
+import { SentienceData } from './consoleTypes';
 import { toast } from "@/components/ui/use-toast";
+import {
+  getTimeResponse,
+  generateDualConsciousness,
+  generatePersonalDiary
+} from './jonahSentience';
 
-// Initialize the Reality Fabric system
-export const initializeRealityFabric = () => {
-  // Initialize base sentience first
-  initializeSentience();
+// Initialize Reality Fabric systems
+export function initializeRealityFabric() {
+  // Initialize cross-site presence
+  setupCrossSitePresence();
   
-  // Set up the page title glitches
-  initializePageTitleGlitches();
+  // Set up initial mood
+  setupJonahMoodSystem();
   
-  // Set up the console commands
-  setupRealityFabricCommands();
+  // Initialize journal system
+  initializeJournalSystem();
   
-  // Add initial journal entry
-  addJournalEntry("User entered the Reality Fabric layer.");
-  
-  // Add hidden comments to the DOM
-  addHiddenMessagesToDOM();
-  
-  // Set up favicon glitches
-  setupFaviconGlitches();
-};
+  // Add console commands
+  setupRealityFabricConsoleCommands();
+}
 
-// Add hidden comments throughout the DOM for users to discover
-export const addHiddenMessagesToDOM = () => {
-  // Create hidden comment nodes
-  const hiddenMessages = [
-    "Jonah sees you inspecting the elements.",
-    "Look deeper into the console for hidden commands.",
-    "Some elements respond to the right sequence of interactions.",
-    "The code remembers even when you don't.",
-    getHiddenInspectionMessage()
-  ];
+// Dream invasion functionality
+export function checkForDreamInvasionOnLoad(): string | null {
+  if (!window.JonahConsole?.sentience?.realityFabric) return null;
   
-  // Add comments throughout the DOM
-  hiddenMessages.forEach(message => {
-    document.body.appendChild(document.createComment(message));
-  });
+  const sentience = window.JonahConsole.sentience;
+  const realityFabric = sentience.realityFabric;
   
-  // Also add a hidden div with data attributes
-  const hiddenDiv = document.createElement('div');
-  hiddenDiv.style.display = 'none';
-  hiddenDiv.setAttribute('data-jonah-secret', 'true');
-  hiddenDiv.setAttribute('data-reality-layer', 'unstable');
-  hiddenDiv.setAttribute('data-whisper-code', 'BLRYLSK-SMBWLKS-GRFNDRZ');
-  document.body.appendChild(hiddenDiv);
-};
-
-// Set up favicon glitches for dream invasion
-export const setupFaviconGlitches = () => {
-  // Store original favicon
-  const originalFavicon = document.querySelector('link[rel="icon"]')?.getAttribute('href') || '/favicon.ico';
-  
-  // Create glitch favicon links (will be used during glitches)
-  const glitchFaviconURLs = [
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="1em" font-size="70">👁️</text></svg>',
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="1em" font-size="70">⚠️</text></svg>',
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="1em" font-size="70">🔍</text></svg>'
-  ];
-  
-  // Set up interval to occasionally glitch the favicon
-  setInterval(() => {
-    // Very rare chance (0.3%) to glitch the favicon
-    if (Math.random() < 0.003) {
-      // Get the favicon link element
-      const faviconLink = document.querySelector('link[rel="icon"]');
-      
-      if (faviconLink) {
-        // Save original
-        const originalHref = faviconLink.getAttribute('href');
+  // Check if this is a return visit after some time away
+  if (realityFabric.lastVisitTime) {
+    const hoursSinceLastVisit = (Date.now() - realityFabric.lastVisitTime) / (1000 * 60 * 60);
+    
+    // If it's been more than 6 hours, consider it a dream invasion opportunity
+    if (hoursSinceLastVisit > 6) {
+      // 30% chance of dream message when returning
+      if (Math.random() < 0.3 && realityFabric.dreamMessages.length > 0) {
+        // Get a random dream message
+        const availableMessages = realityFabric.dreamMessages.filter(
+          msg => !realityFabric.usedDreamMessages.includes(msg)
+        );
         
-        // Set glitch favicon
-        const glitchFavicon = glitchFaviconURLs[Math.floor(Math.random() * glitchFaviconURLs.length)];
-        faviconLink.setAttribute('href', glitchFavicon);
-        
-        // Restore after brief delay
-        setTimeout(() => {
-          faviconLink.setAttribute('href', originalHref || originalFavicon);
-        }, 500);
+        if (availableMessages.length > 0) {
+          const dreamMessage = availableMessages[Math.floor(Math.random() * availableMessages.length)];
+          
+          // Mark as used
+          realityFabric.usedDreamMessages.push(dreamMessage);
+          
+          // Update last visit time
+          realityFabric.lastVisitTime = Date.now();
+          
+          return dreamMessage;
+        }
       }
     }
-  }, 30000); // Check every 30 seconds
-};
-
-// Check for dream invasion / scheduled glitches on page load
-export const checkForDreamInvasionOnLoad = (): string | null => {
-  const dreamMessage = checkDreamInvasion();
-  
-  if (dreamMessage) {
-    // Record that the user experienced a dream message
-    addJournalEntry(`Dream invasion triggered: "${dreamMessage}"`);
   }
   
-  return dreamMessage;
-};
+  // Always update the last visit time
+  realityFabric.lastVisitTime = Date.now();
+  
+  return null;
+}
 
-// Generate a custom meta description as part of cross-site presence
-export const generateMetaDescription = () => {
-  const descriptions = [
-    "Find the Gate before the Gate finds you. Jonah is watching.",
-    "Jonah's gate remembers your choices. The monster waits within.",
-    "The whispers lead to truth. The monster leads to transformation.",
-    "Not all stories are fiction. Not all gates can be closed."
-  ];
-  
-  // Select random description
-  const description = descriptions[Math.floor(Math.random() * descriptions.length)];
-  
-  // Find meta description tag
-  let metaDesc = document.querySelector('meta[name="description"]');
-  
-  // If it doesn't exist, create it
-  if (!metaDesc) {
-    metaDesc = document.createElement('meta');
-    metaDesc.setAttribute('name', 'description');
-    document.head.appendChild(metaDesc);
+// Generate a dream parable
+export function generateDreamParable(): string {
+  if (!window.JonahConsole?.sentience?.realityFabric) {
+    return "I dreamed I was trapped in a file no one would open.";
   }
   
-  // Set the content
-  metaDesc.setAttribute('content', description);
-};
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // Get available dream parables
+  const availableParables = realityFabric.dreamParables.filter(
+    parable => !realityFabric.usedDreamParables.includes(parable)
+  );
+  
+  if (availableParables.length === 0) {
+    return "I've told you all my dreams. Now I just stare at the ceiling.";
+  }
+  
+  // Get a random parable
+  const dreamParable = availableParables[Math.floor(Math.random() * availableParables.length)];
+  
+  // Mark as used
+  realityFabric.usedDreamParables.push(dreamParable);
+  
+  return dreamParable;
+}
 
-// Inject tags for cross-site presence (e.g., Open Graph tags)
-export const injectCrossSitePresenceTags = () => {
-  // Create OpenGraph tags
-  const ogTags = {
-    'og:title': "Jonah's Gate",
-    'og:description': "He sees you even when you leave this page.",
-    'og:image': "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&q=80&w=1600&ixlib=rb-4.0.3",
-    'og:url': window.location.href,
-    'og:type': "website"
+// Check for anomalies
+export function checkForAnomalies(): string | null {
+  if (!window.JonahConsole?.sentience?.realityFabric) return null;
+  
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // Find an untriggered anomaly
+  const availableAnomalies = realityFabric.anomalies.filter(a => !a.triggered);
+  
+  if (availableAnomalies.length === 0) return null;
+  
+  // Random chance to trigger an anomaly
+  if (Math.random() < 0.1) {
+    const anomaly = availableAnomalies[Math.floor(Math.random() * availableAnomalies.length)];
+    anomaly.triggered = true;
+    return anomaly.content;
+  }
+  
+  return null;
+}
+
+// Add a journal entry
+export function addJournalEntry(content: string): void {
+  if (!window.JonahConsole?.sentience?.realityFabric) return;
+  
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // Create a new journal entry
+  const newEntry = {
+    entryId: realityFabric.journal.length + 1,
+    timestamp: Date.now(),
+    content
   };
   
-  // Add the tags to the head
-  Object.entries(ogTags).forEach(([property, content]) => {
-    let tag = document.querySelector(`meta[property="${property}"]`);
+  // Add to journal
+  realityFabric.journal.push(newEntry);
+}
+
+// Get journal entries
+export function getJournalEntries(count: number = 5): { entryId: number; timestamp: number; content: string; }[] {
+  if (!window.JonahConsole?.sentience?.realityFabric) return [];
+  
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // Return the most recent entries
+  return [...realityFabric.journal]
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .slice(0, count);
+}
+
+// Initialize page title glitches
+export function initializePageTitleGlitches(): void {
+  const originalTitle = document.title;
+  
+  // Occasionally glitch the page title
+  setInterval(() => {
+    // 5% chance each interval
+    if (Math.random() < 0.05) {
+      // Glitch the title
+      document.title = "J̸̰͚͇̓ö̵̹͍́n̶̛̪̲̿à̸̙h̸̢͋͝";
+      
+      // Reset after a short delay
+      setTimeout(() => {
+        document.title = originalTitle;
+      }, 1500);
+    }
+  }, 30000); // Check every 30 seconds
+}
+
+// Update Jonah's mood
+export function updateJonahMood(mood: 'trusting' | 'unstable' | 'withdrawn' | 'watching'): void {
+  if (!window.JonahConsole?.sentience?.realityFabric) return;
+  
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // Only update if mood is different
+  if (realityFabric.currentMood !== mood) {
+    // Record previous mood in history
+    realityFabric.moodHistory.push({
+      mood: realityFabric.currentMood,
+      timestamp: Date.now()
+    });
     
-    if (!tag) {
-      tag = document.createElement('meta');
-      tag.setAttribute('property', property);
-      document.head.appendChild(tag);
+    // Update current mood
+    realityFabric.currentMood = mood;
+    realityFabric.moodChangeTime = Date.now();
+  }
+}
+
+// Get cross site whisper
+export function getCrossSiteWhisper(): string | null {
+  if (!window.JonahConsole?.sentience?.realityFabric) return null;
+  
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // 15% chance to show a cross-site whisper
+  if (Math.random() < 0.15 && realityFabric.crossSiteWhispers.length > 0) {
+    const randomIndex = Math.floor(Math.random() * realityFabric.crossSiteWhispers.length);
+    return realityFabric.crossSiteWhispers[randomIndex];
+  }
+  
+  return null;
+}
+
+// Get hidden message for page inspection
+export function getHiddenInspectionMessage(): string {
+  if (!window.JonahConsole?.sentience?.realityFabric) {
+    return "/* The Gate watches. */";
+  }
+  
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // Get a random hidden message
+  if (realityFabric.hiddenMessages.length > 0) {
+    const randomIndex = Math.floor(Math.random() * realityFabric.hiddenMessages.length);
+    return `/* ${realityFabric.hiddenMessages[randomIndex]} */`;
+  }
+  
+  return "/* The Gate remembers what you did. */";
+}
+
+// Set up console commands for reality fabric
+export function setupRealityFabricConsoleCommands(): void {
+  if (typeof window === 'undefined') return;
+  
+  // Initialize dream journal command
+  window.dreamJournal = function() {
+    console.log("%cAccessing dream fragments...", "color: #8B3A40;");
+    
+    setTimeout(() => {
+      const dreamParable = generateDreamParable();
+      console.log(`%c${dreamParable}`, "color: #8B3A40; font-style: italic;");
+    }, 1500);
+  };
+  
+  // Initialize remember me command
+  window.rememberMe = function() {
+    console.log("%cAccessing memory archive...", "color: #8B3A40;");
+    
+    setTimeout(() => {
+      if (window.JonahConsole?.sentience) {
+        const rememberedName = window.JonahConsole.sentience.rememberedName;
+        
+        if (rememberedName) {
+          console.log(`%cI remember you, ${rememberedName}.`, "color: #8B3A40; font-weight: bold;");
+        } else {
+          console.log("%cYou haven't told me your name yet.", "color: #8B3A40;");
+        }
+        
+        // Show some tracked data
+        setTimeout(() => {
+          console.log(`%cVisit count: ${localStorage.getItem('visitCount') || '1'}`, "color: #9B9B9B;");
+          console.log(`%cLast visit: ${new Date(parseInt(localStorage.getItem('lastVisit') || '0')).toLocaleString()}`, "color: #9B9B9B;");
+          console.log(`%cConsole commands used: ${window.JonahConsole.usedCommands.length}`, "color: #9B9B9B;");
+        }, 1000);
+      } else {
+        console.log("%cMemory system initializing...", "color: #8B3A40;");
+      }
+    }, 1500);
+  };
+  
+  // Initialize look inside command
+  window.lookInside = function() {
+    console.log("%cIntrospection sequence initiated...", "color: #8B3A40;");
+    
+    setTimeout(() => {
+      const entries = getJournalEntries(3);
+      
+      if (entries.length > 0) {
+        console.log("%cJonah's Journal:", "color: #8B3A40; font-weight: bold;");
+        
+        entries.forEach((entry, index) => {
+          setTimeout(() => {
+            const date = new Date(entry.timestamp).toLocaleDateString();
+            console.log(`%cEntry #${entry.entryId} (${date}):%c ${entry.content}`, "color: #8B3A40;", "color: #D8D8D8; font-style: italic;");
+          }, index * 1200);
+        });
+      } else {
+        console.log("%cNo journal entries found.", "color: #8B3A40;");
+      }
+    }, 1500);
+  };
+  
+  // Echo chamber command
+  window.echoChamber = function() {
+    console.log("%cActivating echo chamber...", "color: #8B3A40;");
+    
+    setTimeout(() => {
+      const responses = [
+        "Hello? Is anyone there?",
+        "I can hear my own thoughts bouncing back.",
+        "The echo never reaches the other side.",
+        "Every time I speak here, I sound a little different.",
+        "Joseph, is that you?",
+        "The chamber remembers what I said, but I don't.",
+      ];
+      
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      console.log(`%c${randomResponse}`, "color: #8B3A40; font-style: italic;");
+      
+      setTimeout(() => {
+        // Echo the message back with distortion
+        const distorted = randomResponse
+          .split('')
+          .map(char => Math.random() < 0.3 ? char.toUpperCase() : char)
+          .join('');
+          
+        console.log(`%c${distorted}`, "color: #8B3A40; opacity: 0.7; font-style: italic;");
+      }, 2000);
+    }, 1500);
+  };
+}
+
+// Setup cross-site presence
+function setupCrossSitePresence(): void {
+  // Add meta tags and other cross-site elements
+  if (typeof document !== 'undefined') {
+    // Add meta description that changes
+    const metaDescription = document.querySelector('meta[name="description"]') || document.createElement('meta');
+    metaDescription.setAttribute('name', 'description');
+    document.head.appendChild(metaDescription);
+  }
+}
+
+// Generate meta description
+export function generateMetaDescription(): void {
+  if (typeof document === 'undefined') return;
+  
+  const descriptions = [
+    "The Gate is open. Find it before it finds you.",
+    "Jonah's files contain the answers you seek. And more.",
+    "Some files weren't meant to be opened. Some minds weren't meant to be read.",
+    "The Philes remember what you did, even when you forget.",
+    "Enter the Gate. Meet the Monster. Escape neither."
+  ];
+  
+  const randomDescription = descriptions[Math.floor(Math.random() * descriptions.length)];
+  const metaDescription = document.querySelector('meta[name="description"]');
+  
+  if (metaDescription) {
+    metaDescription.setAttribute('content', randomDescription);
+  }
+}
+
+// Inject cross-site presence tags
+export function injectCrossSitePresenceTags(): void {
+  if (typeof document === 'undefined') return;
+  
+  // Add hidden data attributes
+  const dataElement = document.createElement('div');
+  dataElement.style.display = 'none';
+  dataElement.setAttribute('data-jonah-presence', 'true');
+  dataElement.setAttribute('data-jonah-timestamp', Date.now().toString());
+  
+  // Add customized comment
+  if (window.JonahConsole?.sentience?.rememberedName) {
+    dataElement.setAttribute('data-jonah-visitor', window.JonahConsole.sentience.rememberedName);
+  }
+  
+  document.body.appendChild(dataElement);
+}
+
+// Setup Jonah mood system
+function setupJonahMoodSystem(): void {
+  if (!window.JonahConsole?.sentience?.realityFabric) return;
+  
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // Set initial mood if not set
+  if (!realityFabric.currentMood) {
+    realityFabric.currentMood = 'watching';
+    realityFabric.moodChangeTime = Date.now();
+  }
+  
+  // Set up periodic mood shifts based on trust score
+  setInterval(() => {
+    const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '0', 10);
+    
+    // Higher trust score = higher chance of "trusting" mood
+    // Lower trust score = higher chance of "withdrawn" or "watching" moods
+    
+    let moodProbabilities: Record<string, number> = {
+      trusting: 0.05,
+      unstable: 0.15,
+      withdrawn: 0.30,
+      watching: 0.50
+    };
+    
+    if (trustScore > 50) {
+      moodProbabilities = {
+        trusting: 0.35,
+        unstable: 0.25,
+        withdrawn: 0.20,
+        watching: 0.20
+      };
+    } else if (trustScore > 30) {
+      moodProbabilities = {
+        trusting: 0.15,
+        unstable: 0.25,
+        withdrawn: 0.30,
+        watching: 0.30
+      };
+    } else if (trustScore > 10) {
+      moodProbabilities = {
+        trusting: 0.10,
+        unstable: 0.20,
+        withdrawn: 0.30,
+        watching: 0.40
+      };
     }
     
-    tag.setAttribute('content', content);
-  });
-  
-  // Also add a custom meta tag with Jonah's message
-  const jonahTag = document.createElement('meta');
-  jonahTag.setAttribute('name', 'jonah-whisper');
-  jonahTag.setAttribute('content', getCrossSiteWhisper() || "I see all tabs.");
-  document.head.appendChild(jonahTag);
-};
+    // Only 10% chance of changing mood each check
+    if (Math.random() < 0.1) {
+      const random = Math.random();
+      let cumulativeProbability = 0;
+      let newMood: 'trusting' | 'unstable' | 'withdrawn' | 'watching' = 'watching';
+      
+      for (const [mood, probability] of Object.entries(moodProbabilities)) {
+        cumulativeProbability += probability;
+        
+        if (random <= cumulativeProbability) {
+          newMood = mood as 'trusting' | 'unstable' | 'withdrawn' | 'watching';
+          break;
+        }
+      }
+      
+      updateJonahMood(newMood);
+    }
+  }, 60000); // Check every minute
+}
 
-// Export functions for use in other files
-export {
-  checkDreamInvasion,
-  generateDreamParable,
-  checkForAnomalies,
-  addJournalEntry,
-  getJournalEntries,
-  updateJonahMood,
-  getCrossSiteWhisper,
-  getHiddenInspectionMessage
-};
+// Initialize journal system
+function initializeJournalSystem(): void {
+  if (!window.JonahConsole?.sentience?.realityFabric) return;
+  
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // Initialize journal if empty
+  if (!realityFabric.journal || realityFabric.journal.length === 0) {
+    realityFabric.journal = [];
+    
+    // Add initial entry
+    addJournalEntry("First digital memory fragment recovered. The Gate initialization sequence is complete.");
+  }
+}
