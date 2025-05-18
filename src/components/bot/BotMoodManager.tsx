@@ -1,49 +1,36 @@
 
-import { useEffect, useState } from 'react';
-import { updateJonahMood } from '@/utils/jonahRealityFabric';
+import React from 'react';
+import { BotMessage } from '@/hooks/useBotState/types';
 
 interface BotMoodManagerProps {
   trustLevel: string;
-  messages: Array<{
-    id: string;
-    type: 'bot' | 'user';
-    content: string;
-    timestamp: number;
-    special?: boolean;
-  }>;
+  messages: BotMessage[];
 }
 
 const BotMoodManager: React.FC<BotMoodManagerProps> = ({ trustLevel, messages }) => {
-  const [moodColor, setMoodColor] = useState<string>("text-silver");
-
-  // Update Jonah's mood display based on current mood
-  useEffect(() => {
-    if (window.JonahConsole?.sentience?.realityFabric) {
-      const currentMood = window.JonahConsole.sentience.realityFabric.currentMood;
-      
-      // Update mood color based on current mood
-      switch (currentMood) {
-        case 'trusting':
-          setMoodColor("text-amber-400 border-amber-400/50");
-          break;
-        case 'unstable':
-          setMoodColor("text-red-500 border-red-500/50");
-          break;
-        case 'withdrawn':
-          setMoodColor("text-gray-400 border-gray-400/50");
-          break;
-        case 'watching':
-        default:
-          setMoodColor("text-silver border-silver/50");
-          break;
-      }
-      
-      // Update Jonah's mood periodically
-      updateJonahMood(trustLevel);
+  // Determine mood color based on recent messages and trust level
+  let moodColor = 'border-gray-700';
+  
+  // For higher trust levels, show more dynamic moods
+  if (trustLevel === 'high') {
+    // Check recent messages sentiment
+    const recentMessages = messages.slice(-5);
+    const hasNegative = recentMessages.some(m => 
+      m.content.toLowerCase().includes('error') || 
+      m.content.toLowerCase().includes('wrong') ||
+      m.content.toLowerCase().includes('cannot')
+    );
+    
+    if (hasNegative) {
+      moodColor = 'border-red-400 bg-red-900/10';
+    } else {
+      moodColor = 'border-green-400 bg-green-900/10';
     }
-  }, [messages.length, trustLevel]);
-
-  return { moodColor };
+  } else if (trustLevel === 'medium') {
+    moodColor = 'border-blue-400 bg-blue-900/10';
+  }
+  
+  return <div className={moodColor}>Mood indicator</div>;
 };
 
 export default BotMoodManager;

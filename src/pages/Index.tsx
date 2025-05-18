@@ -143,7 +143,11 @@ const Index = () => {
   return (
     <div 
       className="min-h-screen bg-black font-typewriter flex flex-col"
-      style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&q=80&w=1600&ixlib=rb-4.0.3')" }}
+      style={{ 
+        backgroundImage: "linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&q=80&w=1600&ixlib=rb-4.0.3')",
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}
     >
       {/* Hidden comments for inspection */}
       {/* <!-- Phile initiated. Tracking subject... --> */}

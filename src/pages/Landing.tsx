@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
@@ -231,6 +230,7 @@ const Landing = () => {
       style={{ 
         backgroundImage: "url('/lovable-uploads/efcfc74a-4384-459e-a36a-63ce97d23937.png')",
         backgroundSize: "cover",
+        backgroundPosition: "center",
         backgroundColor: "#B09066" // Sepia-toned fallback
       }}
     >

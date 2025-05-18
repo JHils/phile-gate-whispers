@@ -10,7 +10,7 @@ declare global {
       sessionStartTime: number;
       whispersFound: string[];
       jokesDisplayed: string[];
-      storyFlags: string[];
+      storyFlags: StoryFlag[];
       bookCodes: string[];
       simba: {
         encountered: boolean;
@@ -34,6 +34,7 @@ declare global {
         selfAwareness?: number;
         memoryFragments?: string[];
         realTimeMood?: string;
+        sessionData?: Record<string, any>;
         microQuests?: {
           activeQuest?: string;
           completedQuests?: string[];
@@ -44,7 +45,10 @@ declare global {
           dreamState?: boolean;
           journalEntries?: string[];
           anomalyCount?: number;
+          moodChangeTime?: number;
           dimensionalRifts?: Record<string, any>;
+          predictionResponses?: string[];
+          usedPredictionResponses?: string[];
         };
       };
     };
@@ -64,10 +68,17 @@ declare global {
     testament: () => void;
     splitVoice: () => void;
     mirrorMode: () => void;
+    storyFlags: StoryFlag[];
+    readPage: () => void;
+    verifyCode: () => void;
+    bridgeCollapse: () => void;
+    discoverStoryFlag: (flagId: string) => void;
+    findAnomaly: () => void;
     processUserMessage?: (message: string) => string | undefined;
     clearJonahOnPathChange?: boolean;
     triggerJonahMessage?: (message: string) => void;
     isSpecialTimeWindow?: () => boolean;
+    triggerSimbaComment?: (message: string) => void;
   }
 }
 
@@ -90,6 +101,24 @@ export type ConsoleMessage = {
 
 // Trust Level Type
 export type TrustLevel = 'none' | 'low' | 'medium' | 'high';
+
+// Story Flag Type
+export interface StoryFlag {
+  id: string;
+  discovered: boolean;
+  description: string;
+  unlocked?: boolean;
+}
+
+// Sentience Data Type
+export interface SentienceData {
+  trustLevel?: string;
+  emotionalTone?: string;
+  selfAwareness?: number;
+  memoryFragments?: string[];
+  realTimeMood?: string;
+  sessionData?: Record<string, any>;
+}
 
 // No need to export, this is for global types
 export {};
