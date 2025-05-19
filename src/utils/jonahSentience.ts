@@ -316,7 +316,7 @@ export function initializeSentience() {
       // Reality Fabric Expansion features (added in phase 3)
       realityFabric: {
         // Physical manifestation
-        generatedFiles: [],
+        generatedFiles: [], // This property needs to be added to the type
         
         // Dream invasion / scheduled glitches
         dreamMessages: [

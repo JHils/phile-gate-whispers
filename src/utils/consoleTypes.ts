@@ -204,6 +204,7 @@ export interface SentienceData {
     lastVisitTime?: number;
     dreamParables?: string[];
     usedDreamParables?: string[];
+    generatedFiles?: string[]; // Added the missing property
     anomalies?: Array<{
       id: string;
       triggered: boolean;
