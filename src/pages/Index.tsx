@@ -6,6 +6,7 @@ import { useTrackingSystem } from "../hooks/useTrackingSystem";
 import { useConsoleMessages } from "../hooks/useConsoleMessages";
 import { initializeConsoleCommands } from "../utils/consoleCommands";
 import { checkForDreamInvasionOnLoad } from "../utils/jonahRealityFabric";
+import { useIsMobile } from "../hooks/use-mobile";
 
 // Import components
 import PageHeader from "@/components/index/PageHeader";
@@ -23,6 +24,7 @@ const Index = () => {
     storageKey: 'index_console_messages_shown',
     userState 
   });
+  const isMobile = useIsMobile();
 
   // Add classes to individual characters for staggered animation
   const addSpans = (text: string) => {
@@ -142,7 +144,7 @@ const Index = () => {
 
   return (
     <div 
-      className="min-h-screen bg-black font-typewriter flex flex-col"
+      className="min-h-screen w-full max-w-100vw bg-black font-typewriter flex flex-col"
       style={{ 
         backgroundImage: "linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&q=80&w=1600&ixlib=rb-4.0.3')",
         backgroundSize: "cover",
@@ -163,7 +165,10 @@ const Index = () => {
       {/* Hidden keyhole element for micro-quest */}
       <div 
         className="keyhole absolute h-3 w-3 bg-transparent rounded-full opacity-5 hover:opacity-20 transition-opacity duration-300 cursor-default"
-        style={{ top: '30%', right: '8%' }}
+        style={{ 
+          top: isMobile ? '15%' : '30%', 
+          right: isMobile ? '5%' : '8%' 
+        }}
         id="index-keyhole"
         title="A tiny anomaly in the code"
       />
@@ -174,7 +179,7 @@ const Index = () => {
         className="absolute top-2 left-1/2 transform -translate-x-1/2" 
       />
       
-      <div className="phile-container text-center z-10">
+      <div className="phile-container text-center z-10 flex flex-col items-center justify-center py-4">
         {/* Header with mood indicator and spinning coin */}
         <PageHeader trustLevel={trustLevel} />
         

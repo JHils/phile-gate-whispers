@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
@@ -17,6 +18,7 @@ import {
   injectCrossSitePresenceTags
 } from "../utils/jonahRealityFabric";
 import { trackElementHover, checkClickPrediction } from "../utils/consoleMemoryParanoia";
+import { useIsMobile } from "../hooks/use-mobile";
 
 // Import landing page components
 import HeaderTitle from "@/components/landing/HeaderTitle";
@@ -39,6 +41,7 @@ const Landing = () => {
     storageKey: 'landing_console_messages_shown',
     userState
   });
+  const isMobile = useIsMobile();
 
   // Add scanline effect
   const [scanlineOffset, setScanlineOffset] = useState(0);
@@ -254,7 +257,7 @@ const Landing = () => {
             borderRadius: '50%',
             border: '1px solid #ea384c', 
             top: '45%', 
-            left: '20%',
+            left: isMobile ? '30%' : '20%',
             animation: 'pulse 3s infinite'
           }} 
           title="Magnetic Island"
@@ -267,7 +270,7 @@ const Landing = () => {
             borderRadius: '50%',
             border: '1px solid #ea384c', 
             top: '48%', 
-            left: '22%',
+            left: isMobile ? '35%' : '22%',
             animation: 'pulse 4s infinite'  
           }} 
           title="Cairns"

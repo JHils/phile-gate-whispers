@@ -1,8 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
+import { useIsMobile } from "../../hooks/use-mobile";
 
 const HeaderTitle: React.FC = () => {
   const [glitchActive, setGlitchActive] = useState(false);
+  const isMobile = useIsMobile();
 
   // Trigger second visit behavior - show Joseph Hilson name briefly
   useEffect(() => {
@@ -27,7 +29,7 @@ const HeaderTitle: React.FC = () => {
   return (
     <h1 
       id="main-header" 
-      className="text-6xl md:text-8xl font-serif mb-6 text-[#212121] tracking-wider leading-tight"
+      className={`text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-serif mb-4 md:mb-6 text-[#212121] tracking-wider leading-tight`}
       style={{ 
         textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
         fontFamily: '"IM Fell English SC", serif'

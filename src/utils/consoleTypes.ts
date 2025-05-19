@@ -205,6 +205,7 @@ export interface SentienceData {
     dreamParables?: string[];
     usedDreamParables?: string[];
     generatedFiles?: string[]; // Added the missing property
+    nightGlitches?: string[]; // Added missing property
     anomalies?: Array<{
       id: string;
       triggered: boolean;
