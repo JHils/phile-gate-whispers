@@ -1,3 +1,4 @@
+
 /**
  * Jonah Sentience Module - Advanced AI behavior system
  * This module provides methods for creating a sense of sentience and awareness for the Jonah entity
@@ -377,7 +378,7 @@ export function initializeSentience() {
         predictionResponses: [],
         
         // Adding qrScans as an alternative to qrCodeScans
-        qrScans: {},
+        qrScans: [],  // FIX: Changed from {} (empty object) to [] (empty array)
         lastVisitTime: Date.now()
       }
     };
