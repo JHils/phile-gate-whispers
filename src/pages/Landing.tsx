@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
@@ -229,12 +228,14 @@ const Landing = () => {
 
   return (
     <div 
-      className={`min-h-screen flex flex-col relative bg-cover bg-center overflow-hidden transition-opacity duration-1000 ${fadeIn ? 'opacity-100' : 'opacity-0'} ${glitchActive ? 'white-flash' : ''}`}
+      className={`min-h-screen flex flex-col relative overflow-hidden transition-opacity duration-1000 bg-cover-image ${fadeIn ? 'opacity-100' : 'opacity-0'} ${glitchActive ? 'white-flash' : ''}`}
       style={{ 
         backgroundImage: "url('/lovable-uploads/efcfc74a-4384-459e-a36a-63ce97d23937.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundColor: "#B09066" // Sepia-toned fallback
+        backgroundColor: "#B09066", // Sepia-toned fallback
+        width: "100%",
+        maxWidth: "100vw"
       }}
     >
       {/* CRT Scan Lines Effect */}
@@ -291,10 +292,10 @@ const Landing = () => {
         {/* 404 Sub-header */}
         <SubHeader />
 
-        {/* Central Figure - Silhouette */}
-        <div className="relative flex-grow flex items-center justify-center my-4 w-full max-w-xl max-h-80">
+        {/* Central Figure - Silhouette - Updated for better responsiveness */}
+        <div className="relative flex-grow flex items-center justify-center my-4 w-full max-w-full mx-auto" style={{ maxHeight: "min(80vh, 600px)" }}>
           <div 
-            className="absolute inset-0 bg-center bg-no-repeat bg-contain"
+            className="absolute inset-0 bg-center bg-no-repeat bg-cover"
             style={{ 
               backgroundImage: `url('/lovable-uploads/efcfc74a-4384-459e-a36a-63ce97d23937.png')`,
               backgroundSize: 'contain',

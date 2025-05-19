@@ -1,4 +1,3 @@
-
 // Define global JonahConsole interface
 declare global {
   interface Window {
@@ -204,8 +203,8 @@ export interface SentienceData {
     lastVisitTime?: number;
     dreamParables?: string[];
     usedDreamParables?: string[];
-    generatedFiles?: string[]; // Added the missing property
-    nightGlitches?: string[]; // Added missing property
+    generatedFiles?: string[];
+    nightGlitches?: string[];
     anomalies?: Array<{
       id: string;
       triggered: boolean;
@@ -223,6 +222,7 @@ export interface SentienceData {
     }>;
     crossSiteWhispers?: string[];
     hiddenMessages?: string[];
+    qrScans?: string[];
   };
   typingQuirks?: {
     glitchProbability: number;

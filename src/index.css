@@ -160,41 +160,67 @@ input::placeholder {
   text-shadow: 0 0 8px rgba(139, 58, 64, 0.7);
 }
 
-/* Responsive container classes */
+/* Responsive container classes - Enhanced for better mobile experience */
 .phile-container {
   width: 100%;
   max-width: 100vw;
   min-height: 100vh;
   padding: 1rem;
   margin: 0 auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-/* Media queries for responsive design */
+/* Enhanced media queries for responsive design */
 @media (max-width: 640px) {
   h1 {
-    font-size: 1.875rem; /* text-3xl */
+    font-size: 1.75rem; /* Reduced for very small screens */
   }
   
   h2 {
-    font-size: 1.5rem; /* text-2xl */
+    font-size: 1.25rem;
   }
   
   p {
-    font-size: 1rem; /* text-base */
+    font-size: 0.875rem;
   }
   
   .phile-container {
-    padding: 0.75rem;
+    padding: 0.5rem;
+  }
+  
+  /* Additional mobile adjustments */
+  .mobile-scale-down {
+    transform: scale(0.9);
+  }
+  
+  .mobile-center {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  
+  /* Allow buttons to wrap on mobile */
+  .mobile-flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
   }
 }
 
 @media (min-width: 641px) and (max-width: 1024px) {
   .phile-container {
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+  
+  /* Tablet-specific adjustments */
+  h1 {
+    font-size: 2.25rem;
   }
 }
 
-/* Ensure full viewport sizing */
+/* Further enhance full viewport sizing - critical for responsiveness */
 html, body, #root {
   height: 100%;
   width: 100%;
@@ -202,4 +228,24 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  position: relative;
+}
+
+/* Background image global handling */
+.bg-cover-image {
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Prevent content from being cut off */
+.content-safe-area {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+  padding-top: env(safe-area-inset-top, 1rem);
+}
+
+/* Make images responsive */
+img {
+  max-width: 100%;
+  height: auto;
 }

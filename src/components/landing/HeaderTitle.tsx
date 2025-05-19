@@ -29,10 +29,12 @@ const HeaderTitle: React.FC = () => {
   return (
     <h1 
       id="main-header" 
-      className={`text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-serif mb-4 md:mb-6 text-[#212121] tracking-wider leading-tight`}
+      className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-8xl font-serif mb-4 md:mb-6 text-[#212121] tracking-wider leading-tight`}
       style={{ 
         textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
-        fontFamily: '"IM Fell English SC", serif'
+        fontFamily: '"IM Fell English SC", serif',
+        maxWidth: '100%',
+        wordWrap: 'break-word'
       }}
     >
       JONAH'S PHILES
