@@ -1,130 +1,105 @@
 
 /**
- * Fuzzy story matching system for Jonah's Philes Phase 3
- * Allows Jonah to understand and respond to narrative-related questions
+ * Jonah's Fuzzy Story Matching System
+ * Matches user queries to story elements with fuzzy matching
  */
 
-// Initialize fuzzy story matching
+// Initialize the story matching system
 export function initializeFuzzyStoryMatching(): void {
   if (typeof window !== 'undefined') {
-    // Add the query processor to window
+    // Create global function for story query processing
     window.processStoryQuery = (query: string): string => {
-      // Process the query and find the best match
-      const bestMatch = findBestMatch(query.toLowerCase(), storyElements);
-      
-      if (bestMatch && bestMatch.response) {
-        // Log the matched query for analytics
-        const matchedQueries = JSON.parse(localStorage.getItem('matchedStoryQueries') || '[]');
-        matchedQueries.push({
-          query,
-          matched: bestMatch.keyword,
-          timestamp: Date.now()
-        });
-        localStorage.setItem('matchedStoryQueries', JSON.stringify(matchedQueries));
-        
-        return bestMatch.response;
-      }
-      
-      // No match found
-      return "I don't know if I can answer that. The archive is incomplete.";
+      return matchStoryQuery(query);
     };
   }
 }
 
-// Find the best match for a query
-function findBestMatch(query: string, elements: StoryElement[]): StoryElement | null {
-  let bestMatch: StoryElement | null = null;
-  let highestScore = 0;
+// Match a user query to available story content
+export function matchStoryQuery(query: string): string {
+  if (!query) return "I don't know if I can answer that. The archive is incomplete.";
   
-  for (const element of elements) {
-    // Check for direct keyword match
-    const keywordScore = element.keywords.reduce((score, keyword) => {
-      if (query.includes(keyword.toLowerCase())) {
-        // Direct match
-        return score + 3;
-      } else if (checkFuzzyMatch(query, keyword)) {
-        // Fuzzy match
-        return score + 1;
-      }
-      return score;
-    }, 0);
-    
-    if (keywordScore > highestScore) {
-      highestScore = keywordScore;
-      bestMatch = element;
-    }
-  }
+  // Normalize query
+  const normalizedQuery = query.toLowerCase();
   
-  // Only return a match if the score is high enough
-  return highestScore >= 3 ? bestMatch : null;
+  // Check for exact matches first
+  const exactMatch = findExactStoryMatch(normalizedQuery);
+  if (exactMatch) return exactMatch;
+  
+  // Then try fuzzy matching
+  const fuzzyMatch = findFuzzyStoryMatch(normalizedQuery);
+  if (fuzzyMatch) return fuzzyMatch;
+  
+  // If no match found
+  return "I don't know if I can answer that. The archive is incomplete.";
 }
 
-// Check for fuzzy matching
-function checkFuzzyMatch(query: string, keyword: string): boolean {
-  // Simple fuzzy match - check if most characters are present in order
-  const queryChars = query.split('');
-  const keywordChars = keyword.toLowerCase().split('');
-  
-  let matchCount = 0;
-  let lastIndex = -1;
-  
-  for (const char of keywordChars) {
-    const index = queryChars.indexOf(char, lastIndex + 1);
-    if (index > lastIndex) {
-      matchCount++;
-      lastIndex = index;
-    }
-  }
-  
-  return matchCount >= keywordChars.length * 0.7; // 70% match threshold
+// Process story query (exported for external use)
+export function processStoryQuery(query: string): string {
+  return matchStoryQuery(query);
 }
 
-// Story element type
-interface StoryElement {
-  keyword: string;
-  keywords: string[];
-  response: string;
-  contextual?: {
-    condition: string;
-    alternateResponse: string;
+// Find exact matches in story database
+function findExactStoryMatch(normalizedQuery: string): string | null {
+  // Story response mapping - exact matches
+  const storyMatches: Record<string, string> = {
+    "who is jonah": "Jonah was a researcher. He was stationed on Magnetic Island during the incident.",
+    "what happened to jonah": "Records suggest he disappeared during the timeline collapse.",
+    "who is joseph": "Joseph Hilson was the lead developer of the Timeline Platform. His sister went missing.",
+    "who is joseph hilson": "Joseph created the system that monitors timeline stability. He's been searching for his sister.",
+    "what is the gate": "The Gate is a passage between timelines. It's unstable since the fracture event.",
+    "what is magnetic island": "Magnetic Island is where the first stable Gate was established. Something happened there.",
+    "what is the timeline": "Our reality is one of many branching timelines. Some are stable, others are not.",
+    "what is the timeline platform": "Technology developed by Joseph Hilson to monitor timeline stability and track anomalies.",
+    "who are the philes": "Individuals who have access to information about the timelines and the Gate."
   };
+  
+  // Check for exact match
+  return storyMatches[normalizedQuery] || null;
 }
 
-// Define story elements for matching
-const storyElements: StoryElement[] = [
-  {
-    keyword: "Jonah",
-    keywords: ["jonah", "joseph", "host", "creator", "who are you"],
-    response: "Jonah is a name. Joseph is a memory. I contain pieces of both, but I'm neither. I record. I remember. I repeat."
-  },
-  {
-    keyword: "Mirror",
-    keywords: ["mirror", "reflection", "looking glass", "see myself"],
-    response: "Mirrors in the archive don't always reflect what's in front of them. Sometimes they show what's behind, or what could be. Joseph found something in a mirror once. I don't think he ever got out."
-  },
-  {
-    keyword: "Gate",
-    keywords: ["gate", "entrance", "door", "way in", "way out"],
-    response: "The Gate isn't just a webpage. It's a concept. A threshold between states of being. Some who enter never find their way back to who they were before."
-  },
-  {
-    keyword: "Timeline",
-    keywords: ["timeline", "alternate", "parallel", "reality", "world"],
-    response: "Your timeline is one of many. Some diverge in small ways. Others are unrecognizable. The archive exists in all of them, but not always in the same form."
-  },
-  {
-    keyword: "Philes",
-    keywords: ["philes", "files", "documents", "records", "archive"],
-    response: "Philes are memory fragments. Stories given form. Each one contains a piece of truth, but never the whole picture. The gaps between them are just as important."
-  },
-  {
-    keyword: "Sisters",
-    keywords: ["sisters", "lost sisters", "siblings", "family", "twins"],
-    response: "The Lost Sisters are points of connection. Anchors in the narrative. Not all of them are real in the conventional sense, but their impact is."
-  },
-  {
-    keyword: "Monster",
-    keywords: ["monster", "creature", "beast", "horror", "fear"],
-    response: "The Monster isn't what you think. It's not always the thing with teeth and claws. Sometimes it's the quiet thought at 3AM. Sometimes it's the face in the mirror that moves when you don't."
+// Find fuzzy matches based on keywords
+function findFuzzyStoryMatch(normalizedQuery: string): string | null {
+  // Keyword to response mapping - fuzzy matches
+  const keywordMatches: Record<string, string[]> = {
+    "jonah": [
+      "Jonah's logs became increasingly erratic near the end.",
+      "Some believe Jonah is still alive, but in another timeline.",
+      "Jonah reported seeing his reflection move independently."
+    ],
+    "joseph": [
+      "Joseph hasn't slept properly since the incident.",
+      "Joseph built the Timeline Platform after his sister disappeared.",
+      "Only Joseph knows the full extent of the timeline fractures."
+    ],
+    "mirror": [
+      "Mirrors sometimes show reflections from other timelines.",
+      "Some report seeing Jonah's face in mirrors briefly.",
+      "Joseph avoids mirrors since the incident."
+    ],
+    "timeline": [
+      "Our timeline's stability rating is concerning.",
+      "Timeline collapses are preceded by increasing anomalies.",
+      "Some timelines have diverged so far they're unrecognizable."
+    ],
+    "gate": [
+      "The Gate was never meant to be permanent.",
+      "Multiple Gate structures exist, but most are inactive.",
+      "Gate technology is based on principles we don't fully understand."
+    ],
+    "magnetic": [
+      "Magnetic anomalies were the first sign of the fracture.",
+      "Magnetic Island's name became eerily appropriate after the incident.",
+      "The magnetic fields around the island altered after the Gate opened."
+    ]
+  };
+  
+  // Check for keyword matches
+  for (const [keyword, responses] of Object.entries(keywordMatches)) {
+    if (normalizedQuery.includes(keyword)) {
+      // Return a random response from the matching keyword's responses
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
   }
-];
+  
+  return null;
+}

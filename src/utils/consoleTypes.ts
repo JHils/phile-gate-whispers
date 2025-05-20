@@ -7,7 +7,7 @@ declare global {
       score: number;
       failCount: number;
       rank: string;
-      sessionStartTime?: number;
+      sessionStartTime: number;
       whispersFound: string[];
       jokesDisplayed: string[];
       storyFlags: StoryFlag[];

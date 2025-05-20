@@ -1,153 +1,111 @@
 
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
-import JonahBackgroundOverlay from './JonahBackgroundOverlay';
-import NavLinks from './NavLinks';
-import PageHeader from './PageHeader';
-import HiddenComments from './HiddenComments';
-import VisibilityChangeDetector from './VisibilityChangeDetector';
-import KeyholeEasterEgg from './KeyholeEasterEgg';
-import FooterText from './FooterText';
-import TrustVisualIndicators from './TrustVisualIndicators';
-import MessageText from './MessageText';
+import { useConsoleMessages } from '@/hooks/useConsoleMessages';
 import JonahHiddenData from './JonahHiddenData';
-import ThemeToggle from '@/components/ThemeToggle';
+import JonahBackgroundOverlay from './JonahBackgroundOverlay';
+import HiddenComments from './HiddenComments';
+import KeyholeEasterEgg from './KeyholeEasterEgg';
+import { Link } from 'react-router-dom';
 
-interface IndexPageUserState {
-  visitCount?: number;
+interface IndexPageProps {
+  title?: string;
+  subtitle?: string;
+  description?: string | string[];
+  callToAction?: {
+    text: string;
+    url: string;
+  };
 }
 
-const IndexPage = () => {
-  const { userState, updateUserState } = useTrackingSystem();
-  const navigate = useNavigate();
-  const [hasSeenPage, setHasSeenPage] = useState(false);
-  
-  // Log page visit
+const IndexPage: React.FC<IndexPageProps> = ({
+  title = "JONAH'S PHILES",
+  subtitle = "TIMELINE ARCHIVE",
+  description = "Explore the fractured timelines and discover the truth behind the Gate.",
+  callToAction = { text: "ENTER THE GATE", url: "/gate" }
+}) => {
+  const [fadeIn, setFadeIn] = useState(false);
+  const [glitchActive, setGlitchActive] = useState(false);
+  const { userState, trackEvent } = useTrackingSystem();
+  const { showConsoleMessages } = useConsoleMessages({ 
+    storageKey: 'index_console_messages_shown',
+    userState 
+  });
+
   useEffect(() => {
-    if (!hasSeenPage) {
-      // Update with proper type that exists in UserState
-      updateUserState({
-        visitCount: (userState.visitCount || 0) + 1
-      });
-      setHasSeenPage(true);
-    }
-  }, [hasSeenPage, updateUserState, userState.visitCount]);
-  
-  const [showHint, setShowHint] = useState(false);
-  
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowHint(true);
-    }, 10000); // Show after 10 seconds
+    // Begin fade-in animation
+    setTimeout(() => setFadeIn(true), 300);
     
-    return () => clearTimeout(timer); // Clear timeout if component unmounts
-  }, []);
-  
-  const handleButtonClick = () => {
-    navigate('/campfire');
-  };
+    // Track page visit
+    trackEvent('visited_index');
+    
+    // Show console messages if they haven't been shown recently
+    showConsoleMessages();
+    
+    // Occasionally trigger glitch effect
+    const glitchInterval = setInterval(() => {
+      if (Math.random() > 0.9) {
+        setGlitchActive(true);
+        setTimeout(() => setGlitchActive(false), 150);
+      }
+    }, 8000);
+    
+    // Console hint
+    console.log("Psst. Try typing: help()");
+    
+    return () => clearInterval(glitchInterval);
+  }, [trackEvent, showConsoleMessages]);
 
-  // Helper function for text spans
-  const addSpans = (text: string) => {
-    return text.split('').map((char, i) => (
-      <span key={i} className="inline-block hover:text-dust-red hover:-translate-y-1 transition-all duration-300 ease-in-out">{char}</span>
-    ));
-  };
+  // Format description as string if it's an array
+  const formattedDescription = typeof description === 'string' 
+    ? description 
+    : description.join(' ');
 
-  // Get trust level safely
-  const trustLevel = userState?.trust?.level || 'low';
-  
-  // Check if it's a special time window
-  const isSpecialTime = typeof window.isSpecialTimeWindow === 'function' && window.isSpecialTimeWindow();
-  
-  // Get collapse message safely
-  const collapseMessage = userState?.collapse?.message || null;
-  const userIsPermanentlyCollapsed = userState?.collapse?.permanent || false;
-  
-  // Get whisper text safely
-  const whisperText = userState?.messages?.whisper || "They wait for you in the dark corners of the web.";
-  
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* Background Overlay */}
-      <JonahBackgroundOverlay />
+    <div 
+      className={`min-h-screen flex flex-col justify-center items-center relative overflow-hidden transition-opacity duration-1000 ${fadeIn ? 'opacity-100' : 'opacity-0'} ${glitchActive ? 'white-flash' : ''}`}
+      style={{ 
+        backgroundColor: "#0F0F0F", 
+        backgroundImage: "radial-gradient(circle at center, #1F1F1F 0%, #0F0F0F 70%)"
+      }}
+    >
+      {/* CRT scan lines effect */}
+      <div className="fixed inset-0 bg-scanlines pointer-events-none opacity-20"></div>
       
-      {/* Page Content */}
-      <div className="relative z-10 phile-container mx-auto">
+      {/* Main content */}
+      <div className="z-10 text-center px-4">
+        <h1 className={`text-4xl md:text-6xl font-serif text-gray-200 glitch-text ${glitchActive ? 'active' : ''}`}>
+          {title}
+        </h1>
         
-        {/* Theme Toggle */}
-        <div className="absolute top-4 right-4 z-20">
-          <ThemeToggle />
-        </div>
+        <h2 className="text-xl md:text-2xl text-gray-400 mt-2 font-mono tracking-wider">
+          {subtitle}
+        </h2>
         
-        {/* Page Header with fade-in animation */}
-        <div className="animate-fade-in">
-          <PageHeader trustLevel={trustLevel} />
-        </div>
+        <p className="max-w-md mx-auto mt-8 text-gray-300 text-lg">
+          {formattedDescription}
+        </p>
         
-        {/* Navigation Links with staggered fade-in */}
-        <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
-          <NavLinks trustLevel={trustLevel} isSpecialTime={isSpecialTime} />
-        </div>
-        
-        {/* Main Content with fade-in animation */}
-        <div className="text-center animate-fade-in" style={{ animationDelay: '600ms' }}>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 font-serif mobile-scale-down">
-            Welcome, Phile.
-          </h1>
-          
-          {/* Message Text */}
-          <MessageText 
-            addSpans={addSpans} 
-            whisperText={whisperText}
-            collapseMessage={collapseMessage}
-            userIsPermanentlyCollapsed={userIsPermanentlyCollapsed}
-          />
-          
-          {/* Trust Visual Indicators */}
-          <TrustVisualIndicators trustLevel={trustLevel} />
-          
-          {/* Buttons with hover animation */}
-          <div className="flex flex-col md:flex-row gap-4 justify-center mt-8">
-            <Button 
-              size="lg" 
-              className="transition-all duration-300 hover:scale-105 hover:shadow-lg"
-              onClick={handleButtonClick}
-            >
-              Enter the Campfire
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="transition-all duration-300 hover:scale-105 hover:shadow-lg bg-opacity-70"
-              asChild
-            >
-              <Link to="/tether">You're Not Alone</Link>
-            </Button>
-          </div>
-          
-          {/* Hint Message */}
-          {showHint && (
-            <p className="mt-4 text-gray-500 animate-subtle-flicker">
-              Psst... check the source code. There might be something hidden.
-            </p>
-          )}
-        </div>
-        
-        {/* Footer Text with fade-in animation */}
-        <div className="animate-fade-in" style={{ animationDelay: '900ms' }}>
-          <FooterText visitCount={userState.visitCount || 1} />
+        <div className="mt-12">
+          <Link
+            to={callToAction.url}
+            className="px-8 py-3 border border-gray-400 text-gray-200 hover:bg-gray-800 transition-colors duration-300 font-mono tracking-widest"
+          >
+            {callToAction.text}
+          </Link>
         </div>
       </div>
       
-      {/* Hidden Elements */}
-      <HiddenComments />
-      <VisibilityChangeDetector trustLevel={trustLevel} />
-      <KeyholeEasterEgg />
+      {/* Hidden elements and data */}
       <JonahHiddenData userState={userState} />
+      <JonahBackgroundOverlay />
+      <HiddenComments />
+      <KeyholeEasterEgg />
+      
+      {/* Version number */}
+      <div className="fixed bottom-2 right-2 text-gray-600 text-xs font-mono">
+        v3.7.2 / TIMELINE STABLE
+      </div>
     </div>
   );
 };

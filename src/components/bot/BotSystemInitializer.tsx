@@ -23,6 +23,7 @@ const BotSystemInitializer: React.FC = () => {
         score: 0,
         failCount: 0,
         rank: "drifter",
+        sessionStartTime: Date.now(),
         whispersFound: [],
         jokesDisplayed: [],
         storyFlags: [],

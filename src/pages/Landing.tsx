@@ -186,7 +186,7 @@ const Landing = () => {
       
       {/* Console Overlay */}
       <ConsoleOverlay 
-        visible={consoleVisible}
+        visible={consoleVisible ? "true" : "false"}
         consoleInput={consoleInput}
         setConsoleInput={setConsoleInput}
         consoleOutput={consoleOutput}
