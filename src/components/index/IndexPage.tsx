@@ -15,7 +15,7 @@ import MessageText from './MessageText';
 import JonahHiddenData from './JonahHiddenData';
 import ThemeToggle from '@/components/ThemeToggle';
 
-interface UserState {
+interface IndexPageUserState {
   visitCount?: number;
 }
 
