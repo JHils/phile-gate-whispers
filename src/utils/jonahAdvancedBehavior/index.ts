@@ -7,16 +7,14 @@
 export { initializeBehavior as initializeAdvancedBehavior } from './initializeBehavior';
 
 // Export trust system
-export { jonah_checkTrustTransition } from './trustSystem';
+export { jonah_checkTrustTransition, jonah_getBehaviorPhase, jonah_getPhaseResponse, jonah_storeMemoryFragment, jonah_recallMemoryFragment } from './trustSystem';
 
 // Export response generators
-export { generateFirstTimeResponse } from './responses/firstTimeResponses';
-export { getVaryingLengthResponse } from './responses/lengthVariations';
+export { generateFirstTimeResponse, generateReturningResponse } from './responses/firstTimeResponses';
+export { getVaryingLengthResponse, getMultiLineResponse } from './responses/lengthVariations';
+export { getEmotionalResponse } from './responses/emotionalResponses';
+export { getEmotionalToneResponse } from './responses/toneResponses';
 
-// Export other functions as they become available
-// Uncomment these as they're implemented
-// export { getToneResponse } from './responses/toneResponses';
-// export { getEmotionalResponse } from './responses/emotionalResponses';
-// export { initializeMicroQuests } from './quests/microQuests';
-// export { applyTypingQuirks } from './quirks/typingQuirks';
-// export { syncWithARG } from './argSync';
+// Export typing quirks
+export { applyTypingQuirks } from './quirks/typingQuirks';
+

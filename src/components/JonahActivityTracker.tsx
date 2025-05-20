@@ -104,6 +104,7 @@ const JonahActivityTracker = () => {
     
     return () => {
       processPageVisit.cancel(); // Clean up the debounce
+      throttledTrackEvent.cancel(); // Clean up the throttle
     };
   }, [location.pathname, throttledTrackEvent]);
   

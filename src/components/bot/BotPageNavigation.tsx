@@ -16,7 +16,7 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
   const triggeredPagesRef = useRef<Set<string>>(new Set());
   const lastTriggerTimeRef = useRef<number>(0);
   
-  // Throttle the page message handler
+  // Throttle the page message handler to prevent excessive calls
   const handlePageNavigation = throttle((pathname: string) => {
     // Skip if already triggered for this path or too recent
     if (triggeredPagesRef.current.has(pathname)) return;
@@ -54,7 +54,7 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
       triggeredPagesRef.current.add(pathname);
       lastTriggerTimeRef.current = now;
     }
-  }, 2000);
+  }, 2000); // Throttle to once per 2 seconds max
   
   useEffect(() => {
     // Only trigger on specific pages and when the chat is open
@@ -69,8 +69,10 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
     // Handle the navigation with throttling
     handlePageNavigation(pathname);
     
-    // We don't need to clean up the throttle as it will
-    // be automatically garbage collected when not used
+    // Clean up
+    return () => {
+      handlePageNavigation.cancel();
+    };
   }, [location.pathname, addBotMessage, modifyTrust, isOpen, handlePageNavigation]);
   
   return null; // This component doesn't render anything

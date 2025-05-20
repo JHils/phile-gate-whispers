@@ -11,16 +11,12 @@ import { typewriterLog } from './consoleEffects';
 type TrackCommandFunction = (commandName: string) => void;
 
 // Initialize news command system
-export function initializeNewsCommands(trackCommandExecution?: TrackCommandFunction): void {
+export function initializeNewsCommands(trackCommandExecution: TrackCommandFunction = trackCommand): void {
   if (typeof window !== 'undefined') {
     // News flash command
     window.newsFlash = function() {
-      // Use provided trackCommandExecution if available, otherwise fall back to trackCommand
-      if (trackCommandExecution) {
-        trackCommandExecution('newsFlash');
-      } else {
-        trackCommand('newsFlash');
-      }
+      // Track the command execution
+      trackCommandExecution('newsFlash');
       
       // Get a news response
       const newsResponse = getNewsResponse();
@@ -39,12 +35,8 @@ ${newsResponse}
     
     // Weather report command
     window.weatherReport = function() {
-      // Use provided trackCommandExecution if available, otherwise fall back to trackCommand
-      if (trackCommandExecution) {
-        trackCommandExecution('weatherReport');
-      } else {
-        trackCommand('weatherReport');
-      }
+      // Track the command execution
+      trackCommandExecution('weatherReport');
       
       // Get a weather response
       const weatherResponse = getWeatherResponse();
