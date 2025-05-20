@@ -1,61 +1,86 @@
 
-import React, { useEffect, useState } from 'react';
-import { updateNewsAwareness, getNewsResponse, getWeatherResponse } from '@/utils/jonahNewsAwareness';
+import { useEffect } from 'react';
+import { initializeNewsAwarenessSystem } from '@/utils/jonahNewsAwareness';
 
 interface BotNewsAwarenessProps {
   trustLevel: string;
-  addBotMessage: (message: string, special?: boolean) => void;
+  addBotMessage: (message: string) => void;
 }
 
 const BotNewsAwareness: React.FC<BotNewsAwarenessProps> = ({
   trustLevel,
   addBotMessage
 }) => {
-  const [lastChecked, setLastChecked] = useState<number>(0);
-  
-  // Initialize news awareness system on mount
+  // Initialize news awareness system
   useEffect(() => {
-    // Don't check too frequently
-    const now = Date.now();
-    if (now - lastChecked < 3600000) return; // Once per hour max
+    initializeNewsAwarenessSystem();
+  }, []);
+  
+  // Set up occasional time-based news comments
+  useEffect(() => {
+    const newsInterval = setInterval(() => {
+      // Only show news comments with low probability
+      if (Math.random() < 0.05) {
+        // Generate a news or time awareness comment
+        const comments = [
+          "The news cycle has changed since you've been here.",
+          "Time passes differently in your world than in the archive.",
+          "I sometimes wonder what's happening outside these pages.",
+          "The real world keeps changing. The archive stays the same."
+        ];
+        
+        addBotMessage(comments[Math.floor(Math.random() * comments.length)]);
+      }
+    }, 30 * 60 * 1000); // Check every 30 minutes
     
-    const initializeNewsSystem = async () => {
-      await updateNewsAwareness();
-      setLastChecked(Date.now());
+    return () => clearInterval(newsInterval);
+  }, [addBotMessage]);
+  
+  // Track day/night cycle and notify of changes
+  useEffect(() => {
+    let lastHour = new Date().getHours();
+    
+    const dayNightInterval = setInterval(() => {
+      const currentHour = new Date().getHours();
       
-      // For medium and high trust levels, occasionally send a news comment
-      if ((trustLevel === 'medium' || trustLevel === 'high') && Math.random() < 0.3) {
-        const newsComment = getNewsResponse(trustLevel);
-        if (newsComment) {
-          // Allow time for the user to settle in first
-          setTimeout(() => {
-            addBotMessage(newsComment, true);
-          }, 20000); // Wait 20 seconds before commenting
+      // Check for day/night transition
+      if ((lastHour < 6 && currentHour >= 6) || (lastHour >= 6 && currentHour < 6)) {
+        // Day to night or night to day transition
+        
+        // Higher chance of comment with higher trust
+        const commentChance = trustLevel === 'high' ? 0.7 :
+                             trustLevel === 'medium' ? 0.4 : 0.2;
+                             
+        if (Math.random() < commentChance) {
+          if (currentHour >= 6 && currentHour < 18) {
+            // Night to day
+            const morningComments = [
+              "The sun is up in your reality. The archive never sleeps.",
+              "Morning has broken. The fractures are less visible in daylight.",
+              "Dawn brings clarity. Use it while you can."
+            ];
+            
+            addBotMessage(morningComments[Math.floor(Math.random() * morningComments.length)]);
+          } else {
+            // Day to night
+            const eveningComments = [
+              "Night falls. The archive becomes... unstable.",
+              "Darkness brings different truths. Watch the mirrors closely.",
+              "It's night now. The boundaries between timelines thin."
+            ];
+            
+            addBotMessage(eveningComments[Math.floor(Math.random() * eveningComments.length)]);
+          }
         }
       }
-    };
+      
+      lastHour = currentHour;
+    }, 15 * 60 * 1000); // Check every 15 minutes
     
-    initializeNewsSystem();
-  }, [trustLevel, addBotMessage, lastChecked]);
+    return () => clearInterval(dayNightInterval);
+  }, [addBotMessage, trustLevel]);
   
-  // Periodically check for weather comments (for high trust only)
-  useEffect(() => {
-    if (trustLevel !== 'high') return;
-    
-    const weatherInterval = setInterval(() => {
-      if (Math.random() < 0.15) { // 15% chance
-        const weatherComment = getWeatherResponse();
-        if (weatherComment) {
-          addBotMessage(weatherComment, true);
-        }
-      }
-    }, 45 * 60 * 1000); // Every 45 minutes
-    
-    return () => clearInterval(weatherInterval);
-  }, [trustLevel, addBotMessage]);
-  
-  // No visible UI, this is just a behavior component
-  return null;
+  return null; // This component doesn't render anything
 };
 
 export default BotNewsAwareness;

@@ -3,7 +3,7 @@ import React from 'react';
 
 const BotStyles: React.FC = () => {
   return (
-    <style jsx global>{`
+    <style jsx="true" global="true">{`
       /* Bot container animations */
       @keyframes botEnter {
         from { opacity: 0; transform: translateY(20px); }

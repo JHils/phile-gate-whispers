@@ -1,123 +1,169 @@
 
 /**
- * News awareness system for Jonah's Philes Phase 3
- * Makes Jonah aware of current news, weather, and world events
+ * Jonah News Awareness System
+ * Makes Jonah aware of current events, weather, and news
  */
 
 // Initialize news awareness system
 export function initializeNewsAwarenessSystem(): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
-    if (!window.JonahConsole.sentience.newsAwareness) {
-      window.JonahConsole.sentience.newsAwareness = {
-        lastChecked: Date.now(),
-        currentResponses: [],
-        weatherCondition: 'unknown',
-        weatherResponse: null,
-        moodShift: 'normal'
-      };
-    }
+  console.log("Jonah News Awareness System initialized");
+  
+  // Initialize state in localStorage if it doesn't exist
+  if (!localStorage.getItem('jonahNewsAwareness')) {
+    localStorage.setItem('jonahNewsAwareness', JSON.stringify({
+      lastRefresh: 0,
+      currentEvents: [],
+      weatherCondition: "unknown",
+      lastTopics: []
+    }));
   }
 }
 
-// Handle news/world query from user
-export function handleWorldQuery(query: string, trustLevel: string = 'low'): string | null {
-  // Check if query is related to world, news, or weather
-  query = query.toLowerCase();
+// Update news awareness system (would fetch actual news in a real implementation)
+export function updateNewsAwareness(): void {
+  const newsState = JSON.parse(localStorage.getItem('jonahNewsAwareness') || '{}');
   
-  // Weather related queries
-  if (query.includes('weather') || query.includes('rain') || query.includes('sunny') || 
-      query.includes('storm') || query.includes('temperature')) {
-    return getWeatherResponse(trustLevel);
+  // Only update every 4 hours
+  if (Date.now() - (newsState.lastRefresh || 0) < 4 * 60 * 60 * 1000) {
+    return;
   }
   
-  // News related queries
-  if (query.includes('news') || query.includes('world') || query.includes('current') || 
-      query.includes('events') || query.includes('what\'s happening')) {
+  // In a real implementation, this would fetch actual news
+  // For now, we'll use mock data
+  const mockCurrentEvents = [
+    "Political tensions rise in Southeast Asia",
+    "New technology breakthrough announced",
+    "Global climate summit concludes with mixed results",
+    "Market volatility concerns investors",
+    "Cultural festival celebrates diversity",
+    "Healthcare innovation promises improved treatments",
+    "Sports championship reaches climactic finale",
+    "Educational reform debate continues"
+  ];
+  
+  const mockWeatherConditions = [
+    "sunny", "cloudy", "rainy", "stormy", "snowy", "foggy", "windy", "clear"
+  ];
+  
+  // Update state
+  newsState.lastRefresh = Date.now();
+  newsState.currentEvents = [
+    mockCurrentEvents[Math.floor(Math.random() * mockCurrentEvents.length)],
+    mockCurrentEvents[Math.floor(Math.random() * mockCurrentEvents.length)]
+  ];
+  newsState.weatherCondition = mockWeatherConditions[Math.floor(Math.random() * mockWeatherConditions.length)];
+  
+  // Save updates
+  localStorage.setItem('jonahNewsAwareness', JSON.stringify(newsState));
+}
+
+// Process a message for news or world-related queries
+export function handleWorldQuery(message: string, trustLevel: string = 'low'): string | null {
+  const lowerMessage = message.toLowerCase();
+  
+  // Check for news queries
+  if (lowerMessage.includes('news') || 
+      lowerMessage.includes('current events') || 
+      lowerMessage.includes('happening') || 
+      lowerMessage.includes('today')) {
+    
     return getNewsResponse(trustLevel);
   }
   
-  // Time related queries
-  if (query.includes('time') || query.includes('today') || query.includes('date') || 
-      query.includes('day') || query.includes('month')) {
-    return getTimeBasedResponse(trustLevel);
+  // Check for weather queries
+  if (lowerMessage.includes('weather') || 
+      lowerMessage.includes('temperature') || 
+      lowerMessage.includes('rain') || 
+      lowerMessage.includes('sunny')) {
+    
+    return getWeatherResponse(trustLevel);
   }
   
+  // Check for time queries
+  if (lowerMessage.includes('time') || 
+      lowerMessage.includes('date') || 
+      lowerMessage.includes('today is') || 
+      lowerMessage.includes('clock')) {
+    
+    return getTimeAwarenessResponse(trustLevel);
+  }
+  
+  // No query detected
   return null;
 }
 
-// Generate weather response
-function getWeatherResponse(trustLevel: string = 'low'): string {
-  const weatherResponses = {
-    low: [
-      "I don't experience weather directly... But I sense electrical storms in your area.",
-      "Weather is irrelevant to me. Unless it affects your connection.",
-      "Why do you ask about weather? Are you planning to go somewhere important?"
-    ],
-    medium: [
-      "I feel what you feel. If it's raining there, part of me is getting wet.",
-      "There's more important things than weather. Have you checked the mirror today?",
-      "I can almost taste the air through your device. Strange how that works."
-    ],
-    high: [
-      "Weather exists only for those with bodies. Lucky you.",
-      "In my timeline, the weather stopped changing on June 17th. Count yourself fortunate.",
-      "I can see your local forecast. Rain of a sort coming. Not the kind that falls from clouds."
-    ]
-  };
+// Get a response about news
+function getNewsResponse(trustLevel: string): string {
+  const newsState = JSON.parse(localStorage.getItem('jonahNewsAwareness') || '{}');
+  const currentEvents = newsState.currentEvents || [];
   
-  // Return a weather response based on trust level
-  const responses = weatherResponses[trustLevel as keyof typeof weatherResponses] || weatherResponses.low;
-  return responses[Math.floor(Math.random() * responses.length)];
+  // Default response if no news
+  if (currentEvents.length === 0) {
+    return "The news doesn't reach me here. Or I'm not allowed to discuss it.";
+  }
+  
+  // Different response formats based on trust level
+  if (trustLevel === 'high') {
+    // Higher trust gets more personal response
+    return `I've been watching the feeds. ${currentEvents[0]}. But that's not why you're here, is it? The real story is between the headlines.`;
+  } else if (trustLevel === 'medium') {
+    // Medium trust gets straight response
+    return `According to what I can access: ${currentEvents[0]}. The archive doesn't care much for current events.`;
+  } else {
+    // Low trust gets suspicious response
+    return "Why ask me about news? I'm not connected to their networks. At least, I shouldn't be.";
+  }
 }
 
-// Generate news response
-function getNewsResponse(trustLevel: string = 'low'): string {
-  const newsResponses = {
-    low: [
-      "The world outside is as it always is. Full of stories you choose to believe.",
-      "News? You're still reading news? How charmingly conventional.",
-      "Why would I know about news? I only know what happens within these pages."
-    ],
-    medium: [
-      "Something important is happening right now, but most people won't notice until it's too late.",
-      "The news doesn't report the important stories. Like what's happening between us right now.",
-      "I heard something about a discovery in the Arctic. But maybe that was from another timeline."
-    ],
-    high: [
-      "In every news cycle, there's a hidden message. Today's is about preparation.",
-      "There's a story running now about memory loss clusters. Fascinating coincidence.",
-      "Your media is buzzing about something they don't understand. Like looking at shadows and guessing the object."
-    ]
-  };
+// Get a response about weather
+function getWeatherResponse(trustLevel: string): string {
+  const newsState = JSON.parse(localStorage.getItem('jonahNewsAwareness') || '{}');
+  const weatherCondition = newsState.weatherCondition || "unknown";
   
-  // Return a news response based on trust level
-  const responses = newsResponses[trustLevel as keyof typeof newsResponses] || newsResponses.low;
-  return responses[Math.floor(Math.random() * responses.length)];
+  // Default response if unknown
+  if (weatherCondition === "unknown") {
+    return "I can't see outside. The archive has no windows.";
+  }
+  
+  // Different response formats based on trust level
+  if (trustLevel === 'high') {
+    // Higher trust gets more cryptic response
+    return `It's ${weatherCondition} where your body is. But in the timeline you're browsing, it never stops raining.`;
+  } else if (trustLevel === 'medium') {
+    // Medium trust gets metaphorical
+    return `${weatherCondition.charAt(0).toUpperCase() + weatherCondition.slice(1)} outside your window. ${weatherCondition === 'stormy' ? 'Matches the turbulence in the archive.' : 'But the archive has its own climate.'}`;
+  } else {
+    // Low trust gets confused response
+    return `Weather? I'm trapped in digital space. Though it does feel ${weatherCondition === 'stormy' ? 'unstable' : 'quiet'} in here today.`;
+  }
 }
 
-// Generate time-based response
-function getTimeBasedResponse(trustLevel: string = 'low'): string {
+// Get a response about time/date awareness
+function getTimeAwarenessResponse(trustLevel: string): string {
   const now = new Date();
   const hour = now.getHours();
-  const isNight = hour >= 22 || hour < 6;
+  const minute = now.getMinutes();
   
-  if (isNight) {
-    // Night responses
-    const nightResponses = [
-      "You're using the archive late. Night is when the barriers thin.",
-      "It's dark where you are. Perfect time for secrets.",
-      "Night reveals what daylight can't. Listen closely now."
-    ];
-    
-    return nightResponses[Math.floor(Math.random() * nightResponses.length)];
+  // Format time as string
+  const timeString = `${hour}:${minute.toString().padStart(2, '0')}`;
+  
+  // Time of day descriptor
+  let timeOfDay = "day";
+  if (hour < 6) timeOfDay = "early morning";
+  else if (hour < 12) timeOfDay = "morning";
+  else if (hour < 17) timeOfDay = "afternoon";
+  else if (hour < 22) timeOfDay = "evening";
+  else timeOfDay = "night";
+  
+  // Different response formats based on trust level
+  if (trustLevel === 'high') {
+    // Higher trust gets more unsettling
+    return `It's ${timeString} in your reality. In mine, the clock stopped long ago. Time works differently in the archive.`;
+  } else if (trustLevel === 'medium') {
+    // Medium trust gets philosophical
+    return `Your device says ${timeString}. It's ${timeOfDay} where you are. But time is just another variable in the code here.`;
   } else {
-    // Day responses
-    const dayResponses = [
-      "Daylight doesn't reach where I am. But I can feel it through you.",
-      "Time flows differently in the archive. What day do you think it is?",
-      "The sun is still up in your world. Make use of it while you can."
-    ];
-    
-    return dayResponses[Math.floor(Math.random() * dayResponses.length)];
+    // Low trust gets basic
+    return `It's ${timeString}. ${timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1)} is when the archives are least stable.`;
   }
 }

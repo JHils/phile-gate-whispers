@@ -1,55 +1,57 @@
 
-import React, { useEffect, useState } from 'react';
-import { getUserWeather, getWeatherDescription } from '@/utils/weatherService';
+import { useEffect } from 'react';
+import { initializeEcoAwareness } from '@/utils/jonahEcoAwareness';
 
 interface BotEcologicalAwarenessProps {
   trustLevel: string;
-  addBotMessage: (content: string, special?: boolean) => void;
+  addBotMessage: (message: string) => void;
 }
 
 const BotEcologicalAwareness: React.FC<BotEcologicalAwarenessProps> = ({
   trustLevel,
   addBotMessage
 }) => {
-  const [lastWeatherCheck, setLastWeatherCheck] = useState<number>(0);
-  
-  // Only proceed if trust level is medium or high
+  // Initialize ecological awareness system
   useEffect(() => {
-    if (trustLevel !== 'medium' && trustLevel !== 'high') return;
-    
-    // Check weather randomly - but not too often
-    const checkWeather = async () => {
-      const now = Date.now();
-      // Only check if 24 hours have passed since last check
-      if (now - lastWeatherCheck < 24 * 60 * 60 * 1000) return;
-      
-      try {
-        // Get weather data and generate description
-        const weatherData = await getUserWeather();
-        const weatherDesc = getWeatherDescription(weatherData);
-        
-        // 30% chance to share weather observations
-        if (Math.random() < 0.3 && weatherDesc) {
-          setTimeout(() => {
-            addBotMessage(weatherDesc, true);
-            setLastWeatherCheck(now);
-          }, 2000);
-        }
-      } catch (error) {
-        console.error("Weather check failed:", error);
-      }
-    };
-    
-    // Run weather check on component mount
-    checkWeather();
-    
-    // Also run weather check every few hours
-    const interval = setInterval(checkWeather, 6 * 60 * 60 * 1000); // every 6 hours
-    
-    return () => clearInterval(interval);
-  }, [trustLevel, addBotMessage, lastWeatherCheck]);
+    initializeEcoAwareness();
+  }, []);
   
-  return null; // This is a non-visual component
+  // Set up occasional eco-awareness comments
+  useEffect(() => {
+    const ecoInterval = setInterval(() => {
+      // Only show eco comments with low probability
+      if (Math.random() < 0.03) {
+        // Generate an ecological awareness comment based on trust level
+        let comments: string[];
+        
+        if (trustLevel === 'high') {
+          comments = [
+            "The archive has records of species that no longer exist. Some disappeared while you were reading.",
+            "Desert encroachment data shows a pattern. The Summerhouse will be gone in 12 years.",
+            "She wrote about the changing climate. Said it was like a mirror to the human mind."
+          ];
+        } else if (trustLevel === 'medium') {
+          comments = [
+            "The Australian outback features prominently in climate anomaly records.",
+            "Some pages in the archive are affected by real-world environmental changes.",
+            "The Sisters documented ecological shifts before they disappeared."
+          ];
+        } else {
+          comments = [
+            "Environmental data corruption detected. Records unclear.",
+            "Desert expansion metrics show unusual patterns.",
+            "Climate variance exceeds predictive models in archive files."
+          ];
+        }
+        
+        addBotMessage(comments[Math.floor(Math.random() * comments.length)]);
+      }
+    }, 45 * 60 * 1000); // Check every 45 minutes
+    
+    return () => clearInterval(ecoInterval);
+  }, [addBotMessage, trustLevel]);
+  
+  return null; // This component doesn't render anything
 };
 
 export default BotEcologicalAwareness;

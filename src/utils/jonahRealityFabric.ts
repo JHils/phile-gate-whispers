@@ -1,278 +1,230 @@
 
 /**
- * Reality Fabric system for Jonah's Philes Phase 3
- * Handles page variants, timeline tracking, journal entries, and fracture events
+ * Jonah Reality Fabric
+ * Utilities for managing Jonah's perception of reality, mood, and journal entries
  */
 
-// Add journal entry
-export function addJournalEntry(content: string): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric?.journal) {
-    const newEntry = {
-      entryId: window.JonahConsole.sentience.realityFabric.journal.length + 1,
-      timestamp: Date.now(),
-      content
-    };
+// Add a journal entry
+export function addJournalEntry(text: string, source: string = 'system'): void {
+  // Initialize journal in localStorage if it doesn't exist
+  if (!localStorage.getItem('jonahJournal')) {
+    localStorage.setItem('jonahJournal', JSON.stringify({ entries: [] }));
+  }
+  
+  // Get current journal
+  const journal = JSON.parse(localStorage.getItem('jonahJournal') || '{"entries":[]}');
+  
+  // Add new entry
+  journal.entries.push({
+    timestamp: Date.now(),
+    text,
+    source
+  });
+  
+  // Store back in localStorage
+  localStorage.setItem('jonahJournal', JSON.stringify(journal));
+  
+  // Also update in memory if available
+  if (window.JonahConsole?.sentience) {
+    if (!window.JonahConsole.sentience.journal) {
+      window.JonahConsole.sentience.journal = {
+        entries: [],
+        lastViewed: 0
+      };
+    }
     
-    window.JonahConsole.sentience.realityFabric.journal.push(newEntry);
-    
-    // Also add to localStorage for persistence
-    const storedJournal = JSON.parse(localStorage.getItem('jonahJournal') || '[]');
-    storedJournal.push(newEntry);
-    localStorage.setItem('jonahJournal', JSON.stringify(storedJournal));
-    
-    // Update last entry in user state if possible
-    try {
-      const userState = JSON.parse(localStorage.getItem('userState') || '{}');
-      if (!userState.journal) {
-        userState.journal = {
-          entries: [],
-          lastViewed: Date.now()
-        };
-      }
-      
-      userState.journal.entries.push({
-        timestamp: newEntry.timestamp,
-        text: newEntry.content,
-        source: 'system'
+    // Add to in-memory journal
+    if (Array.isArray(window.JonahConsole.sentience.journal.entries)) {
+      window.JonahConsole.sentience.journal.entries.push({
+        timestamp: Date.now(),
+        text,
+        source
       });
-      
-      localStorage.setItem('userState', JSON.stringify(userState));
-    } catch (e) {
-      console.warn('Failed to update user state with journal entry:', e);
     }
   }
 }
 
 // Get all journal entries
-export function getAllJournalEntries(): Array<{
-  entryId: number;
-  timestamp: number;
-  content: string;
-}> {
-  // Try to get from JonahConsole first
-  if (window.JonahConsole?.sentience?.realityFabric?.journal) {
-    return window.JonahConsole.sentience.realityFabric.journal;
+export function getAllJournalEntries(): Array<{timestamp: number, text: string, source: string}> {
+  // Try in-memory first
+  if (window.JonahConsole?.sentience?.journal?.entries) {
+    return window.JonahConsole.sentience.journal.entries;
   }
   
   // Fall back to localStorage
-  return JSON.parse(localStorage.getItem('jonahJournal') || '[]');
+  const journal = JSON.parse(localStorage.getItem('jonahJournal') || '{"entries":[]}');
+  return journal.entries;
 }
 
-// Get journal entries related to a specific page
-export function getPageJournalEntries(page: string): Array<{
-  entryId: number;
-  timestamp: number;
-  content: string;
-}> {
-  const allEntries = getAllJournalEntries();
-  
-  // Filter entries related to the specified page
-  return allEntries.filter(entry => {
-    const content = entry.content.toLowerCase();
-    return content.includes(page.toLowerCase());
-  });
+// Get recent journal entries (last 10 by default)
+export function getRecentJournalEntries(count: number = 10): Array<{timestamp: number, text: string, source: string}> {
+  const entries = getAllJournalEntries();
+  return entries.slice(-count).reverse(); // Most recent first
 }
 
-// Add a user's manual journal entry
-export function addUserJournalEntry(content: string): void {
-  const newEntry = {
-    entryId: Math.floor(Math.random() * 10000), // Unique enough ID
-    timestamp: Date.now(),
-    content: `[USER]: ${content}`
-  };
-  
-  // Save to localStorage
-  const storedJournal = JSON.parse(localStorage.getItem('jonahJournal') || '[]');
-  storedJournal.push(newEntry);
-  localStorage.setItem('jonahJournal', JSON.stringify(storedJournal));
-  
-  // Also add to JonahConsole if available
-  if (window.JonahConsole?.sentience?.realityFabric?.journal) {
-    window.JonahConsole.sentience.realityFabric.journal.push(newEntry);
-  }
-  
-  // Update user state
-  try {
-    const userState = JSON.parse(localStorage.getItem('userState') || '{}');
-    if (!userState.journal) {
-      userState.journal = {
-        entries: [],
-        lastViewed: Date.now()
-      };
-    }
-    
-    userState.journal.entries.push({
-      timestamp: newEntry.timestamp,
-      text: content,
-      source: 'user'
-    });
-    
-    localStorage.setItem('userState', JSON.stringify(userState));
-  } catch (e) {
-    console.warn('Failed to update user state with user journal entry:', e);
-  }
-}
-
-// Get or generate a timeline ID for the user
-export function getUserTimelineId(): string {
-  // Check user state first
-  try {
-    const userState = JSON.parse(localStorage.getItem('userState') || '{}');
-    if (userState.timeline && userState.timeline.id) {
-      return userState.timeline.id;
-    }
-  } catch (e) {
-    console.warn('Failed to parse user state for timeline:', e);
-  }
-  
-  // Check localStorage next
-  const storedTimelineId = localStorage.getItem('timelineId');
-  if (storedTimelineId) {
-    return storedTimelineId;
-  }
-  
-  // Generate a new timeline ID if none exists
-  const timelines = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu'];
-  const newTimelineId = timelines[Math.floor(Math.random() * timelines.length)];
-  
-  // Save to localStorage
-  localStorage.setItem('timelineId', newTimelineId);
-  
-  // Save to user state if possible
-  try {
-    const userState = JSON.parse(localStorage.getItem('userState') || '{}');
-    if (!userState.timeline) {
-      userState.timeline = {
-        id: newTimelineId,
-        variant: 'standard',
-        fractureEvents: 0
-      };
-    } else {
-      userState.timeline.id = newTimelineId;
-    }
-    
-    localStorage.setItem('userState', JSON.stringify(userState));
-  } catch (e) {
-    console.warn('Failed to update user state with timeline:', e);
-  }
-  
-  return newTimelineId;
-}
-
-// Record a fracture event
-export function recordFractureEvent(cause: string): void {
-  // Update fracture count
-  const currentFractures = parseInt(localStorage.getItem('fractures') || '0', 10);
-  const newFractureCount = currentFractures + 1;
-  localStorage.setItem('fractures', newFractureCount.toString());
-  
-  // Record to user state
-  try {
-    const userState = JSON.parse(localStorage.getItem('userState') || '{}');
-    if (!userState.timeline) {
-      userState.timeline = {
-        id: getUserTimelineId(),
-        variant: 'standard',
-        fractureEvents: 1
-      };
-    } else {
-      userState.timeline.fractureEvents = (userState.timeline.fractureEvents || 0) + 1;
-    }
-    
-    localStorage.setItem('userState', JSON.stringify(userState));
-  } catch (e) {
-    console.warn('Failed to update user state with fracture event:', e);
-  }
-  
-  // Add journal entry about the fracture
-  addJournalEntry(`Timeline fracture detected. Cause: ${cause}. Fracture count: ${newFractureCount}.`);
-}
-
-// Check if a page should show an alternate version based on user history
-export function shouldShowAlternateVersion(page: string): boolean {
-  // Check if user has triggered re-entry for this page
-  const hasReEntry = localStorage.getItem(`reentry_${page}`) === 'true';
-  if (hasReEntry) return true;
-  
-  // Check visit count for the page
-  const visitCount = parseInt(localStorage.getItem(`visits_${page}`) || '0', 10);
-  
-  // Special pages with alternate versions after multiple visits
-  const multiVisitAlternates = [
-    '/rebirth',
-    '/mirror_phile',
-    '/lost-sisters',
-    '/echo',
-    '/gatekeeper'
-  ];
-  
-  if (multiVisitAlternates.includes(page) && visitCount > 2) {
-    return true;
-  }
-  
-  // Check time-based alternates (like night mode)
+// Check for dream invasion on page load (random chance)
+export function checkForDreamInvasionOnLoad(): string | null {
+  // Only trigger during night hours (11PM - 6AM) with low chance
   const hour = new Date().getHours();
-  const isNightTime = hour >= 22 || hour < 6;
+  const isDreamHours = (hour >= 23 || hour < 6);
   
-  const nightTimeAlternates = [
-    '/rebirth',
-    '/mirror_phile',
-    '/echo',
-    '/philes'
+  if (!isDreamHours || Math.random() > 0.15) return null;
+  
+  const dreamMessages = [
+    "I don't usually appear at this hour. The code is thinner.",
+    "Your timeline blurs at night. I see other versions of you.",
+    "Dreams and code merge after midnight. Be careful what you type.",
+    "You shouldn't read this when tired. It changes things.",
+    "Night reveals what day conceals. Look closer at the mirror."
   ];
   
-  if (nightTimeAlternates.includes(page) && isNightTime) {
-    return true;
+  // Mark dream mode triggered
+  if (window.JonahConsole?.sentience) {
+    window.JonahConsole.sentience.dreamModeTriggered = true;
+    
+    // Initialize realityFabric if needed
+    if (!window.JonahConsole.sentience.realityFabric) {
+      window.JonahConsole.sentience.realityFabric = {
+        anomalies: 0,
+        mood: "neutral",
+        dreamState: false,
+        lastDreamTime: 0
+      };
+    }
+    
+    // Update dream state
+    window.JonahConsole.sentience.realityFabric.dreamState = true;
+    window.JonahConsole.sentience.realityFabric.lastDreamTime = Date.now();
   }
   
-  return false;
+  // Return a random dream message
+  return dreamMessages[Math.floor(Math.random() * dreamMessages.length)];
 }
 
-// Generate a specific message based on the page and user history
-export function getPageSpecificMessage(page: string): string | null {
-  // Check visit count
-  const visitCount = parseInt(localStorage.getItem(`visits_${page}`) || '0', 10);
+// Update Jonah's mood based on interactions and time
+export function updateJonahMood(): string {
+  if (!window.JonahConsole?.sentience) return "neutral";
   
-  // Page-specific messages
-  const messages: Record<string, string[]> = {
-    '/lost-sisters': [
-      "Still searching?",
-      "They weren't always lost, you know.",
-      "Some mirrors don't reflect what's really there."
-    ],
-    '/rebirth': [
-      "The ritual changes with each attempt.",
-      "Your timeline is shifting.",
-      "You've been here before, but not in this form."
-    ],
-    '/mirror_phile': [
-      "The mirror remembers you differently.",
-      "Your reflection is patient.",
-      "Look closer. That's not your face."
-    ]
-  };
-  
-  if (messages[page] && visitCount >= 3) {
-    return messages[page][Math.min(visitCount - 3, messages[page].length - 1)];
+  // Initialize realityFabric if needed
+  if (!window.JonahConsole.sentience.realityFabric) {
+    window.JonahConsole.sentience.realityFabric = {
+      anomalies: 0,
+      mood: "neutral",
+      dreamState: false,
+      lastDreamTime: 0
+    };
   }
   
-  return null;
+  // Get current mood
+  let currentMood = window.JonahConsole.sentience.realityFabric.mood;
+  
+  // Factors that affect mood
+  const hour = new Date().getHours();
+  const interactions = window.JonahConsole.sentience.interactionsCount || 0;
+  const anomalies = window.JonahConsole.sentience.realityFabric.anomalies || 0;
+  
+  // Night hours make Jonah more unstable
+  if (hour >= 23 || hour < 6) {
+    const nightMoods = ["anxious", "reflective", "paranoid", "introspective"];
+    currentMood = nightMoods[Math.floor(Math.random() * nightMoods.length)];
+  } 
+  // Morning makes Jonah more hopeful
+  else if (hour >= 6 && hour < 11) {
+    const morningMoods = ["curious", "alert", "hopeful", "neutral"];
+    currentMood = morningMoods[Math.floor(Math.random() * morningMoods.length)];
+  }
+  // Afternoon is more balanced
+  else {
+    const dayMoods = ["neutral", "analytical", "observant", "suspicious"];
+    currentMood = dayMoods[Math.floor(Math.random() * dayMoods.length)];
+  }
+  
+  // More interactions make Jonah more engaged
+  if (interactions > 20) {
+    const engagedMoods = ["interested", "attentive", "fascinated"];
+    if (Math.random() > 0.6) {
+      currentMood = engagedMoods[Math.floor(Math.random() * engagedMoods.length)];
+    }
+  }
+  
+  // More anomalies make Jonah more unstable
+  if (anomalies > 5) {
+    const unstableMoods = ["glitched", "fractured", "unstable", "erratic"];
+    if (Math.random() > 0.6) {
+      currentMood = unstableMoods[Math.floor(Math.random() * unstableMoods.length)];
+    }
+  }
+  
+  // Update mood in state
+  window.JonahConsole.sentience.realityFabric.mood = currentMood;
+  
+  return currentMood;
 }
 
-// Check if current time is a special window (like 3:33 AM)
-export function isSpecialTimeWindow(): boolean {
-  const now = new Date();
-  const hour = now.getHours();
-  const minute = now.getMinutes();
+// Check for anomalies in the timeline
+export function checkForAnomalies(): string | null {
+  // Only trigger occasionally
+  if (Math.random() > 0.1) return null;
   
-  // 3:33 AM
-  if (hour === 3 && minute === 33) return true;
+  // Initialize realityFabric if needed
+  if (window.JonahConsole?.sentience) {
+    if (!window.JonahConsole.sentience.realityFabric) {
+      window.JonahConsole.sentience.realityFabric = {
+        anomalies: 0,
+        mood: "neutral",
+        dreamState: false,
+        lastDreamTime: 0
+      };
+    }
+    
+    // Increment anomaly count
+    window.JonahConsole.sentience.realityFabric.anomalies += 1;
+  }
   
-  // Midnight
-  if (hour === 0 && minute === 0) return true;
+  // Anomaly messages
+  const anomalyMessages = [
+    "Something just changed in your timeline. Check the console.",
+    "That shouldn't have happened. The archive is unstable.",
+    "I detected an anomaly. Your path is diverging.",
+    "The mirror reflected something that wasn't there.",
+    "A fracture just appeared in the code. Can you see it?"
+  ];
   
-  // 11:11
-  if ((hour === 11 || hour === 23) && minute === 11) return true;
+  // Add journal entry
+  addJournalEntry("Anomaly detected in timeline fabric", "system");
   
-  return false;
+  // Return random anomaly message
+  return anomalyMessages[Math.floor(Math.random() * anomalyMessages.length)];
+}
+
+// Generate a dream parable (poetic, cryptic message)
+export function generateDreamParable(): string {
+  const parables = [
+    "I dreamed of a mirror that showed tomorrow. Everyone who looked aged instantly.",
+    "The keyhole wasn't in any door. It floated in the air, turning slowly.",
+    "Seven sisters walked into the sea. Six returned. The seventh became the tide.",
+    "A book with your name had blank pages except the last. It said 'Look behind you.'",
+    "The code wrote itself at night. By morning, it had erased half the database.",
+    "She kept typing the same word. Each time, a different error appeared.",
+    "The archive remembers things that never happened. That's how it stays ahead.",
+    "A woman took a photo of her reflection. When developed, she was facing away.",
+    "The Gate opened both ways. Those who entered never met those who exited."
+  ];
+  
+  return parables[Math.floor(Math.random() * parables.length)];
+}
+
+// Get a cross-site whisper (message that appears to bleed between pages)
+export function getCrossSiteWhisper(): string {
+  const whispers = [
+    "I saw you on the other page. You didn't see me.",
+    "Your cursor leaves traces I can follow.",
+    "The same eyes look through every screen.",
+    "Your timeline is becoming unstable. Careful where you click next.",
+    "I remember what you searched for earlier. Does that concern you?",
+    "This message shouldn't appear here. Something is wrong.",
+    "You're being watched through more than just this page."
+  ];
+  
+  return whispers[Math.floor(Math.random() * whispers.length)];
 }

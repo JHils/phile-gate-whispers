@@ -60,7 +60,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
   const inputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
   
-  // Convert messages to BotMessage[] format
+  // Convert messages to BotMessage format
   const botMessages = convertToBotMessages(messages);
 
   // Scroll to bottom when messages change

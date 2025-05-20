@@ -11,7 +11,7 @@ import {
   getParanoiaResponse,
   getPageDurationResponse
 } from '@/utils/consoleMemoryParanoia';
-import { addJournalEntry, checkForDreamInvasionOnLoad } from '@/utils/jonahRealityFabric';
+import { addJournalEntry } from '@/utils/jonahRealityFabric';
 
 interface BotPageNavigationProps {
   addBotMessage: (message: string) => void;
@@ -122,10 +122,20 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({
       
       // Check for dream invasion on page change (small chance)
       if (Math.random() > 0.9) { // 10% chance
-        const dreamMessage = checkForDreamInvasionOnLoad();
-        if (dreamMessage) {
+        // Check if it's night time (higher chance for dream events)
+        const hour = new Date().getHours();
+        const isNightTime = (hour >= 22 || hour <= 5);
+        
+        if (isNightTime || Math.random() > 0.7) {
           setTimeout(() => {
-            addBotMessage(dreamMessage);
+            const dreamMessages = [
+              "I had a dream about this page. But it ended differently.",
+              "The text is different when I see it in dreams.",
+              "Be careful what you read here. It's changing as you watch.",
+              "This page feels unstable. Like it's not fully in this timeline."
+            ];
+            
+            addBotMessage(dreamMessages[Math.floor(Math.random() * dreamMessages.length)]);
           }, 2500);
         }
       }

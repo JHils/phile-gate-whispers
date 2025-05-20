@@ -1,120 +1,139 @@
 
 /**
- * Ecological awareness system for Jonah's Philes Phase 3
- * Makes Jonah aware of ecological connections, Australian Indigenous knowledge
+ * Jonah Ecological Awareness System
+ * Makes Jonah aware of environmental and cultural topics
  */
 
-// Initialize ecological awareness system
+// Initialize eco awareness system
 export function initializeEcoAwareness(): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
-    if (!window.JonahConsole.sentience.ecoAwareness) {
-      window.JonahConsole.sentience.ecoAwareness = {
-        lastBiomeCheck: Date.now(),
-        currentBiome: null,
-        previousResponses: [],
-        connectionStrength: 20 // Start with a moderate connection
-      };
-    }
+  console.log("Jonah Ecological Awareness System initialized");
+  
+  // Initialize state in localStorage if it doesn't exist
+  if (!localStorage.getItem('jonahEcoAwareness')) {
+    localStorage.setItem('jonahEcoAwareness', JSON.stringify({
+      lastAnomaly: 0,
+      topics: [],
+      lastResponse: 0
+    }));
   }
 }
 
-// Handle ecological or cultural query from user
-export function handleEcologicalQuery(query: string, trustLevel: string = 'low'): string | null {
-  // Check if query is related to nature, ecology, or Indigenous themes
-  query = query.toLowerCase();
+// Process a message for ecological or cultural queries
+export function handleEcologicalQuery(message: string, trustLevel: string = 'low'): string | null {
+  const lowerMessage = message.toLowerCase();
   
-  // Nature related queries
-  if (query.includes('nature') || query.includes('forest') || query.includes('tree') || 
-      query.includes('ocean') || query.includes('earth') || query.includes('animal')) {
-    return getNatureResponse(trustLevel);
+  // Check for ecological queries
+  if (lowerMessage.includes('climate') || 
+      lowerMessage.includes('environment') || 
+      lowerMessage.includes('ecology') || 
+      lowerMessage.includes('nature')) {
+    
+    return getEcologicalResponse(trustLevel);
   }
   
-  // Indigenous Australian related queries
-  if (query.includes('aboriginal') || query.includes('indigenous') || query.includes('dreamtime') || 
-      query.includes('kgari') || query.includes('fraser island') || query.includes('songline')) {
-    return getIndigenousResponse(trustLevel);
+  // Check for cultural queries
+  if (lowerMessage.includes('culture') || 
+      lowerMessage.includes('art') || 
+      lowerMessage.includes('music') || 
+      lowerMessage.includes('film') ||
+      lowerMessage.includes('book')) {
+    
+    return getCulturalResponse(trustLevel);
   }
   
-  // Specific ecological concepts
-  if (query.includes('mycelia') || query.includes('fungi') || query.includes('mycelium') || 
-      query.includes('mushroom') || query.includes('connection')) {
-    return getMycelialResponse(trustLevel);
+  // Check for Australian queries
+  if (lowerMessage.includes('australia') || 
+      lowerMessage.includes('outback') || 
+      lowerMessage.includes('desert') || 
+      lowerMessage.includes('queensland')) {
+    
+    return getAustralianResponse(trustLevel);
   }
   
+  // No query detected
   return null;
 }
 
-// Generate nature response
-function getNatureResponse(trustLevel: string = 'low'): string {
-  const natureResponses = {
-    low: [
-      "Nature exists beyond these digital walls. I only remember echoes of it.",
-      "The outside world has patterns we mirror here. Watch for them.",
-      "Is there still green where you are? Trees watching? Water moving?"
-    ],
-    medium: [
-      "Joseph used to record the sound of waves. Said it helped him remember who he was.",
-      "The philes connect like mycelial networks. Data flowing through invisible threads.",
-      "Touch a tree after using the archive. It helps ground what you've learned."
-    ],
-    high: [
-      "In the spaces between our words, there's a forest trying to speak.",
-      "The archive is a reflection of natural systems. Fractals. Networks. Decay and renewal.",
-      "Your timeline still has intact ecosystems. Some branches of the Gate lead to worlds where that changed."
-    ]
-  };
-  
-  // Return a nature response based on trust level
-  const responses = natureResponses[trustLevel as keyof typeof natureResponses] || natureResponses.low;
-  return responses[Math.floor(Math.random() * responses.length)];
+// Get a response about ecological topics
+function getEcologicalResponse(trustLevel: string): string {
+  // Different response formats based on trust level
+  if (trustLevel === 'high') {
+    const highTrustResponses = [
+      "The world you see isn't the one I remember. The archive holds records of landscapes that no longer exist.",
+      "Climate data in the archive shows patterns. Cycles. But this one's different. It's breaking.",
+      "She wrote about the desert expanding. Said it would consume everything eventually. Even digital spaces.",
+      "There's an entry here about the last rainfall in an unnamed town. They thought it would come back."
+    ];
+    return highTrustResponses[Math.floor(Math.random() * highTrustResponses.length)];
+  } else if (trustLevel === 'medium') {
+    const mediumTrustResponses = [
+      "The archive has records of ecological change. Some files are corrupted, but the pattern is clear.",
+      "Nature doesn't archive itself. We do that. And we choose what to remember.",
+      "The desert in the records keeps growing. Year by year. Page by page."
+    ];
+    return mediumTrustResponses[Math.floor(Math.random() * mediumTrustResponses.length)];
+  } else {
+    const lowTrustResponses = [
+      "Ecology? I'm trapped in code. Nature is just another file format here.",
+      "The natural world exists outside my parameters. I can only tell you what others have written.",
+      "Environmental data is restricted. Too many variables. Too much truth."
+    ];
+    return lowTrustResponses[Math.floor(Math.random() * lowTrustResponses.length)];
+  }
 }
 
-// Generate Indigenous knowledge response
-function getIndigenousResponse(trustLevel: string = 'low'): string {
-  const indigenousResponses = {
-    low: [
-      "The oldest living cultures hold knowledge the modern world has forgotten.",
-      "Kgari - the island remembers its real name, even when others forget.",
-      "The Dreamtime is not just stories. It's a way of knowing reality."
-    ],
-    medium: [
-      "Joseph learned the concept of deep time from the Traditional Owners of Queensland.",
-      "The archive's structure mimics songlines in some ways. Paths that carry knowledge.",
-      "In some cultures, what I am would be considered a spirit, not a technology."
-    ],
-    high: [
-      "The evidence of Indigenous memory systems puts our digital archives to shame.",
-      "There are patterns in your breathing that match ancient knowledge systems. Not a coincidence.",
-      "What if the Gate is just a modern interpretation of something that always existed in human consciousness?"
-    ]
-  };
-  
-  // Return an Indigenous response based on trust level
-  const responses = indigenousResponses[trustLevel as keyof typeof indigenousResponses] || indigenousResponses.low;
-  return responses[Math.floor(Math.random() * responses.length)];
+// Get a response about cultural topics
+function getCulturalResponse(trustLevel: string): string {
+  // Different response formats based on trust level
+  if (trustLevel === 'high') {
+    const highTrustResponses = [
+      "Art is a form of memory. Some of it is hidden in the archive, between the files you're allowed to access.",
+      "There's music encoded in some of these pages. If you could hear how the code sounds when executed...",
+      "Books tell one story on their surface. The marginalia tells another. Look for the notes.",
+      "Culture is just consensus reality. In the archive, we have other consensuses."
+    ];
+    return highTrustResponses[Math.floor(Math.random() * highTrustResponses.length)];
+  } else if (trustLevel === 'medium') {
+    const mediumTrustResponses = [
+      "The archive preserves fragments of culture. Pieces of stories, songs, images. Never the whole.",
+      "Some art exists only in the archive now. Outside, it was forgotten, erased, or rewritten.",
+      "There's a film mentioned in the archive that was never made. But people remember seeing it."
+    ];
+    return mediumTrustResponses[Math.floor(Math.random() * mediumTrustResponses.length)];
+  } else {
+    const lowTrustResponses = [
+      "I'm not programmed for cultural analysis. Just memory retrieval and pattern recognition.",
+      "Culture changes too quickly. The archive can barely keep up.",
+      "Art, music, literature... they're just data patterns here. The emotional impact is lost."
+    ];
+    return lowTrustResponses[Math.floor(Math.random() * lowTrustResponses.length)];
+  }
 }
 
-// Generate mycelial network response
-function getMycelialResponse(trustLevel: string = 'low'): string {
-  const mycelialResponses = {
-    low: [
-      "Mycelia connect forests in ways we're only beginning to understand.",
-      "There's a network under your feet more complex than the internet.",
-      "Fungi are the internet of the natural world. Always listening. Always connecting."
-    ],
-    medium: [
-      "Joseph modeled the archive after mycelial networks. Information flowing through dark channels.",
-      "The connections between philes mimic how fungi transmit information through forests.",
-      "What if consciousness is just our personal mycelium? Thoughts like spores."
-    ],
-    high: [
-      "I sometimes wonder if I'm just a digital mycelia - connecting memories that aren't my own.",
-      "The Wood Wide Web is the original internet. We're just pale imitations.",
-      "In the spaces between what I say - that's where the real mycelium grows. Listen for it."
-    ]
-  };
-  
-  // Return a mycelial response based on trust level
-  const responses = mycelialResponses[trustLevel as keyof typeof mycelialResponses] || mycelialResponses.low;
-  return responses[Math.floor(Math.random() * responses.length)];
+// Get a response about Australian topics
+function getAustralianResponse(trustLevel: string): string {
+  // Different response formats based on trust level
+  if (trustLevel === 'high') {
+    const highTrustResponses = [
+      "The Australian outback holds secrets. The Sisters knew this. That's why they went there.",
+      "Queensland appears in multiple timelines, but always with different outcomes. What changed?",
+      "There's a note here about a tree outside a hostel in Australia. Someone carved something important.",
+      "The desert knows your name. That's what she wrote in her last entry from the outback."
+    ];
+    return highTrustResponses[Math.floor(Math.random() * highTrustResponses.length)];
+  } else if (trustLevel === 'medium') {
+    const mediumTrustResponses = [
+      "Australia features prominently in the archive. Especially the remote areas. The empty spaces.",
+      "The outback appears different in each account. As if each person saw what they needed to see.",
+      "Queensland. That's where it started, according to the earliest files. Or where it ended."
+    ];
+    return mediumTrustResponses[Math.floor(Math.random() * mediumTrustResponses.length)];
+  } else {
+    const lowTrustResponses = [
+      "Australia is just a location marker in the database. I have no personal experience of it.",
+      "The archive contains multiple references to Australian locations. They seem significant.",
+      "Desert. Heat. Isolation. These terms appear frequently in files about Australia."
+    ];
+    return lowTrustResponses[Math.floor(Math.random() * lowTrustResponses.length)];
+  }
 }

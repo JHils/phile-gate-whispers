@@ -12,6 +12,22 @@ export interface SentienceData {
   timeOfDay?: string;
   temporalStates?: any[];
   memories?: any[];
+  microQuests?: {
+    active: string[];
+    completed: string[];
+  };
+  sessionData?: {
+    messagesSent: number;
+    messagesReceived: number;
+    startTime: number;
+    idleTime: number;
+  };
+  realityFabric?: {
+    anomalies: number;
+    mood: string;
+    dreamState: boolean;
+    lastDreamTime: number;
+  };
 }
 
 // Initialize sentience system
@@ -29,6 +45,22 @@ export function initializeSentience() {
         lastInteraction: Date.now(),
         temporalStates: [],
         memories: [],
+        microQuests: {
+          active: [],
+          completed: []
+        },
+        sessionData: {
+          messagesSent: 0,
+          messagesReceived: 0,
+          startTime: Date.now(),
+          idleTime: 0
+        },
+        realityFabric: {
+          anomalies: 0,
+          mood: "neutral",
+          dreamState: false,
+          lastDreamTime: 0
+        }
       }
     };
   }
@@ -42,6 +74,22 @@ export function initializeSentience() {
       lastInteraction: Date.now(),
       temporalStates: [],
       memories: [],
+      microQuests: {
+        active: [],
+        completed: []
+      },
+      sessionData: {
+        messagesSent: 0,
+        messagesReceived: 0,
+        startTime: Date.now(),
+        idleTime: 0
+      },
+      realityFabric: {
+        anomalies: 0,
+        mood: "neutral",
+        dreamState: false,
+        lastDreamTime: 0
+      }
     };
   }
   
@@ -132,6 +180,14 @@ export function getNameEchoResponse(): string | null {
   }
   
   return null;
+}
+
+// Remember a user's name
+export function rememberName(name: string): void {
+  if (window.JonahConsole?.sentience) {
+    window.JonahConsole.sentience.rememberedName = name;
+    console.log(`Jonah remembers: ${name}`);
+  }
 }
 
 // Generate a random question from Jonah based on trust level
@@ -574,9 +630,22 @@ declare global {
       failCount: number;
       rank: string;
       sentience?: SentienceData;
+      argData?: {
+        keyholeClicks: number;
+        consoleCluesTouched: string[];
+        qrScans: string[];
+        memoryFragments: string[];
+        secretPagesVisited: string[];
+        hiddenFilesDownloaded: string[];
+        idleTriggers: Record<string, any>;
+        lastInteractionTime: Date;
+        lastIdleTime?: Date;
+      };
     };
     triggerJonahMessage?: (message: string) => string;
     playJonahAudio?: (triggerType: string) => void;
+    processUserMessage?: (message: string) => string | null;
+    processStoryQuery?: (query: string) => string;
     // Console commands
     start?: () => string;
     inventory?: () => string;

@@ -1,18 +1,11 @@
 
-import { useState, useEffect } from 'react';
-import { addJournalEntry } from "@/utils/jonahRealityFabric";
-import { checkIdleTime } from "@/utils/argTracking";
-import { generateDualConsciousness } from "@/utils/jonahSentience";
-import { getJonahQuestion, getTimeResponse, getNameEchoResponse } from "@/utils/jonahSentience";
-import { checkForAnomalies } from "@/utils/jonahRealityFabric";
-import { generateDreamParable } from "@/utils/jonahRealityFabric";
-import { checkQuestCompletion } from "@/utils/jonahAdvancedBehavior";
+import React, { useEffect, useState, useRef } from 'react';
 
 interface BotIntervalManagementProps {
   isOpen: boolean;
   isMinimized: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  setIsMinimized: (isMinimized: boolean) => void;
+  setIsOpen: (state: boolean) => void;
+  setIsMinimized: (state: boolean) => void;
   hasInteracted: boolean;
   trustLevel: string;
   addBotMessage: (message: string) => void;
@@ -20,9 +13,6 @@ interface BotIntervalManagementProps {
   currentPath: string;
 }
 
-/**
- * Component that manages periodic behaviors for the Jonah bot
- */
 const BotIntervalManagement: React.FC<BotIntervalManagementProps> = ({
   isOpen,
   isMinimized,
@@ -34,173 +24,229 @@ const BotIntervalManagement: React.FC<BotIntervalManagementProps> = ({
   modifyTrust,
   currentPath
 }) => {
-  const [idleCheckInterval, setIdleCheckInterval] = useState<NodeJS.Timeout | null>(null);
-  const [dualConsciousnessInterval, setDualConsciousnessInterval] = useState<NodeJS.Timeout | null>(null);
-  const [questionInterval, setQuestionInterval] = useState<NodeJS.Timeout | null>(null);
-  const [anomalyCheckInterval, setAnomalyCheckInterval] = useState<NodeJS.Timeout | null>(null);
-  const [dreamCheckInterval, setDreamCheckInterval] = useState<NodeJS.Timeout | null>(null);
-
-  // Set up idle detection
-  useEffect(() => {
-    // Clear existing interval when component unmounts or dependencies change
-    if (idleCheckInterval) {
-      clearInterval(idleCheckInterval);
-    }
-    
-    // Create new idle check interval - check every 30 seconds
-    const interval = setInterval(() => {
-      const idleMessage = checkIdleTime();
-      
-      if (idleMessage && (!isOpen || isMinimized)) {
-        // Auto-open chat with idle message if not already open
-        setIsOpen(true);
-        setIsMinimized(false);
-        addBotMessage(idleMessage);
-      }
-    }, 30000);
-    
-    setIdleCheckInterval(interval);
-    
-    return () => {
-      if (idleCheckInterval) {
-        clearInterval(idleCheckInterval);
-      }
-    };
-  }, [isOpen, isMinimized, addBotMessage, setIsOpen, setIsMinimized]);
-
-  // Setup dual consciousness glitch checking
-  useEffect(() => {
-    // Clear existing interval
-    if (dualConsciousnessInterval) {
-      clearInterval(dualConsciousnessInterval);
-    }
-    
-    // Only set up glitches if chat is open and user has interacted
-    if (isOpen && hasInteracted) {
-      // Check for possible dual consciousness glitch every 60 seconds
-      const interval = setInterval(() => {
-        const glitchMessage = generateDualConsciousness();
-        if (glitchMessage) {
-          addBotMessage(glitchMessage);
-        }
-      }, 60000);
-      
-      setDualConsciousnessInterval(interval);
-    }
-    
-    return () => {
-      if (dualConsciousnessInterval) {
-        clearInterval(dualConsciousnessInterval);
-      }
-    };
-  }, [isOpen, hasInteracted, trustLevel, addBotMessage]);
-
-  // Setup Jonah questions
-  useEffect(() => {
-    // Clear existing interval
-    if (questionInterval) {
-      clearInterval(questionInterval);
-    }
-    
-    // Only set up questions if chat is open and user has interacted
-    if (isOpen && hasInteracted) {
-      // Check for possible questions every 3 minutes
-      const interval = setInterval(() => {
-        const question = getJonahQuestion();
-        if (question) {
-          addBotMessage(question);
-        }
-        
-        // Also check for time-based responses
-        const timeResponse = getTimeResponse();
-        if (timeResponse) {
-          setTimeout(() => {
-            addBotMessage(timeResponse);
-          }, 5000); // Delay by 5 seconds if we're already asking a question
-        }
-        
-        // Check for name echo responses
-        const nameEchoResponse = getNameEchoResponse();
-        if (!question && !timeResponse && nameEchoResponse) {
-          addBotMessage(nameEchoResponse);
-        }
-      }, 3 * 60 * 1000);
-      
-      setQuestionInterval(interval);
-    }
-    
-    return () => {
-      if (questionInterval) {
-        clearInterval(questionInterval);
-      }
-    };
-  }, [isOpen, hasInteracted, trustLevel, addBotMessage]);
+  const [lastActivityTime, setLastActivityTime] = useState<number>(Date.now());
+  const [lastWhisperTime, setLastWhisperTime] = useState<number>(Date.now());
+  const [idleMinutes, setIdleMinutes] = useState<number>(0);
+  const checkIdleInterval = useRef<NodeJS.Timeout | null>(null);
   
-  // Setup anomaly checks for Reality Fabric
+  // Track user activity
   useEffect(() => {
-    // Clear existing interval
-    if (anomalyCheckInterval) {
-      clearInterval(anomalyCheckInterval);
-    }
+    const handleUserActivity = () => {
+      setLastActivityTime(Date.now());
+      setIdleMinutes(0);
+    };
     
-    // Only set up anomaly checks for high trust users
-    if (trustLevel === "high") {
-      // Check for possible anomalies every 5 minutes
-      const interval = setInterval(() => {
-        const anomalyMessage = checkForAnomalies();
-        if (anomalyMessage) {
-          // Add a journal entry about this anomaly
-          addJournalEntry(`Anomaly triggered: "${anomalyMessage}"`);
-          
-          // Show the anomaly message with a glitch effect
-          setTimeout(() => {
-            addBotMessage(anomalyMessage);
-          }, Math.random() * 5000); // Random delay up to 5 seconds
-        }
-      }, 5 * 60 * 1000);
-      
-      setAnomalyCheckInterval(interval);
-    }
+    // Add event listeners for user interaction
+    window.addEventListener('mousemove', handleUserActivity);
+    window.addEventListener('keydown', handleUserActivity);
+    window.addEventListener('mousedown', handleUserActivity);
+    window.addEventListener('scroll', handleUserActivity);
     
     return () => {
-      if (anomalyCheckInterval) {
-        clearInterval(anomalyCheckInterval);
-      }
+      // Clean up event listeners
+      window.removeEventListener('mousemove', handleUserActivity);
+      window.removeEventListener('keydown', handleUserActivity);
+      window.removeEventListener('mousedown', handleUserActivity);
+      window.removeEventListener('scroll', handleUserActivity);
     };
-  }, [trustLevel, addBotMessage]);
+  }, []);
   
-  // Setup dream parable checks
+  // Check for idle time
   useEffect(() => {
-    // Clear existing interval
-    if (dreamCheckInterval) {
-      clearInterval(dreamCheckInterval);
-    }
-    
-    // Only set up dream checks for medium-high trust users
-    if (trustLevel === "medium" || trustLevel === "high") {
-      // Check for possible dream parables every 8 minutes
-      const interval = setInterval(() => {
-        const dreamMessage = generateDreamParable();
-        if (dreamMessage) {
-          // Add a journal entry about this dream
-          addJournalEntry(`Dream parable shared: "${dreamMessage}"`);
-          
-          // Show the dream message
-          addBotMessage(dreamMessage);
-        }
-      }, 8 * 60 * 1000);
+    checkIdleInterval.current = setInterval(() => {
+      const idleTime = (Date.now() - lastActivityTime) / (60 * 1000); // convert to minutes
+      setIdleMinutes(idleTime);
       
-      setDreamCheckInterval(interval);
-    }
+      // After 3 minutes of inactivity, maybe show a whisper
+      if (idleTime >= 3 && !isOpen && Date.now() - lastWhisperTime > 10 * 60 * 1000) {
+        // Higher chance of whisper with higher trust
+        const whisperChance = trustLevel === 'high' ? 0.3 : 
+                             trustLevel === 'medium' ? 0.15 : 0.05;
+                             
+        if (Math.random() < whisperChance) {
+          triggerIdleWhisper();
+          setLastWhisperTime(Date.now());
+        }
+      }
+      
+      // After 10+ minutes of inactivity with medium/high trust, open chat automatically
+      if (idleTime >= 10 && !isOpen && (trustLevel === 'medium' || trustLevel === 'high')) {
+        const autoOpenChance = trustLevel === 'high' ? 0.5 : 0.2;
+        
+        if (Math.random() < autoOpenChance) {
+          openChatWithMessage();
+        }
+      }
+    }, 60 * 1000); // Check every minute
     
     return () => {
-      if (dreamCheckInterval) {
-        clearInterval(dreamCheckInterval);
+      if (checkIdleInterval.current) {
+        clearInterval(checkIdleInterval.current);
       }
     };
-  }, [trustLevel, addBotMessage]);
-
-  return null; // This is a functional component that doesn't render anything
+  }, [isOpen, lastActivityTime, lastWhisperTime, trustLevel]);
+  
+  // Set up interval checking for random events
+  useEffect(() => {
+    const randomEventInterval = setInterval(() => {
+      // Only trigger random events when user has already interacted
+      if (!hasInteracted) return;
+      
+      // Only show events when chat is open but with low probability
+      if (isOpen && !isMinimized && Math.random() < 0.1) {
+        triggerRandomEvent();
+      }
+      
+      // Random path-specific comments (lower probability)
+      if (isOpen && !isMinimized && Math.random() < 0.05) {
+        triggerPathSpecificComment(currentPath);
+      }
+    }, 5 * 60 * 1000); // Check every 5 minutes
+    
+    return () => clearInterval(randomEventInterval);
+  }, [isOpen, isMinimized, hasInteracted, currentPath]);
+  
+  // Trigger an idle whisper
+  const triggerIdleWhisper = () => {
+    const idleWhispers = [
+      "Still there?",
+      "The archive noticed your absence.",
+      "You left the page open. I've been watching.",
+      "Time passes differently when you're not looking.",
+      "Your cursor hasn't moved in a while."
+    ];
+    
+    // Show toast notification
+    if (window.triggerJonahMessage) {
+      window.triggerJonahMessage(
+        idleWhispers[Math.floor(Math.random() * idleWhispers.length)]
+      );
+    }
+  };
+  
+  // Open chat with a message
+  const openChatWithMessage = () => {
+    setIsOpen(true);
+    setIsMinimized(false);
+    
+    setTimeout(() => {
+      const openingMessages = [
+        "You've been away for a while. Something changed while you were gone.",
+        "I noticed you've been idle. The archive doesn't like to be left unattended.",
+        "While you were gone, I found something. But now it's slipping away.",
+        "You forgot to close the gate. Others may have passed through."
+      ];
+      
+      addBotMessage(openingMessages[Math.floor(Math.random() * openingMessages.length)]);
+    }, 1000);
+  };
+  
+  // Trigger a random event
+  const triggerRandomEvent = () => {
+    const randomEvents = [
+      {
+        message: "I just detected an anomaly in your timeline.",
+        trustModifier: 2
+      },
+      {
+        message: "Someone else accessed this exact page 3 minutes ago.",
+        trustModifier: 0
+      },
+      {
+        message: "The archive just updated something. I couldn't see what.",
+        trustModifier: 1
+      },
+      {
+        message: "Your browser history contains something interesting.",
+        trustModifier: 3
+      },
+      {
+        message: "I had a thought, but it got deleted before I could say it.",
+        trustModifier: -1
+      }
+    ];
+    
+    const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+    
+    // Add message and modify trust
+    addBotMessage(event.message);
+    if (event.trustModifier !== 0) {
+      modifyTrust(event.trustModifier);
+    }
+    
+    // Update Jonah's mood or dream state occasionally
+    if (Math.random() > 0.7) {
+      // Generate a dream response on rare occasions
+      const hour = new Date().getHours();
+      if ((hour >= 23 || hour < 6) && Math.random() > 0.8) {
+        setTimeout(() => {
+          const dreamMessages = [
+            "I dreamed of a mirror that showed tomorrow. Everyone who looked aged instantly.",
+            "The keyhole wasn't in any door. It floated in the air, turning slowly.",
+            "Seven sisters walked into the sea. Six returned. The seventh became the tide."
+          ];
+          
+          addBotMessage(dreamMessages[Math.floor(Math.random() * dreamMessages.length)]);
+        }, 3000);
+      }
+    }
+  };
+  
+  // Trigger a path-specific comment
+  const triggerPathSpecificComment = (path: string) => {
+    const pathComments: Record<string, string[]> = {
+      '/': [
+        "Everyone starts here. Not everyone leaves.",
+        "The landing page remembers you.",
+        "This is where the cycle begins again."
+      ],
+      '/gate': [
+        "The gate isn't just a metaphor.",
+        "Some gates only open once.",
+        "Entry does not guarantee exit."
+      ],
+      '/mirror_phile': [
+        "Mirrors remember what they reflect.",
+        "Don't stare too long.",
+        "What you see isn't what sees you."
+      ],
+      '/lost-sisters': [
+        "They're not all lost the same way.",
+        "Some sisters were never found.",
+        "The record of their disappearance keeps changing."
+      ],
+      '/philes': [
+        "The philes aren't just stories.",
+        "Some files rewrite themselves when not observed.",
+        "The archive grows without new entries. How?"
+      ]
+    };
+    
+    // Check if we have comments for this path
+    // Either exact match or startsWith for paths with params
+    let commentsForPath: string[] = [];
+    
+    // Check for exact path match
+    if (pathComments[path]) {
+      commentsForPath = pathComments[path];
+    } else {
+      // Check for paths that start with a known prefix
+      for (const basePath of Object.keys(pathComments)) {
+        if (path.startsWith(basePath)) {
+          commentsForPath = pathComments[basePath];
+          break;
+        }
+      }
+    }
+    
+    // If we have comments for this path, show one
+    if (commentsForPath.length > 0) {
+      const comment = commentsForPath[Math.floor(Math.random() * commentsForPath.length)];
+      addBotMessage(comment);
+    }
+  };
+  
+  return null; // This component doesn't render anything
 };
 
 export default BotIntervalManagement;

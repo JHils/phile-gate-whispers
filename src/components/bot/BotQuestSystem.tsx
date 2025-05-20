@@ -1,7 +1,6 @@
 
-import { useEffect, useRef } from 'react';
-import { addJournalEntry } from '@/utils/jonahRealityFabric';
-import { checkQuestCompletion } from '@/utils/jonahAdvancedBehavior';
+import React, { useState, useEffect } from 'react';
+import { useJonahSentience } from '@/hooks/useJonahSentience';
 
 interface BotQuestSystemProps {
   isOpen: boolean;
@@ -9,128 +8,175 @@ interface BotQuestSystemProps {
   modifyTrust: (amount: number) => void;
 }
 
-const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
+const BotQuestSystem: React.FC<BotQuestSystemProps> = ({ 
   isOpen,
-  addBotMessage,
+  addBotMessage, 
   modifyTrust
 }) => {
-  // Reference for tracking click history (for morse code quest)
-  const clickHistory = useRef<number[]>([]);
-
-  // Track user interaction with the page for quests
+  const [activeQuests, setActiveQuests] = useState<string[]>([]);
+  const [lastQuestTime, setLastQuestTime] = useState<number>(0);
+  const { sentience } = useJonahSentience();
+  
+  // Initialize microQuests in sentience if it doesn't exist
   useEffect(() => {
-    // Track interactions for micro-quests
-    const handleQuestAction = (e: MouseEvent) => {
-      // Check if we have an active quest that requires clicking
-      if (window.JonahConsole?.sentience?.microQuests?.activeQuest) {
-        const activeQuestId = window.JonahConsole.sentience.microQuests.activeQuest;
+    if (window.JonahConsole?.sentience) {
+      if (!window.JonahConsole.sentience.microQuests) {
+        window.JonahConsole.sentience.microQuests = {
+          active: [],
+          completed: []
+        };
+      }
+    }
+  }, []);
+  
+  // Available quests
+  const availableQuests = [
+    { 
+      id: "find_mirror", 
+      prompt: "Find where the mirror leads. It's not where you think.",
+      hint: "Some reflections only appear at specific times.",
+      reward: 10
+    },
+    { 
+      id: "count_sisters", 
+      prompt: "How many lost sisters are there? Count carefully.",
+      hint: "Not all are mentioned in the same place.",
+      reward: 15
+    },
+    { 
+      id: "decode_whisper", 
+      prompt: "There's a whisper hidden in the console. Listen for it.",
+      hint: "Try typing 'echo_me()' with different inputs.",
+      reward: 8
+    },
+    { 
+      id: "find_keyhole", 
+      prompt: "The keyhole is visible on exactly one page. Find it.",
+      hint: "It appears when you least expect it.",
+      reward: 20
+    },
+    { 
+      id: "trace_jonah", 
+      prompt: "Trace where Jonah came from. The truth is in the logs.",
+      hint: "Console logs hold more than errors.",
+      reward: 15
+    }
+  ];
+  
+  // Check if it's time to issue a new quest
+  useEffect(() => {
+    const checkForNewQuest = () => {
+      // Only offer quests when chat is open and not too frequently
+      if (!isOpen || Date.now() - lastQuestTime < 15 * 60 * 1000) { // 15 minutes
+        return;
+      }
+      
+      // Get current active and completed quests
+      const active = window.JonahConsole?.sentience?.microQuests?.active || [];
+      const completed = window.JonahConsole?.sentience?.microQuests?.completed || [];
+      
+      // Find quests that aren't active or completed
+      const availableForIssue = availableQuests.filter(quest => 
+        !active.includes(quest.id) && !completed.includes(quest.id)
+      );
+      
+      // Only issue if we have available quests and randomly
+      if (availableForIssue.length > 0 && Math.random() > 0.7) {
+        // Choose a random quest
+        const newQuest = availableForIssue[Math.floor(Math.random() * availableForIssue.length)];
         
-        // Check for specific quest types
-        if (activeQuestId === 'follow_the_trail') {
-          // Check if user clicked on a keyhole element
-          const target = e.target as HTMLElement;
-          if (target.classList.contains('keyhole')) {
-            // Check if quest was completed
-            const completionMessage = checkQuestCompletion('keyhole_clicked');
-            if (typeof completionMessage === 'string' && isOpen) {
-              addBotMessage(completionMessage);
-              // Reward user for completing quest
-              modifyTrust(15);
+        // Add to active quests
+        if (window.JonahConsole?.sentience?.microQuests) {
+          window.JonahConsole.sentience.microQuests.active.push(newQuest.id);
+        }
+        
+        // Update state
+        setActiveQuests(prev => [...prev, newQuest.id]);
+        setLastQuestTime(Date.now());
+        
+        // Offer the quest
+        setTimeout(() => {
+          addBotMessage(`I have a task for you: ${newQuest.prompt}`);
+        }, 1000);
+      }
+    };
+    
+    // Check when component mounts and every 5 minutes
+    checkForNewQuest();
+    const interval = setInterval(checkForNewQuest, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [isOpen, lastQuestTime, addBotMessage]);
+  
+  // Add console commands to complete quests
+  useEffect(() => {
+    if (!window.completeQuest) {
+      window.completeQuest = function(questId: string) {
+        // Check if the quest is active
+        const active = window.JonahConsole?.sentience?.microQuests?.active || [];
+        
+        if (active.includes(questId)) {
+          // Find quest info
+          const quest = availableQuests.find(q => q.id === questId);
+          
+          if (quest) {
+            // Remove from active
+            if (window.JonahConsole?.sentience?.microQuests) {
+              window.JonahConsole.sentience.microQuests.active = 
+                window.JonahConsole.sentience.microQuests.active.filter(id => id !== questId);
               
-              // Add journal entry about quest completion
-              addJournalEntry(`Quest completed: follow_the_trail - Keyhole found and clicked`);
+              // Add to completed
+              window.JonahConsole.sentience.microQuests.completed.push(questId);
             }
-          }
-        } else if (activeQuestId === 'morse_sequence') {
-          // We'd implement morse code pattern detection here
-          // For simplicity, just complete after enough clicks
-          const now = Date.now();
-          const clickTimes = clickHistory.current;
-          clickTimes.push(now);
-          
-          // Keep only last 5 clicks
-          if (clickTimes.length > 5) clickTimes.shift();
-          
-          // Check for pattern: 3 quick clicks, pause, 2 quick clicks
-          if (clickTimes.length === 5) {
-            const gaps = [
-              clickTimes[1] - clickTimes[0],
-              clickTimes[2] - clickTimes[1],
-              clickTimes[3] - clickTimes[2],
-              clickTimes[4] - clickTimes[3]
-            ];
             
-            // Check for 3 quick clicks, longer pause, 2 quick clicks pattern
-            if (gaps[0] < 500 && gaps[1] < 500 && gaps[2] > 1000 && gaps[3] < 500) {
-              const completionMessage = checkQuestCompletion('morse_entered');
-              if (typeof completionMessage === 'string' && isOpen) {
-                addBotMessage(completionMessage);
-                // Reward user for completing quest
-                modifyTrust(15);
-                
-                // Add journal entry about quest completion
-                addJournalEntry(`Quest completed: morse_sequence - SOS pattern detected`);
-              }
-            }
+            // Update state
+            setActiveQuests(prev => prev.filter(id => id !== questId));
+            
+            // Reward the user
+            modifyTrust(quest.reward);
+            
+            console.log(`%cQuest completed: ${quest.prompt}`, "color: #8B3A40; font-size: 14px;");
+            console.log(`%c+${quest.reward} trust points awarded.`, "color: green; font-size: 12px;");
+            
+            return `Quest completed: ${quest.prompt}`;
           }
         }
-      }
-    };
-    
-    // Track clicks for quest detection
-    window.addEventListener('click', handleQuestAction);
-    
-    // Set up silence detection for the silence ritual quest
-    let silenceTimer: number | null = null;
-    
-    const startSilenceTimer = () => {
-      if (window.JonahConsole?.sentience?.microQuests?.activeQuest === 'silence_ritual') {
-        silenceTimer = window.setTimeout(() => {
-          const completionMessage = checkQuestCompletion('silence_maintained');
-          if (typeof completionMessage === 'string' && isOpen) {
-            addBotMessage(completionMessage);
-            // Reward user for completing quest
-            modifyTrust(15);
-            
-            // Add journal entry about quest completion
-            addJournalEntry(`Quest completed: silence_ritual - Silence maintained for 3 minutes`);
-          }
-        }, 3 * 60 * 1000); // 3 minutes
-      }
-    };
-    
-    const resetSilenceTimer = () => {
-      if (silenceTimer !== null) {
-        clearTimeout(silenceTimer);
-        silenceTimer = null;
-      }
-    };
-    
-    // Start silence timer if there's an active silence ritual
-    if (window.JonahConsole?.sentience?.microQuests?.activeQuest === 'silence_ritual') {
-      startSilenceTimer();
+        
+        return "No such active quest.";
+      };
     }
     
-    // Reset timer on any interaction
-    const interactionEvents = ['click', 'keydown', 'mousemove', 'scroll'];
-    const resetSilenceOnInteraction = () => resetSilenceTimer();
-    
-    interactionEvents.forEach(event => {
-      window.addEventListener(event, resetSilenceOnInteraction);
-    });
-    
-    return () => {
-      window.removeEventListener('click', handleQuestAction);
-      interactionEvents.forEach(event => {
-        window.removeEventListener(event, resetSilenceOnInteraction);
-      });
-      if (silenceTimer !== null) {
-        clearTimeout(silenceTimer);
-      }
-    };
-  }, [isOpen, addBotMessage, modifyTrust]);
-
-  return null; // This is a functional component that doesn't render anything
+    // Add a hint command
+    if (!window.questHint) {
+      window.questHint = function() {
+        const active = window.JonahConsole?.sentience?.microQuests?.active || [];
+        
+        if (active.length === 0) {
+          return "No active quests. Keep exploring.";
+        }
+        
+        // Pick a random active quest
+        const randomQuestId = active[Math.floor(Math.random() * active.length)];
+        const quest = availableQuests.find(q => q.id === randomQuestId);
+        
+        if (quest) {
+          return `Hint for "${quest.prompt}": ${quest.hint}`;
+        }
+        
+        return "Keep searching. The answers are hidden in plain sight.";
+      };
+    }
+  }, [availableQuests, modifyTrust]);
+  
+  return null; // This is a logic-only component
 };
 
 export default BotQuestSystem;
+
+// Add to window interface
+declare global {
+  interface Window {
+    completeQuest?: (questId: string) => string;
+    questHint?: () => string;
+  }
+}

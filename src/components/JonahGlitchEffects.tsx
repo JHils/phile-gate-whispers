@@ -3,7 +3,7 @@ import React from "react";
 
 const JonahGlitchEffects = () => {
   return (
-    <style jsx global>{`
+    <style jsx="true" global="true">{`
       /* Glitch Text Effect */
       @keyframes glitch-text {
         0% {

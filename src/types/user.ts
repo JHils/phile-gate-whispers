@@ -32,7 +32,7 @@ export interface UserState {
     encounters: number;
   };
   events?: Record<string, any>;
-  // New fields for Phase 3
+  // Phase 3 additions
   trust?: {
     level: string;
     score: number;
