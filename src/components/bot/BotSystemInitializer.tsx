@@ -10,6 +10,9 @@ const BotSystemInitializer: React.FC = () => {
     // Initialize Jonah's advanced behavior system
     initializeAdvancedBehavior();
     
+    // Log initialization
+    console.log("Jonah's systems have been initialized");
+    
     // Mark that Jonah was initialized (for other components to use)
     window.JonahInitialized = true;
   }, []);
