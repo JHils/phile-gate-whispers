@@ -20,6 +20,7 @@ export const BotIcon: React.FC<BotIconProps> = ({
   trustLevel
 }) => {
   const [pulseTrust, setPulseTrust] = useState(false);
+  const [playedAudio, setPlayedAudio] = useState(false);
   
   // Occasionally pulse the icon based on trust level
   useEffect(() => {
@@ -32,12 +33,27 @@ export const BotIcon: React.FC<BotIconProps> = ({
       
       if (Math.random() > threshold) {
         setPulseTrust(true);
+        
+        // Trigger audio for high trust on rare occasions
+        if (trustLevel === 'high' && Math.random() > 0.85 && !playedAudio && window.playJonahAudio) {
+          window.playJonahAudio('confess');
+          setPlayedAudio(true);
+          
+          // Reset played status after a while
+          setTimeout(() => setPlayedAudio(false), 60000); // Reset after 1 minute
+        }
+        
         setTimeout(() => setPulseTrust(false), 2000);
       }
     }, 10000);
     
     return () => clearInterval(interval);
-  }, [trustLevel, isOpen]);
+  }, [trustLevel, isOpen, playedAudio]);
+  
+  // Reset played audio flag on trust level change
+  useEffect(() => {
+    setPlayedAudio(false);
+  }, [trustLevel]);
   
   if (isOpen) return null;
   

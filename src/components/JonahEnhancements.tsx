@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import JonahVoice from './JonahVoice';
 import { useTrustSystem } from '@/hooks/useBotState/useTrustSystem';
 
@@ -13,6 +13,18 @@ interface JonahEnhancementsProps {
 const JonahEnhancements: React.FC<JonahEnhancementsProps> = ({ children }) => {
   // Get current trust level from the trust system
   const { trustLevel } = useTrustSystem();
+  
+  // Apply trust-based effects to the entire app
+  useEffect(() => {
+    // Add global CSS class based on trust level
+    document.body.classList.remove('trust-glow-none', 'trust-glow-low', 'trust-glow-medium', 'trust-glow-high');
+    document.body.classList.add(`trust-glow-${trustLevel}`);
+    
+    return () => {
+      // Clean up on unmount
+      document.body.classList.remove('trust-glow-none', 'trust-glow-low', 'trust-glow-medium', 'trust-glow-high');
+    };
+  }, [trustLevel]);
   
   return (
     <>

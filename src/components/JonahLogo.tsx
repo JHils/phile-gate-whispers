@@ -70,6 +70,9 @@ const JonahLogo: React.FC<JonahLogoProps> = ({
       if (Math.random() > 0.95) {
         setIsEyeVisible(true);
         
+        // Dispatch event when eye appears
+        document.dispatchEvent(new CustomEvent('jonahEyeSymbolAppears'));
+        
         // Show for 5 seconds then revert
         setTimeout(() => {
           setIsEyeVisible(false);
@@ -89,6 +92,9 @@ const JonahLogo: React.FC<JonahLogoProps> = ({
       
       if (rarePaths.includes(currentPath) && !isEyeVisible) {
         setIsEyeVisible(true);
+        
+        // Dispatch event when eye appears
+        document.dispatchEvent(new CustomEvent('jonahEyeSymbolAppears'));
         
         // Show for 8 seconds then revert
         setTimeout(() => {
