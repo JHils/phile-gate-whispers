@@ -1,6 +1,7 @@
 
-import { StoryFlag, BookCode, SentienceData } from './types';
+import { SentienceData, StoryFlag, BookCode } from './types';
 
+// Define the window interfaces in a way that avoids duplicate declarations
 declare global {
   interface Window {
     JonahConsole?: {
@@ -16,9 +17,9 @@ declare global {
       simba: any;
       argData: any;
       sentience?: SentienceData;
+      lastCommand?: string;
       processUserMessage?: (input: string) => string | null;
       clearOnPathChange?: boolean;
-      lastCommand?: string;
     };
     logJonahDream?: (dreamContent: string) => void;
     processUserMessage?: (message: string) => string | null;
