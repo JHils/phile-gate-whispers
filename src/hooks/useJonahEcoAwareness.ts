@@ -10,7 +10,7 @@ export interface EcoAwarenessState {
   lastBiomeCheck?: number;
   connectionStrength?: number;
   currentBiome?: string;
-  previousResponses?: string[];
+  previousResponses: string[]; // Added missing property
 }
 
 export function useJonahEcoAwareness() {
@@ -23,7 +23,7 @@ export function useJonahEcoAwareness() {
     lastBiomeCheck: Date.now(),
     connectionStrength: 0,
     currentBiome: 'urban',
-    previousResponses: []
+    previousResponses: [] // Initialize the missing property
   });
   
   // Init state on mount

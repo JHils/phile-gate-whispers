@@ -14,9 +14,9 @@ export function initializeEcoAwareness(): void {
         dreamtimeActive: false,
         woodsResponses: [],
         lastBiomeCheck: Date.now(),
-        currentBiome: null,
         connectionStrength: 20, // Start with a low connection
-        previousResponses: []
+        currentBiome: null,
+        previousResponses: [] // Initialize the missing property
       };
     }
   }
