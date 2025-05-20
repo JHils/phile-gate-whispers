@@ -13,7 +13,19 @@ export const useTrackingSystem = () => {
   const [userState, setUserState] = useState<UserState>(() => {
     // Load user state and ensure console.rank is initialized
     const loadedState = loadUserState();
-    if (!loadedState.console.rank) {
+    if (!loadedState.console) {
+      loadedState.console = {
+        helpCalled: false,
+        whoisCalled: false,
+        gateCalled: false,
+        philesCalled: false,
+        monsterCalled: false,
+        legacyCalled: false,
+        revealCalled: false,
+        reincarnateCalled: false,
+        rank: 'drifter'
+      };
+    } else if (!loadedState.console.rank) {
       loadedState.console.rank = localStorage.getItem('phileRank') || 'drifter';
     }
     return loadedState;

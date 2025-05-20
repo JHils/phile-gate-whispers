@@ -1,4 +1,3 @@
-
 // User tracking types
 export interface UserState {
   visitCount: number;
@@ -20,10 +19,13 @@ export interface UserState {
   collapse?: {
     time: number;
     state: string;
+    message?: string;
+    permanent?: boolean;
   };
   messages?: {
     shown: string[];
     hidden: string[];
+    whisper?: string[];
   };
   console: {
     helpCalled: boolean;
@@ -34,6 +36,7 @@ export interface UserState {
     legacyCalled: boolean;
     revealCalled: boolean;
     reincarnateCalled: boolean;
+    rank?: string;
   };
   bookCodes: {
     unlockedCodes: string[];
@@ -48,7 +51,7 @@ export interface UserState {
     traced: boolean;
     encounters: number;
   };
-  events: Record<string, boolean>;
+  events: Record<string, boolean | number>;
 }
 
 // User rank types

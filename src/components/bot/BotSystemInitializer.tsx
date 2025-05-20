@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { initializeSentience, setupJonahMessageSystem } from '@/utils/jonahSentience';
 import { initializeFuzzyStoryMatching } from '@/utils/fuzzyStoryMatching';
@@ -22,6 +23,7 @@ const BotSystemInitializer: React.FC = () => {
         score: 0,
         failCount: 0,
         rank: "drifter",
+        sessionStartTime: Date.now(),
         whispersFound: [],
         jokesDisplayed: [],
         storyFlags: [],

@@ -1,4 +1,3 @@
-
 // Define global JonahConsole interface
 declare global {
   interface Window {
@@ -12,7 +11,6 @@ declare global {
       jokesDisplayed: string[];
       storyFlags: StoryFlag[];
       bookCodes: BookCode[];
-      lastCommand?: string;
       simba: {
         encountered: boolean;
         lastSeen?: string;
