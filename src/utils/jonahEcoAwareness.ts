@@ -9,10 +9,15 @@ export function initializeEcoAwareness(): void {
   if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
     if (!window.JonahConsole.sentience.ecoAwareness) {
       window.JonahConsole.sentience.ecoAwareness = {
+        lastChecked: Date.now(),
+        biomeResponses: [],
+        knownBiomes: [],
+        dreamtimeActive: false,
+        woodsResponses: [],
         lastBiomeCheck: Date.now(),
         currentBiome: null,
-        previousResponses: [],
-        connectionStrength: 20 // Start with a low connection
+        connectionStrength: 20, // Start with a low connection
+        previousResponses: []
       };
     }
   }

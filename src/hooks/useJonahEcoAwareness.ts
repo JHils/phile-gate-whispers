@@ -10,6 +10,7 @@ export interface EcoAwarenessState {
   lastBiomeCheck?: number;
   connectionStrength?: number;
   currentBiome?: string;
+  previousResponses?: string[];
 }
 
 export function useJonahEcoAwareness() {
@@ -21,7 +22,8 @@ export function useJonahEcoAwareness() {
     woodsResponses: [],
     lastBiomeCheck: Date.now(),
     connectionStrength: 0,
-    currentBiome: 'urban'
+    currentBiome: 'urban',
+    previousResponses: []
   });
   
   // Init state on mount

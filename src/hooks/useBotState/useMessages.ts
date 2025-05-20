@@ -258,7 +258,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
       }
       // Check for basic emotional response as fallback
       else if (Math.random() < 0.4) {
-        const basicEmotionalResponse = getEmotionalResponse(content);
+        const basicEmotionalResponse = getEmotionalResponse(createEmotionalState('neutral'));
         if (basicEmotionalResponse) {
           response = basicEmotionalResponse;
         }
@@ -496,5 +496,5 @@ function generateResponseFromTemplate(content: string, trustLevel: string): stri
   const emotion = emotionMap[trustLevel] || 'neutral';
   
   // Generate response from template - using the createEmotionalState helper
-  return generateEmotionalResponse(createEmotionalState(emotion), template);
+  return generateEmotionalResponse(createEmotionalState(emotion), template, true);
 }
