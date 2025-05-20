@@ -11,7 +11,7 @@ import { trackCommand } from './consoleTracking/commandTracking';
 export function initializeARGCommands(trackCommandExecution: (command: string) => void): void {
   if (typeof window !== 'undefined') {
     // Hidden memory command
-    window.dreamJournal = function() {
+    window.dreamJournal = function(): string {
       trackCommandExecution('dreamJournal');
       
       const journal = `
@@ -71,7 +71,7 @@ Console clue touchpoints: ${argData.consoleCluesTouched.length || 0}/10
     };
     
     // Bridge to whispers system
-    window.whisperTree = function() {
+    window.whisperTree = function(): string {
       trackCommandExecution('whisperTree');
       
       const whispers = window.JonahConsole?.whispersFound || [];

@@ -25,7 +25,7 @@ declare global {
     processUserMessage?: (message: string) => string | null;
     clearJonahOnPathChange?: boolean;
     JonahInitialized?: boolean;
-    // Adding console command functions
+    // Adding console command functions with consistent return types
     start?: () => string;
     inventory?: () => string;
     echo_me?: (input: string) => string;
@@ -41,9 +41,9 @@ declare global {
     hint?: () => void;
     newsFlash?: () => string;
     weatherReport?: () => string;
-    dreamJournal?: () => void;
+    dreamJournal?: () => string; // Changed to match return type in argTracking.ts
     rememberMe?: () => Record<string, any>;
-    whisperTree?: () => string;
+    whisperTree?: () => string; // Changed to match return type in argTracking.ts
     mirrorCheck?: () => void;
     storyFlags?: () => void;
     findAnomaly?: (text: string) => void;

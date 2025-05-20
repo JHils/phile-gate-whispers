@@ -1,3 +1,4 @@
+
 /**
  * Console Types Definition
  * Global interfaces and types for Jonah's Console
@@ -42,50 +43,50 @@ declare global {
     displayRandomJoke?: () => void;
     showStatus?: () => Promise<void>;
     mirrorLogs?: () => void;
-    whisperTree?: () => void;
+    whisperTree?: () => string; // Changed to return string to match windowTypes.ts
     plea?: () => void;
     testament?: () => string;
     splitVoice?: () => void;
     mirrorMode?: () => void;
-    storyFlags: () => void;
+    storyFlags?: () => void;
     readPage?: (page: number) => void;
     verifyCode?: (code: string) => void;
     bridgeCollapse?: () => void;
-    discoverStoryFlag: (flagId: string) => boolean;
-    findAnomaly: (text: string) => void;
+    discoverStoryFlag?: (flagId: string) => boolean;
+    findAnomaly?: (text: string) => void;
     clearJonahOnPathChange?: boolean;
     triggerJonahMessage?: (message: string) => string;
     isSpecialTimeWindow?: () => boolean;
     triggerSimbaComment?: (message: string) => void;
     // Adding missing console commands
-    mirrorCheck: () => void;
-    timeCheck: () => void;
-    traceCat: () => void;
-    feedSimba: () => void;
+    mirrorCheck?: () => void;
+    timeCheck?: () => void;
+    traceCat?: () => void;
+    feedSimba?: () => void;
     addWhisper?: (whisper: string) => boolean;
     // Console functions from jonahSentience.ts
-    dreamJournal?: () => string;
+    dreamJournal?: () => string; // Changed to return string to match windowTypes.ts
     rememberMe?: () => Record<string, any>;
     lookInside?: () => void; 
     echoChamber?: () => void;
     WhisperMaster?: WhisperMaster;
-    helpMe: () => void;
-    tea: () => void;
-    trousers: () => void;
-    moustache: () => void;
-    funny: () => void;
-    seenMyself: () => void;
-    youWereHimFirst: () => void;
-    wearingYouNow: () => void;
-    toggleWrath: () => void;
+    helpMe?: () => void;
+    tea?: () => void;
+    trousers?: () => void;
+    moustache?: () => void;
+    funny?: () => void;
+    seenMyself?: () => void;
+    youWereHimFirst?: () => void;
+    wearingYouNow?: () => void;
+    toggleWrath?: () => void;
     // New news awareness functions
-    newsFlash?: () => string | null;
-    weatherReport?: () => string | null;
+    newsFlash?: () => string;
+    weatherReport?: () => string;
     // Add ecological commands - making this consistent
-    dreamtime: () => void;
-    woodwideweb: () => void;
-    biomeCheck: () => void;
-    kgari: () => void;
+    dreamtime?: () => void;
+    woodwideweb?: () => void;
+    biomeCheck?: () => void;
+    kgari?: () => void;
     // Add processStoryQuery for fuzzy matching
     processStoryQuery?: (query: string) => string;
     // New Jonah console interactive commands 

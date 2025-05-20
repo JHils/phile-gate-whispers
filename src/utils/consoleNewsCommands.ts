@@ -14,7 +14,7 @@ type TrackCommandFunction = (commandName: string) => void;
 export function initializeNewsCommands(trackCommandExecution: TrackCommandFunction = trackCommand): void {
   if (typeof window !== 'undefined') {
     // News flash command
-    window.newsFlash = function() {
+    window.newsFlash = function(): string {
       // Track the command execution
       trackCommandExecution('newsFlash');
       
@@ -34,7 +34,7 @@ ${newsResponse}
     };
     
     // Weather report command
-    window.weatherReport = function() {
+    window.weatherReport = function(): string {
       // Track the command execution
       trackCommandExecution('weatherReport');
       
