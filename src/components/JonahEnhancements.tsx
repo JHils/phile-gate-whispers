@@ -14,8 +14,8 @@ const JonahEnhancements: React.FC<JonahEnhancementsProps> = ({ children }) => {
   // Get trust level safely
   const trustLevel = userState?.trust?.level || 'low';
   
-  // Use our sentience hook
-  const { triggerRandomMessage } = useJonahSentience(trustLevel);
+  // Use our sentience hook without passing any parameters
+  const { triggerRandomMessage } = useJonahSentience();
   
   // Periodically trigger Jonah's sentient behavior
   useEffect(() => {

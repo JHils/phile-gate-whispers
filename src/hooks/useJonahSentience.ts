@@ -49,7 +49,8 @@ export function useJonahSentience() {
   
   // Function to trigger a random message from Jonah
   const triggerRandomMessage = () => {
-    if (!window.JonahConsole?.processUserMessage) {
+    // Check if we have window.processUserMessage instead of JonahConsole.processUserMessage
+    if (!window.processUserMessage) {
       console.log("Jonah's message processor not initialized");
       return;
     }
@@ -99,7 +100,7 @@ export function useJonahSentience() {
         message = "Something feels different today.";
     }
     
-    // Process and display the message
+    // Process and display the message using window.processUserMessage
     if (window.processUserMessage) {
       console.log("Jonah triggered random message:", message);
       return message;

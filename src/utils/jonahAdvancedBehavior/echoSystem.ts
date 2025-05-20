@@ -1,3 +1,4 @@
+
 /**
  * Echo Chamber System for Jonah's Advanced Behavior
  * Stores, processes, and recalls user inputs as "echoes"
@@ -12,6 +13,25 @@ interface Echo {
   decayStage: number; // 0 = clear, 1 = distorted, 2 = corrupted
   useCount: number; // How many times this echo has been used
 }
+
+// Initialize the Echo System
+export const initializeEchoSystem = () => {
+  console.log('Echo system initialized');
+  
+  // Load echoes from localStorage if available
+  try {
+    const behaviorData = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
+    if (!behaviorData.echoVault) {
+      behaviorData.echoVault = [];
+      localStorage.setItem('jonahBehavior', JSON.stringify(behaviorData));
+    }
+  } catch (e) {
+    console.error('Error initializing echo system:', e);
+    // Create empty echo vault
+    const behaviorData = { echoVault: [] };
+    localStorage.setItem('jonahBehavior', JSON.stringify(behaviorData));
+  }
+};
 
 // Get stored echoes from localStorage
 const getEchoVault = (): Echo[] => {
