@@ -4,7 +4,7 @@
  * Provides interactive console commands for Jonah's news awareness system
  */
 
-import { trackCommand } from './consoleTrackingUtils';
+import { trackCommand } from './consoleTracking/commandTracking';
 import { getNewsResponse, getWeatherResponse } from './jonahNewsAwareness';
 import { typewriterLog } from './consoleEffects';
 

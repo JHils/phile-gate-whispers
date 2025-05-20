@@ -7,6 +7,9 @@
 // Import from our refactored modules
 import { initializeConsoleTracking } from './consoleTracking/initialization';
 import { initializeInteractiveCommands } from './consoleTracking/interactiveCommands';
+import { initializeAdvancedBehavior } from './jonahAdvancedBehavior';
+import { initializeRealityFabric } from './jonahRealityFabric';
+import { initializeSentience } from './jonahSentience';
 
 // Initialize all console tracking systems
 export const initializeAllSystems = () => {
@@ -22,3 +25,6 @@ export const initializeAllSystems = () => {
 // Export for individual access
 export { initializeConsoleTracking } from './consoleTracking/initialization';
 export { initializeInteractiveCommands } from './consoleTracking/interactiveCommands';
+export { initializeAdvancedBehavior } from './jonahAdvancedBehavior';
+export { initializeRealityFabric } from './jonahRealityFabric';
+export { initializeSentience } from './jonahSentience';

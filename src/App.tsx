@@ -66,7 +66,12 @@ import './App.css';
 import JonahEnhancements from './components/JonahEnhancements';
 import JonahGlitchEffects from './components/JonahGlitchEffects';
 import JonahActivityTracker from './components/JonahActivityTracker';
-import { initializeSentience, initializeAdvancedBehavior, initializeRealityFabric } from './utils/systemInitializers';
+import { 
+  initializeAllSystems, 
+  initializeSentience, 
+  initializeAdvancedBehavior, 
+  initializeRealityFabric 
+} from './utils/systemInitializers';
 import { initializeEcoAwareness } from './utils/jonahEcoAwareness';
 import { initializeNewsAwarenessSystem } from './utils/jonahNewsAwareness';
 import { initializeFuzzyStoryMatching } from './utils/fuzzyStoryMatching';
