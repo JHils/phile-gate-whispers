@@ -73,3 +73,12 @@ export {
   logSelfReflection,
   initializeEnhancedConsole
 } from './consoleEmotionalEffects';
+
+// Export Echo Chamber system
+export {
+  storeEcho,
+  getEcho,
+  getEchoPhrase,
+  getAllEchoes,
+  checkForEchoMatch
+} from './echoSystem';

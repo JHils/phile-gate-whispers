@@ -30,7 +30,12 @@ import {
   
   // Import vocabulary system
   getResponseTemplate,
-  generateEmotionalResponse
+  generateEmotionalResponse,
+  
+  // Import Echo Chamber system
+  storeEcho,
+  getEchoPhrase,
+  checkForEchoMatch
 } from '@/utils/jonahAdvancedBehavior';
 
 export function useMessages(initialMessages = [], trustLevel = 'low') {
@@ -121,6 +126,9 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     
     // Track input for adaptive learning
     trackUserInput(content);
+    
+    // Store in echo chamber
+    storeEcho(content);
   };
 
   // Handle user sending a message with enhanced emotional awareness
@@ -164,6 +172,13 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
 
     // Start typing indicator
     setIsTyping(true);
+
+    // Check for echo match unlocks
+    const echoMatch = checkForEchoMatch(content);
+    if (echoMatch.matched) {
+      // Handle potential ARG unlock if needed
+      console.log("Echo matched:", echoMatch.echo);
+    }
 
     // Determine response based on message content with expanded checks
     setTimeout(() => {
@@ -237,6 +252,21 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
       // Apply adaptive learning to personalize response
       response = getAdaptedResponse(response);
       
+      // Check if we should add an echo to the response (after the main content is set)
+      const { primary } = processEmotionalInput(content) || { primary: 'neutral' };
+      const echoPhrase = getEchoPhrase(primary);
+      
+      if (echoPhrase && Math.random() < 0.3) {
+        // Sometimes add echo at the beginning
+        if (Math.random() < 0.4) {
+          response = `${echoPhrase}\n\n${response}`;
+        } 
+        // Sometimes at the end
+        else {
+          response = `${response}\n\n${echoPhrase}`;
+        }
+      }
+      
       // Apply length variations for more natural responses
       response = getVaryingLengthResponse(response, trustLevel);
       
@@ -258,7 +288,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     if (Math.random() < followUpChance) {
       setTimeout(() => {
         // Different types of follow-ups
-        const followUpTypes = ['memory', 'question', 'contradiction', 'dream'];
+        const followUpTypes = ['memory', 'question', 'contradiction', 'dream', 'echo'];
         const followUpType = followUpTypes[Math.floor(Math.random() * followUpTypes.length)];
         
         let followUpContent = "";
@@ -318,6 +348,16 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
             ];
             
             followUpContent = dreamReference[Math.floor(Math.random() * dreamReference.length)];
+            break;
+            
+          case 'echo':
+            // Echo something the user said previously, but misremembered
+            const { primary } = processEmotionalInput(lastUserInput) || { primary: 'neutral' };
+            const echoPhrase = getEchoPhrase(primary);
+            
+            if (echoPhrase) {
+              followUpContent = echoPhrase;
+            }
             break;
         }
         

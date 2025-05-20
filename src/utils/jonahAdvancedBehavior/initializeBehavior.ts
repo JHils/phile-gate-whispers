@@ -36,7 +36,10 @@ export function initializeBehavior(): void {
         },
         personalTags: [],
         lastAnalyzed: Date.now()
-      }
+      },
+      // Echo chamber system
+      echoVault: [],
+      lastEchoTime: 0
     }));
   }
   
