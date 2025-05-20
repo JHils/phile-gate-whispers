@@ -25,6 +25,20 @@ declare global {
     processUserMessage?: (message: string) => string | null;
     clearJonahOnPathChange?: boolean;
     JonahInitialized?: boolean;
+    // Adding console command functions
+    start?: () => string;
+    inventory?: () => string;
+    echo_me?: (input: string) => string;
+    access_journal?: () => string;
+    help?: () => void;
+    reveal?: () => void;
+    reincarnate?: () => void;
+    whois?: () => void;
+    gate?: () => void;
+    philes?: () => void;
+    monster?: () => void;
+    legacy?: () => void;
+    hint?: () => void;
   }
 }
 
