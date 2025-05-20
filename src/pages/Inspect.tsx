@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import HiddenLink from "../components/HiddenLink";
@@ -142,12 +141,12 @@ const Inspect = () => {
         
         {/* Hidden link to legacy page */}
         <div className="mt-16 opacity-5 text-phile-dark">
-          <HiddenLink
-            text="Legacy Hidden."
-            password="IAMJOSEPH"
-            redirectPath="/legacy"
-            className="text-xs"
-          />
+          <HiddenLink 
+            to="/mirror-logs" 
+            className="text-white/20 hover:text-white/40"
+          >
+            mirror logs
+          </HiddenLink>
         </div>
       </div>
     </div>

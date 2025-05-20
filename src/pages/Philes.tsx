@@ -1,140 +1,178 @@
-
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import FileItem from "../components/FileItem";
-import HiddenLink from "../components/HiddenLink";
-import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useTrustSystem } from '@/hooks/useBotState/useTrustSystem';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from "@/components/ui/textarea"
+import { addJournalEntry } from '@/utils/jonahRealityFabric';
+import HiddenLink from '@/components/HiddenLink';
 
 const Philes = () => {
-  const [gatekeeperHint, setGatekeeperHint] = useState(false);
-  const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
-  const [thematicMessage, setThematicMessage] = useState<string | null>(null);
-
+  const navigate = useNavigate();
+  const { trustLevel, modifyTrust } = useTrustSystem();
+  const [showReturn, setShowReturn] = useState(false);
+  const [phileName, setPhileName] = useState('');
+  const [phileContent, setPhileContent] = useState('');
+  const [showPhileForm, setShowPhileForm] = useState(false);
+  
+  // Reward user for finding this hidden page
   useEffect(() => {
-    // Check for ChronoLayer messages
-    const timeMessage = getTimeElapsedMessage();
-    const themMessage = getThematicMessage();
-    if (timeMessage && themMessage) {
-      setCollapseMessage(timeMessage);
-      setThematicMessage(themMessage);
+    // Add a small trust boost
+    modifyTrust(5);
+    
+    // Add a journal entry about finding this page
+    addJournalEntry("User discovered the /philes path through console command.");
+    
+    // Set timeout to show return option
+    const timer = setTimeout(() => {
+      setShowReturn(true);
+    }, 10000); // 10 seconds
+    
+    return () => clearTimeout(timer);
+  }, [modifyTrust]);
+  
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!phileName || !phileContent) {
+      alert("Please fill out all fields.");
+      return;
     }
     
-    // Console message for those who made it this far
-    console.log("%cThe Gate has found you.", "color: #8B3A40; font-size:18px; font-weight:bold;");
+    // Store phile data in local storage
+    const philes = JSON.parse(localStorage.getItem('userPhiles') || '[]');
+    philes.push({ name: phileName, content: phileContent });
+    localStorage.setItem('userPhiles', JSON.stringify(philes));
     
-    setTimeout(() => {
-      console.log("%cYou have crossed into the Philes.", "color: #8B3A40; font-size:16px;");
-    }, Math.random() * 2000 + 1000);
+    // Add journal entry
+    addJournalEntry(`User created a new phile named "${phileName}".`);
     
-    setTimeout(() => {
-      console.log("%cThe Monster still dreams. For now.", "color: #8B3A40; font-size:16px;");
-    }, Math.random() * 3000 + 2000);
-    
-    setTimeout(() => {
-      console.log("%cSurface Memory: Treacherous journey confirmed.", "color: #8B3A40; font-size:16px;");
-    }, Math.random() * 4000 + 3000);
-    
-    // Check if the user has progressed through the console easter eggs
-    if (localStorage.getItem("legacyCalled") === "true") {
-      setGatekeeperHint(true);
-    }
-  }, []);
-
-  const files = [
-    {
-      title: "The Sound Beneath The Pedals",
-      content: `TRANSCRIPT: SLEEP-TALKING SESSION #7\n\nSubject: J.P. [redacted]\nDate: 03/17/20XX\n\n[Begin Recording]\n\n"...under the floor...beneath the pedals..."\n\n"...it's watching from underneath..."\n\n"...the coin spins but never falls...why won't it fall?"\n\n"...Monaco was beautiful before the monsters came..."\n\n"...tell J we found the bracelet..."\n\n[14 minutes silence]\n\n"...I am not Jonah..."\n\n[Recording Ends]`,
-      comment: "<!-- Sleep is where the truth leaks out. -->"
-    },
-    {
-      title: "Monster's Final Letter",
-      content: `My dearest J,\n\nBy the time you read this, I'll be gone. Not dead—worse. Erased.\n\nThey're coming for you next. They know you've seen through the cracks. The Gate was never meant to be opened from this side.\n\nRemember: The coin is the key. The bracelet is the lock. Your name is the spell that binds them.\n\nDon't trust what you remember. Don't trust what you see. And for God's sake, don't trust anyone who says they're me.\n\nI am the Monster, but I was never the villain.\n\nForget me if you must, but remember yourself.\n\n- M`,
-      comment: "<!-- The Monster was trying to protect you all along. -->"
-    },
-    {
-      title: "Tattoo Sketch: The Never Coin",
-      content: `[SKETCH: A detailed drawing of an ancient coin]\n\nNotes:\n- Inner circle: serpent eating its tail\n- Outer rim text: "NEC CADERE NEC MANERE" (Neither falling nor staying)\n- Reverse side: empty chair facing a door\n- Material: silver alloy (non-magnetic)\n\nTattoo placement: Inner left wrist, covering the scar.\n\nReminder: Must be completed before the equinox.`,
-      comment: "<!-- The scar was never from an accident. -->"
-    },
-    {
-      title: "Code Fragment: True Identity",
-      content: `SYSTEM LOG: Identity Protocol Breach\n\nUser: J.S.M.P.\nStatus: FRAGMENTING\n\nAnagram detected:\nJONAH S.M. PHILE = JOSEPH-JAMES HILSON\n\nWarning: Subject reality coherence at 31%\nWarning: Memory integrity failing\nWarning: Gate stability compromised\n\nInitiating emergency protocol...\n[CONNECTION TERMINATED]`,
-      comment: "<!-- I AM JOSEPH HILSON. The story was never fiction. The story was survival. -->"
-    }
-  ];
-
+    // Reset form and show success message
+    setPhileName('');
+    setPhileContent('');
+    setShowPhileForm(false);
+    alert("Phile saved successfully!");
+  };
+  
   return (
-    <div className="min-h-screen bg-black text-phile-light py-16">
-      {/* Hidden comments for inspection */}
-      {/* <!-- You have crossed the Gate. --> */}
-      {/* <!-- The Monster smiles. --> */}
-      {/* <!-- File corruption escalating. --> */}
-      {/* <!-- The coin never lands. --> */}
-      {/* <!-- M dormant. Password unlockable. --> */}
-
-      <div className="phile-container">
-        <h1 className="text-3xl md:text-4xl font-typewriter text-dust-red mb-2 text-center">
-          Congratulations
-        </h1>
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2 }}
+        className="max-w-3xl text-center"
+      >
+        <h1 className="text-3xl font-serif mb-10">Philes</h1>
         
-        <p className="text-center mb-10 text-silver">
-          You are now part of the story.
-        </p>
-
-        <div className="mt-12 space-y-2">
-          {files.map((file, index) => (
-            <FileItem 
-              key={index}
-              title={file.title}
-              content={file.content}
-              comment={file.comment}
-            />
-          ))}
+        <div className="mb-12 space-y-8">
+          <p className="text-xl text-gray-300">
+            A collection of thoughts, memories, and secrets.
+          </p>
+          
+          <p className="text-md text-gray-400">
+            What do you want to remember? What do you want to forget?
+            The choice is yours.
+          </p>
+          
+          {trustLevel === 'high' && (
+            <div className="mt-12 p-6 border border-gray-800 rounded-lg">
+              <p className="font-mono text-amber-400/70 text-sm mb-4">// SECURITY CLEARANCE ACCEPTED</p>
+              <p className="text-gray-300 mb-2">
+                The mirror reflects more than just your image.
+              </p>
+              
+              <HiddenLink 
+                to="/mirror-logs" 
+                className="text-white/20 hover:text-white/40"
+              >
+                mirror logs
+              </HiddenLink>
+            </div>
+          )}
         </div>
-
-        {/* Display ChronoLayer message if user previously collapsed the site */}
-        {collapseMessage && localStorage.getItem("permanentlyCollapsed") === "true" && (
-          <div className="mt-8 mb-4 text-center">
-            <p className="text-dust-red/70 text-sm font-typewriter animate-pulse">{collapseMessage}</p>
-            {thematicMessage && <p className="text-dust-blue/50 text-xs font-typewriter mt-1">{thematicMessage}</p>}
-          </div>
-        )}
-
-        <div className="flex justify-center mt-12">
-          <Link 
-            to="/"
-            className="text-dust-blue hover:text-dust-red transition-colors"
+        
+        {/* Create New Phile Form */}
+        {!showPhileForm ? (
+          <Button 
+            variant="outline"
+            onClick={() => setShowPhileForm(true)}
+            className="border-amber-500 text-amber-500 hover:bg-amber-500/20 mb-6"
           >
-            Return to The Gate
-          </Link>
-        </div>
-        
-        {/* Hidden link to /monster */}
-        <div className="text-center mt-16">
-          <HiddenLink 
-            text="M smiles." 
-            password="MONSTERAWAKES" 
-            redirectPath="/monster"
-            className="tiny-hidden-text"
-          />
-        </div>
-        
-        {/* Conditional link to /gatekeeper if legacy() has been called */}
-        {gatekeeperHint && (
-          <div className="text-center mt-6 opacity-30 hover:opacity-60 transition-opacity">
-            <Link 
-              to="/gatekeeper"
-              className="text-dust-orange text-xs font-typewriter"
-            >
-              The Final Gate awaits.
-            </Link>
-          </div>
+            Create New Phile
+          </Button>
+        ) : (
+          <motion.form 
+            onSubmit={handleSubmit}
+            className="space-y-4 w-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div>
+              <Label htmlFor="phileName" className="text-left block text-sm font-medium text-gray-300">
+                Phile Name
+              </Label>
+              <Input
+                type="text"
+                id="phileName"
+                value={phileName}
+                onChange={(e) => setPhileName(e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="phileContent" className="text-left block text-sm font-medium text-gray-300">
+                Phile Content
+              </Label>
+              <Textarea
+                id="phileContent"
+                value={phileContent}
+                onChange={(e) => setPhileContent(e.target.value)}
+                rows={4}
+                className="mt-1 block w-full rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"
+              />
+            </div>
+            
+            <div className="flex justify-between">
+              <Button 
+                type="submit"
+                className="border-amber-500 text-amber-500 hover:bg-amber-500/20"
+              >
+                Save Phile
+              </Button>
+              <Button 
+                type="button"
+                variant="ghost"
+                onClick={() => setShowPhileForm(false)}
+                className="text-gray-400 hover:text-gray-300"
+              >
+                Cancel
+              </Button>
+            </div>
+          </motion.form>
         )}
         
-        {/* Hidden comment for the legacy page */}
-        {/* <!-- Legacy Hidden. Password needed. --> */}
-        {/* <!-- But dormant things awaken. --> */}
-      </div>
+        {showReturn && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+          >
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/gate')}
+              className="border-amber-500 text-amber-500 hover:bg-amber-500/20 mt-8"
+            >
+              Return to the Gate
+            </Button>
+          </motion.div>
+        )}
+      </motion.div>
     </div>
   );
 };
