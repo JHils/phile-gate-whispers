@@ -1,5 +1,4 @@
 
-
 export interface UserState {
   visitCount: number;
   firstVisit: number;
@@ -47,4 +46,3 @@ export interface UserState {
     gate: boolean;
   };
 }
-
