@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
 import { useJonahSentience } from '@/hooks/useJonahSentience';

@@ -1,7 +1,7 @@
 
 import { SentienceData, StoryFlag, BookCode } from './types';
 
-// Define the window interfaces in a way that avoids duplicate declarations
+// Define window interfaces without duplicate declarations
 declare global {
   interface Window {
     JonahConsole?: {

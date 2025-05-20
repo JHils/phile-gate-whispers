@@ -1,4 +1,3 @@
-
 /**
  * Echo Chamber System for Jonah's Advanced Behavior
  * Stores, processes, and recalls user inputs as "echoes"

@@ -1,4 +1,3 @@
-
 /**
  * Jonah Advanced Behavior System - Main export file
  */
