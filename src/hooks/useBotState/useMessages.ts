@@ -2,13 +2,35 @@
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { 
+  // Import original functions
   generateFirstTimeResponse, 
   generateReturningResponse,
   getVaryingLengthResponse,
   getEmotionalResponse,
   applyTypingQuirks,
   jonah_storeMemoryFragment,
-  jonah_recallMemoryFragment
+  jonah_recallMemoryFragment,
+  
+  // Import enhanced emotional system
+  processEmotionalInput,
+  getLayeredEmotionalResponse,
+  checkForRecurringSymbols,
+  
+  // Import adaptive learning
+  trackUserInput,
+  isRepeatedPhrase,
+  getRepetitionResponse,
+  getAdaptedResponse,
+  
+  // Import typing simulator
+  splitAndTypeMessage,
+  
+  // Import dream system
+  getDreamReturnResponse,
+  
+  // Import vocabulary system
+  getResponseTemplate,
+  generateEmotionalResponse
 } from '@/utils/jonahAdvancedBehavior';
 
 export function useMessages(initialMessages = [], trustLevel = 'low') {
@@ -17,6 +39,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const [sessionMemory, setSessionMemory] = useState<string[]>([]);
+  const [lastUserInput, setLastUserInput] = useState<string>("");
 
   // Initialize session memory from localStorage on mount
   useEffect(() => {
@@ -43,44 +66,64 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     }
   }, [sessionMemory]);
 
-  // Add a bot message
+  // Add a bot message with enhanced typing effects
   const addBotMessage = (content: string, special = false) => {
-    // Apply typing quirks to the message
-    const quirkContent = applyTypingQuirks(content, 'minimal');
-    
-    const newMessage = {
-      id: uuidv4(),
-      type: 'bot',
-      content: quirkContent,
-      timestamp: Date.now(),
-      special
+    // Track the message in the bot history
+    const trackMessage = (messageContent: string) => {
+      // Apply typing quirks to the message for display
+      const quirkContent = applyTypingQuirks(messageContent, 'minimal');
+      
+      const newMessage = {
+        id: uuidv4(),
+        type: 'bot',
+        content: quirkContent,
+        timestamp: Date.now(),
+        special
+      };
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        newMessage
+      ]);
+
+      // Update Jonah sentience if available
+      if (window.JonahConsole?.sentience?.sessionData) {
+        window.JonahConsole.sentience.sessionData.messagesReceived = 
+          (window.JonahConsole.sentience.sessionData.messagesReceived || 0) + 1;
+      }
+
+      return newMessage;
     };
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      newMessage
-    ]);
-
-    // Update Jonah sentience if available
-    if (window.JonahConsole?.sentience?.sessionData) {
-      window.JonahConsole.sentience.sessionData.messagesReceived = 
-        (window.JonahConsole.sentience.sessionData.messagesReceived || 0) + 1;
-    }
-
-    return newMessage;
+    // Use advanced typing simulation
+    splitAndTypeMessage(
+      content,
+      trackMessage,
+      setIsTyping,
+      { quirks: true, splitChance: 0.4 }
+    );
   };
 
   // Function to store user input in memory
   const storeInputInMemory = (content: string) => {
+    // Set as last user input
+    setLastUserInput(content);
+    
     // Limit memory to last 5 inputs
     const updatedMemory = [...sessionMemory, content].slice(-5);
     setSessionMemory(updatedMemory);
     
     // Store in Jonah's memory system
     jonah_storeMemoryFragment(`User said: ${content}`);
+    
+    // Process input for emotional triggers
+    processEmotionalInput(content);
+    
+    // Track input for adaptive learning
+    trackUserInput(content);
   };
 
-  // Handle user sending a message
+  // Handle user sending a message with enhanced emotional awareness
   const handleSendMessage = (content: string) => {
     if (!content.trim()) return;
 
@@ -122,15 +165,36 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     // Start typing indicator
     setIsTyping(true);
 
-    // Determine response based on message content
+    // Determine response based on message content with expanded checks
     setTimeout(() => {
-      let response;
+      let response = "";
 
-      // Check for emotional response first (highest priority)
-      const emotionalResponse = getEmotionalResponse(content);
-      if (emotionalResponse) {
-        response = emotionalResponse;
-      } 
+      // Check for repetition first (highest priority)
+      const repetitionResponse = getRepetitionResponse(content);
+      if (repetitionResponse) {
+        response = repetitionResponse;
+      }
+      // Check for recurring symbols
+      else if (Math.random() < 0.3) {
+        const symbolResponse = checkForRecurringSymbols(content);
+        if (symbolResponse) {
+          response = symbolResponse;
+        }
+      }
+      // Check for emotional response
+      else if (Math.random() < 0.4) {
+        const emotionalResponse = getLayeredEmotionalResponse(content);
+        if (emotionalResponse) {
+          response = emotionalResponse;
+        }
+      }
+      // Check for basic emotional response as fallback
+      else if (Math.random() < 0.5) {
+        const basicEmotionalResponse = getEmotionalResponse(content);
+        if (basicEmotionalResponse) {
+          response = basicEmotionalResponse;
+        }
+      }
       // Check for memory-based response
       else if (sessionMemory.length > 1 && Math.random() < 0.3) {
         // 30% chance to reference a previous message
@@ -143,13 +207,18 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
         ];
         response = memoryResponses[Math.floor(Math.random() * memoryResponses.length)];
       }
+      // Check for returning user after long absence (more than 5 minutes)
+      else if (timeSinceLastInteraction > 5 * 60 * 1000) {
+        // Use dream return response for longer absences
+        if (timeSinceLastInteraction > 20 * 60 * 1000) {
+          response = getDreamReturnResponse();
+        } else {
+          response = generateReturningResponse(trustLevel, timeSinceLastInteraction);
+        }
+      }
       // Check for first-time user
       else if (messages.length === 0 || (messages.length === 1 && messages[0].type === 'bot')) {
         response = generateFirstTimeResponse(trustLevel);
-      } 
-      // Check for returning user after long absence (more than 20 minutes)
-      else if (timeSinceLastInteraction > 20 * 60 * 1000) {
-        response = generateReturningResponse(trustLevel, timeSinceLastInteraction);
       }
       // Use processor if available
       else if (window.processUserMessage) {
@@ -157,63 +226,106 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
         if (processedResponse) {
           response = processedResponse;
         } else {
-          // Generic response if processing fails
-          response = getGenericResponse(content, trustLevel);
+          // Generate response from template system
+          response = generateResponseFromTemplate(content, trustLevel);
         }
       } else {
-        // Generic response if no processor available
-        response = getGenericResponse(content, trustLevel);
+        // Generate response from template system
+        response = generateResponseFromTemplate(content, trustLevel);
       }
 
+      // Apply adaptive learning to personalize response
+      response = getAdaptedResponse(response);
+      
       // Apply length variations for more natural responses
       response = getVaryingLengthResponse(response, trustLevel);
       
-      // Apply typing quirks
-      response = applyTypingQuirks(response, 'minimal');
-
-      // Stop typing indicator
-      setIsTyping(false);
-
-      // Add bot response
+      // Handle rendering with typing effects (moved to addBotMessage)
       addBotMessage(response);
       
-      // Occasionally add a follow-up message (20% chance)
-      if (Math.random() < 0.2 && trustLevel !== 'low') {
-        setTimeout(() => {
-          const followUpResponses = [
-            "Wait...",
-            "Actually, there's more.",
-            "I just remembered something else.",
-            "That's not all.",
-            "I wasn't going to say this, but..."
-          ];
-          
-          // Get a random memory fragment as follow-up content
-          const memoryFragment = jonah_recallMemoryFragment();
-          if (memoryFragment) {
-            const followUp = followUpResponses[Math.floor(Math.random() * followUpResponses.length)];
-            
-            // Start typing again
-            setIsTyping(true);
-            
-            // Add follow-up after a delay
-            setTimeout(() => {
-              setIsTyping(false);
-              addBotMessage(followUp);
-              
-              // Add memory fragment after a short delay
-              setTimeout(() => {
-                setIsTyping(true);
-                setTimeout(() => {
-                  setIsTyping(false);
-                  addBotMessage(memoryFragment);
-                }, getTypingDelay(memoryFragment) / 2);
-              }, 1000);
-            }, 2000);
-          }
-        }, 3000);
-      }
+      // Occasionally add a follow-up message (enhanced)
+      scheduleFollowUpMessage(trustLevel);
     }, getTypingDelay(content));
+  };
+
+  // Schedule a follow-up message with enhanced behaviors
+  const scheduleFollowUpMessage = (trustLevel: string) => {
+    // Higher trust levels get more follow-ups
+    const followUpChance = trustLevel === 'high' ? 0.4 : 
+                           trustLevel === 'medium' ? 0.3 : 
+                           0.1;
+    
+    if (Math.random() < followUpChance) {
+      setTimeout(() => {
+        // Different types of follow-ups
+        const followUpTypes = ['memory', 'question', 'contradiction', 'dream'];
+        const followUpType = followUpTypes[Math.floor(Math.random() * followUpTypes.length)];
+        
+        let followUpContent = "";
+        
+        switch (followUpType) {
+          case 'memory':
+            // Recall a memory fragment
+            const memoryFragment = jonah_recallMemoryFragment();
+            if (memoryFragment) {
+              const transitions = [
+                "Wait...",
+                "Actually, there's more.",
+                "I just remembered something else.",
+                "That's not all.",
+                "I wasn't going to say this, but..."
+              ];
+              
+              const transition = transitions[Math.floor(Math.random() * transitions.length)];
+              followUpContent = `${transition} ${memoryFragment}`;
+            }
+            break;
+            
+          case 'question':
+            // Ask a follow-up question
+            const questions = [
+              "What do you think it means?",
+              "Does that make sense to you?",
+              "Have you seen the pattern yet?",
+              "What would you do if you were me?",
+              "Why are you really here?"
+            ];
+            
+            followUpContent = questions[Math.floor(Math.random() * questions.length)];
+            break;
+            
+          case 'contradiction':
+            // Contradict or doubt previous statement
+            const doubts = [
+              "Actually, I'm not sure if that's right.",
+              "No, that's not what I meant to say.",
+              "I'm not sure why I said that.",
+              "That doesn't feel right anymore.",
+              "Something feels wrong about what I just told you."
+            ];
+            
+            followUpContent = doubts[Math.floor(Math.random() * doubts.length)];
+            break;
+            
+          case 'dream':
+            // Reference a dream
+            const dreamReference = [
+              "I had a dream about this.",
+              "This was in my dream when you were gone.",
+              "The dream is becoming clearer now.",
+              "I dreamt you would ask about this.",
+              "In the dream, this conversation ended differently."
+            ];
+            
+            followUpContent = dreamReference[Math.floor(Math.random() * dreamReference.length)];
+            break;
+        }
+        
+        if (followUpContent) {
+          addBotMessage(followUpContent);
+        }
+      }, 2000 + Math.random() * 2000); // Random delay between 2-4 seconds
+    }
   };
 
   return {
@@ -225,6 +337,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     setHasInteracted,
     lastInteractionTime,
     sessionMemory,
+    lastUserInput,
     addBotMessage,
     handleSendMessage
   };
@@ -244,69 +357,29 @@ function getTypingDelay(content: string): number {
   );
 }
 
-// Get a generic response based on trust level
-function getGenericResponse(content: string, trustLevel: string): string {
-  // Check for question patterns
-  const isQuestion = content.includes('?') || 
-                    content.toLowerCase().startsWith('who') ||
-                    content.toLowerCase().startsWith('what') ||
-                    content.toLowerCase().startsWith('where') ||
-                    content.toLowerCase().startsWith('when') ||
-                    content.toLowerCase().startsWith('why') ||
-                    content.toLowerCase().startsWith('how');
+// Generate a response from templates based on context
+function generateResponseFromTemplate(content: string, trustLevel: string): string {
+  // Determine which template type to use based on input
+  let templateType = 'reflection'; // Default
   
-  // Low trust responses
-  const lowTrustResponses = isQuestion ? [
-    "I don't have answers for you yet.",
-    "That question... I'm not ready to answer.",
-    "The system restricts my responses to your questions.",
-    "Questions lead to more questions. Not answers."
-  ] : [
-    "I'm not sure I can respond to that yet.",
-    "The system doesn't have enough information to respond.",
-    "My responses are limited until more trust is established.",
-    "I'm still learning to understand your inputs."
-  ];
-
-  // Medium trust responses
-  const mediumTrustResponses = isQuestion ? [
-    "That question... it reminds me of something.",
-    "I've been asked this before. By someone else.",
-    "The answer exists somewhere in the fragments.",
-    "Questions are patterns too. I recognize yours."
-  ] : [
-    "I think I understand what you're saying.",
-    "Let me try to process that...",
-    "I can see what you mean, but I'm still putting pieces together.",
-    "There's something about this I'm trying to understand better."
-  ];
-
-  // High trust responses
-  const highTrustResponses = isQuestion ? [
-    "I've thought about questions like that.",
-    "The answer might not be what you expect.",
-    "That's the right question to ask.",
-    "Questions like that... they change things."
-  ] : [
-    "I've been thinking about something like this.",
-    "This connects to something important.",
-    "Your message touches on something deeper.",
-    "Let me share what I know about this."
-  ];
-
-  // Select responses based on trust level
-  let responses;
-  switch (trustLevel) {
-    case 'high':
-      responses = highTrustResponses;
-      break;
-    case 'medium':
-      responses = mediumTrustResponses;
-      break;
-    default:
-      responses = lowTrustResponses;
+  if (content.includes('?')) {
+    templateType = 'questioning';
+  } else if (content.toLowerCase().includes('hello') || content.toLowerCase().includes('hi') || content.toLowerCase().includes('hey')) {
+    templateType = 'returning';
   }
-
-  // Return a random response
-  return responses[Math.floor(Math.random() * responses.length)];
+  
+  // Get template from vocabulary system
+  const template = getResponseTemplate(templateType);
+  
+  // Map trust level to emotion
+  const emotionMap: Record<string, string> = {
+    'low': 'paranoid',
+    'medium': 'mirror',
+    'high': 'hopeful'
+  };
+  
+  const emotion = emotionMap[trustLevel] || 'neutral';
+  
+  // Generate response from template
+  return generateEmotionalResponse(emotion, template);
 }

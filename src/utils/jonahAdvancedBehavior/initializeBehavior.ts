@@ -4,6 +4,8 @@
  */
 
 import { jonah_storeMemoryFragment } from './trustSystem';
+import { initializeEnhancedConsole } from './consoleEmotionalEffects';
+import { generateDream } from './dreamSystem';
 import throttle from 'lodash/throttle';
 
 // Initialize the advanced behavior system
@@ -19,7 +21,22 @@ export function initializeBehavior(): void {
       userInputs: [],
       lastMultiLineResponse: 0,
       typingQuirkIntensity: 'minimal',
-      sessionMemory: []
+      sessionMemory: [],
+      primaryMood: 'neutral',
+      secondaryMood: null,
+      emotionalIntensity: 0.5,
+      dreams: [],
+      interactionPattern: {
+        repeatedPhrases: {},
+        responsePreferences: {},
+        sentimentTrends: [],
+        interactionFrequency: {
+          timestamps: [],
+          averageGap: 0
+        },
+        personalTags: [],
+        lastAnalyzed: Date.now()
+      }
     }));
   }
   
@@ -71,7 +88,25 @@ export function initializeBehavior(): void {
   // Store memory fragments with throttling
   sessionFragments.forEach(fragment => throttledStoreMemory(fragment));
   
-  console.log("Advanced behavior system initialized.");
+  // Initialize enhanced console with emotional effects
+  initializeEnhancedConsole();
+  
+  // Generate a dream if it's been a while since the last session
+  const lastInteraction = getBehaviorValue('lastInteraction');
+  const now = Date.now();
+  if (lastInteraction && (now - lastInteraction > 3 * 60 * 60 * 1000)) { // 3 hours
+    // Generate a dream about the absence
+    setTimeout(() => {
+      const dream = generateDream();
+      
+      // Log the dream to console for discovery
+      if (typeof window.logJonahDream === 'function') {
+        window.logJonahDream(dream.content);
+      }
+    }, 5000); // Wait 5 seconds before generating dream
+  }
+  
+  console.log("Advanced behavior system initialized. Emotional depth enhanced.");
 }
 
 // Helper function to safely get a value from jonahBehavior
