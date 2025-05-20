@@ -29,7 +29,12 @@ export function useJonahEcoAwareness() {
   // Init state on mount
   useEffect(() => {
     if (window.JonahConsole?.sentience?.ecoAwareness) {
-      setEcoAwareness(window.JonahConsole.sentience.ecoAwareness);
+      // Make sure we're adding previousResponses if it doesn't exist
+      const existingEcoAwareness = {
+        ...window.JonahConsole.sentience.ecoAwareness,
+        previousResponses: window.JonahConsole.sentience.ecoAwareness.previousResponses || []
+      };
+      setEcoAwareness(existingEcoAwareness);
     }
   }, []);
   
