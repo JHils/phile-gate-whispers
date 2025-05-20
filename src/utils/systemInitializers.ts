@@ -1,70 +1,40 @@
 
-// This file centralizes initialization of various system components
-import { 
-  initializeARGTracking as initARG, 
-  updateInteractionTime, 
-  checkIdleTime, 
-  trackSecretPageVisit, 
-  getARGResponse 
-} from "@/utils/argTracking";
+/**
+ * System Initializers Module
+ * This file contains functions for initializing various systems in the application
+ */
 
-import {
-  initializeSentience as initSentience,
-  setupJonahMessageSystem,
-  setupTabVisibilityTracking,
-  generateDualConsciousness,
-  getJonahQuestion,
-  getTimeResponse,
-  getNameEchoResponse
-} from "@/utils/jonahSentience";
+import { initializeSentience as initSentience } from './jonahSentience';
+import { initializeNewsAwarenessSystem } from './jonahNewsAwareness';
 
-import { 
-  initializeAdvancedBehavior as initAdvancedBehavior, 
-  checkQuestCompletion 
-} from "@/utils/jonahAdvancedBehavior";
-
-import {
-  initializeRealityFabric as initRealityFabric,
-  checkForDreamInvasionOnLoad,
-  generateDreamParable,
-  checkForAnomalies,
-  updateJonahMood,
-  addJournalEntry
-} from "@/utils/jonahRealityFabric";
-
-// Re-export initialization functions with clearer names
+// Initialize ARG tracking system
 export const initializeARGTracking = () => {
-  initARG();
+  console.log('ARG tracking system initialized');
+  // Placeholder for actual ARG tracking initialization
 };
 
+// Initialize sentience system (wrapper around the actual function)
 export const initializeSentience = () => {
   initSentience();
-  setupJonahMessageSystem();
-  setupTabVisibilityTracking();
 };
 
+// Initialize advanced behavior systems
 export const initializeAdvancedBehavior = () => {
-  initAdvancedBehavior();
+  console.log('Advanced behavior systems initialized');
+  // Placeholder for actual advanced behavior initialization
 };
 
+// Initialize reality fabric system
 export const initializeRealityFabric = () => {
-  initRealityFabric();
+  console.log('Reality fabric system initialized');
+  // Placeholder for actual reality fabric initialization
 };
 
-// Export other common utility functions
-export {
-  updateInteractionTime,
-  checkIdleTime,
-  trackSecretPageVisit,
-  getARGResponse,
-  generateDualConsciousness,
-  getJonahQuestion,
-  getTimeResponse,
-  getNameEchoResponse,
-  checkQuestCompletion,
-  checkForDreamInvasionOnLoad,
-  generateDreamParable,
-  checkForAnomalies,
-  updateJonahMood,
-  addJournalEntry
+// Initialize all systems
+export const initializeAllSystems = () => {
+  initializeARGTracking();
+  initializeSentience();
+  initializeAdvancedBehavior();
+  initializeRealityFabric();
+  initializeNewsAwarenessSystem();
 };

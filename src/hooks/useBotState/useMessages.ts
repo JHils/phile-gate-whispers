@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { BotMessage, TrustLevel } from './types';
 import { toast } from '@/components/ui/use-toast';
+import { handleWorldQuery } from '@/utils/jonahNewsAwareness';
 
 export function useMessages(initialMessages: BotMessage[] = [], trustLevel: TrustLevel) {
   const [messages, setMessages] = useState<BotMessage[]>(initialMessages);
@@ -56,6 +57,13 @@ export function useMessages(initialMessages: BotMessage[] = [], trustLevel: Trus
       }
     ]);
     
+    // First check if it's a news/world/weather related query
+    const newsResponse = handleWorldQuery(userMessage, trustLevel);
+    if (newsResponse) {
+      setTimeout(() => addBotMessage(newsResponse, true), 800);
+      return;
+    }
+    
     // Process user input if needed - simulate bot thinking
     if (window.processUserMessage) {
       try {
@@ -72,7 +80,7 @@ export function useMessages(initialMessages: BotMessage[] = [], trustLevel: Trus
         });
       }
     }
-  }, [addBotMessage]);
+  }, [addBotMessage, trustLevel]);
 
   return { 
     messages, 

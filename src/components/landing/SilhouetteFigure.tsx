@@ -11,7 +11,7 @@ const SilhouetteFigure: React.FC = () => {
       <div 
         className="absolute inset-0 bg-center bg-no-repeat bg-contain"
         style={{ 
-          backgroundImage: `url('/lovable-uploads/75a53784-f00a-48d5-8f44-79f4d651eea0.png')`,
+          backgroundImage: `url('/lovable-uploads/5120efce-7049-4a83-94af-be9174fb797f.png')`,
           filter: 'brightness(0.15) contrast(1.3)', // Create silhouette effect
           animation: 'subtle-breathing 4s ease-in-out infinite'
         }}

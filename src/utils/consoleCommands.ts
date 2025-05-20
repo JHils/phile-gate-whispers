@@ -1,4 +1,3 @@
-
 import { UserState } from "@/hooks/useTrackingSystem";
 import { 
   typewriterLog, 
@@ -19,6 +18,7 @@ import { initializeBookCommands } from "./consoleBookCommands";
 import { initializeClueSystem } from "./consoleClueSystem";
 import { initializeSimbaSystem } from "./consoleSimbaSystem";
 import { initializeTimeSystem } from "./consoleTimeSystem";
+import { initializeNewsCommands } from "./consoleNewsCommands";
 import { 
   initializeARGCommands, 
   generateTestament 
@@ -28,6 +28,7 @@ import {
   generatePersonalDiary 
 } from "./jonahSentience";
 import { initializeMirrorSite } from "./jonahMirrorSite";
+import { initializeNewsAwarenessSystem } from "./jonahNewsAwareness";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -83,6 +84,9 @@ export const initializeConsoleCommands = (
   
   // Initialize mirror site functionality
   initializeMirrorSite();
+  
+  // Initialize news awareness system
+  initializeNewsAwarenessSystem();
   
   // Update score and rank from real user state
   const updateConsoleState = async () => {
@@ -212,21 +216,14 @@ Time in session: ${formatSessionTime()}`;
   initializeStoryCommands(trackCommandExecution, recordFailAttempt);
   initializeHumorCommands(trackCommandExecution);
   initializeNewCommands(trackCommandExecution);
-  
-  // Initialize the new book-locked content system
   initializeBookCommands(trackCommandExecution);
-  
-  // Initialize the layered clue system
   initializeClueSystem(trackCommandExecution);
-  
-  // Initialize Simba presence
   initializeSimbaSystem(trackCommandExecution);
-  
-  // Initialize time-sensitive features
   initializeTimeSystem(trackCommandExecution);
-  
-  // Initialize ARG commands
   initializeARGCommands(trackCommandExecution);
+  
+  // Initialize news awareness commands
+  initializeNewsCommands(trackCommandExecution);
 };
 
 // Add additional command types to the global window interface

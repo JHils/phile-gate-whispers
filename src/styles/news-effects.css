@@ -1,0 +1,112 @@
+
+/* News System Visual Effects */
+
+/* Mood shift animations */
+.mood-anxious {
+  animation: anxious-flicker 3s infinite;
+}
+
+.mood-somber {
+  filter: saturate(0.7) brightness(0.9);
+  transition: all 0.5s ease;
+}
+
+.mood-agitated {
+  animation: agitated-shake 10s infinite;
+}
+
+/* Weather condition visual effects */
+.weather-rain {
+  background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.05) 50%, transparent 50%);
+  background-size: 100% 4px;
+  animation: rain-animation 0.5s linear infinite;
+}
+
+.weather-storm {
+  animation: storm-flash 15s infinite;
+}
+
+.weather-fog {
+  backdrop-filter: blur(1px);
+}
+
+/* Animation keyframes */
+@keyframes anxious-flicker {
+  0% { opacity: 1; }
+  97% { opacity: 1; }
+  98% { opacity: 0.7; }
+  99% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes agitated-shake {
+  0% { transform: translateX(0); }
+  99% { transform: translateX(0); }
+  99.2% { transform: translateX(2px); }
+  99.4% { transform: translateX(-2px); }
+  99.6% { transform: translateX(1px); }
+  99.8% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes rain-animation {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 4px; }
+}
+
+@keyframes storm-flash {
+  0% { filter: brightness(1); }
+  97% { filter: brightness(1); }
+  97.2% { filter: brightness(1.4); }
+  97.4% { filter: brightness(1); }
+  97.6% { filter: brightness(1.4); }
+  98% { filter: brightness(1); }
+  100% { filter: brightness(1); }
+}
+
+/* News reaction UI elements */
+.news-reaction {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin: 2px 0;
+  animation: fade-in 0.5s ease-out;
+}
+
+.reaction-climate {
+  border-left: 2px solid #4ca58f;
+  background: rgba(76, 165, 143, 0.1);
+}
+
+.reaction-ai {
+  border-left: 2px solid #9b87f5;
+  background: rgba(155, 135, 245, 0.1);
+}
+
+.reaction-conflict {
+  border-left: 2px solid #e05858;
+  background: rgba(224, 88, 88, 0.1);
+}
+
+.reaction-memory {
+  border-left: 2px solid #e0a558;
+  background: rgba(224, 165, 88, 0.1);
+}
+
+.reaction-identity {
+  border-left: 2px solid #58a2e0;
+  background: rgba(88, 162, 224, 0.1);
+}
+
+/* Fade-in animation for news reactions */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Subtle breathing animation for the background */
+@keyframes subtle-breathing {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}

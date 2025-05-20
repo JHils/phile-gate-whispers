@@ -81,6 +81,9 @@ declare global {
     wearingYouNow: () => void;
     toggleWrath: () => void;
     hint: () => void;
+    // New news awareness functions
+    newsFlash: () => string | null;
+    weatherReport: () => string | null;
   }
 }
 
@@ -140,6 +143,20 @@ export interface BehaviorPhase {
     confessional: string[];
     unstable: string[];
   };
+}
+
+// News awareness types
+export interface NewsAwareness {
+  lastChecked: number;
+  currentResponses: Array<{
+    topic: string;
+    headline: string;
+    response: string;
+    timestamp: number;
+  }>;
+  weatherCondition: string;
+  weatherResponse: string | null;
+  moodShift: 'normal' | 'anxious' | 'somber' | 'agitated';
 }
 
 // Sentience Data Type - Adding all required properties
@@ -258,6 +275,7 @@ export interface SentienceData {
     userAwareness?: string[];
     worldEvents?: string[];
   };
+  newsAwareness?: NewsAwareness;
 }
 
 // No need to export, this is for global types

@@ -14,9 +14,11 @@ import {
 import BotIntervalManagement from "./bot/BotIntervalManagement";
 import BotQuestSystem from "./bot/BotQuestSystem";
 import BotPageNavigation from "./bot/BotPageNavigation";
+import BotNewsAwareness from "./bot/BotNewsAwareness";
 import { getMoodClassName } from "./bot/BotMoodManager";
 import { useLocation } from "react-router-dom";
 import { BotMessage } from "@/hooks/useBotState/types";
+import { initializeNewsAwarenessSystem } from "@/utils/jonahNewsAwareness";
 
 interface JonahConsoleBotProps {
   insideRouter?: boolean;
@@ -28,6 +30,7 @@ const initializeAllSystems = () => {
   initializeSentience();
   initializeAdvancedBehavior();
   initializeRealityFabric();
+  initializeNewsAwarenessSystem();
 };
 
 // Helper function to convert messages to BotMessages
@@ -122,6 +125,12 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
         addBotMessage={addBotMessage}
         modifyTrust={modifyTrust}
         isOpen={isOpen}
+      />
+      
+      {/* Add news awareness system */}
+      <BotNewsAwareness
+        trustLevel={trustLevel}
+        addBotMessage={addBotMessage}
       />
 
       {/* Chat icon with trust level indicator */}
