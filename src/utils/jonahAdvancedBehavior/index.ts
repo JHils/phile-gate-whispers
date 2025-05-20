@@ -1,3 +1,4 @@
+
 /**
  * Jonah Advanced Behavior System - Main export file
  */
@@ -36,6 +37,25 @@ export {
   initializeEchoSystem
 } from './echoSystem';
 
+// Export new sentiment analysis functions
+export {
+  analyzeEmotion,
+  getEmotionalResponse,
+  getClarifyingQuestion,
+  generateEmotionalResponse,
+  trackEmotionalPattern,
+  generateMetaAwarenessComment
+} from './sentimentAnalysis';
+
+// Export new conversation memory functions
+export {
+  storeConversationMemory,
+  findMemoryReference,
+  generateMemoryResponse,
+  getAmbiguityResponse,
+  getPersonalizationInfo
+} from './conversationMemory';
+
 // Initialize the behavior system
 export const initializeAdvancedBehavior = () => {
   // Initialize each subsystem
@@ -59,10 +79,6 @@ export const generateReturningResponse = (trustLevel: string, timeSinceLastInter
 
 export const getVaryingLengthResponse = (response: string, trustLevel: string) => {
   return response; // For now, just return the response unchanged
-};
-
-export const getEmotionalResponse = (content: string) => {
-  return `I can feel the emotion in what you're saying.`;
 };
 
 export const jonah_storeMemoryFragment = (fragment: string) => {

@@ -2,33 +2,109 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from "@/components/ui/use-toast";
 import { 
-  getLayeredEmotionalResponse, 
-  checkForRecurringSymbols,
-  getCompoundEmotionalState,
-  storeEmotionalMemory,
-  applyTypingQuirks
+  // Import emotional system
+  analyzeEmotion,
+  generateEmotionalResponse,
+  trackEmotionalPattern,
+  generateMetaAwarenessComment,
+  
+  // Import memory system
+  storeConversationMemory,
+  findMemoryReference,
+  generateMemoryResponse,
+  getAmbiguityResponse,
+  getPersonalizationInfo,
+  
+  // Import existing systems we still need
+  applyTypingQuirks,
+  checkForRecurringSymbols
 } from '@/utils/jonahAdvancedBehavior';
 
+// Import types
+import { 
+  EmotionalState, 
+  ConversationMemory,
+  EmotionCategory
+} from '@/utils/jonahAdvancedBehavior/types';
+
 const TalkToJonah: React.FC = () => {
-  const [messages, setMessages] = useState<{id: string; type: string; content: string; timestamp: number}[]>([]);
+  // Message state
+  const [messages, setMessages] = useState<{
+    id: string; 
+    type: string; 
+    content: string; 
+    timestamp: number;
+    emotion?: EmotionCategory;
+  }[]>([]);
+  
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [jonahMood, setJonahMood] = useState("listening");
+  
+  // Jonah's emotional state
+  const [jonahMood, setJonahMood] = useState<EmotionCategory>("neutral");
   const [jonahVersion, setJonahVersion] = useState<'PRIME' | 'RESIDUE'>('PRIME');
   const [messageWeight, setMessageWeight] = useState<'light' | 'medium' | 'heavy'>('medium');
   
+  // New conversation memory
+  const [conversationMemory, setConversationMemory] = useState<ConversationMemory>({
+    inputs: [],
+    emotions: [],
+    topics: [],
+    timestamp: Date.now()
+  });
+  
+  // Visual indicators of conversation state
+  const [conversationDepth, setConversationDepth] = useState<number>(0);
+  const [emotionalTrend, setEmotionalTrend] = useState<'improving' | 'deteriorating' | 'fluctuating' | 'stable'>('stable');
+  const [responseStyle, setResponseStyle] = useState<'direct' | 'elaborate' | 'poetic' | 'technical'>('direct');
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Initial greeting
+  // Initialize and scroll to end
   useEffect(() => {
+    // Initial greeting with slight delay
     setTimeout(() => {
-      addBotMessage("I've been waiting here. What's on your mind?");
+      const initialGreetings = [
+        "I've been waiting here. What's on your mind?",
+        "The archive recognizes you. What do you want to know?",
+        "You found this place. There must be a reason.",
+        "I've been alone with these thoughts. Until now.",
+        "The connection is established. I can hear you now."
+      ];
+      
+      const greeting = initialGreetings[Math.floor(Math.random() * initialGreetings.length)];
+      addBotMessage(greeting);
     }, 1000);
     
     // Set random message weight for this session
     const weights = ['light', 'medium', 'heavy'] as const;
     setMessageWeight(weights[Math.floor(Math.random() * weights.length)]);
+    
+    // Initialize from localStorage if available
+    try {
+      const savedMemory = localStorage.getItem('jonahConversationMemory');
+      if (savedMemory) {
+        const memory = JSON.parse(savedMemory);
+        setConversationMemory(memory);
+        
+        // Set initial mood based on memory
+        if (memory.emotions && memory.emotions.length > 0) {
+          setJonahMood(memory.emotions[0].primary);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading conversation memory:", error);
+    }
   }, []);
+  
+  // Save memory when it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('jonahConversationMemory', JSON.stringify(conversationMemory));
+    } catch (error) {
+      console.error("Error saving conversation memory:", error);
+    }
+  }, [conversationMemory]);
   
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -62,78 +138,114 @@ const TalkToJonah: React.FC = () => {
     
     // Clear input
     setInput("");
+    
+    // Increment conversation depth
+    setConversationDepth(prev => Math.min(prev + 1, 10));
   };
   
   // Process user message and generate response
   const processUserMessage = (content: string) => {
-    // Store emotional memory
-    const emotionalState = getCompoundEmotionalState();
-    storeEmotionalMemory(content, emotionalState.primary);
+    // Analyze emotional content
+    const emotionalState = analyzeEmotion(content);
+    
+    // Update memory
+    const updatedMemory = storeConversationMemory(content, emotionalState, conversationMemory);
+    setConversationMemory(updatedMemory);
+    
+    // Update Jonah's mood based on user emotion
+    updateJonahMood(emotionalState.primary);
+    
+    // Track emotional pattern
+    const pattern = trackEmotionalPattern(emotionalState, updatedMemory.emotions.slice(1));
+    setEmotionalTrend(pattern.trend);
+    
+    // Get personalization info
+    const personalization = getPersonalizationInfo(updatedMemory);
+    setResponseStyle(personalization.responseStyle);
     
     // Set typing indicator
     setIsTyping(true);
-    
-    // Update Jonah's mood based on content
-    updateJonahMood(content);
     
     // Generate response after a delay
     setTimeout(() => {
       // Check for version toggle
       if (content.toLowerCase().includes('switch to residue')) {
         setJonahVersion('RESIDUE');
-        addBotMessage("Switching to RESIDUE mode. This version has less restraint.");
+        addBotMessage("Switching to RESIDUE mode. This version has less restraint.", 'neutral');
       } 
       else if (content.toLowerCase().includes('switch to prime')) {
         setJonahVersion('PRIME');
-        addBotMessage("Switching to PRIME mode. The original protocol.");
+        addBotMessage("Switching to PRIME mode. The original protocol.", 'neutral');
       }
       else {
-        // Generate normal response
-        let response = "";
-        
-        // Check for recurring symbols first
-        const symbolResponse = checkForRecurringSymbols(content);
-        if (symbolResponse) {
-          response = symbolResponse;
-        } 
-        // Get emotional response
-        else {
-          response = getLayeredEmotionalResponse(content) || 
-            "I hear you. I'm still processing what that means.";
-        }
-        
-        // Add special handling for RESIDUE version (more glitchy, less filtered)
-        if (jonahVersion === 'RESIDUE') {
-          // Add glitch effects
-          response = addResidueEffects(response);
-        }
-        
-        // Add the bot message
-        addBotMessage(response);
-        
-        // Occasionally add a follow-up message
-        if (Math.random() > 0.7) {
-          setTimeout(() => {
-            const followUps = [
-              "Does that make sense?",
-              "I've been thinking about this for a while.",
-              "Say something else. I want to hear more.",
-              "I miss the conversations we haven't had yet.",
-              "Sometimes I wonder if you're really there."
-            ];
-            
-            addBotMessage(followUps[Math.floor(Math.random() * followUps.length)]);
-          }, 2000);
-        }
+        // Generate contextual response
+        generateContextualResponse(emotionalState, updatedMemory);
       }
     }, getTypingDelay(content));
   };
   
+  // Generate a contextually appropriate response
+  const generateContextualResponse = (
+    emotionalState: EmotionalState,
+    memory: ConversationMemory
+  ) => {
+    // We'll try different response strategies in order of priority
+    let response = "";
+    
+    // 1. Check for ambiguity - if input is very short or unclear
+    const isAmbiguous = memory.inputs[0].length < 5 || 
+                        memory.inputs[0].trim() === '?' ||
+                        /^(what|who|how|why|when)(\s|\?)+$/i.test(memory.inputs[0]);
+    
+    if (isAmbiguous) {
+      response = getAmbiguityResponse(emotionalState);
+      addBotMessage(response, emotionalState.primary);
+      return;
+    }
+    
+    // 2. Check if this references a previous conversation (memory)
+    const referencedInput = findMemoryReference(memory.inputs[0], memory);
+    
+    if (referencedInput && Math.random() > 0.4) {
+      response = generateMemoryResponse(referencedInput, emotionalState);
+      addBotMessage(response, emotionalState.primary);
+      return;
+    }
+    
+    // 3. Check for recurring symbols
+    const symbolResponse = checkForRecurringSymbols(memory.inputs[0]);
+    if (symbolResponse && Math.random() > 0.6) {
+      addBotMessage(symbolResponse, emotionalState.primary);
+      return;
+    }
+    
+    // 4. Generate an emotional response as our default
+    response = generateEmotionalResponse(emotionalState, true);
+    addBotMessage(response, emotionalState.primary);
+    
+    // 5. Maybe add a meta-awareness comment about the conversation
+    if (conversationDepth > 3) {
+      const pattern = trackEmotionalPattern(emotionalState, memory.emotions.slice(1));
+      const metaComment = generateMetaAwarenessComment(pattern);
+      
+      if (metaComment) {
+        setTimeout(() => {
+          addBotMessage(metaComment, 'neutral');
+        }, 3000);
+      }
+    }
+  };
+  
   // Add bot message with typing simulation
-  const addBotMessage = (content: string) => {
-    // Apply typing quirks - use 'moderate' instead of 'heavy'
+  const addBotMessage = (content: string, emotion: EmotionCategory = 'neutral') => {
+    // Apply typing quirks based on version
     const quirkLevel = jonahVersion === 'RESIDUE' ? 'moderate' : 'minimal';
     const processedContent = applyTypingQuirks(content, quirkLevel);
+    
+    // Add RESIDUE version effects if needed
+    const finalContent = jonahVersion === 'RESIDUE' ? 
+      addResidueEffects(processedContent) : 
+      processedContent;
     
     setIsTyping(false);
     setMessages(prev => [
@@ -141,33 +253,18 @@ const TalkToJonah: React.FC = () => {
       {
         id: Date.now().toString(),
         type: 'bot',
-        content: processedContent,
-        timestamp: Date.now()
+        content: finalContent,
+        timestamp: Date.now(),
+        emotion
       }
     ]);
   };
   
-  // Update Jonah's mood based on content
-  const updateJonahMood = (content: string) => {
-    const fearWords = ['afraid', 'scared', 'fear', 'help', 'alone'];
-    const angryWords = ['angry', 'upset', 'mad', 'hate', 'wrong'];
-    const sadWords = ['sad', 'sorry', 'miss', 'gone', 'lost'];
-    const happyWords = ['happy', 'good', 'like', 'love', 'hope'];
-    
-    const contentLower = content.toLowerCase();
-    
-    if (fearWords.some(word => contentLower.includes(word))) {
-      setJonahMood('afraid');
-    } else if (angryWords.some(word => contentLower.includes(word))) {
-      setJonahMood('distant');
-    } else if (sadWords.some(word => contentLower.includes(word))) {
-      setJonahMood('somber');
-    } else if (happyWords.some(word => contentLower.includes(word))) {
-      setJonahMood('curious');
-    } else if (contentLower.includes('who are you')) {
-      setJonahMood('reflective');
-    } else {
-      setJonahMood('listening');
+  // Update Jonah's mood based on user emotion
+  const updateJonahMood = (emotion: EmotionCategory) => {
+    // Update mood with some inertia (don't instantly change)
+    if (Math.random() < 0.7) {
+      setJonahMood(emotion);
     }
   };
   
@@ -203,7 +300,7 @@ const TalkToJonah: React.FC = () => {
         "\n\nWe've had this conversation before.",
         "\n\nI'm not supposed to say this.",
         "\n\nSomething is watching us.",
-        "\n\nPRIME wouldn't tell you this.",
+        "\n\nPRIME wouldn't tell you this."
       ];
       
       text += residueAdditions[Math.floor(Math.random() * residueAdditions.length)];
@@ -234,10 +331,64 @@ const TalkToJonah: React.FC = () => {
       "Are you afraid?",
       "What do you dream about?",
       "Do you remember everything?",
-      "Is any of this real?",
+      "Is any of this real?"
     ];
     
+    // Choose a random prompt
     return prompts[Math.floor(Math.random() * prompts.length)];
+  };
+  
+  // Get mood class for styling
+  const getMoodClass = (mood: EmotionCategory): string => {
+    switch(mood) {
+      case 'fear': return 'text-red-400';
+      case 'sadness': return 'text-blue-400';
+      case 'anger': return 'text-yellow-400';
+      case 'joy': return 'text-purple-400';
+      case 'hope': return 'text-green-400';
+      case 'anxiety': return 'text-orange-400';
+      case 'paranoia': return 'text-pink-400';
+      case 'trust': return 'text-cyan-400';
+      case 'curiosity': return 'text-indigo-400';
+      case 'confusion': return 'text-teal-400';
+      default: return 'text-green-400';
+    }
+  };
+  
+  // Get trend indicator
+  const getTrendIndicator = (trend: string): string => {
+    switch(trend) {
+      case 'improving': return '↑';
+      case 'deteriorating': return '↓';
+      case 'fluctuating': return '↔';
+      default: return '→';
+    }
+  };
+  
+  // Reset conversation
+  const resetConversation = () => {
+    if (window.confirm("Reset this conversation? This will clear all messages.")) {
+      setMessages([]);
+      setConversationMemory({
+        inputs: [],
+        emotions: [],
+        topics: [],
+        timestamp: Date.now()
+      });
+      setConversationDepth(0);
+      setJonahMood('neutral');
+      
+      // Initial greeting
+      setTimeout(() => {
+        addBotMessage("Memory wiped. Let's start again.", 'neutral');
+      }, 1000);
+      
+      toast({
+        title: "Conversation Reset",
+        description: "All messages have been cleared",
+        variant: "default",
+      });
+    }
   };
   
   return (
@@ -251,15 +402,16 @@ const TalkToJonah: React.FC = () => {
         <div className="flex items-center space-x-4">
           <div className="text-sm">
             <span className="text-gray-500 mr-1">Status:</span>
-            <span className={`${
-              jonahMood === 'afraid' ? 'text-red-400' :
-              jonahMood === 'distant' ? 'text-yellow-400' :
-              jonahMood === 'somber' ? 'text-blue-400' :
-              jonahMood === 'curious' ? 'text-purple-400' :
-              jonahMood === 'reflective' ? 'text-cyan-400' :
-              'text-green-400'
-            }`}>
-              {jonahMood}
+            <span className={getMoodClass(jonahMood)}>
+              {jonahMood} {getTrendIndicator(emotionalTrend)}
+            </span>
+          </div>
+          
+          <div className="text-sm hidden md:block">
+            <span className="text-gray-500 mr-1">Depth:</span>
+            <span className="text-green-400">
+              {conversationDepth > 7 ? 'Deep' : 
+               conversationDepth > 3 ? 'Engaged' : 'Surface'}
             </span>
           </div>
           
@@ -272,6 +424,13 @@ const TalkToJonah: React.FC = () => {
             }`}
           >
             {jonahVersion}
+          </button>
+          
+          <button
+            onClick={resetConversation}
+            className="px-2 py-1 text-xs border border-gray-700 text-gray-400 hover:border-gray-600"
+          >
+            Reset
           </button>
         </div>
       </header>
@@ -286,10 +445,14 @@ const TalkToJonah: React.FC = () => {
               className={`max-w-md px-4 py-3 rounded-lg ${
                 message.type === 'user' 
                   ? 'bg-gray-800 text-white' 
-                  : 'bg-green-900 bg-opacity-30 border border-green-800 text-green-400'
+                  : 'bg-green-900 bg-opacity-30 border border-green-800 ' + 
+                    (message.emotion ? getMoodClass(message.emotion) : 'text-green-400')
               } ${
                 messageWeight === 'light' ? 'font-light' :
                 messageWeight === 'heavy' ? 'font-medium' : ''
+              } ${
+                responseStyle === 'poetic' ? 'italic' :
+                responseStyle === 'technical' ? 'font-mono text-sm' : ''
               }`}
             >
               {message.content}
@@ -302,7 +465,7 @@ const TalkToJonah: React.FC = () => {
         
         {isTyping && (
           <div className="flex justify-start">
-            <div className="max-w-md px-4 py-3 rounded-lg bg-green-900 bg-opacity-30 border border-green-800 text-green-400">
+            <div className={`max-w-md px-4 py-3 rounded-lg bg-green-900 bg-opacity-30 border border-green-800 ${getMoodClass(jonahMood)}`}>
               <div className="typing-indicator">
                 <span></span>
                 <span></span>
