@@ -42,3 +42,21 @@
 .eye-transition {
   transition: opacity 0.5s ease-in-out;
 }
+
+/* PNG Transparency Fix */
+img.jonah-glyph, img.jonah-eye {
+  background: transparent !important;
+  image-rendering: auto;
+  mix-blend-mode: multiply;
+}
+
+/* Ensure parent container has no fill */
+.jonah-logo-container {
+  background: transparent !important;
+  border: none;
+}
+
+/* Force dark mode harmony */
+body.dark-mode img.jonah-glyph {
+  filter: brightness(1.1) contrast(1.1);
+}

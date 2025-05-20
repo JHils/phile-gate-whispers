@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { speak } from '@/utils/consoleEffects'; 
 
 interface EasterEggProps {
-  type: 'click' | 'hover' | 'konami' | 'secret';
-  element: React.ReactNode;
-  secretContent: React.ReactNode;
+  children: React.ReactNode;
+  type?: 'click' | 'hover' | 'konami' | 'secret';
+  element?: React.ReactNode;
+  secretContent?: React.ReactNode;
   useSpeak?: boolean;
   speakText?: string;
   addPoints?: number;
@@ -15,7 +17,8 @@ interface EasterEggProps {
 const KONAMI_CODE = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
 
 const EasterEgg: React.FC<EasterEggProps> = ({ 
-  type, 
+  children,
+  type = 'click', 
   element, 
   secretContent, 
   useSpeak = false,
@@ -87,7 +90,10 @@ const EasterEgg: React.FC<EasterEggProps> = ({
     }
   };
   
-  // For secret-type easter eggs, they need to be triggered externally
+  // Simple mode - just render children when no special interactions needed
+  if (type === 'secret' || element === undefined) {
+    return <>{children}</>;
+  }
   
   return (
     <>
@@ -101,7 +107,7 @@ const EasterEgg: React.FC<EasterEggProps> = ({
           onMouseOver={type === 'hover' ? handleHover : undefined}
           className={type === 'hover' ? 'cursor-default' : type === 'click' ? 'cursor-pointer' : ''}
         >
-          {revealed ? secretContent : element}
+          {revealed ? (secretContent || children) : (element || children)}
         </div>
       )}
     </>

@@ -128,7 +128,7 @@ const JonahLogo: React.FC<JonahLogoProps> = ({
 
   return (
     <div 
-      className={`flex items-center justify-center ${className} ${getGlowClass()} 
+      className={`jonah-logo-container flex items-center justify-center ${className} ${getGlowClass()} 
         ${showHoverEffects ? 'jonah-glyph' : ''}`} 
       style={{ background: 'transparent' }}
     >
@@ -136,7 +136,7 @@ const JonahLogo: React.FC<JonahLogoProps> = ({
         src={logoPath}
         alt={altText}
         className={`${sizeClass} object-contain ${glitchActive ? 'animate-pulse' : ''} 
-          ${isEyeVisible ? 'eye-transition' : ''}`}
+          ${isEyeVisible ? 'eye-transition' : ''} ${variant === 'eye' ? 'jonah-eye' : 'jonah-glyph'}`}
         style={{ background: 'transparent' }}
       />
     </div>
