@@ -82,6 +82,7 @@ export interface SentienceData {
     lastBiomeCheck?: number;
     connectionStrength?: number;
     currentBiome?: string;
+    previousResponses?: string[]; // Added this property to ensure type consistency
   };
   newsAwareness?: {
     lastChecked: number;
@@ -153,7 +154,7 @@ export type ResponseStyle = 'direct' | 'elaborate' | 'poetic' | 'technical';
 export type EmotionalTrend = 'improving' | 'deteriorating' | 'fluctuating' | 'stable';
 
 // Create a utility function to convert string to EmotionalState
-export function createEmotionalState(emotion: string): EmotionalState {
+export function createEmotionalState(emotion: EmotionCategory): EmotionalState {
   return {
     primary: emotion as EmotionCategory,
     secondary: null,
