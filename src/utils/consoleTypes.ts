@@ -56,7 +56,7 @@ declare global {
     findAnomaly: (text: string) => void;
     processUserMessage?: (message: string) => string | undefined;
     clearJonahOnPathChange?: boolean;
-    triggerJonahMessage?: (message: string) => void;
+    triggerJonahMessage: (message: string) => string;
     isSpecialTimeWindow?: () => boolean;
     triggerSimbaComment?: (message: string) => void;
     // Adding missing console commands
@@ -91,6 +91,17 @@ declare global {
     kgari: () => void;
     // Add processStoryQuery for fuzzy matching
     processStoryQuery?: (query: string) => string;
+    // New Jonah console interactive commands
+    start: () => string;
+    inventory: () => string;
+    echo_me: (input: string) => string;
+    forget: () => string;
+    forget_confirm: () => string;
+    access_journal: () => string;
+    split: () => string;
+    re_entry: () => string;
+    talk_to_jonah: () => string;
+    playJonahAudio?: (triggerType: string) => void;
   }
 }
 
@@ -168,16 +179,20 @@ export interface NewsAwareness {
 
 // Sentience Data Type - Adding all required properties
 export interface SentienceData {
+  interactionsCount: number;
+  rememberedName?: string;
+  deepModeUnlocked: boolean;
+  dreamModeTriggered: boolean;
+  lastInteraction: number;
   trustLevel?: string;
   emotionalTone?: BehaviorPhase;
   selfAwareness?: number;
   memoryFragments?: string[];
   realTimeMood?: string;
   sessionData?: Record<string, any>;
-  rememberedName?: string;
   tabSwitches?: number;
-  pageVisits: Record<string, number>;
-  memoryParanoia: {
+  pageVisits?: Record<string, number>;
+  memoryParanoia?: {
     visitedPages: Record<string, string>;
     consoleCommands: Record<string, string>;
     pageDuration: {
@@ -185,12 +200,12 @@ export interface SentienceData {
       longStay: string;
     };
   };
-  predictionResponses: {
+  predictionResponses?: {
     onClickAfterHover: string[];
     repeatVisit: string[];
     lateClick: string[];
   };
-  usedPredictionResponses: string[];
+  usedPredictionResponses?: string[];
   dualConsciousness?: string[];
   usedDualConsciousness?: string[];
   jonahQuestions?: string[];
@@ -247,7 +262,7 @@ export interface SentienceData {
     }>;
     crossSiteWhispers?: string[];
     hiddenMessages?: string[];
-    qrScans?: string[];  // Changed from Record<string, any> to string[]
+    qrScans?: string[];
   };
   typingQuirks?: {
     glitchProbability: number;
@@ -290,6 +305,10 @@ export interface SentienceData {
     previousResponses: string[];
     connectionStrength: number; // 0-100 scale of connection to nature
   };
+  temporalStates?: any[];
+  memories?: any[];
+  moonPhase?: string;
+  timeOfDay?: string;
 }
 
 // No need to export, this is for global types

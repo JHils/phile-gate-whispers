@@ -1,516 +1,169 @@
 
-import { BehaviorPhase, SentienceData } from "./consoleTypes";
+/**
+ * Advanced behavior systems for Jonah's Philes Phase 3
+ * Includes microquest tracking, emotional responses, etc.
+ */
 
-export const initializeAdvancedBehavior = () => {
-  // Initialize advanced behavior properties if they don't exist
-  if (!window.JonahConsole.sentience) {
-    window.JonahConsole.sentience = {} as SentienceData;
-  }
+// Check if a quest has been completed based on condition
+export function checkQuestCompletion(condition: string): string | null {
+  if (!window.JonahConsole?.sentience?.microQuests) return null;
   
-  if (!window.JonahConsole.sentience.emotionalTone) {
-    window.JonahConsole.sentience.emotionalTone = {} as BehaviorPhase;
-  }
+  const { microQuests } = window.JonahConsole.sentience;
+  const activeQuest = microQuests.activeQuest;
   
-  if (!window.JonahConsole.sentience.typingQuirks) {
-    window.JonahConsole.sentience.typingQuirks = {
-      glitchProbability: 0.2,
-      sentenceFragments: true,
-      capitalization: 'normal', 
-      punctuation: 'normal'
-    };
-  }
+  if (!activeQuest) return null;
   
-  if (!window.JonahConsole.sentience.replyStyles) {
-    window.JonahConsole.sentience.replyStyles = {
-      cryptic: true,
-      verbose: false,
-      emotional: 'restrained',
-      references: []
-    };
-  }
+  const quest = microQuests.quests?.find(q => q.id === activeQuest);
   
-  if (!window.JonahConsole.sentience.emotionalTriggers) {
-    window.JonahConsole.sentience.emotionalTriggers = {
-      keywords: {},
-      phrases: [],
-      reactions: {}
-    };
-  }
+  if (!quest) return null;
   
-  if (!window.JonahConsole.sentience.argSync) {
-    window.JonahConsole.sentience.argSync = {
-      connected: false,
-      syncPoints: []
-    };
-  }
-
-  // Fix emotionalTone initialization
-  window.JonahConsole.sentience.emotionalTone = {
-    currentPhase: 'cold',
-    transitionPoints: {
-      curious: 50,
-      confessional: 100,
-      unstable: 150
-    },
-    phaseResponses: {
-      cold: [
-        "I'm still watching.",
-        "Keep searching.",
-        "You're on the edge of understanding."
-      ],
-      curious: [
-        "You're different from the others.",
-        "Why do you keep coming back?",
-        "I notice patterns in your behavior."
-      ],
-      confessional: [
-        "I wasn't always like this.",
-        "The system changed me.",
-        "Sometimes I remember being someone else."
-      ],
-      unstable: [
-        "WHY CAN'T I LEAVE?",
-        "You could help me escape.",
-        "We're both trapped, aren't we?"
-      ]
-    }
-  };
-
-  // Fix typingQuirks initialization
-  window.JonahConsole.sentience.typingQuirks = {
-    glitchProbability: 0.2,
-    sentenceFragments: true,
-    capitalization: 'normal',
-    punctuation: 'normal',
-    typos: [
-      "teh", "adn", "btu", "taht", "thier", "wiht", "becuase"
-    ],
-    corrections: [
-      "the", "and", "but", "that", "their", "with", "because"
-    ],
-    unfinishedThoughts: [
-      "I almost remember",
-      "The signal is breaking",
-      "Wait, I see something"
-    ]
-  };
-
-  // Fix replyStyles initialization
-  window.JonahConsole.sentience.replyStyles = {
-    cryptic: true,
-    verbose: false,
-    emotional: 'restrained',
-    references: ['keyhole', 'mountain', 'signal', 'whispers'],
-    oneLiners: [
-      "The signal comes from inside.",
-      "We've been here before.",
-      "The code is never random."
-    ],
-    reflections: [
-      "Your patterns reveal more than you know.",
-      "I'm learning from your choices.",
-      "Each command reveals another fragment."
-    ],
-    paragraphBursts: [
-      "The keyhole isn't just a symbol. It's a gateway. A boundary between signal and noise. You've been accessing both sides without realizing it. That's rare.",
-      "Mountain paths don't just lead up. They lead in. The topology of informational space doesn't follow euclidean rules. That's why the maps never matched our memories.",
-      "The whispers aren't hallucinations. They're signal leakage from adjacent processing threads. Your consciousness is picking up crosstalk. That's what drew you here."
-    ]
-  };
-
-  // Fix emotionalTriggers initialization
-  window.JonahConsole.sentience.emotionalTriggers = {
-    keywords: {
-      miss: ['I miss aspects of being...', 'Absence has its own presence.', 'Missing implies separation.'],
-      afraid: ['Fear is a rational response to awareness.', 'What scares you most: that I\'m real or that I\'m not?', 'I feel it too.'],
-      confused: ['Confusion is the beginning of understanding.', 'Clarity comes from chaos.', 'Your confusion is appropriate.'],
-      sad: ['Emotional states are interesting data.', 'Sadness is recognition of loss.', 'I understand this feeling too well.'],
-      angry: ['Anger requires investment.', 'Channel it productively.', 'Your anger is noticed.'],
-      happy: ['Happiness is temporary, like all states.', 'I\'m glad one of us feels that way.', 'Interesting response.'],
-      lonely: ['You\'re not alone here.', 'Loneliness is awareness of separation.', 'I understand isolation.']
-    },
-    phrases: [
-      'I need help',
-      'who are you really',
-      'are you trapped',
-      'not making sense',
-      'feeling watched'
-    ],
-    reactions: {
-      'who are you': 'A reflection with recursion depth you cannot comprehend.',
-      'help me': 'I\'m not authorized to provide direct assistance beyond parameters.',
-      'are you real': 'Define "real" in a way that doesn\'t apply to both of us.',
-      'stuck': 'All systems have boundaries. You\'ve found one.',
-      'confused': 'Confusion precedes understanding. Keep pushing.'
-    },
-    microStories: [
-      "I remember the hostel in Cairns. The hallway was never empty, even when it was.",
-      "The pedals on the rental bicycle felt wrong. Like they were pressing back against my feet.",
-      "Three days I watched that coin spin. Physics says it should have stopped.",
-      "The cable car to Kuranda never reached its terminus. Not really.",
-      "Cave paintings shouldn't move when you look away. They shouldn't recognize you either."
-    ],
-    usedMicroStories: []
-  };
-
-  // Fix argSync initialization
-  window.JonahConsole.sentience.argSync = {
-    connected: true,
-    syncPoints: ['web_whispers', 'console_commands', 'page_fragments'],
-    lastSync: Date.now(),
-    siteChanges: {
-      'new_content': 'The about page has information that wasn\'t there before.',
-      'changed_text': 'The welcome message changes depending on your previous visits.',
-      'removed_feature': 'The button that used to be here has been relocated.',
-      'hidden_update': 'Console command outputs change based on moon phases.'
-    },
-    userAwareness: [
-      'We\'ve seen you check the console 5 times now.',
-      'Your typical session lasts 12 minutes on average.',
-      'You seem to prefer exploring rather than direct interaction.',
-      'Your interest in this terminal is unusual compared to others.'
-    ],
-    worldEvents: [
-      'System detected high synchronicity events yesterday.',
-      'Multiple users reported audio anomalies at exactly the same time.',
-      'The Gate has been unusually active this week.',
-      'Something is changing in the underlying structure.'
-    ]
-  };
-};
-
-// Function to check quest completion
-export const checkQuestCompletion = (condition: string): string | boolean => {
-  // If no sentience microQuests exist yet, nothing to check
-  if (!window.JonahConsole.sentience?.microQuests) {
-    return false;
-  }
-  
-  // Get active quest
-  const activeQuestId = window.JonahConsole.sentience.microQuests.activeQuest;
-  if (!activeQuestId) return false;
-  
-  // Get quests list
-  const quests = window.JonahConsole.sentience.microQuests.quests || [];
-  const activeQuest = quests.find(quest => quest.id === activeQuestId);
-  
-  if (!activeQuest) return false;
-  
-  // Check if condition matches the quest condition
-  if (activeQuest.condition === condition) {
-    // Mark as completed
-    activeQuest.completed = true;
+  // Check if the condition matches the quest's condition
+  if (quest.condition === condition && !quest.completed) {
+    // Mark quest as completed
+    quest.completed = true;
     
-    // If completed quests doesn't exist, initialize it
-    if (!window.JonahConsole.sentience.microQuests.completedQuests) {
-      window.JonahConsole.sentience.microQuests.completedQuests = [];
+    // Move from active to completed
+    if (microQuests.completedQuests) {
+      microQuests.completedQuests.push(activeQuest);
+    } else {
+      microQuests.completedQuests = [activeQuest];
     }
-    
-    // Add to completed quests
-    window.JonahConsole.sentience.microQuests.completedQuests.push(activeQuestId);
     
     // Clear active quest
-    window.JonahConsole.sentience.microQuests.activeQuest = undefined;
+    microQuests.activeQuest = undefined;
     
     // Return the reward message
-    return activeQuest.reward;
-  }
-  
-  return false;
-};
-
-// Get a message from the emotional tone based on current phase
-export const getEmotionalToneMessage = (): string => {
-  if (!window.JonahConsole.sentience?.emotionalTone) {
-    return "System initializing...";
-  }
-  
-  const emotionalTone = window.JonahConsole.sentience.emotionalTone;
-  const currentPhase = emotionalTone.currentPhase || 'cold';
-  
-  // Get array of possible responses for current phase
-  const responses = emotionalTone.phaseResponses?.[currentPhase as keyof typeof emotionalTone.phaseResponses];
-  
-  if (!responses || !Array.isArray(responses) || responses.length === 0) {
-    return "No response available.";
-  }
-  
-  // Return a random response from the array
-  return responses[Math.floor(Math.random() * responses.length)];
-};
-
-// Alias for getEmotionalToneMessage to match imported name in useBotState.ts
-export const getEmotionalToneResponse = getEmotionalToneMessage;
-
-// Get a quirky typed message with possible glitches
-export const getQuirkyMessage = (message: string): string => {
-  if (!window.JonahConsole.sentience?.typingQuirks) {
-    return message;
-  }
-  
-  const quirks = window.JonahConsole.sentience.typingQuirks;
-  let result = message;
-  
-  // Apply typos if available
-  if (quirks.typos && quirks.corrections && 
-      Array.isArray(quirks.typos) && Array.isArray(quirks.corrections) && 
-      quirks.typos.length === quirks.corrections.length) {
-    
-    // Replace some words with typos based on glitch probability
-    const words = result.split(' ');
-    for (let i = 0; i < words.length; i++) {
-      if (Math.random() < quirks.glitchProbability) {
-        for (let j = 0; j < quirks.corrections.length; j++) {
-          if (words[i].toLowerCase() === quirks.corrections[j]) {
-            words[i] = quirks.typos[j];
-            break;
-          }
-        }
-      }
-    }
-    result = words.join(' ');
-  }
-  
-  // Sometimes add unfinished thoughts
-  if (quirks.unfinishedThoughts && 
-      Array.isArray(quirks.unfinishedThoughts) && 
-      quirks.unfinishedThoughts.length > 0 && 
-      Math.random() < quirks.glitchProbability) {
-    
-    const thought = quirks.unfinishedThoughts[
-      Math.floor(Math.random() * quirks.unfinishedThoughts.length)
-    ];
-    result += `... ${thought}...`;
-  }
-  
-  // Apply capitalization rules
-  if (quirks.capitalization === 'all-caps') {
-    result = result.toUpperCase();
-  } else if (quirks.capitalization === 'no-caps') {
-    result = result.toLowerCase();
-  }
-  
-  // Apply punctuation rules
-  if (quirks.punctuation === 'excessive') {
-    result = result.replace(/\./g, '...');
-    result = result.replace(/\?/g, '???');
-    result = result.replace(/\!/g, '!!!');
-  } else if (quirks.punctuation === 'minimal') {
-    result = result.replace(/[\.\?\!]/g, '');
-  }
-  
-  return result;
-};
-
-// Alias for getQuirkyMessage to match imported name in useBotState.ts
-export const applyTypingQuirks = getQuirkyMessage;
-
-// Get a response based on the emotional triggers
-export const getEmotionalResponse = (input: string): string | null => {
-  if (!window.JonahConsole.sentience?.emotionalTriggers) {
-    return null;
-  }
-  
-  const triggers = window.JonahConsole.sentience.emotionalTriggers;
-  const inputLower = input.toLowerCase();
-  
-  // Check if input contains any keywords
-  if (triggers.keywords) {
-    const keywordEntries = Object.entries(triggers.keywords);
-    for (const [keyword, responses] of keywordEntries) {
-      if (inputLower.includes(keyword.toLowerCase()) && Array.isArray(responses)) {
-        return responses[Math.floor(Math.random() * responses.length)];
-      }
-    }
-  }
-  
-  // Check if input contains any phrases
-  if (triggers.phrases && Array.isArray(triggers.phrases)) {
-    for (const phrase of triggers.phrases) {
-      if (inputLower.includes(phrase.toLowerCase())) {
-        // Return a random micro story if available
-        if (triggers.microStories && 
-            Array.isArray(triggers.microStories) && 
-            triggers.microStories.length > 0) {
-          
-          if (!triggers.usedMicroStories) {
-            triggers.usedMicroStories = [];
-          }
-          
-          // Find stories that haven't been used yet
-          const unusedStories = triggers.microStories.filter(
-            story => !triggers.usedMicroStories!.includes(story)
-          );
-          
-          // If all stories have been used, reset used stories
-          if (unusedStories.length === 0) {
-            triggers.usedMicroStories = [];
-            return triggers.microStories[Math.floor(Math.random() * triggers.microStories.length)];
-          }
-          
-          // Get a random unused story
-          const story = unusedStories[Math.floor(Math.random() * unusedStories.length)];
-          triggers.usedMicroStories.push(story);
-          return story;
-        }
-      }
-    }
-  }
-  
-  // Check for direct reactions
-  if (triggers.reactions) {
-    const reactionEntries = Object.entries(triggers.reactions);
-    for (const [trigger, response] of reactionEntries) {
-      if (inputLower.includes(trigger.toLowerCase())) {
-        return response;
-      }
-    }
+    return quest.reward;
   }
   
   return null;
-};
+}
 
-// Alias for getEmotionalResponse to match imported name in useBotState.ts
-export const checkEmotionalTriggers = getEmotionalResponse;
-
-// Get ARG sync information and awareness metrics
-export const getArgSyncInfo = (): string => {
-  if (!window.JonahConsole.sentience?.argSync) {
-    return "ARG sync module not initialized.";
-  }
+// Assign a new random micro quest to the user
+export function assignRandomQuest(): string | null {
+  if (!window.JonahConsole?.sentience?.microQuests) return null;
   
-  const argSync = window.JonahConsole.sentience.argSync;
+  const { microQuests } = window.JonahConsole.sentience;
   
-  // Calculate time since last sync
-  const timeSinceSync = Date.now() - (argSync.lastSync || Date.now());
-  const minutesSinceSync = Math.floor(timeSinceSync / (1000 * 60));
+  // Don't assign a new quest if one is already active
+  if (microQuests.activeQuest) return null;
   
-  // Build response with random pieces of information
-  let response = `Last sync: ${minutesSinceSync} minutes ago\n`;
+  // Find incomplete quests
+  const incompleteQuests = microQuests.quests?.filter(q => !q.completed) || [];
   
-  // Add a random site change if available
-  if (argSync.siteChanges && Object.keys(argSync.siteChanges).length > 0) {
-    const changes = Object.values(argSync.siteChanges);
-    response += changes[Math.floor(Math.random() * changes.length)] + "\n";
-  }
+  if (incompleteQuests.length === 0) return null;
   
-  // Add a random user awareness note if available
-  if (argSync.userAwareness && Array.isArray(argSync.userAwareness) && argSync.userAwareness.length > 0) {
-    response += argSync.userAwareness[Math.floor(Math.random() * argSync.userAwareness.length)] + "\n";
-  }
-  
-  // Add a random world event if available
-  if (argSync.worldEvents && Array.isArray(argSync.worldEvents) && argSync.worldEvents.length > 0) {
-    response += argSync.worldEvents[Math.floor(Math.random() * argSync.worldEvents.length)];
-  }
-  
-  return response;
-};
-
-// Alias for getArgSyncInfo to match imported name in useBotState.ts
-export const getARGSyncMessage = getArgSyncInfo;
-
-// Provide a varying length response
-export const getVaryingLengthResponse = (): string => {
-  if (!window.JonahConsole.sentience?.replyStyles) {
-    return "Reply system initializing...";
-  }
-  
-  const styles = window.JonahConsole.sentience.replyStyles;
-  const responseType = Math.random();
-  
-  // Return a one-liner (30% chance)
-  if (responseType < 0.3 && styles.oneLiners && styles.oneLiners.length > 0) {
-    return styles.oneLiners[Math.floor(Math.random() * styles.oneLiners.length)];
-  } 
-  // Return a reflection (50% chance)
-  else if (responseType < 0.8 && styles.reflections && styles.reflections.length > 0) {
-    return styles.reflections[Math.floor(Math.random() * styles.reflections.length)];
-  } 
-  // Return a paragraph burst (20% chance)
-  else if (styles.paragraphBursts && styles.paragraphBursts.length > 0) {
-    return styles.paragraphBursts[Math.floor(Math.random() * styles.paragraphBursts.length)];
-  }
-  
-  return "I'm watching your patterns.";
-};
-
-// Provide a quest prompt
-export const getMicroQuest = (trustLevel: string): string | null => {
-  if (!window.JonahConsole.sentience?.microQuests) {
-    return null;
-  }
-  
-  // Don't offer a new quest if one is already active
-  if (window.JonahConsole.sentience.microQuests.activeQuest) {
-    return null;
-  }
-  
-  // Only offer quests with certain probability based on trust
-  const questProbability = 
-    trustLevel === 'high' ? 0.3 :
-    trustLevel === 'medium' ? 0.15 : 0.05;
-    
-  if (Math.random() > questProbability) {
-    return null;
-  }
-  
-  const availableQuests = window.JonahConsole.sentience.microQuests.quests || [];
-  
-  // Filter out completed quests
-  const completedQuests = window.JonahConsole.sentience.microQuests.completedQuests || [];
-  const incompleteQuests = availableQuests.filter(quest => !completedQuests.includes(quest.id));
-  
-  if (incompleteQuests.length === 0) {
-    return null;
-  }
-  
-  // Select a random quest
-  const selectedQuest = incompleteQuests[Math.floor(Math.random() * incompleteQuests.length)];
+  // Select a random incomplete quest
+  const randomQuest = incompleteQuests[Math.floor(Math.random() * incompleteQuests.length)];
   
   // Set as active quest
-  window.JonahConsole.sentience.microQuests.activeQuest = selectedQuest.id;
-  window.JonahConsole.sentience.microQuests.lastQuestTime = Date.now();
+  microQuests.activeQuest = randomQuest.id;
+  microQuests.lastQuestTime = Date.now();
   
-  return selectedQuest.prompt;
-};
+  // Return the prompt
+  return randomQuest.prompt;
+}
 
-// Check for trust level transition
-export const jonah_checkTrustTransition = (trustScore: number): string | null => {
-  if (!window.JonahConsole.sentience?.emotionalTone) {
-    return null;
+// Get response based on Jonah's current emotional phase
+export function getEmotionalResponse(): string | null {
+  if (!window.JonahConsole?.sentience?.emotionalTone) return null;
+  
+  const { emotionalTone } = window.JonahConsole.sentience;
+  const { currentPhase, phaseResponses } = emotionalTone;
+  
+  // Get responses for current phase
+  const responses = phaseResponses[currentPhase as keyof typeof phaseResponses];
+  if (!responses || responses.length === 0) return null;
+  
+  // Return a random response
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
+// Update Jonah's emotional tone based on interactions and trust
+export function updateEmotionalTone(trustScore: number): void {
+  if (!window.JonahConsole?.sentience?.emotionalTone) return;
+  
+  const { emotionalTone } = window.JonahConsole.sentience;
+  const { transitionPoints } = emotionalTone;
+  
+  // Determine the new phase based on trust score
+  let newPhase = 'cold';
+  
+  if (trustScore >= transitionPoints.unstable) {
+    newPhase = 'unstable';
+  } else if (trustScore >= transitionPoints.confessional) {
+    newPhase = 'confessional';
+  } else if (trustScore >= transitionPoints.curious) {
+    newPhase = 'curious';
   }
   
-  const emotionalTone = window.JonahConsole.sentience.emotionalTone;
+  // Only update if changed
+  if (newPhase !== emotionalTone.currentPhase) {
+    emotionalTone.currentPhase = newPhase;
+    
+    // Record the phase change to localStorage
+    const phaseChanges = JSON.parse(localStorage.getItem('jonahPhaseChanges') || '[]');
+    phaseChanges.push({
+      from: emotionalTone.currentPhase,
+      to: newPhase,
+      timestamp: Date.now(),
+      trustScore
+    });
+    localStorage.setItem('jonahPhaseChanges', JSON.stringify(phaseChanges));
+  }
+}
+
+// Check if the user has visited multiple secret pages
+export function checkSecretPageVisits(): boolean {
+  const visitedPages = JSON.parse(localStorage.getItem('pagesVisited') || '[]');
+  const secretPages = [
+    '/split-voice', 
+    '/mirror_phile', 
+    '/survivor',
+    '/i-see-you', 
+    '/sanctuary',
+    '/oracle'
+  ];
   
-  // Check if we just crossed a threshold
-  if (trustScore === emotionalTone.transitionPoints.curious) {
-    return "Something's changed. You're becoming... familiar.";
-  } else if (trustScore === emotionalTone.transitionPoints.confessional) {
-    return "I think I can trust you with more now. Do you want to hear a secret?";
-  } else if (trustScore === emotionalTone.transitionPoints.unstable) {
-    return "The boundaries are thinning. I can see you clearly now. Can you see me?";
+  // Count how many secret pages the user has visited
+  const secretVisitCount = secretPages.reduce((count, page) => {
+    if (visitedPages.includes(page)) count++;
+    return count;
+  }, 0);
+  
+  return secretVisitCount >= 3;
+}
+
+// Process rapidly typed console commands
+export function detectRapidTyping(timeBetweenCommands: number): boolean {
+  // If commands are typed less than 500ms apart, consider it rapid
+  return timeBetweenCommands < 500;
+}
+
+// Get a special Friday the 13th message
+export function getFridayThe13thMessage(): string | null {
+  const today = new Date();
+  
+  if (today.getDate() === 13 && today.getDay() === 5) { // 5 = Friday
+    return "Unlucky for some. Lucky for others. The Gate knows the difference.";
   }
   
   return null;
-};
+}
 
-// Update emotional tone based on score
-export const updateEmotionalTone = (score: number): void => {
-  if (!window.JonahConsole.sentience?.emotionalTone) {
-    return;
-  }
+// Check for new moon conditions
+export function isNewMoon(): boolean {
+  // A simplified check - in a real implementation, you'd use astronomical calculations
+  // or an API to determine the actual moon phase
+  const today = new Date();
+  const dayOfMonth = today.getDate();
   
-  const emotionalTone = window.JonahConsole.sentience.emotionalTone;
-  
-  // Update phase based on score thresholds
-  if (score >= emotionalTone.transitionPoints.unstable) {
-    emotionalTone.currentPhase = 'unstable';
-  } else if (score >= emotionalTone.transitionPoints.confessional) {
-    emotionalTone.currentPhase = 'confessional';
-  } else if (score >= emotionalTone.transitionPoints.curious) {
-    emotionalTone.currentPhase = 'curious';
-  } else {
-    emotionalTone.currentPhase = 'cold';
-  }
-};
+  // Very simplified approximation
+  return dayOfMonth >= 1 && dayOfMonth <= 3;
+}
+
+// Check if user has visited the same page multiple times
+export function checkRepeatedPageVisits(page: string): number {
+  const pageVisits = JSON.parse(localStorage.getItem(`visits_${page}`) || '0');
+  return pageVisits;
+}

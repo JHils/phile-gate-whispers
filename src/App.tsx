@@ -54,13 +54,31 @@ import './App.css';
 
 // Import JonahEnhancements at the top of App.tsx
 import JonahEnhancements from './components/JonahEnhancements';
+import JonahGlitchEffects from './components/JonahGlitchEffects';
+import JonahActivityTracker from './components/JonahActivityTracker';
+import { initializeSentience, initializeAdvancedBehavior, initializeRealityFabric } from './utils/systemInitializers';
+import { initializeEcoAwareness } from './utils/jonahEcoAwareness';
+import { initializeNewsAwarenessSystem } from './utils/jonahNewsAwareness';
+import { initializeFuzzyStoryMatching } from './utils/fuzzyStoryMatching';
 
 // Create a layout component that includes the console bot within router context
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  // Initialize all Jonah systems
+  useEffect(() => {
+    initializeSentience();
+    initializeAdvancedBehavior();
+    initializeRealityFabric();
+    initializeNewsAwarenessSystem();
+    initializeEcoAwareness();
+    initializeFuzzyStoryMatching();
+  }, []);
+
   return (
     <JonahEnhancements>
       {children}
       <JonahConsoleBot insideRouter={true} />
+      <JonahGlitchEffects />
+      <JonahActivityTracker />
       <Toaster />
     </JonahEnhancements>
   );

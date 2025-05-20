@@ -93,14 +93,14 @@ export function useJonahSentience(trustLevel: string = 'low') {
     if (!isPrepared) return;
     
     if (window.JonahConsole?.sentience) {
-      // Ensure sentience object is properly initialized
       window.JonahConsole.sentience.rememberedName = name;
       
       if (sentience) {
-        setSentience({
+        const updatedSentience: SentienceData = {
           ...sentience,
           rememberedName: name
-        });
+        };
+        setSentience(updatedSentience);
       }
     }
   };

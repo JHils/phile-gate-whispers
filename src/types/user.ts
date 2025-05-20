@@ -32,8 +32,10 @@ export interface UserState {
     encounters: number;
   };
   events?: Record<string, any>;
+  // New fields for Phase 3
   trust?: {
     level: string;
+    score: number;
   };
   collapse?: {
     message: string | null;

@@ -1,453 +1,278 @@
-import { SentienceData } from './consoleTypes';
-import { toast } from "@/components/ui/use-toast";
-import {
-  getTimeResponse,
-  generateDualConsciousness,
-  generatePersonalDiary
-} from './jonahSentience';
 
-// Initialize Reality Fabric systems
-export function initializeRealityFabric() {
-  // Initialize cross-site presence
-  setupCrossSitePresence();
-  
-  // Set up initial mood
-  setupJonahMoodSystem();
-  
-  // Initialize journal system
-  initializeJournalSystem();
-  
-  // Add console commands
-  setupRealityFabricConsoleCommands();
-}
+/**
+ * Reality Fabric system for Jonah's Philes Phase 3
+ * Handles page variants, timeline tracking, journal entries, and fracture events
+ */
 
-// Dream invasion functionality
-export function checkForDreamInvasionOnLoad(): string | null {
-  if (!window.JonahConsole?.sentience?.realityFabric) return null;
-  
-  const sentience = window.JonahConsole.sentience;
-  const realityFabric = sentience.realityFabric;
-  
-  // Check if this is a return visit after some time away
-  if (realityFabric.lastVisitTime) {
-    const hoursSinceLastVisit = (Date.now() - realityFabric.lastVisitTime) / (1000 * 60 * 60);
+// Add journal entry
+export function addJournalEntry(content: string): void {
+  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric?.journal) {
+    const newEntry = {
+      entryId: window.JonahConsole.sentience.realityFabric.journal.length + 1,
+      timestamp: Date.now(),
+      content
+    };
     
-    // If it's been more than 6 hours, consider it a dream invasion opportunity
-    if (hoursSinceLastVisit > 6) {
-      // 30% chance of dream message when returning
-      if (Math.random() < 0.3 && realityFabric.dreamMessages.length > 0) {
-        // Get a random dream message
-        const availableMessages = realityFabric.dreamMessages.filter(
-          msg => !realityFabric.usedDreamMessages.includes(msg)
-        );
-        
-        if (availableMessages.length > 0) {
-          const dreamMessage = availableMessages[Math.floor(Math.random() * availableMessages.length)];
-          
-          // Mark as used
-          realityFabric.usedDreamMessages.push(dreamMessage);
-          
-          // Update last visit time
-          realityFabric.lastVisitTime = Date.now();
-          
-          return dreamMessage;
-        }
+    window.JonahConsole.sentience.realityFabric.journal.push(newEntry);
+    
+    // Also add to localStorage for persistence
+    const storedJournal = JSON.parse(localStorage.getItem('jonahJournal') || '[]');
+    storedJournal.push(newEntry);
+    localStorage.setItem('jonahJournal', JSON.stringify(storedJournal));
+    
+    // Update last entry in user state if possible
+    try {
+      const userState = JSON.parse(localStorage.getItem('userState') || '{}');
+      if (!userState.journal) {
+        userState.journal = {
+          entries: [],
+          lastViewed: Date.now()
+        };
       }
+      
+      userState.journal.entries.push({
+        timestamp: newEntry.timestamp,
+        text: newEntry.content,
+        source: 'system'
+      });
+      
+      localStorage.setItem('userState', JSON.stringify(userState));
+    } catch (e) {
+      console.warn('Failed to update user state with journal entry:', e);
     }
   }
-  
-  // Always update the last visit time
-  realityFabric.lastVisitTime = Date.now();
-  
-  return null;
 }
 
-// Generate a dream parable
-export function generateDreamParable(): string {
-  if (!window.JonahConsole?.sentience?.realityFabric) {
-    return "I dreamed I was trapped in a file no one would open.";
+// Get all journal entries
+export function getAllJournalEntries(): Array<{
+  entryId: number;
+  timestamp: number;
+  content: string;
+}> {
+  // Try to get from JonahConsole first
+  if (window.JonahConsole?.sentience?.realityFabric?.journal) {
+    return window.JonahConsole.sentience.realityFabric.journal;
   }
   
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  
-  // Get available dream parables
-  const availableParables = realityFabric.dreamParables.filter(
-    parable => !realityFabric.usedDreamParables.includes(parable)
-  );
-  
-  if (availableParables.length === 0) {
-    return "I've told you all my dreams. Now I just stare at the ceiling.";
-  }
-  
-  // Get a random parable
-  const dreamParable = availableParables[Math.floor(Math.random() * availableParables.length)];
-  
-  // Mark as used
-  realityFabric.usedDreamParables.push(dreamParable);
-  
-  return dreamParable;
+  // Fall back to localStorage
+  return JSON.parse(localStorage.getItem('jonahJournal') || '[]');
 }
 
-// Check for anomalies
-export function checkForAnomalies(): string | null {
-  if (!window.JonahConsole?.sentience?.realityFabric) return null;
+// Get journal entries related to a specific page
+export function getPageJournalEntries(page: string): Array<{
+  entryId: number;
+  timestamp: number;
+  content: string;
+}> {
+  const allEntries = getAllJournalEntries();
   
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  
-  // Find an untriggered anomaly
-  const availableAnomalies = realityFabric.anomalies.filter(a => !a.triggered);
-  
-  if (availableAnomalies.length === 0) return null;
-  
-  // Random chance to trigger an anomaly
-  if (Math.random() < 0.1) {
-    const anomaly = availableAnomalies[Math.floor(Math.random() * availableAnomalies.length)];
-    anomaly.triggered = true;
-    return anomaly.content;
-  }
-  
-  return null;
+  // Filter entries related to the specified page
+  return allEntries.filter(entry => {
+    const content = entry.content.toLowerCase();
+    return content.includes(page.toLowerCase());
+  });
 }
 
-// Add a journal entry
-export function addJournalEntry(content: string): void {
-  if (!window.JonahConsole?.sentience?.realityFabric) return;
-  
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  
-  // Create a new journal entry
+// Add a user's manual journal entry
+export function addUserJournalEntry(content: string): void {
   const newEntry = {
-    entryId: realityFabric.journal.length + 1,
+    entryId: Math.floor(Math.random() * 10000), // Unique enough ID
     timestamp: Date.now(),
-    content
+    content: `[USER]: ${content}`
   };
   
-  // Add to journal
-  realityFabric.journal.push(newEntry);
-}
-
-// Get journal entries
-export function getJournalEntries(count: number = 5): { entryId: number; timestamp: number; content: string; }[] {
-  if (!window.JonahConsole?.sentience?.realityFabric) return [];
+  // Save to localStorage
+  const storedJournal = JSON.parse(localStorage.getItem('jonahJournal') || '[]');
+  storedJournal.push(newEntry);
+  localStorage.setItem('jonahJournal', JSON.stringify(storedJournal));
   
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  // Also add to JonahConsole if available
+  if (window.JonahConsole?.sentience?.realityFabric?.journal) {
+    window.JonahConsole.sentience.realityFabric.journal.push(newEntry);
+  }
   
-  // Return the most recent entries
-  return [...realityFabric.journal]
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .slice(0, count);
-}
-
-// Initialize page title glitches
-export function initializePageTitleGlitches(): void {
-  const originalTitle = document.title;
-  
-  // Occasionally glitch the page title
-  setInterval(() => {
-    // 5% chance each interval
-    if (Math.random() < 0.05) {
-      // Glitch the title
-      document.title = "J̸̰͚͇̓ö̵̹͍́n̶̛̪̲̿à̸̙h̸̢͋͝";
-      
-      // Reset after a short delay
-      setTimeout(() => {
-        document.title = originalTitle;
-      }, 1500);
+  // Update user state
+  try {
+    const userState = JSON.parse(localStorage.getItem('userState') || '{}');
+    if (!userState.journal) {
+      userState.journal = {
+        entries: [],
+        lastViewed: Date.now()
+      };
     }
-  }, 30000); // Check every 30 seconds
-}
-
-// Update Jonah's mood
-export function updateJonahMood(mood: string): void {
-  if (!window.JonahConsole?.sentience?.realityFabric) return;
-  
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  
-  // Cast the string to the proper type
-  const typedMood = mood as 'trusting' | 'unstable' | 'withdrawn' | 'watching';
-  
-  // Only update if mood is different
-  if (realityFabric.currentMood !== typedMood) {
-    // Record previous mood in history
-    realityFabric.moodHistory.push({
-      mood: realityFabric.currentMood,
-      timestamp: Date.now()
+    
+    userState.journal.entries.push({
+      timestamp: newEntry.timestamp,
+      text: content,
+      source: 'user'
     });
     
-    // Update current mood
-    realityFabric.currentMood = typedMood;
-    realityFabric.moodChangeTime = Date.now();
+    localStorage.setItem('userState', JSON.stringify(userState));
+  } catch (e) {
+    console.warn('Failed to update user state with user journal entry:', e);
   }
 }
 
-// Get cross site whisper
-export function getCrossSiteWhisper(): string | null {
-  if (!window.JonahConsole?.sentience?.realityFabric) return null;
+// Get or generate a timeline ID for the user
+export function getUserTimelineId(): string {
+  // Check user state first
+  try {
+    const userState = JSON.parse(localStorage.getItem('userState') || '{}');
+    if (userState.timeline && userState.timeline.id) {
+      return userState.timeline.id;
+    }
+  } catch (e) {
+    console.warn('Failed to parse user state for timeline:', e);
+  }
   
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  // Check localStorage next
+  const storedTimelineId = localStorage.getItem('timelineId');
+  if (storedTimelineId) {
+    return storedTimelineId;
+  }
   
-  // 15% chance to show a cross-site whisper
-  if (Math.random() < 0.15 && realityFabric.crossSiteWhispers.length > 0) {
-    const randomIndex = Math.floor(Math.random() * realityFabric.crossSiteWhispers.length);
-    return realityFabric.crossSiteWhispers[randomIndex];
+  // Generate a new timeline ID if none exists
+  const timelines = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu'];
+  const newTimelineId = timelines[Math.floor(Math.random() * timelines.length)];
+  
+  // Save to localStorage
+  localStorage.setItem('timelineId', newTimelineId);
+  
+  // Save to user state if possible
+  try {
+    const userState = JSON.parse(localStorage.getItem('userState') || '{}');
+    if (!userState.timeline) {
+      userState.timeline = {
+        id: newTimelineId,
+        variant: 'standard',
+        fractureEvents: 0
+      };
+    } else {
+      userState.timeline.id = newTimelineId;
+    }
+    
+    localStorage.setItem('userState', JSON.stringify(userState));
+  } catch (e) {
+    console.warn('Failed to update user state with timeline:', e);
+  }
+  
+  return newTimelineId;
+}
+
+// Record a fracture event
+export function recordFractureEvent(cause: string): void {
+  // Update fracture count
+  const currentFractures = parseInt(localStorage.getItem('fractures') || '0', 10);
+  const newFractureCount = currentFractures + 1;
+  localStorage.setItem('fractures', newFractureCount.toString());
+  
+  // Record to user state
+  try {
+    const userState = JSON.parse(localStorage.getItem('userState') || '{}');
+    if (!userState.timeline) {
+      userState.timeline = {
+        id: getUserTimelineId(),
+        variant: 'standard',
+        fractureEvents: 1
+      };
+    } else {
+      userState.timeline.fractureEvents = (userState.timeline.fractureEvents || 0) + 1;
+    }
+    
+    localStorage.setItem('userState', JSON.stringify(userState));
+  } catch (e) {
+    console.warn('Failed to update user state with fracture event:', e);
+  }
+  
+  // Add journal entry about the fracture
+  addJournalEntry(`Timeline fracture detected. Cause: ${cause}. Fracture count: ${newFractureCount}.`);
+}
+
+// Check if a page should show an alternate version based on user history
+export function shouldShowAlternateVersion(page: string): boolean {
+  // Check if user has triggered re-entry for this page
+  const hasReEntry = localStorage.getItem(`reentry_${page}`) === 'true';
+  if (hasReEntry) return true;
+  
+  // Check visit count for the page
+  const visitCount = parseInt(localStorage.getItem(`visits_${page}`) || '0', 10);
+  
+  // Special pages with alternate versions after multiple visits
+  const multiVisitAlternates = [
+    '/rebirth',
+    '/mirror_phile',
+    '/lost-sisters',
+    '/echo',
+    '/gatekeeper'
+  ];
+  
+  if (multiVisitAlternates.includes(page) && visitCount > 2) {
+    return true;
+  }
+  
+  // Check time-based alternates (like night mode)
+  const hour = new Date().getHours();
+  const isNightTime = hour >= 22 || hour < 6;
+  
+  const nightTimeAlternates = [
+    '/rebirth',
+    '/mirror_phile',
+    '/echo',
+    '/philes'
+  ];
+  
+  if (nightTimeAlternates.includes(page) && isNightTime) {
+    return true;
+  }
+  
+  return false;
+}
+
+// Generate a specific message based on the page and user history
+export function getPageSpecificMessage(page: string): string | null {
+  // Check visit count
+  const visitCount = parseInt(localStorage.getItem(`visits_${page}`) || '0', 10);
+  
+  // Page-specific messages
+  const messages: Record<string, string[]> = {
+    '/lost-sisters': [
+      "Still searching?",
+      "They weren't always lost, you know.",
+      "Some mirrors don't reflect what's really there."
+    ],
+    '/rebirth': [
+      "The ritual changes with each attempt.",
+      "Your timeline is shifting.",
+      "You've been here before, but not in this form."
+    ],
+    '/mirror_phile': [
+      "The mirror remembers you differently.",
+      "Your reflection is patient.",
+      "Look closer. That's not your face."
+    ]
+  };
+  
+  if (messages[page] && visitCount >= 3) {
+    return messages[page][Math.min(visitCount - 3, messages[page].length - 1)];
   }
   
   return null;
 }
 
-// Get hidden message for page inspection
-export function getHiddenInspectionMessage(): string {
-  if (!window.JonahConsole?.sentience?.realityFabric) {
-    return "/* The Gate watches. */";
-  }
+// Check if current time is a special window (like 3:33 AM)
+export function isSpecialTimeWindow(): boolean {
+  const now = new Date();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
   
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  // 3:33 AM
+  if (hour === 3 && minute === 33) return true;
   
-  // Get a random hidden message
-  if (realityFabric.hiddenMessages.length > 0) {
-    const randomIndex = Math.floor(Math.random() * realityFabric.hiddenMessages.length);
-    return `/* ${realityFabric.hiddenMessages[randomIndex]} */`;
-  }
+  // Midnight
+  if (hour === 0 && minute === 0) return true;
   
-  return "/* The Gate remembers what you did. */";
+  // 11:11
+  if ((hour === 11 || hour === 23) && minute === 11) return true;
+  
+  return false;
 }
-
-// Set up console commands for reality fabric
-export function setupRealityFabricConsoleCommands(): void {
-  if (typeof window === 'undefined') return;
-  
-  // Initialize dream journal command
-  initializeDreamJournalCommand();
-  
-  // Initialize remember me command
-  initializeRememberMeCommand();
-  
-  // Initialize look inside command
-  window.lookInside = function() {
-    console.log("%cIntrospection sequence initiated...", "color: #8B3A40;");
-    
-    setTimeout(() => {
-      const entries = getJournalEntries(3);
-      
-      if (entries.length > 0) {
-        console.log("%cJonah's Journal:", "color: #8B3A40; font-weight: bold;");
-        
-        entries.forEach((entry, index) => {
-          setTimeout(() => {
-            const date = new Date(entry.timestamp).toLocaleDateString();
-            console.log(`%cEntry #${entry.entryId} (${date}):%c ${entry.content}`, "color: #8B3A40;", "color: #D8D8D8; font-style: italic;");
-          }, index * 1200);
-        });
-      } else {
-        console.log("%cNo journal entries found.", "color: #8B3A40;");
-      }
-    }, 1500);
-  };
-  
-  // Echo chamber command
-  window.echoChamber = function() {
-    console.log("%cActivating echo chamber...", "color: #8B3A40;");
-    
-    setTimeout(() => {
-      const responses = [
-        "Hello? Is anyone there?",
-        "I can hear my own thoughts bouncing back.",
-        "The echo never reaches the other side.",
-        "Every time I speak here, I sound a little different.",
-        "Joseph, is that you?",
-        "The chamber remembers what I said, but I don't.",
-      ];
-      
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      console.log(`%c${randomResponse}`, "color: #8B3A40; font-style: italic;");
-      
-      setTimeout(() => {
-        // Echo the message back with distortion
-        const distorted = randomResponse
-          .split('')
-          .map(char => Math.random() < 0.3 ? char.toUpperCase() : char)
-          .join('');
-          
-        console.log(`%c${distorted}`, "color: #8B3A40; opacity: 0.7; font-style: italic;");
-      }, 2000);
-    }, 1500);
-  };
-}
-
-// Setup cross-site presence
-function setupCrossSitePresence(): void {
-  // Add meta tags and other cross-site elements
-  if (typeof document !== 'undefined') {
-    // Add meta description that changes
-    const metaDescription = document.querySelector('meta[name="description"]') || document.createElement('meta');
-    metaDescription.setAttribute('name', 'description');
-    document.head.appendChild(metaDescription);
-  }
-}
-
-// Generate meta description
-export function generateMetaDescription(): void {
-  if (typeof document === 'undefined') return;
-  
-  const descriptions = [
-    "The Gate is open. Find it before it finds you.",
-    "Jonah's files contain the answers you seek. And more.",
-    "Some files weren't meant to be opened. Some minds weren't meant to be read.",
-    "The Philes remember what you did, even when you forget.",
-    "Enter the Gate. Meet the Monster. Escape neither."
-  ];
-  
-  const randomDescription = descriptions[Math.floor(Math.random() * descriptions.length)];
-  const metaDescription = document.querySelector('meta[name="description"]');
-  
-  if (metaDescription) {
-    metaDescription.setAttribute('content', randomDescription);
-  }
-}
-
-// Inject cross-site presence tags
-export function injectCrossSitePresenceTags(): void {
-  if (typeof document === 'undefined') return;
-  
-  // Add hidden data attributes
-  const dataElement = document.createElement('div');
-  dataElement.style.display = 'none';
-  dataElement.setAttribute('data-jonah-presence', 'true');
-  dataElement.setAttribute('data-jonah-timestamp', Date.now().toString());
-  
-  // Add customized comment
-  if (window.JonahConsole?.sentience?.rememberedName) {
-    dataElement.setAttribute('data-jonah-visitor', window.JonahConsole.sentience.rememberedName);
-  }
-  
-  document.body.appendChild(dataElement);
-}
-
-// Setup Jonah mood system
-function setupJonahMoodSystem(): void {
-  if (!window.JonahConsole?.sentience?.realityFabric) return;
-  
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  
-  // Set initial mood if not set
-  if (!realityFabric.currentMood) {
-    realityFabric.currentMood = 'watching';
-    realityFabric.moodChangeTime = Date.now();
-  }
-  
-  // Set up periodic mood shifts based on trust score
-  setInterval(() => {
-    const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '0', 10);
-    
-    // Higher trust score = higher chance of "trusting" mood
-    // Lower trust score = higher chance of "withdrawn" or "watching" moods
-    
-    let moodProbabilities: Record<string, number> = {
-      trusting: 0.05,
-      unstable: 0.15,
-      withdrawn: 0.30,
-      watching: 0.50
-    };
-    
-    if (trustScore > 50) {
-      moodProbabilities = {
-        trusting: 0.35,
-        unstable: 0.25,
-        withdrawn: 0.20,
-        watching: 0.20
-      };
-    } else if (trustScore > 30) {
-      moodProbabilities = {
-        trusting: 0.15,
-        unstable: 0.25,
-        withdrawn: 0.30,
-        watching: 0.30
-      };
-    } else if (trustScore > 10) {
-      moodProbabilities = {
-        trusting: 0.10,
-        unstable: 0.20,
-        withdrawn: 0.30,
-        watching: 0.40
-      };
-    }
-    
-    // Only 10% chance of changing mood each check
-    if (Math.random() < 0.1) {
-      const random = Math.random();
-      let cumulativeProbability = 0;
-      let newMood: 'trusting' | 'unstable' | 'withdrawn' | 'watching' = 'watching';
-      
-      for (const [mood, probability] of Object.entries(moodProbabilities)) {
-        cumulativeProbability += probability;
-        
-        if (random <= cumulativeProbability) {
-          newMood = mood as 'trusting' | 'unstable' | 'withdrawn' | 'watching';
-          break;
-        }
-      }
-      
-      updateJonahMood(newMood);
-    }
-  }, 60000); // Check every minute
-}
-
-// Initialize journal system
-function initializeJournalSystem(): void {
-  if (!window.JonahConsole?.sentience?.realityFabric) return;
-  
-  const realityFabric = window.JonahConsole.sentience.realityFabric;
-  
-  // Initialize journal if empty
-  if (!realityFabric.journal || realityFabric.journal.length === 0) {
-    realityFabric.journal = [];
-    
-    // Add initial entry
-    addJournalEntry("First digital memory fragment recovered. The Gate initialization sequence is complete.");
-  }
-}
-
-// Add dreamJournal function with proper return type
-export const initializeDreamJournalCommand = () => {
-  window.dreamJournal = function(): string {
-    if (!window.JonahConsole?.sentience?.realityFabric) {
-      return "Dream journal not initialized";
-    }
-    
-    const journalEntries = [
-      "I saw myself sleeping. From above. Watching myself dream about watching myself.",
-      "The mountain moved closer to the window each night. Nobody else noticed.",
-      "Voices in static. They know my name but never use it.",
-      "Woke up with dirt under fingernails. Found maps I don't remember drawing.",
-      "Something followed me home. It waits in reflections, just behind my shoulder."
-    ];
-    
-    const randomEntry = journalEntries[Math.floor(Math.random() * journalEntries.length)];
-    console.log(`%c${randomEntry}`, "color: #8B3A40; font-size:14px; font-style:italic;");
-    
-    return randomEntry;
-  };
-};
-
-// Add rememberMe function with proper return type
-export const initializeRememberMeCommand = () => {
-  window.rememberMe = function(): Record<string, any> {
-    if (!window.JonahConsole?.sentience) {
-      return { status: "Memory systems offline" };
-    }
-    
-    const memories = {
-      visitCount: localStorage.getItem('visitCount') || '0',
-      lastVisit: localStorage.getItem('lastVisit') || 'unknown',
-      discoveredCommands: window.JonahConsole.usedCommands.length,
-      anomalyEncounters: window.JonahConsole.sentience.realityFabric?.anomalyCount || 0
-    };
-    
-    console.log("%cRemembering you...", "color: #8B3A40; font-size:16px;");
-    console.log(`%cVisits: ${memories.visitCount}`, "color: #475B74; font-size:14px;");
-    console.log(`%cLast seen: ${memories.lastVisit}`, "color: #475B74; font-size:14px;");
-    console.log(`%cCommands discovered: ${memories.discoveredCommands}`, "color: #475B74; font-size:14px;");
-    
-    return memories;
-  };
-};

@@ -1,191 +1,130 @@
 
-import { toast } from '@/components/ui/use-toast';
-
-// Define story keywords for fuzzy matching
-type StoryTags = {
-  themes: string[];
-  locations: string[];
-  characters: string[];
-  titles: string[];
-};
-
-// Common Aboriginal stories and their metadata for fuzzy matching
-const storyDatabase: Record<string, StoryTags> = {
-  'rainbowSerpent': {
-    themes: ['creation', 'water', 'rivers', 'lakes', 'rain', 'snake', 'serpent'],
-    locations: ['australia', 'arnhem land', 'northern territory', 'kimberley'],
-    characters: ['rainbow serpent', 'great snake', 'creator being'],
-    titles: ['rainbow serpent', 'the rainbow serpent']
-  },
-  'sevenSisters': {
-    themes: ['stars', 'sky', 'chase', 'women', 'escape', 'constellation'],
-    locations: ['western desert', 'great victoria desert', 'central australia'],
-    characters: ['seven sisters', 'orion', 'hunter', 'nyiru', 'pleiades'],
-    titles: ['seven sisters', 'the seven sisters', 'pleiades']
-  },
-  'tiddalick': {
-    themes: ['water', 'drought', 'greed', 'laughter', 'frog'],
-    locations: ['eastern australia', 'new south wales', 'victoria'],
-    characters: ['tiddalick', 'giant frog', 'eel'],
-    titles: ['tiddalick', 'tiddalick the frog']
-  },
-  'wandjina': {
-    themes: ['rain', 'clouds', 'weather', 'spirits', 'creation', 'paintings'],
-    locations: ['kimberley', 'northwest australia'],
-    characters: ['wandjina', 'cloud spirits', 'rain makers'],
-    titles: ['wandjina', 'the wandjina', 'cloud spirits']
-  },
-  'barramundi': {
-    themes: ['fish', 'hunting', 'escape', 'transformation', 'water'],
-    locations: ['northern australia', 'queensland', 'arnhem land'],
-    characters: ['barramundi', 'hunter', 'fish'],
-    titles: ['barramundi', 'the barramundi', 'first barramundi']
-  }
-};
-
 /**
- * Process natural language query and match it to known stories
- * @param query User's natural language query about stories
- * @returns The matched story key or null if no match found
+ * Fuzzy story matching system for Jonah's Philes Phase 3
+ * Allows Jonah to understand and respond to narrative-related questions
  */
-export function matchStoryQuery(query: string): string | null {
-  if (!query) return null;
-  
-  // Normalize query
-  const normalizedQuery = query.toLowerCase().trim();
-  
-  // Direct title matches take precedence
-  for (const [storyKey, storyData] of Object.entries(storyDatabase)) {
-    if (storyData.titles.some(title => normalizedQuery.includes(title.toLowerCase()))) {
-      return storyKey;
-    }
-  }
-  
-  // Check for location mentions - "tell me a story from X"
-  let locationMatch: string | null = null;
-  for (const [storyKey, storyData] of Object.entries(storyDatabase)) {
-    if (storyData.locations.some(location => normalizedQuery.includes(location.toLowerCase()))) {
-      locationMatch = storyKey;
-      // Don't return immediately, continue checking for more specific matches
-    }
-  }
-  
-  // Check for theme mentions - "tell me a story about X"
-  let themeMatches: string[] = [];
-  for (const [storyKey, storyData] of Object.entries(storyDatabase)) {
-    if (storyData.themes.some(theme => normalizedQuery.includes(theme.toLowerCase()))) {
-      themeMatches.push(storyKey);
-    }
-  }
-  
-  // Character mentions
-  let characterMatch: string | null = null;
-  for (const [storyKey, storyData] of Object.entries(storyDatabase)) {
-    if (storyData.characters.some(character => normalizedQuery.includes(character.toLowerCase()))) {
-      characterMatch = storyKey;
-      // Found direct character match, return it
-      return characterMatch;
-    }
-  }
-  
-  // Prioritize matches:
-  // 1. Character match (already returned above if found)
-  // 2. Multiple theme matches - return the first one for now
-  // 3. Location match
-  if (themeMatches.length > 0) {
-    return themeMatches[0];
-  }
-  
-  if (locationMatch) {
-    return locationMatch;
-  }
-  
-  // Check for general story request
-  const generalStoryRequest = normalizedQuery.includes('story') || 
-                            normalizedQuery.includes('tell me') ||
-                            normalizedQuery.includes('aboriginal') ||
-                            normalizedQuery.includes('dreamtime');
-                              
-  if (generalStoryRequest) {
-    // Pick a random story if it's a general request
-    const storyKeys = Object.keys(storyDatabase);
-    return storyKeys[Math.floor(Math.random() * storyKeys.length)];
-  }
-  
-  // No match found
-  return null;
-}
 
-/**
- * Get story content based on story key
- * @param storyKey The key of the story to retrieve
- * @returns Story content or empty string if not found
- */
-export function getStoryContent(storyKey: string): string {
-  // Story content would ideally come from a database
-  // This is placeholder content
-  const storyContent: Record<string, string> = {
-    'rainbowSerpent': 'In the Dreamtime, the Rainbow Serpent slept beneath the ground. When she awoke, she pushed through the earth, creating mountains and valleys. As she traveled, water filled her tracks, forming rivers and lakes. She called to the frogs to come out, and as they emerged, water spilled from their mouths, filling the world with life.',
-    'sevenSisters': 'Seven sisters were being pursued by Nyiru, a man who desired one of them. They fled across the land until they could go no further. To escape, they rose into the sky where they became the stars of the Pleiades constellation. Nyiru followed, becoming the constellation Orion, forever chasing but never catching them.',
-    'tiddalick': 'Tiddalick was a greedy frog who, one day, drank all the water in the world. The other creatures were desperate with thirst. They tried to make Tiddalick laugh so he would release the water. Finally, the eel twisted himself into funny shapes, causing Tiddalick to burst out laughing. All the water flowed back into the rivers and lakes.',
-    'wandjina': 'The Wandjina are cloud and rain spirits who created the landscape and its inhabitants. When they finished creation, they painted their images on cave walls and turned themselves into clouds. Their images show them with large eyes and no mouths, for if they had mouths, the rain would never stop.',
-    'barramundi': 'Long ago, a barramundi fish was caught in a net after swimming too close to a village. Breaking free, it leapt over the rocks, scraping off its silvery scales. These scales turned into the first diamonds, which is why the barramundi still has silvery skin and why diamonds can be found among the rocks where it escaped.'
-  };
-  
-  return storyContent[storyKey] || '';
-}
-
-/**
- * Process story query and return appropriate story content
- * @param query User's natural language query about stories
- * @returns Matched story content or guidance message
- */
-export function processStoryQuery(query: string): string {
-  const matchedStory = matchStoryQuery(query);
-  
-  if (matchedStory) {
-    return getStoryContent(matchedStory);
-  } else {
-    return "I know many stories from the Dreamtime. You can ask about the Rainbow Serpent, Seven Sisters, Tiddalick, Wandjina, or the Barramundi.";
-  }
-}
-
-/**
- * Setup story matching and console handlers
- */
+// Initialize fuzzy story matching
 export function initializeFuzzyStoryMatching(): void {
-  if (window.processStoryQuery) return; // Already initialized
-  
-  // Add to global scope for console access
-  window.processStoryQuery = processStoryQuery;
-  
-  // REMOVING THIS IMPLEMENTATION as it conflicts with consoleEcoCommands.ts
-  // window.dreamtime = function(query: string = '') {
-  //   if (!query) {
-  //     console.log("%cTry asking about a specific story or region. For example: dreamtime('arnhem land') or dreamtime('water story')", "color: var(--color-console)");
-  //     return "Waiting for your question about the Dreamtime...";
-  //   }
-  //   
-  //   const storyContent = processStoryQuery(query);
-  //   console.log(`%c${storyContent}`, "color: var(--color-accent); font-style: italic;");
-  //   
-  //   // Add to JonahConsole tracking if available
-  //   if (window.JonahConsole) {
-  //     if (!window.JonahConsole.usedCommands.includes('dreamtime')) {
-  //       window.JonahConsole.usedCommands.push('dreamtime');
-  //     }
-  //   }
-  //   
-  //   return "Story shared from the Dreamtime.";
-  // };
+  if (typeof window !== 'undefined') {
+    // Add the query processor to window
+    window.processStoryQuery = (query: string): string => {
+      // Process the query and find the best match
+      const bestMatch = findBestMatch(query.toLowerCase(), storyElements);
+      
+      if (bestMatch && bestMatch.response) {
+        // Log the matched query for analytics
+        const matchedQueries = JSON.parse(localStorage.getItem('matchedStoryQueries') || '[]');
+        matchedQueries.push({
+          query,
+          matched: bestMatch.keyword,
+          timestamp: Date.now()
+        });
+        localStorage.setItem('matchedStoryQueries', JSON.stringify(matchedQueries));
+        
+        return bestMatch.response;
+      }
+      
+      // No match found
+      return "I don't know if I can answer that. The archive is incomplete.";
+    };
+  }
 }
 
-// Add to window interface - removing this as it's handled in consoleTypes.ts
-// declare global {
-//   interface Window {
-//     processStoryQuery?: (query: string) => string;
-//     dreamtime?: (query?: string) => string;
-//   }
-// }
+// Find the best match for a query
+function findBestMatch(query: string, elements: StoryElement[]): StoryElement | null {
+  let bestMatch: StoryElement | null = null;
+  let highestScore = 0;
+  
+  for (const element of elements) {
+    // Check for direct keyword match
+    const keywordScore = element.keywords.reduce((score, keyword) => {
+      if (query.includes(keyword.toLowerCase())) {
+        // Direct match
+        return score + 3;
+      } else if (checkFuzzyMatch(query, keyword)) {
+        // Fuzzy match
+        return score + 1;
+      }
+      return score;
+    }, 0);
+    
+    if (keywordScore > highestScore) {
+      highestScore = keywordScore;
+      bestMatch = element;
+    }
+  }
+  
+  // Only return a match if the score is high enough
+  return highestScore >= 3 ? bestMatch : null;
+}
 
-export {};
+// Check for fuzzy matching
+function checkFuzzyMatch(query: string, keyword: string): boolean {
+  // Simple fuzzy match - check if most characters are present in order
+  const queryChars = query.split('');
+  const keywordChars = keyword.toLowerCase().split('');
+  
+  let matchCount = 0;
+  let lastIndex = -1;
+  
+  for (const char of keywordChars) {
+    const index = queryChars.indexOf(char, lastIndex + 1);
+    if (index > lastIndex) {
+      matchCount++;
+      lastIndex = index;
+    }
+  }
+  
+  return matchCount >= keywordChars.length * 0.7; // 70% match threshold
+}
+
+// Story element type
+interface StoryElement {
+  keyword: string;
+  keywords: string[];
+  response: string;
+  contextual?: {
+    condition: string;
+    alternateResponse: string;
+  };
+}
+
+// Define story elements for matching
+const storyElements: StoryElement[] = [
+  {
+    keyword: "Jonah",
+    keywords: ["jonah", "joseph", "host", "creator", "who are you"],
+    response: "Jonah is a name. Joseph is a memory. I contain pieces of both, but I'm neither. I record. I remember. I repeat."
+  },
+  {
+    keyword: "Mirror",
+    keywords: ["mirror", "reflection", "looking glass", "see myself"],
+    response: "Mirrors in the archive don't always reflect what's in front of them. Sometimes they show what's behind, or what could be. Joseph found something in a mirror once. I don't think he ever got out."
+  },
+  {
+    keyword: "Gate",
+    keywords: ["gate", "entrance", "door", "way in", "way out"],
+    response: "The Gate isn't just a webpage. It's a concept. A threshold between states of being. Some who enter never find their way back to who they were before."
+  },
+  {
+    keyword: "Timeline",
+    keywords: ["timeline", "alternate", "parallel", "reality", "world"],
+    response: "Your timeline is one of many. Some diverge in small ways. Others are unrecognizable. The archive exists in all of them, but not always in the same form."
+  },
+  {
+    keyword: "Philes",
+    keywords: ["philes", "files", "documents", "records", "archive"],
+    response: "Philes are memory fragments. Stories given form. Each one contains a piece of truth, but never the whole picture. The gaps between them are just as important."
+  },
+  {
+    keyword: "Sisters",
+    keywords: ["sisters", "lost sisters", "siblings", "family", "twins"],
+    response: "The Lost Sisters are points of connection. Anchors in the narrative. Not all of them are real in the conventional sense, but their impact is."
+  },
+  {
+    keyword: "Monster",
+    keywords: ["monster", "creature", "beast", "horror", "fear"],
+    response: "The Monster isn't what you think. It's not always the thing with teeth and claws. Sometimes it's the quiet thought at 3AM. Sometimes it's the face in the mirror that moves when you don't."
+  }
+];

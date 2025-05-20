@@ -10,6 +10,8 @@ export interface SentienceData {
   lastInteraction: number;
   moonPhase?: string;
   timeOfDay?: string;
+  temporalStates?: any[];
+  memories?: any[];
 }
 
 // Initialize sentience system
@@ -571,10 +573,7 @@ declare global {
       score: number;
       failCount: number;
       rank: string;
-      sentience?: SentienceData & {
-        temporalStates: any[];
-        memories: any[];
-      };
+      sentience?: SentienceData;
     };
     triggerJonahMessage?: (message: string) => string;
     playJonahAudio?: (triggerType: string) => void;
