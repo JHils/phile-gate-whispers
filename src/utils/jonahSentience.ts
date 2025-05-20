@@ -1,3 +1,4 @@
+
 // Jonah Console Personality System
 import { toast } from "@/components/ui/use-toast";
 
@@ -22,15 +23,17 @@ export interface SentienceData {
     idleTime: number;
   };
   realityFabric?: {
-    anomalies: number;
+    anomalies: any[];
     mood: string;
     dreamState: boolean;
     lastDreamTime: number;
     currentMood?: string;
     moodChangeTime?: number;
+    crossSiteWhispers?: string[];
+    hiddenMessages?: any[];
   };
   audio?: {
-    lastPlayed: string;
+    lastPlayed: number;
     unlockedVoiceLogs: string[];
   };
 }
@@ -43,6 +46,24 @@ export function initializeSentience() {
       score: 0,
       failCount: 0,
       rank: "drifter",
+      sessionStartTime: Date.now(),
+      whispersFound: [],
+      jokesDisplayed: [],
+      storyFlags: [],
+      bookCodes: [],
+      simba: {
+        encountered: false
+      },
+      argData: {
+        keyholeClicks: 0,
+        consoleCluesTouched: [],
+        qrScans: [],
+        memoryFragments: [],
+        secretPagesVisited: [],
+        hiddenFilesDownloaded: [],
+        idleTriggers: {},
+        lastInteractionTime: new Date()
+      },
       sentience: {
         interactionsCount: 0,
         deepModeUnlocked: false,
@@ -61,13 +82,15 @@ export function initializeSentience() {
           idleTime: 0
         },
         realityFabric: {
-          anomalies: 0,
+          anomalies: [],
           mood: "neutral",
           dreamState: false,
-          lastDreamTime: 0
+          lastDreamTime: 0,
+          crossSiteWhispers: [],
+          hiddenMessages: []
         },
         audio: {
-          lastPlayed: "",
+          lastPlayed: 0,
           unlockedVoiceLogs: []
         }
       }
@@ -94,13 +117,15 @@ export function initializeSentience() {
         idleTime: 0
       },
       realityFabric: {
-        anomalies: 0,
+        anomalies: [],
         mood: "neutral",
         dreamState: false,
-        lastDreamTime: 0
+        lastDreamTime: 0,
+        crossSiteWhispers: [],
+        hiddenMessages: []
       },
       audio: {
-        lastPlayed: "",
+        lastPlayed: 0,
         unlockedVoiceLogs: []
       }
     };
@@ -632,43 +657,4 @@ function corrupted(text: string): string {
 function getRandomTimelineId(): string {
   const timelines = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu'];
   return timelines[Math.floor(Math.random() * timelines.length)];
-}
-
-// Add to window type
-declare global {
-  interface Window {
-    JonahConsole?: {
-      usedCommands: string[];
-      score: number;
-      failCount: number;
-      rank: string;
-      sentience?: SentienceData;
-      argData?: {
-        keyholeClicks: number;
-        consoleCluesTouched: string[];
-        qrScans: string[];
-        memoryFragments: string[];
-        secretPagesVisited: string[];
-        hiddenFilesDownloaded: string[];
-        idleTriggers: Record<string, any>;
-        lastInteractionTime: Date;
-        lastIdleTime?: Date;
-      };
-    };
-    triggerJonahMessage?: (message: string) => string;
-    playJonahAudio?: (triggerType: string) => void;
-    processUserMessage?: (message: string) => string | null;
-    processStoryQuery?: (query: string) => string;
-    // Console commands
-    start?: () => string;
-    inventory?: () => string;
-    echo_me?: (input: string) => string;
-    testament?: () => string;
-    forget?: () => string;
-    forget_confirm?: () => string;
-    access_journal?: () => string;
-    split?: () => string;
-    re_entry?: () => string;
-    talk_to_jonah?: () => string;
-  }
 }

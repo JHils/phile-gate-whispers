@@ -7,7 +7,7 @@
 // Define global JonahConsole interface
 declare global {
   interface Window {
-    JonahConsole: {
+    JonahConsole?: {
       usedCommands: string[];
       score: number;
       failCount: number;
@@ -50,7 +50,7 @@ declare global {
     mirrorLogs?: () => void;
     whisperTree?: () => void;
     plea?: () => void;
-    testament?: () => void;
+    testament?: () => string;
     splitVoice?: () => void;
     mirrorMode?: () => void;
     storyFlags: () => void;
@@ -268,7 +268,7 @@ export interface SentienceData {
       timestamp: number;
     }>;
     crossSiteWhispers?: string[];
-    hiddenMessages?: string[];
+    hiddenMessages?: Array<WhisperWithMetadata | string>;
     qrScans?: string[];
     mood?: string;
   };

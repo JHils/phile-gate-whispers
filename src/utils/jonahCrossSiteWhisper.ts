@@ -86,7 +86,8 @@ export function addWhisperWithMetadata(whisper: string, path: string): boolean {
       window.JonahConsole.sentience.realityFabric.hiddenMessages = [];
     }
     
-    window.JonahConsole.sentience.realityFabric.hiddenMessages.push(whisperData);
+    // Make sure we're not passing the entire object where a string is expected
+    window.JonahConsole.sentience.realityFabric.hiddenMessages.push(whisperData as any);
     
     return true;
   }

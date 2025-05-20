@@ -29,12 +29,12 @@ DREAM FRAGMENTS:
     };
     
     // QR code tracking
-    window.rememberMe = function() {
+    window.rememberMe = function(): Record<string, any> {
       trackCommandExecution('rememberMe');
       
       // Get current ARG data and ensure it exists
       if (!window.JonahConsole) {
-        return "Console system not initialized.";
+        return { error: "Console system not initialized." };
       }
       
       if (!window.JonahConsole.argData) {
