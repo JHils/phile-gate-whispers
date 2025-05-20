@@ -1,4 +1,3 @@
-
 // Define global JonahConsole interface
 declare global {
   interface Window {
@@ -84,6 +83,11 @@ declare global {
     // New news awareness functions
     newsFlash: () => string | null;
     weatherReport: () => string | null;
+    // Add ecological commands
+    dreamtime: () => void;
+    woodwideweb: () => void;
+    biomeCheck: () => void;
+    kgari: () => void;
   }
 }
 
@@ -276,6 +280,13 @@ export interface SentienceData {
     worldEvents?: string[];
   };
   newsAwareness?: NewsAwareness;
+  // Add ecological awareness types
+  ecoAwareness?: {
+    lastBiomeCheck: number;
+    currentBiome: string | null;
+    previousResponses: string[];
+    connectionStrength: number; // 0-100 scale of connection to nature
+  };
 }
 
 // No need to export, this is for global types

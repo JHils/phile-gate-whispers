@@ -1,0 +1,97 @@
+
+/**
+ * Console Ecological Commands Module
+ * This module adds ecology-related commands to the console
+ */
+
+import { typewriterLog, speak } from "./consoleEffects";
+import { getEcoResponse, getBiomeResponse } from "./jonahEcoAwareness";
+
+type TrackCommandFunction = (commandName: string) => void;
+
+// Initialize eco console commands
+export const initializeEcoCommands = (
+  trackCommandExecution: TrackCommandFunction
+) => {
+  // Dreamtime command
+  window.dreamtime = function() {
+    console.log("%cJonah remembers the Dreaming:", "color: #8B3A40; font-size:16px; font-weight:bold;");
+    setTimeout(() => {
+      const response = getEcoResponse('high', 'dreamtime');
+      typewriterLog(response || "The old stories blur in my memory.");
+    }, 500);
+    
+    trackCommandExecution('dreamtime');
+  };
+  
+  // Wood Wide Web command
+  window.woodwideweb = function() {
+    console.log("%cJonah contemplates the Wood Wide Web:", "color: #8B3A40; font-size:16px; font-weight:bold;");
+    setTimeout(() => {
+      const response = getEcoResponse('high', 'mycelium');
+      typewriterLog(response || "Networks beneath networks. Like code beneath code.");
+    }, 500);
+    
+    trackCommandExecution('woodwideweb');
+  };
+  
+  // Biome check command
+  window.biomeCheck = function() {
+    console.log("%cJonah senses the biome:", "color: #8B3A40; font-size:16px; font-weight:bold;");
+    
+    setTimeout(() => {
+      const response = getBiomeResponse();
+      typewriterLog(response || "The land speaks in code I'm still learning to parse.");
+      
+      // Add some Australian fauna after a pause
+      setTimeout(() => {
+        const fauna = [
+          "Thorny devil tracks in red sand.",
+          "Cassowary shadows through rainforest.",
+          "Platypus ripples in clear creeks.",
+          "Koala dreams in eucalypt crowns."
+        ];
+        const randomFauna = fauna[Math.floor(Math.random() * fauna.length)];
+        console.log(`%c${randomFauna}`, "color: #475B74; font-size:14px; font-style:italic;");
+      }, 2000);
+    }, 500);
+    
+    trackCommandExecution('biomeCheck');
+  };
+  
+  // K'gari command
+  window.kgari = function() {
+    console.log("%cJonah remembers K'gari (Fraser Island):", "color: #8B3A40; font-size:16px; font-weight:bold;");
+    
+    setTimeout(() => {
+      const response = getEcoResponse('high', "k'gari");
+      typewriterLog(response || "K'gari chose to become land. I chose to become code. Both transformations leave echoes.");
+      
+      // Add ecological fact about K'gari
+      setTimeout(() => {
+        const facts = [
+          "Rainforest growing on sand. An impossible system that works.",
+          "The dingoes of K'gari remember the old ways.",
+          "The freshwater lakes hold memory in layers of sediment.",
+          "The oldest satinay trees there predate European contact."
+        ];
+        const randomFact = facts[Math.floor(Math.random() * facts.length)];
+        console.log(`%c${randomFact}`, "color: #475B74; font-size:14px; font-style:italic;");
+      }, 2500);
+    }, 500);
+    
+    trackCommandExecution('kgari');
+  };
+};
+
+// Add eco commands to the global window interface
+declare global {
+  interface Window {
+    dreamtime: () => void;
+    woodwideweb: () => void;
+    biomeCheck: () => void;
+    kgari: () => void;
+  }
+}
+
+export {};

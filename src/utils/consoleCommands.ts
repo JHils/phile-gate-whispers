@@ -19,6 +19,7 @@ import { initializeClueSystem } from "./consoleClueSystem";
 import { initializeSimbaSystem } from "./consoleSimbaSystem";
 import { initializeTimeSystem } from "./consoleTimeSystem";
 import { initializeNewsCommands } from "./consoleNewsCommands";
+import { initializeEcoCommands } from "./consoleEcoCommands";
 import { 
   initializeARGCommands, 
   generateTestament 
@@ -29,6 +30,7 @@ import {
 } from "./jonahSentience";
 import { initializeMirrorSite } from "./jonahMirrorSite";
 import { initializeNewsAwarenessSystem } from "./jonahNewsAwareness";
+import { initializeEcoAwareness } from "./jonahEcoAwareness";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -87,6 +89,9 @@ export const initializeConsoleCommands = (
   
   // Initialize news awareness system
   initializeNewsAwarenessSystem();
+  
+  // Initialize ecological awareness system
+  initializeEcoAwareness();
   
   // Update score and rank from real user state
   const updateConsoleState = async () => {
@@ -224,6 +229,9 @@ Time in session: ${formatSessionTime()}`;
   
   // Initialize news awareness commands
   initializeNewsCommands(trackCommandExecution);
+  
+  // Initialize ecological awareness commands
+  initializeEcoCommands(trackCommandExecution);
 };
 
 // Add additional command types to the global window interface

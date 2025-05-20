@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { BotMessage, TrustLevel } from './types';
 import { toast } from '@/components/ui/use-toast';
 import { handleWorldQuery } from '@/utils/jonahNewsAwareness';
+import { handleEcologicalQuery } from '@/utils/jonahEcoAwareness';
 
 export function useMessages(initialMessages: BotMessage[] = [], trustLevel: TrustLevel) {
   const [messages, setMessages] = useState<BotMessage[]>(initialMessages);
@@ -61,6 +62,13 @@ export function useMessages(initialMessages: BotMessage[] = [], trustLevel: Trus
     const newsResponse = handleWorldQuery(userMessage, trustLevel);
     if (newsResponse) {
       setTimeout(() => addBotMessage(newsResponse, true), 800);
+      return;
+    }
+    
+    // Next, check if it's an ecological or cultural query
+    const ecoResponse = handleEcologicalQuery(userMessage, trustLevel);
+    if (ecoResponse) {
+      setTimeout(() => addBotMessage(ecoResponse, true), 800);
       return;
     }
     

@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { BotHeader } from "./bot/BotHeader";
 import { BotMessages } from "./bot/BotMessages";
@@ -9,12 +8,14 @@ import {
   initializeARGTracking, 
   initializeSentience,
   initializeAdvancedBehavior,
-  initializeRealityFabric
+  initializeRealityFabric,
+  initializeEcologicalAwareness
 } from "@/utils/systemInitializers";
 import BotIntervalManagement from "./bot/BotIntervalManagement";
 import BotQuestSystem from "./bot/BotQuestSystem";
 import BotPageNavigation from "./bot/BotPageNavigation";
 import BotNewsAwareness from "./bot/BotNewsAwareness";
+import BotEcologicalAwareness from "./bot/BotEcologicalAwareness";
 import { getMoodClassName } from "./bot/BotMoodManager";
 import { useLocation } from "react-router-dom";
 import { BotMessage } from "@/hooks/useBotState/types";
@@ -31,6 +32,7 @@ const initializeAllSystems = () => {
   initializeAdvancedBehavior();
   initializeRealityFabric();
   initializeNewsAwarenessSystem();
+  initializeEcologicalAwareness();
 };
 
 // Helper function to convert messages to BotMessages
@@ -129,6 +131,12 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
       
       {/* Add news awareness system */}
       <BotNewsAwareness
+        trustLevel={trustLevel}
+        addBotMessage={addBotMessage}
+      />
+      
+      {/* Add ecological awareness system */}
+      <BotEcologicalAwareness
         trustLevel={trustLevel}
         addBotMessage={addBotMessage}
       />

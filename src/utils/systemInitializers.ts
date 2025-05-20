@@ -1,4 +1,3 @@
-
 /**
  * System Initializers Module
  * This file contains functions for initializing various systems in the application
@@ -6,6 +5,7 @@
 
 import { initializeSentience as initSentience } from './jonahSentience';
 import { initializeNewsAwarenessSystem } from './jonahNewsAwareness';
+import { initializeEcoAwareness } from './jonahEcoAwareness';
 
 // Initialize ARG tracking system
 export const initializeARGTracking = () => {
@@ -30,6 +30,12 @@ export const initializeRealityFabric = () => {
   // Placeholder for actual reality fabric initialization
 };
 
+// Initialize ecological awareness system
+export const initializeEcologicalAwareness = () => {
+  console.log('Ecological awareness system initialized');
+  initializeEcoAwareness();
+};
+
 // Initialize all systems
 export const initializeAllSystems = () => {
   initializeARGTracking();
@@ -37,4 +43,5 @@ export const initializeAllSystems = () => {
   initializeAdvancedBehavior();
   initializeRealityFabric();
   initializeNewsAwarenessSystem();
+  initializeEcologicalAwareness();
 };
