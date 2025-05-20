@@ -7,7 +7,7 @@ export type BotMessage = {
   special?: boolean;
 };
 
-export type BotMode = 'normal' | 'debug' | 'echo' | 'whisper' | 'console';
+export type BotMode = 'normal' | 'debug' | 'echo' | 'whisper' | 'console' | 'responsive';
 export type TrustLevel = 'none' | 'low' | 'medium' | 'high';
 
 export interface BotState {

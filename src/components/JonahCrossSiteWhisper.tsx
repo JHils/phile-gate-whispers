@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { toast } from '@/components/ui/use-toast';
-import { getCrossSiteWhisper } from '@/utils/jonahRealityFabric';
+import { getCrossSiteWhisper } from '@/utils/jonahCrossSiteWhisper';
 
 interface JonahCrossSiteWhisperProps {
   trustLevel: string;

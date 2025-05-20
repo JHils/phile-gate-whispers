@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { initializeSentience } from '@/utils/jonahSentience';
-import { updateJonahMood } from '@/utils/jonahRealityFabric';
+import { updateJonahMood, getCurrentMood } from '@/utils/jonahRealityFabric';
 
 interface JonahMoodIndicatorProps {
   trustLevel: string;
@@ -41,10 +41,8 @@ const JonahMoodIndicator: React.FC<JonahMoodIndicatorProps> = ({
     
     // Check for mood periodically
     const checkMood = () => {
-      if (window.JonahConsole?.sentience?.realityFabric) {
-        const currentMood = window.JonahConsole.sentience.realityFabric.currentMood || 'watching';
-        setMood(currentMood);
-      }
+      const currentMood = getCurrentMood();
+      setMood(currentMood);
     };
     
     // Update mood on first load

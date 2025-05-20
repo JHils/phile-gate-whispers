@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { 
   updateJonahMood, 
   checkForAnomalies, 
-  generateDreamParable 
+  generateDreamParable,
+  getCurrentMood 
 } from '@/utils/jonahRealityFabric';
 import { getJonahQuestion } from '@/utils/jonahSentience';
 
@@ -18,14 +19,12 @@ export function useRealityFabric(trustLevel: string) {
   useEffect(() => {
     // Function to check and update mood
     const checkMood = () => {
-      if (window.JonahConsole?.sentience?.realityFabric) {
-        const currentMood = window.JonahConsole.sentience.realityFabric.currentMood || 'watching';
-        setMood(currentMood);
-        
-        // Track last mood change time
-        if (window.JonahConsole.sentience.realityFabric.moodChangeTime) {
-          setLastMoodChange(window.JonahConsole.sentience.realityFabric.moodChangeTime);
-        }
+      const currentMood = getCurrentMood();
+      setMood(currentMood);
+      
+      // Track last mood change time
+      if (window.JonahConsole?.sentience?.realityFabric?.moodChangeTime) {
+        setLastMoodChange(window.JonahConsole.sentience.realityFabric.moodChangeTime);
       }
     };
     

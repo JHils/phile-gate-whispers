@@ -1,3 +1,4 @@
+
 // Define global JonahConsole interface
 declare global {
   interface Window {
@@ -6,7 +7,7 @@ declare global {
       score: number;
       failCount: number;
       rank: string;
-      sessionStartTime: number;
+      sessionStartTime?: number;
       whispersFound: string[];
       jokesDisplayed: string[];
       storyFlags: StoryFlag[];
@@ -28,6 +29,7 @@ declare global {
         lastIdleTime?: Date;
       };
       sentience?: SentienceData;
+      lastCommand?: string;
     };
     // Console command definitions
     help: () => void;

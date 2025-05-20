@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useJonahMemory } from '@/hooks/useJonahMemory';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
@@ -83,7 +84,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
       setPageEntryTime(Date.now());
       
       // Sometimes generate a page-specific comment
-      if (Math.random() > 0.8 && memory.memory.trustLevelScore > 20) {
+      if (Math.random() > 0.8 && memory.trustLevelScore > 20) {
         setTimeout(() => {
           const pageComments: Record<string, string[]> = {
             '/mirror_phile': [
@@ -152,7 +153,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
           memory.recordCommandUsage(command);
           
           // Add explorer tag after using multiple commands
-          if (memory.memory.commandsUsed.length >= 5) {
+          if (memory.commandsUsed.length >= 5) {
             memory.addEmotionalTag('explorer');
           }
         }
@@ -219,7 +220,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
     const thought = idleThoughts[Math.floor(Math.random() * idleThoughts.length)];
     
     // Add the emotional tag
-    memory.emotionalTags.push(thought.tag);
+    memory.addEmotionalTag(thought.tag);
     
     // Display the thought
     toast({
@@ -233,7 +234,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
   // Occasionally show personal observations
   useEffect(() => {
     // Skip if component is unmounting or if there's not enough data yet
-    if (typeof window === 'undefined' || memory.memory.pagesVisited.length < 2) return;
+    if (typeof window === 'undefined' || memory.pagesVisited.length < 2) return;
     
     const observationInterval = setInterval(() => {
       const trustLevel = userState?.trust?.level || 'low';

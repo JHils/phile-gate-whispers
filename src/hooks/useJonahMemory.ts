@@ -28,6 +28,14 @@ export const useJonahMemory = () => {
         const parsed = JSON.parse(stored);
         return {
           ...parsed,
+          pagesVisited: parsed.pagesVisited || [],
+          pageVisitTimes: parsed.pageVisitTimes || {},
+          pageDwellTimes: parsed.pageDwellTimes || {},
+          commandsUsed: parsed.commandsUsed || [],
+          commandUsageTimes: parsed.commandUsageTimes || {},
+          interactions: parsed.interactions || 0,
+          trustLevelScore: parsed.trustLevelScore || 0,
+          emotionalTags: parsed.emotionalTags || [],
           recordPageVisit: () => {}, // These will be overwritten below
           recordPageDwell: () => {},
           recordCommandUsage: () => {},
@@ -59,12 +67,17 @@ export const useJonahMemory = () => {
   
   // Save memory to localStorage whenever it changes
   useEffect(() => {
-    const memoryToStore = { ...memory };
-    delete memoryToStore.recordPageVisit;
-    delete memoryToStore.recordPageDwell;
-    delete memoryToStore.recordCommandUsage;
-    delete memoryToStore.addEmotionalTag;
-    delete memoryToStore.incrementInteractions;
+    const memoryToStore = {
+      pagesVisited: memory.pagesVisited,
+      pageVisitTimes: memory.pageVisitTimes,
+      pageDwellTimes: memory.pageDwellTimes,
+      commandsUsed: memory.commandsUsed,
+      commandUsageTimes: memory.commandUsageTimes,
+      interactions: memory.interactions,
+      trustLevelScore: memory.trustLevelScore,
+      emotionalTags: memory.emotionalTags,
+      userPhrase: memory.userPhrase
+    };
     
     localStorage.setItem('jonahMemory', JSON.stringify(memoryToStore));
   }, [memory]);
@@ -252,8 +265,8 @@ export const useJonahMemory = () => {
     return observation;
   }, [memory]);
   
-  // Create the memory object with all methods
-  const memoryObject: JonahMemory = {
+  // Create the memory object with methods
+  const memoryWithMethods: JonahMemory = {
     ...memory,
     recordPageVisit,
     recordPageDwell,
@@ -263,7 +276,7 @@ export const useJonahMemory = () => {
   };
   
   return { 
-    memory: memoryObject,
+    memory: memoryWithMethods,
     generatePersonalObservation
   };
 };

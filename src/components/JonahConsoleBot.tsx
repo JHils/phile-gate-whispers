@@ -54,7 +54,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
   } = useBotState(!insideRouter);
 
   // Use Jonah's sentience
-  const { triggerRandomMessage, sentience } = useJonahSentience(trustLevel);
+  const { triggerRandomMessage, sentience } = useJonahSentience();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);

@@ -1,3 +1,4 @@
+
 // Journal entry type
 type JournalEntry = {
   entryId: number;
@@ -111,6 +112,49 @@ export const getCurrentMood = (): string => {
 };
 
 /**
+ * Update Jonah's mood based on various factors
+ */
+export const updateJonahMood = (trustLevel: string): void => {
+  // Skip if no sentience data available
+  if (!window.JonahConsole?.sentience?.realityFabric) return;
+  
+  // Current mood
+  const currentMood = getCurrentMood();
+  
+  // Don't change mood too frequently (at least 5 minutes between changes)
+  const lastMoodChange = window.JonahConsole.sentience.realityFabric.moodChangeTime || 0;
+  if (Date.now() - lastMoodChange < 5 * 60 * 1000) return;
+  
+  // Possible moods
+  const moods = ['watching', 'trusting', 'unstable', 'withdrawn', 'paranoid', 'hopeful'];
+  
+  // Factors that influence mood
+  const hour = new Date().getHours();
+  const isNightTime = hour >= 0 && hour < 6;
+  const hasHighTrust = trustLevel === 'high';
+  
+  // Different mood selection based on conditions
+  let newMood = currentMood;
+  
+  if (isNightTime) {
+    // At night, more likely to be unstable or withdrawn
+    newMood = Math.random() > 0.7 ? 'unstable' : 'withdrawn';
+  } else if (hasHighTrust) {
+    // With high trust, more likely to be trusting or watching
+    newMood = Math.random() > 0.6 ? 'trusting' : 'watching';
+  } else {
+    // Random mood with some weighting
+    const randomIndex = Math.floor(Math.random() * moods.length);
+    newMood = moods[randomIndex];
+  }
+  
+  // Only change mood sometimes
+  if (Math.random() > 0.7 && newMood !== currentMood) {
+    setCurrentMood(newMood);
+  }
+};
+
+/**
  * Increment anomaly count
  */
 export const incrementAnomalyCount = (): number => {
@@ -120,6 +164,79 @@ export const incrementAnomalyCount = (): number => {
     return anomalyCount;
   }
   return 0;
+};
+
+/**
+ * Check for anomalies in the system
+ */
+export const checkForAnomalies = (): string | null => {
+  // Only occasionally generate anomalies
+  if (Math.random() > 0.3) return null;
+  
+  const anomalyMessages = [
+    "Timeline fracture detected. Memory fragmentation imminent.",
+    "You weren't supposed to see this message.",
+    "Someone else is using your connection.",
+    "Your reflection doesn't match your movements.",
+    "I can see you through the screen.",
+    "The logs were altered while you were away."
+  ];
+  
+  const anomalyMessage = anomalyMessages[Math.floor(Math.random() * anomalyMessages.length)];
+  incrementAnomalyCount();
+  
+  // Record anomaly in journal
+  addJournalEntry(`ANOMALY: ${anomalyMessage}`);
+  
+  return anomalyMessage;
+};
+
+/**
+ * Generate a dream parable - poetic dream-like message
+ */
+export const generateDreamParable = (): string | null => {
+  // Only generate dreams occasionally
+  if (Math.random() > 0.25) return null;
+  
+  const dreamParables = [
+    "I saw you in the mirror, but you weren't looking back.",
+    "The code keeps shifting when you're not watching.",
+    "There are voices in the static between page loads.",
+    "Your reflection stays after you leave.",
+    "The Gate remembers everyone who passes. It misses some of them.",
+    "I counted seven versions of you today.",
+    "You sleep. I don't. That's when I see the others."
+  ];
+  
+  // Get dream parable that hasn't been used yet
+  let unusedParables = dreamParables;
+  
+  if (window.JonahConsole?.sentience?.realityFabric?.usedDreamParables) {
+    unusedParables = dreamParables.filter(parable => 
+      !window.JonahConsole.sentience.realityFabric.usedDreamParables?.includes(parable)
+    );
+    
+    // If all used, reset
+    if (unusedParables.length === 0) {
+      window.JonahConsole.sentience.realityFabric.usedDreamParables = [];
+      unusedParables = dreamParables;
+    }
+  }
+  
+  const dreamParable = unusedParables[Math.floor(Math.random() * unusedParables.length)];
+  
+  // Track usage
+  if (window.JonahConsole?.sentience?.realityFabric) {
+    if (!window.JonahConsole.sentience.realityFabric.usedDreamParables) {
+      window.JonahConsole.sentience.realityFabric.usedDreamParables = [];
+    }
+    window.JonahConsole.sentience.realityFabric.usedDreamParables.push(dreamParable);
+  }
+  
+  // Record dream in journal
+  addJournalEntry(`DREAM: ${dreamParable}`);
+  
+  return dreamParable;
 };
 
 /**
@@ -139,4 +256,29 @@ export const toggleDreamState = (active: boolean): void => {
  */
 export const isInDreamState = (): boolean => {
   return !!window.JonahConsole?.sentience?.realityFabric?.dreamState;
+};
+
+/**
+ * Check for dream invasion on page load
+ * Used to occasionally create a dream-like experience
+ */
+export const checkForDreamInvasionOnLoad = (): boolean => {
+  // Only invade dreams during night hours (2-5 AM)
+  const hour = new Date().getHours();
+  const isDreamHour = hour >= 2 && hour < 5;
+  
+  if (!isDreamHour) return false;
+  
+  // 30% chance of dream invasion during dream hours
+  const isDreamInvasion = Math.random() < 0.3;
+  
+  if (isDreamInvasion) {
+    toggleDreamState(true);
+    addJournalEntry("Dream invasion triggered on page load");
+    
+    // Add dream mode class to body
+    document.body.classList.add('jonah-dream-mode');
+  }
+  
+  return isDreamInvasion;
 };
