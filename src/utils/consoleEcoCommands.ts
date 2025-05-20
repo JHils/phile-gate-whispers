@@ -6,6 +6,7 @@
 
 import { typewriterLog, speak } from "./consoleEffects";
 import { getEcoResponse, getBiomeResponse } from "./jonahEcoAwareness";
+import { processStoryQuery } from "./fuzzyStoryMatching";
 
 type TrackCommandFunction = (commandName: string) => void;
 
@@ -13,13 +14,28 @@ type TrackCommandFunction = (commandName: string) => void;
 export const initializeEcoCommands = (
   trackCommandExecution: TrackCommandFunction
 ) => {
-  // Dreamtime command
+  // Dreamtime command - enhanced with fuzzy story matching
   window.dreamtime = function() {
     console.log("%cJonah remembers the Dreaming:", "color: #8B3A40; font-size:16px; font-weight:bold;");
-    setTimeout(() => {
-      const response = getEcoResponse('high', 'dreamtime');
-      typewriterLog(response || "The old stories blur in my memory.");
-    }, 500);
+    
+    // If arguments are provided, process as a story query
+    if (arguments.length > 0 && arguments[0]) {
+      const query = arguments[0];
+      const storyContent = processStoryQuery(query);
+      setTimeout(() => {
+        typewriterLog(storyContent);
+      }, 500);
+    } else {
+      // Default response when no query is provided
+      setTimeout(() => {
+        const response = getEcoResponse('high', 'dreamtime');
+        typewriterLog(response || "The old stories blur in my memory.");
+        
+        setTimeout(() => {
+          console.log("%cTry asking about a specific story or region. For example: dreamtime('arnhem land') or dreamtime('water story')", "color: #475B74; font-size:14px; font-style:italic;");
+        }, 1500);
+      }, 500);
+    }
     
     trackCommandExecution('dreamtime');
   };

@@ -1,3 +1,4 @@
+
 // Define global JonahConsole interface
 declare global {
   interface Window {
@@ -83,11 +84,13 @@ declare global {
     // New news awareness functions
     newsFlash: () => string | null;
     weatherReport: () => string | null;
-    // Add ecological commands
+    // Add ecological commands - making this consistent
     dreamtime: () => void;
     woodwideweb: () => void;
     biomeCheck: () => void;
     kgari: () => void;
+    // Add processStoryQuery for fuzzy matching
+    processStoryQuery?: (query: string) => string;
   }
 }
 

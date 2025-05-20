@@ -159,31 +159,33 @@ export function initializeFuzzyStoryMatching(): void {
   // Add to global scope for console access
   window.processStoryQuery = processStoryQuery;
   
-  // Add console command
-  window.dreamtime = function(query: string = '') {
-    if (!query) {
-      console.log("%cTry asking about a specific story or region. For example: dreamtime('arnhem land') or dreamtime('water story')", "color: var(--color-console)");
-      return "Waiting for your question about the Dreamtime...";
-    }
-    
-    const storyContent = processStoryQuery(query);
-    console.log(`%c${storyContent}`, "color: var(--color-accent); font-style: italic;");
-    
-    // Add to JonahConsole tracking if available
-    if (window.JonahConsole) {
-      if (!window.JonahConsole.usedCommands.includes('dreamtime')) {
-        window.JonahConsole.usedCommands.push('dreamtime');
-      }
-    }
-    
-    return "Story shared from the Dreamtime.";
-  };
+  // REMOVING THIS IMPLEMENTATION as it conflicts with consoleEcoCommands.ts
+  // window.dreamtime = function(query: string = '') {
+  //   if (!query) {
+  //     console.log("%cTry asking about a specific story or region. For example: dreamtime('arnhem land') or dreamtime('water story')", "color: var(--color-console)");
+  //     return "Waiting for your question about the Dreamtime...";
+  //   }
+  //   
+  //   const storyContent = processStoryQuery(query);
+  //   console.log(`%c${storyContent}`, "color: var(--color-accent); font-style: italic;");
+  //   
+  //   // Add to JonahConsole tracking if available
+  //   if (window.JonahConsole) {
+  //     if (!window.JonahConsole.usedCommands.includes('dreamtime')) {
+  //       window.JonahConsole.usedCommands.push('dreamtime');
+  //     }
+  //   }
+  //   
+  //   return "Story shared from the Dreamtime.";
+  // };
 }
 
-// Add to window interface
-declare global {
-  interface Window {
-    processStoryQuery?: (query: string) => string;
-    dreamtime?: (query?: string) => string;
-  }
-}
+// Add to window interface - removing this as it's handled in consoleTypes.ts
+// declare global {
+//   interface Window {
+//     processStoryQuery?: (query: string) => string;
+//     dreamtime?: (query?: string) => string;
+//   }
+// }
+
+export {};

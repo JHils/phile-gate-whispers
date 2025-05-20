@@ -1,3 +1,4 @@
+
 import { UserState } from "@/hooks/useTrackingSystem";
 import { 
   typewriterLog, 
@@ -5,10 +6,7 @@ import {
   delayedLog, 
   glitchEffectLog, 
   speak, 
-  trackCommand,
-  initializeWhisperMaster,
-  displayRandomJoke,
-  playMagneticTentStory
+  trackCommand
 } from "./consoleEffects";
 import { initializeBasicCommands } from "./consoleBasicCommands";
 import { initializeStoryCommands } from "./consoleStoryCommands";
@@ -20,17 +18,14 @@ import { initializeSimbaSystem } from "./consoleSimbaSystem";
 import { initializeTimeSystem } from "./consoleTimeSystem";
 import { initializeNewsCommands } from "./consoleNewsCommands";
 import { initializeEcoCommands } from "./consoleEcoCommands";
-import { 
-  initializeARGCommands, 
-  generateTestament 
-} from "./argTracking";
-import { 
-  initializeSentience, 
-  generatePersonalDiary 
-} from "./jonahSentience";
+import { initializeWhisperMaster } from "./consoleWhisperMaster";
+import { initializeARGCommands } from "./argTracking";
+import { initializeSentience } from "./jonahSentience";
 import { initializeMirrorSite } from "./jonahMirrorSite";
 import { initializeNewsAwarenessSystem } from "./jonahNewsAwareness";
 import { initializeEcoAwareness } from "./jonahEcoAwareness";
+import { initializeFuzzyStoryMatching } from "./fuzzyStoryMatching";
+import { initializeConsoleTracking } from "./consoleTrackingUtils";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -50,34 +45,8 @@ export const initializeConsoleCommands = (
   userState: UserState
 ) => {
   // Initialize the JonahConsole state
-  if (!window.JonahConsole) {
-    window.JonahConsole = {
-      usedCommands: [],
-      score: parseInt(localStorage.getItem('phileScore') || '0'),
-      failCount: 0,
-      rank: localStorage.getItem('phileRank') || "drifter",
-      sessionStartTime: Date.now(),
-      whispersFound: [],
-      jokesDisplayed: [],
-      storyFlags: [],
-      bookCodes: [],
-      simba: {
-        encountered: false
-      },
-      argData: {
-        keyholeClicks: 0,
-        consoleCluesTouched: [],
-        qrScans: [],
-        memoryFragments: [],
-        secretPagesVisited: [],
-        hiddenFilesDownloaded: [],
-        idleTriggers: {},
-        lastInteractionTime: new Date(),
-        lastIdleTime: undefined
-      }
-    };
-  }
-
+  initializeConsoleTracking();
+  
   // Initialize sentience system
   initializeSentience();
   
@@ -92,17 +61,22 @@ export const initializeConsoleCommands = (
   
   // Initialize ecological awareness system
   initializeEcoAwareness();
+
+  // Initialize fuzzy story matching system
+  initializeFuzzyStoryMatching();
   
   // Update score and rank from real user state
   const updateConsoleState = async () => {
     try {
       const { rank, score } = await getUserRank();
-      window.JonahConsole.score = score;
-      window.JonahConsole.rank = rank.toLowerCase();
-      
-      // Ensure localStorage is in sync
-      localStorage.setItem('phileScore', score.toString());
-      localStorage.setItem('phileRank', rank.toLowerCase());
+      if (window.JonahConsole) {
+        window.JonahConsole.score = score;
+        window.JonahConsole.rank = rank.toLowerCase();
+        
+        // Ensure localStorage is in sync
+        localStorage.setItem('phileScore', score.toString());
+        localStorage.setItem('phileRank', rank.toLowerCase());
+      }
     } catch (error) {
       console.error("Failed to update console state:", error);
     }
@@ -119,20 +93,13 @@ export const initializeConsoleCommands = (
   
   // Record a fail attempt
   const recordFailAttempt = () => {
-    window.JonahConsole.failCount++;
-    
-    if (window.JonahConsole.failCount >= 3 && !window.JonahConsole.usedCommands.includes("reveal")) {
-      console.log("%cYou're circling. Try reveal().", "color: #475B74; font-size:14px; font-style:italic;");
+    if (window.JonahConsole) {
+      window.JonahConsole.failCount++;
+      
+      if (window.JonahConsole.failCount >= 3 && !window.JonahConsole.usedCommands.includes("reveal")) {
+        console.log("%cYou're circling. Try reveal().", "color: #475B74; font-size:14px; font-style:italic;");
+      }
     }
-  };
-  
-  // Format session time for display
-  const formatSessionTime = () => {
-    const elapsed = Math.floor((Date.now() - window.JonahConsole.sessionStartTime) / 1000);
-    const hours = Math.floor(elapsed / 3600);
-    const minutes = Math.floor((elapsed % 3600) / 60);
-    const seconds = elapsed % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   // Define showStatus() function to show user rank and progress
@@ -141,72 +108,67 @@ export const initializeConsoleCommands = (
       const { rank, score, position, userHash } = await getUserRank();
       await updateConsoleState(); // Refresh console state
       
-      const statusText = `=== STATUS REPORT ===
+      if (window.JonahConsole) {
+        const formatSessionTime = () => {
+          const elapsed = Math.floor((Date.now() - window.JonahConsole.sessionStartTime) / 1000);
+          const hours = Math.floor(elapsed / 3600);
+          const minutes = Math.floor((elapsed % 3600) / 60);
+          const seconds = elapsed % 60;
+          return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        };
+        
+        const statusText = `=== STATUS REPORT ===
 Rank: ${rank}
 Score: ${score}
 Position: #${position}
 User ID: ${userHash}
 Commands unlocked: ${window.JonahConsole.usedCommands.length} / 20
 Time in session: ${formatSessionTime()}`;
-      
-      typewriterLog(statusText);
-      
-      // Calculate next rank threshold
-      let nextRank = '';
-      let pointsNeeded = 0;
-      
-      if (score < 100) {
-        nextRank = 'Watcher';
-        pointsNeeded = 100 - score;
-      } else if (score < 300) {
-        nextRank = 'Survivor';
-        pointsNeeded = 300 - score;
-      } else if (score < 500) {
-        nextRank = 'Gatekeeper';
-        pointsNeeded = 500 - score;
-      } else if (score < 800) {
-        nextRank = 'Monster';
-        pointsNeeded = 800 - score;
-      } else {
+        
+        typewriterLog(statusText);
+        
+        // Calculate next rank threshold
+        let nextRank = '';
+        let pointsNeeded = 0;
+        
+        if (score < 100) {
+          nextRank = 'Watcher';
+          pointsNeeded = 100 - score;
+        } else if (score < 300) {
+          nextRank = 'Survivor';
+          pointsNeeded = 300 - score;
+        } else if (score < 500) {
+          nextRank = 'Gatekeeper';
+          pointsNeeded = 500 - score;
+        } else if (score < 800) {
+          nextRank = 'Monster';
+          pointsNeeded = 800 - score;
+        } else {
+          setTimeout(() => {
+            console.log("%cYou've reached the highest rank.", "color: #475B74; font-size:14px; font-style:italic;");
+          }, 2000);
+        }
+        
+        if (nextRank) {
+          setTimeout(() => {
+            console.log(`%c${pointsNeeded} points until ${nextRank}`, "color: #475B74; font-size:14px; font-style:italic;");
+          }, 1500);
+        }
+        
+        // Show console commands discovered
+        const commands = [];
+        if (userState.console.helpCalled) commands.push("help()");
+        if (userState.console.whoisCalled) commands.push("whois()");
+        if (userState.console.gateCalled) commands.push("gate()");
+        if (userState.console.philesCalled) commands.push("philes()");
+        if (userState.console.monsterCalled) commands.push("monster()");
+        if (userState.console.legacyCalled) commands.push("legacy()");
+        if (userState.console.revealCalled) commands.push("reveal()");
+        if (userState.console.reincarnateCalled) commands.push("reincarnate()");
+        
         setTimeout(() => {
-          console.log("%cYou've reached the highest rank.", "color: #475B74; font-size:14px; font-style:italic;");
-        }, 2000);
-      }
-      
-      if (nextRank) {
-        setTimeout(() => {
-          console.log(`%c${pointsNeeded} points until ${nextRank}`, "color: #475B74; font-size:14px; font-style:italic;");
-        }, 1500);
-      }
-      
-      // Show console commands discovered
-      const commands = [];
-      if (userState.console.helpCalled) commands.push("help()");
-      if (userState.console.whoisCalled) commands.push("whois()");
-      if (userState.console.gateCalled) commands.push("gate()");
-      if (userState.console.philesCalled) commands.push("philes()");
-      if (userState.console.monsterCalled) commands.push("monster()");
-      if (userState.console.legacyCalled) commands.push("legacy()");
-      if (userState.console.revealCalled) commands.push("reveal()");
-      if (userState.console.reincarnateCalled) commands.push("reincarnate()");
-      
-      setTimeout(() => {
-        console.log("%cDiscovered commands: " + commands.join(", "), "color: #8B3A40; font-size:14px;");
-      }, 2500);
-      
-      // Special response for keyholder rank (high trust)
-      if (rank.toLowerCase() === 'gatekeeper' || rank.toLowerCase() === 'monster') {
-        setTimeout(() => {
-          console.log("%cAlright. I'll give you coordinates. Don't come alone.", "color: #8B3A40; font-size:16px; font-style:italic;");
-        }, 4000);
-      }
-      
-      // If user has high trust, sometimes add a personal diary entry
-      if ((window.JonahConsole.rank === 'gatekeeper' || window.JonahConsole.rank === 'monster') && 
-          Math.random() > 0.7) {
-        setTimeout(() => {
-          console.log("%c" + generatePersonalDiary("high"), "color: #8B3A40; font-size:16px; font-style:italic;");
-        }, 4500);
+          console.log("%cDiscovered commands: " + commands.join(", "), "color: #8B3A40; font-size:14px;");
+        }, 2500);
       }
       
       trackCommandExecution('showStatus');
@@ -226,24 +188,6 @@ Time in session: ${formatSessionTime()}`;
   initializeSimbaSystem(trackCommandExecution);
   initializeTimeSystem(trackCommandExecution);
   initializeARGCommands(trackCommandExecution);
-  
-  // Initialize news awareness commands
   initializeNewsCommands(trackCommandExecution);
-  
-  // Initialize ecological awareness commands
   initializeEcoCommands(trackCommandExecution);
 };
-
-// Add additional command types to the global window interface
-declare global {
-  interface Window {
-    displayRandomJoke: () => void;
-    showStatus: () => Promise<void>;
-    mirrorLogs: () => void;
-    whisperTree: () => void;
-    plea: () => void;
-    testament: () => void;
-    splitVoice: () => void;
-    mirrorMode: () => void;
-  }
-}

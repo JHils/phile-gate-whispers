@@ -13,6 +13,13 @@ import CallToAction from "@/components/landing/CallToAction";
 import ConsoleOverlay from "@/components/landing/ConsoleOverlay";
 import MirrorErrorTrigger from "@/components/landing/MirrorErrorTrigger";
 import { useIsMobile } from "@/hooks/use-mobile";
+import JonahHiddenData from "@/components/index/JonahHiddenData";
+import JonahBackgroundOverlay from "@/components/index/JonahBackgroundOverlay";
+import HiddenComments from "@/components/index/HiddenComments";
+import KeyholeEasterEgg from "@/components/index/KeyholeEasterEgg";
+import LandingScanlines from "@/components/landing/LandingScanlines";
+import LandingHiddenElements from "@/components/landing/LandingHiddenElements";
+import LandingConsole from "@/components/landing/LandingConsole";
 
 const Landing = () => {
   const [fadeIn, setFadeIn] = useState(false);
@@ -27,9 +34,6 @@ const Landing = () => {
     userState 
   });
   const isMobile = useIsMobile();
-  
-  // Add scanline effect
-  const [scanlineOffset, setScanlineOffset] = useState(0);
 
   // Process console commands
   const processConsoleCommand = (command: string) => {
@@ -113,11 +117,6 @@ const Landing = () => {
     // Console hint
     console.log("Psst. Try typing: help()");
     
-    // Handle scanline animation
-    const interval = setInterval(() => {
-      setScanlineOffset(prev => (prev + 1) % 20);
-    }, 50);
-    
     // Add keydown listener for the 'c' key to toggle console
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'c' && e.ctrlKey) {
@@ -128,7 +127,6 @@ const Landing = () => {
     document.addEventListener('keydown', handleKeyPress);
     
     return () => {
-      clearInterval(interval);
       document.removeEventListener('keydown', handleKeyPress);
     };
   }, [trackEvent, showConsoleMessages]);
@@ -143,14 +141,7 @@ const Landing = () => {
       }}
     >
       {/* CRT Scan Lines Effect */}
-      <div 
-        className="fixed inset-0 pointer-events-none z-10 opacity-20"
-        style={{ 
-          backgroundImage: `repeating-linear-gradient(transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 4px)`,
-          backgroundPosition: `0 ${scanlineOffset}px`,
-          backgroundSize: '100% 4px'
-        }}
-      />
+      <LandingScanlines />
       
       <div className="flex flex-col md:flex-row w-full h-full min-h-screen">
         {/* Main three-column layout container */}
@@ -202,15 +193,12 @@ const Landing = () => {
         processConsoleCommand={processConsoleCommand}
       />
 
-      {/* Hidden comments for inspection */}
-      {/* <!-- The Gate is open. --> */}
-      {/* <!-- The whispers start with help(). --> */}
-      
-      {/* Hidden elements for reality fabric features */}
-      <div data-reality-layer="surface" className="hidden">
-        <span data-whisper-id="e37a" data-echo-type="memory">He follows between tabs</span>
-        <span data-jonah-state="watching" data-timestamp={Date.now()}>Always watching</span>
-      </div>
+      {/* Hidden elements and data */}
+      <LandingHiddenElements />
+      <JonahHiddenData userState={userState} />
+      <JonahBackgroundOverlay />
+      <HiddenComments />
+      <KeyholeEasterEgg />
       
       {/* Press Ctrl+C for console hint */}
       <div className="fixed bottom-2 left-1/2 transform -translate-x-1/2 text-[#212121]/30 text-xs">
