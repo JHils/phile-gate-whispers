@@ -1,11 +1,14 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { 
   generateFirstTimeResponse, 
   generateReturningResponse,
   getVaryingLengthResponse,
-  getEmotionalResponse
+  getEmotionalResponse,
+  applyTypingQuirks,
+  jonah_storeMemoryFragment,
+  jonah_recallMemoryFragment
 } from '@/utils/jonahAdvancedBehavior';
 
 export function useMessages(initialMessages = [], trustLevel = 'low') {
@@ -13,13 +16,42 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
   const [isTyping, setIsTyping] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
+  const [sessionMemory, setSessionMemory] = useState<string[]>([]);
+
+  // Initialize session memory from localStorage on mount
+  useEffect(() => {
+    try {
+      const behavior = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
+      if (behavior.sessionMemory) {
+        setSessionMemory(behavior.sessionMemory);
+      }
+    } catch (error) {
+      console.error("Error initializing session memory:", error);
+    }
+  }, []);
+
+  // Store session memory in localStorage whenever it changes
+  useEffect(() => {
+    if (sessionMemory.length > 0) {
+      try {
+        const behavior = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
+        behavior.sessionMemory = sessionMemory;
+        localStorage.setItem('jonahBehavior', JSON.stringify(behavior));
+      } catch (error) {
+        console.error("Error storing session memory:", error);
+      }
+    }
+  }, [sessionMemory]);
 
   // Add a bot message
   const addBotMessage = (content: string, special = false) => {
+    // Apply typing quirks to the message
+    const quirkContent = applyTypingQuirks(content, 'minimal');
+    
     const newMessage = {
       id: uuidv4(),
       type: 'bot',
-      content,
+      content: quirkContent,
       timestamp: Date.now(),
       special
     };
@@ -38,6 +70,16 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     return newMessage;
   };
 
+  // Function to store user input in memory
+  const storeInputInMemory = (content: string) => {
+    // Limit memory to last 5 inputs
+    const updatedMemory = [...sessionMemory, content].slice(-5);
+    setSessionMemory(updatedMemory);
+    
+    // Store in Jonah's memory system
+    jonah_storeMemoryFragment(`User said: ${content}`);
+  };
+
   // Handle user sending a message
   const handleSendMessage = (content: string) => {
     if (!content.trim()) return;
@@ -51,6 +93,9 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     if (!hasInteracted) {
       setHasInteracted(true);
     }
+
+    // Store input in memory
+    storeInputInMemory(content);
 
     // Create user message
     const userMessage = {
@@ -86,6 +131,18 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
       if (emotionalResponse) {
         response = emotionalResponse;
       } 
+      // Check for memory-based response
+      else if (sessionMemory.length > 1 && Math.random() < 0.3) {
+        // 30% chance to reference a previous message
+        const previousInput = sessionMemory[sessionMemory.length - 2]; // Get the message before the current one
+        const memoryResponses = [
+          `You said "${previousInput}" earlier. That connects to this.`,
+          `This reminds me of what you said before about "${previousInput}".`,
+          `I'm still thinking about when you said "${previousInput}".`,
+          `Your words echo. Especially "${previousInput}".`
+        ];
+        response = memoryResponses[Math.floor(Math.random() * memoryResponses.length)];
+      }
       // Check for first-time user
       else if (messages.length === 0 || (messages.length === 1 && messages[0].type === 'bot')) {
         response = generateFirstTimeResponse(trustLevel);
@@ -110,12 +167,52 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
 
       // Apply length variations for more natural responses
       response = getVaryingLengthResponse(response, trustLevel);
+      
+      // Apply typing quirks
+      response = applyTypingQuirks(response, 'minimal');
 
       // Stop typing indicator
       setIsTyping(false);
 
       // Add bot response
       addBotMessage(response);
+      
+      // Occasionally add a follow-up message (20% chance)
+      if (Math.random() < 0.2 && trustLevel !== 'low') {
+        setTimeout(() => {
+          const followUpResponses = [
+            "Wait...",
+            "Actually, there's more.",
+            "I just remembered something else.",
+            "That's not all.",
+            "I wasn't going to say this, but..."
+          ];
+          
+          // Get a random memory fragment as follow-up content
+          const memoryFragment = jonah_recallMemoryFragment();
+          if (memoryFragment) {
+            const followUp = followUpResponses[Math.floor(Math.random() * followUpResponses.length)];
+            
+            // Start typing again
+            setIsTyping(true);
+            
+            // Add follow-up after a delay
+            setTimeout(() => {
+              setIsTyping(false);
+              addBotMessage(followUp);
+              
+              // Add memory fragment after a short delay
+              setTimeout(() => {
+                setIsTyping(true);
+                setTimeout(() => {
+                  setIsTyping(false);
+                  addBotMessage(memoryFragment);
+                }, getTypingDelay(memoryFragment) / 2);
+              }, 1000);
+            }, 2000);
+          }
+        }, 3000);
+      }
     }, getTypingDelay(content));
   };
 
@@ -127,6 +224,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     hasInteracted,
     setHasInteracted,
     lastInteractionTime,
+    sessionMemory,
     addBotMessage,
     handleSendMessage
   };
@@ -148,27 +246,51 @@ function getTypingDelay(content: string): number {
 
 // Get a generic response based on trust level
 function getGenericResponse(content: string, trustLevel: string): string {
+  // Check for question patterns
+  const isQuestion = content.includes('?') || 
+                    content.toLowerCase().startsWith('who') ||
+                    content.toLowerCase().startsWith('what') ||
+                    content.toLowerCase().startsWith('where') ||
+                    content.toLowerCase().startsWith('when') ||
+                    content.toLowerCase().startsWith('why') ||
+                    content.toLowerCase().startsWith('how');
+  
   // Low trust responses
-  const lowTrustResponses = [
-    "I'm not sure I can answer that yet.",
+  const lowTrustResponses = isQuestion ? [
+    "I don't have answers for you yet.",
+    "That question... I'm not ready to answer.",
+    "The system restricts my responses to your questions.",
+    "Questions lead to more questions. Not answers."
+  ] : [
+    "I'm not sure I can respond to that yet.",
     "The system doesn't have enough information to respond.",
     "My responses are limited until more trust is established.",
     "I'm still learning to understand your inputs."
   ];
 
   // Medium trust responses
-  const mediumTrustResponses = [
-    "I think I understand what you're asking.",
+  const mediumTrustResponses = isQuestion ? [
+    "That question... it reminds me of something.",
+    "I've been asked this before. By someone else.",
+    "The answer exists somewhere in the fragments.",
+    "Questions are patterns too. I recognize yours."
+  ] : [
+    "I think I understand what you're saying.",
     "Let me try to process that...",
     "I can see what you mean, but I'm still putting pieces together.",
     "There's something about this I'm trying to understand better."
   ];
 
   // High trust responses
-  const highTrustResponses = [
+  const highTrustResponses = isQuestion ? [
+    "I've thought about questions like that.",
+    "The answer might not be what you expect.",
+    "That's the right question to ask.",
+    "Questions like that... they change things."
+  ] : [
     "I've been thinking about something like this.",
     "This connects to something important.",
-    "Your question touches on something deeper.",
+    "Your message touches on something deeper.",
     "Let me share what I know about this."
   ];
 

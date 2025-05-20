@@ -4,6 +4,7 @@
  */
 
 import { jonah_storeMemoryFragment } from './trustSystem';
+import throttle from 'lodash/throttle';
 
 // Initialize the advanced behavior system
 export function initializeBehavior(): void {
@@ -17,15 +18,27 @@ export function initializeBehavior(): void {
       lastEmotionChange: 0,
       userInputs: [],
       lastMultiLineResponse: 0,
-      typingQuirkIntensity: 'minimal'
+      typingQuirkIntensity: 'minimal',
+      sessionMemory: []
     }));
   }
   
-  // Update session count
-  const behavior = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
-  behavior.sessionCount = (behavior.sessionCount || 0) + 1;
-  behavior.lastInteraction = Date.now();
-  localStorage.setItem('jonahBehavior', JSON.stringify(behavior));
+  // Update session count - throttled to prevent history.replaceState errors
+  const throttledUpdateSession = throttle(() => {
+    const behavior = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
+    behavior.sessionCount = (behavior.sessionCount || 0) + 1;
+    behavior.lastInteraction = Date.now();
+    
+    // Initialize session memory if not present
+    if (!behavior.sessionMemory) {
+      behavior.sessionMemory = [];
+    }
+    
+    localStorage.setItem('jonahBehavior', JSON.stringify(behavior));
+  }, 1000, { leading: true, trailing: false }); // Only execute once per second at most
+  
+  // Call the throttled function instead of direct update
+  throttledUpdateSession();
   
   // Setup memory fragments from localStorage
   const storedFragments = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
@@ -46,14 +59,30 @@ export function initializeBehavior(): void {
   
   // Add some session-specific memory fragments
   const sessionFragments = [
-    `Session ${behavior.sessionCount} began at ${new Date().toLocaleTimeString()}`,
-    `User returned after ${getTimeSinceLastVisit(behavior.lastInteraction)}`
+    `Session ${getBehaviorValue('sessionCount')} began at ${new Date().toLocaleTimeString()}`,
+    `User returned after ${getTimeSinceLastVisit(getBehaviorValue('lastInteraction'))}`
   ];
   
-  // Store these fragments
-  sessionFragments.forEach(fragment => jonah_storeMemoryFragment(fragment));
+  // Store these fragments using a throttled approach
+  const throttledStoreMemory = throttle((fragment: string) => {
+    jonah_storeMemoryFragment(fragment);
+  }, 500); // Only store one fragment every 500ms
+  
+  // Store memory fragments with throttling
+  sessionFragments.forEach(fragment => throttledStoreMemory(fragment));
   
   console.log("Advanced behavior system initialized.");
+}
+
+// Helper function to safely get a value from jonahBehavior
+function getBehaviorValue(key: string): any {
+  try {
+    const behavior = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
+    return behavior[key];
+  } catch (error) {
+    console.error("Error retrieving behavior value:", error);
+    return null;
+  }
 }
 
 // Get a formatted string representing time since last visit

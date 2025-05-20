@@ -17,6 +17,7 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
   const lastTriggerTimeRef = useRef<number>(0);
   
   // Throttle the page message handler to prevent excessive calls
+  // This directly addresses the history.replaceState() error
   const handlePageNavigation = throttle((pathname: string) => {
     // Skip if already triggered for this path or too recent
     if (triggeredPagesRef.current.has(pathname)) return;
@@ -47,14 +48,16 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
       // Modify trust level
       modifyTrust(trust);
       
-      // Add journal entry
-      addJournalEntry(`Navigated to ${pathname}. Triggered bot message: ${message}`);
+      // Add journal entry using a setTimeout to prevent immediate state changes
+      setTimeout(() => {
+        addJournalEntry(`Navigated to ${pathname}. Triggered bot message: ${message}`);
+      }, 0);
       
       // Mark as triggered and update last trigger time
       triggeredPagesRef.current.add(pathname);
       lastTriggerTimeRef.current = now;
     }
-  }, 2000); // Throttle to once per 2 seconds max
+  }, 2000, { leading: true, trailing: false }); // Throttle to once per 2 seconds max
   
   useEffect(() => {
     // Only trigger on specific pages and when the chat is open

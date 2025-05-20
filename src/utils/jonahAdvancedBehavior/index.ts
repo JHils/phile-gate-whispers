@@ -7,7 +7,13 @@
 export { initializeBehavior as initializeAdvancedBehavior } from './initializeBehavior';
 
 // Export trust system
-export { jonah_checkTrustTransition, jonah_getBehaviorPhase, jonah_getPhaseResponse, jonah_storeMemoryFragment, jonah_recallMemoryFragment } from './trustSystem';
+export { 
+  jonah_checkTrustTransition, 
+  jonah_getBehaviorPhase, 
+  jonah_getPhaseResponse, 
+  jonah_storeMemoryFragment, 
+  jonah_recallMemoryFragment 
+} from './trustSystem';
 
 // Export response generators
 export { generateFirstTimeResponse, generateReturningResponse } from './responses/firstTimeResponses';
@@ -17,4 +23,3 @@ export { getEmotionalToneResponse } from './responses/toneResponses';
 
 // Export typing quirks
 export { applyTypingQuirks } from './quirks/typingQuirks';
-
