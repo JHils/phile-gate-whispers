@@ -1,10 +1,12 @@
-
 import { 
   typewriterLog, 
   flickerLog, 
   glitchEffectLog, 
   speak 
 } from "./consoleEffects";
+
+// Import from new refactored location
+import { trackCommand } from './consoleTracking/commandTracking';
 
 type TrackCommandFunction = (commandName: string) => void;
 

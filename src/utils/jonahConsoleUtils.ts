@@ -5,7 +5,8 @@
  */
 
 import { typewriterLog } from './consoleEffects';
-import { setCurrentMood, addJournalEntry } from './jonahRealityFabric';
+import { setCurrentMood } from './consoleTracking/moodManagement';
+import { addJournalEntry } from './jonahRealityFabric';
 
 /**
  * Process user input for console responses

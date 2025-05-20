@@ -1,6 +1,6 @@
-
 import { UserState } from "@/hooks/useTrackingSystem";
 import { typewriterLog, speak, displayRandomJoke } from "./consoleEffects";
+import { trackCommand } from './consoleTracking/commandTracking';
 
 type TrackCommandFunction = (commandName: string) => void;
 

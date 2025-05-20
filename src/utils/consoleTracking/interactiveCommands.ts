@@ -1,43 +1,15 @@
 
 /**
- * Console Tracking Utilities
- * Functions for tracking and managing console interactions
+ * Interactive Commands
+ * Functions for initializing basic interactive commands
  */
 
-import { typewriterLog } from './consoleEffects';
+import { typewriterLog } from '../consoleEffects';
+import { addUsedCommand } from './commandTracking';
 
-// Initialize console tracking
-export function initializeConsoleTracking(): void {
-  if (typeof window !== 'undefined' && !window.JonahConsole) {
-    window.JonahConsole = {
-      usedCommands: [],
-      score: parseInt(localStorage.getItem('phileScore') || '0'),
-      failCount: 0,
-      rank: localStorage.getItem('phileRank') || "drifter",
-      sessionStartTime: Date.now(),
-      whispersFound: [],
-      jokesDisplayed: [],
-      storyFlags: [],
-      bookCodes: [],
-      simba: {
-        encountered: false
-      },
-      argData: {
-        keyholeClicks: 0,
-        consoleCluesTouched: [],
-        qrScans: [],
-        memoryFragments: [],
-        secretPagesVisited: [],
-        hiddenFilesDownloaded: [],
-        idleTriggers: {},
-        lastInteractionTime: new Date(),
-        lastIdleTime: undefined
-      }
-    };
-  }
-}
-
-// Initialize interactive commands
+/**
+ * Initialize interactive commands
+ */
 export function initializeInteractiveCommands(): void {
   if (typeof window !== 'undefined') {
     // Define the start command
@@ -128,55 +100,5 @@ JONAH'S JOURNAL:
       
       return "Journal accessed.";
     };
-  }
-}
-
-// Track a used command
-export function addUsedCommand(command: string): void {
-  if (window.JonahConsole) {
-    if (!window.JonahConsole.usedCommands.includes(command)) {
-      window.JonahConsole.usedCommands.push(command);
-    }
-    
-    // Store the last command
-    window.JonahConsole.lastCommand = command;
-  }
-}
-
-// Check if a command has been used
-export function hasUsedCommand(command: string): boolean {
-  return window.JonahConsole?.usedCommands.includes(command) || false;
-}
-
-// Track a command execution
-export function trackCommand(command: string): void {
-  if (window.JonahConsole) {
-    addUsedCommand(command);
-  }
-}
-
-// Get current mood from sentience
-export function getCurrentMood(): string {
-  if (window.JonahConsole?.sentience?.realityFabric?.currentMood) {
-    return window.JonahConsole.sentience.realityFabric.currentMood;
-  }
-  return 'watching'; // Default mood
-}
-
-// Set current mood
-export function setCurrentMood(mood: string): void {
-  if (window.JonahConsole?.sentience?.realityFabric) {
-    window.JonahConsole.sentience.realityFabric.currentMood = mood;
-    window.JonahConsole.sentience.realityFabric.moodChangeTime = Date.now();
-    
-    // Track mood history
-    if (!window.JonahConsole.sentience.realityFabric.moodHistory) {
-      window.JonahConsole.sentience.realityFabric.moodHistory = [];
-    }
-    
-    window.JonahConsole.sentience.realityFabric.moodHistory.push({
-      mood,
-      timestamp: Date.now()
-    });
   }
 }

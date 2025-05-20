@@ -1,11 +1,10 @@
-
 /**
  * ARG Tracking System
  * For Alternate Reality Game elements
  */
 
 import { typewriterLog, glitchEffectLog } from './consoleEffects';
-import { trackCommand } from './consoleTrackingUtils';
+import { trackCommand } from './consoleTracking/commandTracking';
 
 // Initialize ARG tracking commands
 export function initializeARGCommands(trackCommandExecution: (command: string) => void): void {

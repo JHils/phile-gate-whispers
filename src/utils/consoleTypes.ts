@@ -1,4 +1,3 @@
-
 /**
  * Console Types Definition
  * Global interfaces and types for Jonah's Console
@@ -35,16 +34,11 @@ declare global {
       };
       sentience?: SentienceData;
       lastCommand?: string;
+      processUserMessage?: (input: string) => string | null;
+      clearOnPathChange?: boolean;
     };
-    // Console command definitions
-    help: () => void;
-    whois: () => void;
-    gate: () => void;
-    philes: () => void;
-    monster: () => void;
-    legacy: () => void;
-    reveal: () => void;
-    reincarnate: () => void;
+    
+    // Console command declarations - using optional for compatibility
     displayRandomJoke?: () => void;
     showStatus?: () => Promise<void>;
     mirrorLogs?: () => void;
@@ -59,7 +53,6 @@ declare global {
     bridgeCollapse?: () => void;
     discoverStoryFlag: (flagId: string) => boolean;
     findAnomaly: (text: string) => void;
-    processUserMessage?: (message: string) => string | undefined;
     clearJonahOnPathChange?: boolean;
     triggerJonahMessage?: (message: string) => string;
     isSpecialTimeWindow?: () => boolean;
@@ -85,7 +78,6 @@ declare global {
     youWereHimFirst: () => void;
     wearingYouNow: () => void;
     toggleWrath: () => void;
-    hint?: () => void;
     // New news awareness functions
     newsFlash?: () => string | null;
     weatherReport?: () => string | null;
@@ -96,7 +88,7 @@ declare global {
     kgari: () => void;
     // Add processStoryQuery for fuzzy matching
     processStoryQuery?: (query: string) => string;
-    // New Jonah console interactive commands
+    // New Jonah console interactive commands 
     start?: () => string;
     inventory?: () => string;
     echo_me?: (input: string) => string;
@@ -107,6 +99,15 @@ declare global {
     re_entry?: () => string;
     talk_to_jonah?: () => string;
     playJonahAudio?: (triggerType: string) => void;
+    help?: () => void;
+    whois?: () => void;
+    gate?: () => void;
+    philes?: () => void;
+    monster?: () => void;
+    legacy?: () => void;
+    reveal?: () => void;
+    reincarnate?: () => void;
+    hint?: () => void;
   }
 }
 
