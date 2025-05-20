@@ -1,4 +1,5 @@
 
+
 export interface UserState {
   visitCount: number;
   firstVisit: number;
@@ -32,7 +33,6 @@ export interface UserState {
     encounters: number;
   };
   events?: Record<string, any>;
-  // Add the missing properties that are causing TypeScript errors
   trust?: {
     level: string;
   };
@@ -47,3 +47,4 @@ export interface UserState {
     gate: boolean;
   };
 }
+
