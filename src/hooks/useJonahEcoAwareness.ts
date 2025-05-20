@@ -10,7 +10,7 @@ export interface EcoAwarenessState {
   lastBiomeCheck?: number;
   connectionStrength?: number;
   currentBiome?: string;
-  previousResponses: string[]; // Ensuring this property is defined in the interface
+  previousResponses: string[]; // Adding this property to fix the type error
 }
 
 export function useJonahEcoAwareness() {

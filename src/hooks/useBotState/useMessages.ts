@@ -498,5 +498,5 @@ function generateResponseFromTemplate(content: string, trustLevel: string): stri
   
   // Generate response from template - using the createEmotionalState helper
   // The createEmotionalState function expects an EmotionCategory string, not a boolean
-  return generateEmotionalResponse(createEmotionalState(emotion), template);
+  return generateEmotionalResponse(createEmotionalState(emotion as EmotionCategory), template);
 }
