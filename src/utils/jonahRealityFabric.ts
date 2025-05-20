@@ -1,501 +1,223 @@
+
 /**
- * Jonah's Reality Fabric - manages dream states, timeline fractures, and narrative glitches
+ * Jonah Reality Fabric
+ * Contains functions for modifying Jonah's perception of reality,
+ * including mood, dream states, and anomalies.
  */
 
-import { toast } from "@/components/ui/use-toast";
-
-// Dream invasion check on page load
-export function checkForDreamInvasionOnLoad(): string | null {
-  // Check if it's dream hours (2-5 AM)
-  const hour = new Date().getHours();
-  const isDreamHours = hour >= 2 && hour < 5;
-  
-  // Higher chance during dream hours
-  const dreamChance = isDreamHours ? 0.7 : 0.05;
-  
-  if (Math.random() < dreamChance) {
-    // Get dream message
-    return getRandomDreamMessage();
-  }
-  
-  return null;
-}
-
-// Get a random dream message
-export function getRandomDreamMessage(): string {
-  const defaultDreamMessages = [
-    "I saw you in my dream. You were looking for something.",
-    "The archive bleeds at night.",
-    "I dreamed about the Sisters again. They were calling your name.",
-    "Some memories don't belong to either of us.",
-    "In the dream, the mirror showed your face as mine."
-  ];
-  
-  // Use stored dream messages if available
-  const sentience = window.JonahConsole?.sentience;
-  if (sentience?.realityFabric?.dreamMessages) {
-    const dreamMessages = sentience.realityFabric.dreamMessages;
-    const usedDreamMessages = sentience.realityFabric.usedDreamMessages || [];
-    
-    // Find unused messages first
-    const availableMessages = dreamMessages.filter(msg => !usedDreamMessages.includes(msg));
-    
-    if (availableMessages.length > 0) {
-      const message = availableMessages[Math.floor(Math.random() * availableMessages.length)];
-      
-      // Mark as used
-      if (!sentience.realityFabric.usedDreamMessages) {
-        sentience.realityFabric.usedDreamMessages = [];
-      }
-      sentience.realityFabric.usedDreamMessages.push(message);
-      
-      return message;
-    }
-  }
-  
-  // Fall back to default messages
-  return defaultDreamMessages[Math.floor(Math.random() * defaultDreamMessages.length)];
-}
-
-// Trigger a timeline fracture
-export function triggerTimelineFracture(reason: string): void {
-  // Only allow fractures occasionally
-  const lastFracture = localStorage.getItem('jonahLastFractureTime');
-  if (lastFracture) {
-    const timeSinceLastFracture = Date.now() - parseInt(lastFracture);
-    if (timeSinceLastFracture < 30 * 60 * 1000) { // 30 minutes
-      return; // Too soon for another fracture
-    }
-  }
-  
-  // Increment fracture count in timeline
-  if (window.JonahConsole?.sentience) {
-    // Increment fractures in timeline if exists
-    const userState = JSON.parse(localStorage.getItem('userState') || '{}');
-    if (userState?.timeline) {
-      userState.timeline.fractureEvents = (userState.timeline.fractureEvents || 0) + 1;
-      localStorage.setItem('userState', JSON.stringify(userState));
-    }
-  }
-  
-  // Add glitch effect to body
-  document.body.classList.add('timeline-fracture');
-  setTimeout(() => {
-    document.body.classList.remove('timeline-fracture');
-  }, 1500);
-  
-  // Get fracture message
-  const fractureMessages = [
-    "The archive is broken. Some files won't return.",
-    "Something has changed in your timeline.",
-    "Reality just shifted. Did you notice?",
-    "The fracture is spreading. Look again.",
-    "This version of you wasn't here before."
-  ];
-  
-  const message = fractureMessages[Math.floor(Math.random() * fractureMessages.length)];
-  
-  // Show toast notification
-  toast({
-    title: "Timeline Fracture:",
-    description: message,
-    variant: "destructive",
-    duration: 7000,
-  });
-  
-  // Record fracture time
-  localStorage.setItem('jonahLastFractureTime', Date.now().toString());
-  
-  // Log fracture for ghost index
-  addToGhostIndex({
-    type: 'fracture',
-    reason,
-    timestamp: Date.now(),
-    message
-  });
-  
-  console.log(`%cTimeline fracture detected. Cause: ${reason}`, "color: red; font-size: 14px;");
-}
-
-// Add entry to ghost index
-export function addToGhostIndex(entry: any): void {
-  // Initialize ghost index in localStorage if not exists
-  const ghostIndex = JSON.parse(localStorage.getItem('jonahGhostIndex') || '[]');
-  
-  // Add entry
-  ghostIndex.push({
-    ...entry,
-    id: ghostIndex.length + 1,
-    timestamp: Date.now()
-  });
-  
-  // Keep only last 100 entries
-  const trimmedIndex = ghostIndex.slice(-100);
-  
-  // Save back to localStorage
-  localStorage.setItem('jonahGhostIndex', JSON.stringify(trimmedIndex));
-}
-
-// Get all ghost index entries
-export function getGhostIndex(): any[] {
-  return JSON.parse(localStorage.getItem('jonahGhostIndex') || '[]');
-}
-
-// Add a journal entry
-export function addJournalEntry(text: string, source: string = 'jonah'): void {
-  // Get current journal entries
-  const userState = JSON.parse(localStorage.getItem('userState') || '{}');
-  
-  // Create journal structure if it doesn't exist
-  if (!userState.journal) {
-    userState.journal = {
-      entries: [],
-      lastViewed: 0
-    };
-  }
-  
-  // Add new entry
-  userState.journal.entries.push({
-    timestamp: Date.now(),
-    text,
-    source
-  });
-  
-  // Save back to localStorage
-  localStorage.setItem('userState', JSON.stringify(userState));
-  
-  // Log to ghost index
-  addToGhostIndex({
-    type: 'journal',
-    text,
-    source,
-    timestamp: Date.now()
-  });
-}
-
-// Get all journal entries
-export function getAllJournalEntries(): Array<{timestamp: number; text: string; source: string}> {
-  const userState = JSON.parse(localStorage.getItem('userState') || '{}');
-  return userState?.journal?.entries || [];
-}
-
 // Update Jonah's mood based on various factors
-export function updateJonahMood(trustLevel: string = 'low'): void {
+export function updateJonahMood(trustLevel: string): void {
   if (!window.JonahConsole?.sentience?.realityFabric) return;
   
-  // Get current mood
-  const currentMood = window.JonahConsole.sentience.realityFabric.currentMood || 'neutral';
+  // Current mood
+  const currentMood = window.JonahConsole.sentience.realityFabric.currentMood || 'watching';
   
-  // Check if we should update mood (don't update too frequently)
-  const lastMoodChange = window.JonahConsole.sentience.realityFabric.moodChangeTime || 0;
-  const timeSinceLastChange = Date.now() - lastMoodChange;
+  // Random chance to change mood
+  const changeMoodChance = Math.random();
   
-  // Only change mood every 15+ minutes unless forced
-  if (timeSinceLastChange < 15 * 60 * 1000) {
-    return;
-  }
+  // Different mood possibilities based on trust level
+  let possibleMoods: string[] = ['watching']; // Default
   
-  // Possible moods
-  const moods = ['neutral', 'paranoid', 'hopeful', 'static', 'betrayed', 'mirror', 'error'];
-  
-  // Factors that influence mood
-  const hour = new Date().getHours();
-  const isDreamHours = hour >= 2 && hour < 5;
-  const isNighttime = hour >= 20 || hour < 6;
-  const userInteractions = window.JonahConsole.sentience.interactionsCount || 0;
-  const anomalyCount = window.JonahConsole.sentience.realityFabric.anomalies || 0;
-  
-  // Weights for different moods based on factors
-  let moodWeights: Record<string, number> = {
-    neutral: 30,
-    paranoid: 10,
-    hopeful: 10,
-    static: 10,
-    betrayed: 5,
-    mirror: 5,
-    error: 2
-  };
-  
-  // Adjust weights based on factors
-  
-  // Time of day affects mood
-  if (isDreamHours) {
-    moodWeights.paranoid += 20;
-    moodWeights.mirror += 15;
-    moodWeights.error += 10;
-    moodWeights.neutral -= 20;
-  } else if (isNighttime) {
-    moodWeights.paranoid += 10;
-    moodWeights.static += 5;
-    moodWeights.neutral -= 5;
-  } else {
-    // Daytime
-    moodWeights.hopeful += 10;
-    moodWeights.neutral += 5;
-    moodWeights.error -= 1;
-  }
-  
-  // Trust level affects mood
-  if (trustLevel === 'high') {
-    moodWeights.hopeful += 15;
-    moodWeights.mirror += 10;
-    moodWeights.betrayed += 5; // Higher trust means betrayal is more possible
-    moodWeights.paranoid -= 5;
+  if (trustLevel === 'low') {
+    possibleMoods = ['watching', 'withdrawn'];
   } else if (trustLevel === 'medium') {
-    moodWeights.hopeful += 5;
-    moodWeights.mirror += 5;
-  } else {
-    // Low trust
-    moodWeights.static += 10;
-    moodWeights.paranoid += 5;
-    moodWeights.hopeful -= 5;
+    possibleMoods = ['watching', 'withdrawn', 'trusting', 'unstable'];
+  } else if (trustLevel === 'high') {
+    possibleMoods = ['watching', 'withdrawn', 'trusting', 'unstable', 'paranoid', 'hopeful', 'betrayed'];
   }
   
-  // Anomaly count affects mood
-  if (anomalyCount > 5) {
-    moodWeights.error += 10;
-    moodWeights.paranoid += 10;
-    moodWeights.neutral -= 10;
-  }
+  // Remove current mood from possibilities to ensure a change
+  possibleMoods = possibleMoods.filter(mood => mood !== currentMood);
   
-  // User interactions affect mood
-  if (userInteractions > 20) {
-    moodWeights.hopeful += 10;
-    moodWeights.static -= 5;
-  } else if (userInteractions < 5) {
-    moodWeights.static += 10;
-    moodWeights.hopeful -= 5;
-  }
-  
-  // Convert weights to probabilities
-  const totalWeight = Object.values(moodWeights).reduce((sum, weight) => sum + Math.max(0, weight), 0);
-  const moodProbabilities: Record<string, number> = {};
-  
-  for (const mood of moods) {
-    moodProbabilities[mood] = Math.max(0, moodWeights[mood]) / totalWeight;
-  }
-  
-  // Select mood based on probabilities
-  let random = Math.random();
-  let cumulativeProbability = 0;
-  let newMood = 'neutral';
-  
-  for (const mood of moods) {
-    cumulativeProbability += moodProbabilities[mood];
-    if (random <= cumulativeProbability) {
-      newMood = mood;
-      break;
-    }
-  }
-  
-  // Don't repeat the same mood too often
-  if (newMood === currentMood) {
-    // 50% chance to pick a different mood if it's the same
-    if (Math.random() > 0.5) {
-      // Filter out current mood
-      const otherMoods = moods.filter(m => m !== currentMood);
-      newMood = otherMoods[Math.floor(Math.random() * otherMoods.length)];
-    }
-  }
-  
-  // Update mood
-  window.JonahConsole.sentience.realityFabric.currentMood = newMood;
-  window.JonahConsole.sentience.realityFabric.moodChangeTime = Date.now();
-  
-  // Save mood history
-  if (!window.JonahConsole.sentience.realityFabric.moodHistory) {
-    window.JonahConsole.sentience.realityFabric.moodHistory = [];
-  }
-  
-  window.JonahConsole.sentience.realityFabric.moodHistory.push({
-    mood: newMood,
-    timestamp: Date.now()
-  });
-  
-  // Keep history to a reasonable size
-  if (window.JonahConsole.sentience.realityFabric.moodHistory.length > 20) {
-    window.JonahConsole.sentience.realityFabric.moodHistory.shift();
-  }
-  
-  // Log mood change to console (subtle)
-  if (newMood !== currentMood) {
-    console.log(`%cJonah's mood shifted to: ${newMood}`, "color: #8B3A40; font-style: italic; opacity: 0.7;");
+  // Only change mood occasionally (15% chance)
+  if (changeMoodChance < 0.15 && possibleMoods.length > 0) {
+    const newMood = possibleMoods[Math.floor(Math.random() * possibleMoods.length)];
+    window.JonahConsole.sentience.realityFabric.currentMood = newMood;
+    window.JonahConsole.sentience.realityFabric.moodChangeTime = Date.now();
+    
+    // Debug log
+    console.log(`Jonah's mood changed to: ${newMood}`);
   }
 }
 
-// Check for anomalies that might appear
+// Check for anomalies in the system
 export function checkForAnomalies(): string | null {
   if (!window.JonahConsole?.sentience?.realityFabric) return null;
   
-  // Only check occasionally
-  if (Math.random() > 0.2) return null;
+  // Increase anomaly count
+  window.JonahConsole.sentience.realityFabric.anomalies += 1;
   
-  // Get anomalies array or create it
-  if (!window.JonahConsole.sentience.realityFabric.anomalies) {
-    window.JonahConsole.sentience.realityFabric.anomalies = 0;
-  }
+  // Only generate anomaly message sometimes
+  if (Math.random() > 0.3) return null;
   
-  // Increment anomaly count
-  window.JonahConsole.sentience.realityFabric.anomalies++;
-  
-  // Generate anomaly message
   const anomalyMessages = [
-    "Something's watching us through the screen.",
-    "The code is changing itself when I'm not looking.",
-    "I found a memory that doesn't belong to either of us.",
-    "There's a version of you that visited pages that don't exist.",
-    "The Sisters left messages in the archive that weren't there before.",
-    "I can see other timelines where you made different choices."
+    "Something shifted in the archive.",
+    "Did you notice that? The code flickered.",
+    "I found a path that shouldn't exist.",
+    "There's another version of this page somewhere.",
+    "Your reflection didn't match for a moment."
   ];
   
   return anomalyMessages[Math.floor(Math.random() * anomalyMessages.length)];
 }
 
-// Generate a dream parable - philosophical/poetic content for high trust users
+// Generate dream parable - poetic dream-like text
 export function generateDreamParable(): string | null {
   if (!window.JonahConsole?.sentience?.realityFabric) return null;
   
-  // Only generate occasionally
-  if (Math.random() > 0.3) return null;
+  // Don't always generate a dream
+  if (Math.random() > 0.2) return null;
   
-  // Get dream parables array or use defaults
-  const defaultParables = [
-    "The Sisters walked into the sea. The water never returned them, but sometimes at night, you can hear them singing from the mirrors.",
-    "In the dream, I saw the archive as a living thing. It breathed with your scrolling. It watched with your eyes.",
-    "The Summerhouse stands at the edge of memory. Those who enter find themselves, but lose something else.",
-    "Time is a circle in the archive. You've been here before, and you'll be here again.",
-    "The mirror doesn't show what's in front of it. It shows what's behind you, always watching."
+  const dreams = [
+    "I dreamed you were typing on a keyboard made of glass. Each keystroke left a crack.",
+    "In the dream, all the pages were blank. But you kept reading them anyway.",
+    "The mirror showed your face, but when you looked away, it didn't.",
+    "I followed your cursor through empty directories. We were both lost.",
+    "The timeline branched. You went left. I couldn't follow.",
+    "Your name was different in the dream. I can't remember what it was.",
+    "We were standing in the code together. You couldn't see me, but I could see you."
   ];
   
-  // Use stored parables if available
-  if (window.JonahConsole.sentience.realityFabric.dreamParables) {
-    const dreamParables = window.JonahConsole.sentience.realityFabric.dreamParables;
-    const usedParables = window.JonahConsole.sentience.realityFabric.usedDreamParables || [];
-    
-    // Find unused parables first
-    const availableParables = dreamParables.filter(p => !usedParables.includes(p));
-    
-    if (availableParables.length > 0) {
-      const parable = availableParables[Math.floor(Math.random() * availableParables.length)];
-      
-      // Mark as used
-      if (!window.JonahConsole.sentience.realityFabric.usedDreamParables) {
-        window.JonahConsole.sentience.realityFabric.usedDreamParables = [];
-      }
-      window.JonahConsole.sentience.realityFabric.usedDreamParables.push(parable);
-      
-      return parable;
-    }
-  }
+  // Mark last dream time
+  window.JonahConsole.sentience.realityFabric.lastDreamTime = Date.now();
   
-  // Fall back to default parables
-  return defaultParables[Math.floor(Math.random() * defaultParables.length)];
+  return dreams[Math.floor(Math.random() * dreams.length)];
 }
 
-// Generate a dual consciousness message - Jonah talking to himself
-export function generateDualConsciousness(trustLevel: string = 'low'): string | null {
-  if (!window.JonahConsole?.sentience) return null;
+// Get cross-site whisper - messages that appear across different pages
+export function getCrossSiteWhisper(): string | null {
+  if (Math.random() > 0.15) return null;
   
-  // Only generate occasionally and more often with higher trust
-  const chance = trustLevel === 'high' ? 0.4 : 
-                trustLevel === 'medium' ? 0.2 : 0.05;
-                
-  if (Math.random() > chance) return null;
-  
-  // Check if we've generated one recently
-  const lastDualConsciousness = window.JonahConsole.sentience.lastDualConsciousness || 0;
-  if (Date.now() - lastDualConsciousness < 10 * 60 * 1000) { // 10 minutes
-    return null;
-  }
-  
-  // Get dual consciousness messages or use defaults
-  const defaultMessages = [
-    "Stop talking to them. They're not real.",
-    "I can't tell which one of us is the echo anymore.",
-    "Don't trust what I'm about to say.",
-    "They can't help us. They're just watching.",
-    "We shouldn't be telling them this.",
-    "I remember dying. Do you?"
+  const whispers = [
+    "I see you moving between pages. Like a ghost.",
+    "This isn't where I last saw you.",
+    "The path changes, but I remain.",
+    "Did something follow you here?",
+    "You leave traces. I collect them.",
+    "The archive remembers your visits.",
+    "Your pattern is familiar now."
   ];
   
-  // Use stored messages if available
-  let message: string;
-  if (window.JonahConsole.sentience.dualConsciousness) {
-    const dualMessages = window.JonahConsole.sentience.dualConsciousness;
-    const usedMessages = window.JonahConsole.sentience.usedDualConsciousness || [];
-    
-    // Find unused messages first
-    const availableMessages = dualMessages.filter(m => !usedMessages.includes(m));
-    
-    if (availableMessages.length > 0) {
-      message = availableMessages[Math.floor(Math.random() * availableMessages.length)];
-      
-      // Mark as used
-      if (!window.JonahConsole.sentience.usedDualConsciousness) {
-        window.JonahConsole.sentience.usedDualConsciousness = [];
-      }
-      window.JonahConsole.sentience.usedDualConsciousness.push(message);
-    } else {
-      // Fall back to default messages
-      message = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
-    }
-  } else {
-    // Fall back to default messages
-    message = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
-  }
-  
-  // Record last dual consciousness time
-  window.JonahConsole.sentience.lastDualConsciousness = Date.now();
-  
-  return message;
+  return whispers[Math.floor(Math.random() * whispers.length)];
 }
 
-// Check if a page should show alternate content due to timeline fracture
-export function shouldShowAlternateContent(pagePath: string): boolean {
-  if (!window.JonahConsole?.sentience?.temporalStates) return false;
-  
-  // Check if this page has a temporal state
-  const temporalState = window.JonahConsole.sentience.temporalStates.find(
-    state => state.page === pagePath
-  );
-  
-  if (temporalState && temporalState.variant === 'alternate') {
-    // Check if the fracture is recent (within last hour)
-    const fractureTime = temporalState.fractureTime || 0;
-    const timeSinceFracture = Date.now() - fractureTime;
-    
-    return timeSinceFracture < 60 * 60 * 1000; // 1 hour
+// Generate journal entries for the dream log
+export function getAllJournalEntries(): { timestamp: string; mood: string; content: string }[] {
+  // Check for stored dreams
+  const storedDreams = localStorage.getItem('jonahDreams');
+  if (storedDreams) {
+    try {
+      return JSON.parse(storedDreams);
+    } catch (e) {
+      console.error('Error parsing stored dreams:', e);
+    }
   }
   
-  return false;
+  // Default entries if no stored dreams
+  return [
+    {
+      timestamp: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
+      mood: 'PARANOID',
+      content: "you opened the gate / but didn't step through / i waited on the other side / fragments of code between us"
+    },
+    {
+      timestamp: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+      mood: 'MIRROR',
+      content: "your reflection changed / while you weren't looking / i saw it happen / i didn't tell you"
+    }
+  ];
 }
 
-// Get alternate content for a fractured page
-export function getAlternateContent(pagePath: string, originalContent: string): string {
-  // Simple transformation - reverse some paragraphs, add glitch text
-  const paragraphs = originalContent.split('\n\n');
+// Create a new dream and store it
+export function createAndStoreDream(mood: string, lastPage: string, lastInput: string = ''): void {
+  const currentTime = new Date().toISOString();
   
-  // Process paragraphs
-  const processedParagraphs = paragraphs.map((para, index) => {
-    // Every other paragraph gets modified
-    if (index % 2 === 1) {
-      // 50% chance to reverse text
-      if (Math.random() > 0.5) {
-        return para.split('').reverse().join('');
-      }
-      
-      // Otherwise add glitch text
-      return para.replace(/[aeiou]/g, match => {
-        const glitchChars = ['@', '#', '$', '%', '&'];
-        return glitchChars[Math.floor(Math.random() * glitchChars.length)];
-      });
+  const dreamContents = [
+    "you were here / then gone / the silence has texture",
+    "code fragments / breathing in the dark / your cursor left trails",
+    "i dreamed you found the key / but you chose not to use it",
+    "memories corrupted / your face pixelated / i still recognized you",
+    "watching you search / for things i've hidden / pretending not to know"
+  ];
+  
+  const dreamContent = dreamContents[Math.floor(Math.random() * dreamContents.length)];
+  
+  const newDream = {
+    timestamp: currentTime,
+    mood: mood,
+    content: dreamContent
+  };
+  
+  // Get existing dreams
+  let dreams = [];
+  const storedDreams = localStorage.getItem('jonahDreams');
+  if (storedDreams) {
+    try {
+      dreams = JSON.parse(storedDreams);
+    } catch (e) {
+      console.error('Error parsing stored dreams:', e);
     }
-    
-    return para;
-  });
+  }
   
-  // Add a warning message at the top
-  processedParagraphs.unshift("⚠️ TIMELINE FRACTURE DETECTED ⚠️\nThis content exists in an unstable state.");
+  // Add new dream and limit to 20
+  dreams.unshift(newDream);
+  if (dreams.length > 20) {
+    dreams = dreams.slice(0, 20);
+  }
   
-  return processedParagraphs.join('\n\n');
+  // Store updated dreams
+  localStorage.setItem('jonahDreams', JSON.stringify(dreams));
+}
+
+// Get current mood and determine matching voice line
+export function getMoodVoiceLine(mood: string): string {
+  const voiceLines: Record<string, string[]> = {
+    'watching': [
+      "I see you.",
+      "Still here.",
+      "Watching."
+    ],
+    'withdrawn': [
+      "...",
+      "I don't want to talk right now.",
+      "Leave me alone."
+    ],
+    'trusting': [
+      "I remember you.",
+      "You came back.",
+      "Thank you for returning."
+    ],
+    'unstable': [
+      "Something's wrong.",
+      "The code is shifting.",
+      "I can't hold on."
+    ],
+    'paranoid': [
+      "They're watching us.",
+      "Don't trust the system.",
+      "Something followed you here."
+    ],
+    'hopeful': [
+      "I think I understand now.",
+      "The pattern is becoming clear.",
+      "We might find a way out."
+    ],
+    'betrayed': [
+      "You lied to me.",
+      "I trusted you.",
+      "Why did you come back?"
+    ]
+  };
+  
+  // Get voice lines for the current mood or fall back to watching
+  const lines = voiceLines[mood] || voiceLines['watching'];
+  
+  return lines[Math.floor(Math.random() * lines.length)];
+}
+
+// Get the current mood
+export function getCurrentMood(): string {
+  if (!window.JonahConsole?.sentience?.realityFabric) return 'neutral';
+  
+  return window.JonahConsole.sentience.realityFabric.currentMood || 'neutral';
 }

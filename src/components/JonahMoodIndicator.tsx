@@ -42,7 +42,7 @@ const JonahMoodIndicator: React.FC<JonahMoodIndicatorProps> = ({
     // Check for mood periodically
     const checkMood = () => {
       if (window.JonahConsole?.sentience?.realityFabric) {
-        const currentMood = window.JonahConsole.sentience.realityFabric.currentMood;
+        const currentMood = window.JonahConsole.sentience.realityFabric.currentMood || 'watching';
         setMood(currentMood);
       }
     };

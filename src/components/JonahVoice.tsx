@@ -39,6 +39,23 @@ const JonahVoice: React.FC<JonahVoiceProps> = ({ trustLevel }) => {
     }
   };
   
+  // Function to play audio
+  const playAudio = (audioType: string) => {
+    const audioSrc = audioFiles[audioType]?.default || audioFiles.fallback.default;
+    
+    try {
+      const audio = new Audio(audioSrc);
+      audio.volume = 0.7;
+      
+      // Attempt to play and handle any errors
+      audio.play().catch(error => {
+        console.error("Error playing audio:", error);
+      });
+    } catch (error) {
+      console.error("Error creating audio:", error);
+    }
+  };
+  
   // Check for last visit time
   useEffect(() => {
     const storedVisit = localStorage.getItem('lastVisitTime');
@@ -114,80 +131,9 @@ const JonahVoice: React.FC<JonahVoiceProps> = ({ trustLevel }) => {
     }, 3600000); // Reset after 1 hour
     
     return () => clearTimeout(resetTimer);
-  }, [audioPlayed]);
+  }, []);
   
-  // Function to play audio based on trigger type
-  const playAudio = (triggerType: string) => {
-    // Check if audio exists for this trust level, otherwise use default
-    const trustKey = audioFiles[triggerType][trustLevel] ? trustLevel : 'default';
-    const audioSrc = audioFiles[triggerType][trustKey];
-    
-    if (!audioSrc) {
-      console.error(`No audio found for trigger: ${triggerType}, trust: ${trustKey}`);
-      return;
-    }
-    
-    try {
-      const audio = new Audio(audioSrc);
-      audio.volume = 0.7; // Slightly reduced volume
-      
-      // For looping audio like hum or confess
-      if (triggerType === 'fallback' || triggerType === 'confess') {
-        audio.loop = true;
-      }
-      
-      // Add fade in effect for smoother audio experience
-      audio.volume = 0;
-      const fadeIn = setInterval(() => {
-        if (audio.volume < 0.7) {
-          audio.volume += 0.05;
-        } else {
-          clearInterval(fadeIn);
-        }
-      }, 50);
-      
-      audio.play().catch(err => {
-        console.warn('Audio playback prevented:', err);
-        // Most browsers require user interaction before audio can play
-      });
-      
-      // Add event to console for debugging
-      console.log(`%cJonah Voice: ${triggerType} triggered`, "color: #8B3A40;");
-      
-      // Dispatch a custom event that other components can listen to
-      document.dispatchEvent(new CustomEvent('jonahVoicePlayed', { 
-        detail: { triggerType, trustLevel } 
-      }));
-      
-      return audio;
-    } catch (error) {
-      console.error('Error playing audio:', error);
-      return null;
-    }
-  };
-  
-  // Expose the play function to the global window object for other components
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.playJonahAudio = (triggerType: string) => playAudio(triggerType);
-    }
-    
-    return () => {
-      if (typeof window !== 'undefined') {
-        delete window.playJonahAudio;
-      }
-    };
-  }, [trustLevel]);
-  
-  // No UI elements to render
-  return null;
+  return null; // This component doesn't render anything visible
 };
-
-// Add to the global window type
-declare global {
-  interface Window {
-    playJonahAudio?: (triggerType: string) => void;
-  }
-}
 
 export default JonahVoice;

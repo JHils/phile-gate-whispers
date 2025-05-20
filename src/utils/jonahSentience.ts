@@ -1,4 +1,3 @@
-
 // Jonah Console Personality System
 import { toast } from "@/components/ui/use-toast";
 
@@ -27,6 +26,12 @@ export interface SentienceData {
     mood: string;
     dreamState: boolean;
     lastDreamTime: number;
+    currentMood?: string;
+    moodChangeTime?: number;
+  };
+  audio?: {
+    lastPlayed: string;
+    unlockedVoiceLogs: string[];
   };
 }
 
@@ -60,6 +65,10 @@ export function initializeSentience() {
           mood: "neutral",
           dreamState: false,
           lastDreamTime: 0
+        },
+        audio: {
+          lastPlayed: "",
+          unlockedVoiceLogs: []
         }
       }
     };
@@ -89,6 +98,10 @@ export function initializeSentience() {
         mood: "neutral",
         dreamState: false,
         lastDreamTime: 0
+      },
+      audio: {
+        lastPlayed: "",
+        unlockedVoiceLogs: []
       }
     };
   }

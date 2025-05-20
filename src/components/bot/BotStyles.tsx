@@ -3,110 +3,98 @@ import React from 'react';
 
 const BotStyles: React.FC = () => {
   return (
-    <style jsx="true" global="true">{`
-      /* Bot container animations */
-      @keyframes botEnter {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      
-      @keyframes botExit {
-        from { opacity: 1; transform: translateY(0); }
-        to { opacity: 0; transform: translateY(20px); }
-      }
-      
-      @keyframes botMinimize {
-        from { height: var(--full-height); }
-        to { height: 42px; }
-      }
-      
-      @keyframes botMaximize {
-        from { height: 42px; }
-        to { height: var(--full-height); }
-      }
-      
-      /* Message typing animation */
-      @keyframes typingAnimation {
-        0% { opacity: 0.3; }
-        50% { opacity: 1; }
-        100% { opacity: 0.3; }
-      }
-      
-      .typing-dot {
-        animation: typingAnimation 1.5s infinite ease-in-out;
-      }
-      
-      .typing-dot:nth-child(1) { animation-delay: 0s; }
-      .typing-dot:nth-child(2) { animation-delay: 0.5s; }
-      .typing-dot:nth-child(3) { animation-delay: 1s; }
-      
-      /* Glitch effects */
-      @keyframes glitch {
-        0% {
-          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-          transform: translate(0);
+    <style dangerouslySetInnerHTML={{
+      __html: `
+        /* Bot container styles */
+        .jonah-bot-container {
+          backdrop-filter: blur(10px);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          transition: all 0.3s ease-in-out;
         }
-        20% {
-          clip-path: polygon(0 20%, 100% 20%, 100% 21%, 0 21%);
-          transform: translate(-5px, 5px);
+
+        /* Bot icon animation */
+        .jonah-bot-icon {
+          transition: transform 0.3s ease, filter 0.3s ease;
         }
-        30% {
-          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-          transform: translate(0);
+        
+        .jonah-bot-icon:hover {
+          transform: scale(1.05);
         }
-        50% {
-          clip-path: polygon(0 60%, 100% 60%, 100% 61%, 0 61%);
-          transform: translate(5px, 0);
+        
+        /* Glitch animation */
+        @keyframes glitch {
+          0% {
+            transform: translate(0);
+          }
+          20% {
+            transform: translate(-2px, 2px);
+          }
+          40% {
+            transform: translate(-2px, -2px);
+          }
+          60% {
+            transform: translate(2px, 2px);
+          }
+          80% {
+            transform: translate(2px, -2px);
+          }
+          100% {
+            transform: translate(0);
+          }
         }
-        52% {
-          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-          transform: translate(0);
+        
+        .glitch-effect {
+          animation: glitch 0.5s infinite;
         }
-        70% {
-          clip-path: polygon(0 85%, 100% 85%, 100% 86%, 0 86%);
-          transform: translate(-3px, 0);
+        
+        /* Chat bubble animation */
+        .message-bubble {
+          animation: fadeIn 0.3s ease-out;
         }
-        72% {
-          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-          transform: translate(0);
+        
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-        100% {
-          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-          transform: translate(0);
+        
+        /* Typing indicator animation */
+        .typing-indicator span {
+          animation: blink 1.4s infinite both;
         }
-      }
-      
-      .animate-glitch {
-        animation: glitch 2s ease-in-out infinite;
-      }
-      
-      /* Dream mode styles */
-      .jonah-dream-mode .bot-message {
-        font-style: italic;
-        text-shadow: 0 0 8px rgba(255,0,0,0.5);
-      }
-      
-      /* Ghost text effect */
-      @keyframes ghostFadeIn {
-        0% { opacity: 0; filter: blur(10px); }
-        100% { opacity: 0.7; filter: blur(1px); }
-      }
-      
-      .ghost-text {
-        animation: ghostFadeIn 2s ease-out forwards;
-        pointer-events: none;
-      }
-      
-      /* Console hint animation */
-      @keyframes consoleBlink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
-      }
-      
-      .console-hint {
-        animation: consoleBlink 1.5s infinite ease-in-out;
-      }
-    `}</style>
+        
+        .typing-indicator span:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+        
+        @keyframes blink {
+          0% {
+            opacity: 0.1;
+          }
+          20% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0.1;
+          }
+        }
+        
+        /* Dream mode styles */
+        .jonah-dream-mode {
+          filter: hue-rotate(30deg) saturate(1.5);
+        }
+      `
+    }} />
   );
 };
 

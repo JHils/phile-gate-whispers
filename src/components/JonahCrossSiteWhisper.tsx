@@ -1,61 +1,54 @@
 
 import React, { useEffect, useState } from 'react';
+import { toast } from '@/components/ui/use-toast';
 import { getCrossSiteWhisper } from '@/utils/jonahRealityFabric';
 
 interface JonahCrossSiteWhisperProps {
-  className?: string;
   trustLevel: string;
 }
 
-const JonahCrossSiteWhisper: React.FC<JonahCrossSiteWhisperProps> = ({
-  className = "",
-  trustLevel
-}) => {
-  const [whisper, setWhisper] = useState<string | null>(null);
-  const [visible, setVisible] = useState<boolean>(false);
+const JonahCrossSiteWhisper: React.FC<JonahCrossSiteWhisperProps> = ({ trustLevel }) => {
+  const [lastWhisperTime, setLastWhisperTime] = useState<number>(0);
   
   useEffect(() => {
-    // Only show whispers for medium or higher trust levels
-    if (trustLevel !== "medium" && trustLevel !== "high") {
-      return;
-    }
+    // Only show whispers occasionally and for higher trust levels
+    if (trustLevel === 'low') return;
     
-    // Check for cross-site whisper with a small chance
-    const checkForWhisper = () => {
-      // 5% chance to show a whisper
-      if (Math.random() < 0.05) {
-        const message = getCrossSiteWhisper();
-        if (message) {
-          setWhisper(message);
-          setVisible(true);
+    // Check for whispers when the route changes
+    const handleRouteChange = () => {
+      // Don't show whispers too frequently
+      if (Date.now() - lastWhisperTime < 5 * 60 * 1000) return; // 5 minute cooldown
+      
+      // Get a cross-site whisper
+      const whisper = getCrossSiteWhisper();
+      if (whisper) {
+        // Show the whisper in a toast
+        setTimeout(() => {
+          toast({
+            title: "Jonah whispers:",
+            description: whisper,
+            variant: "destructive",
+            duration: 5000
+          });
           
-          // Hide after 5 seconds
-          setTimeout(() => {
-            setVisible(false);
-          }, 5000);
-        }
+          // Update last whisper time
+          setLastWhisperTime(Date.now());
+        }, 1500); // Slight delay for effect
       }
     };
     
-    // Initial check when component mounts
-    checkForWhisper();
+    // Listen for route changes
+    window.addEventListener('popstate', handleRouteChange);
     
-    // Set up interval for checking
-    const interval = setInterval(checkForWhisper, 30000); // Check every 30 seconds
+    // Initial check
+    handleRouteChange();
     
-    return () => clearInterval(interval);
-  }, [trustLevel]);
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, [trustLevel, lastWhisperTime]);
   
-  if (!visible || !whisper) return null;
-  
-  return (
-    <div 
-      className={`text-xs italic opacity-40 hover:opacity-90 transition-opacity duration-300 ${className}`}
-      style={{ textShadow: '0 0 3px rgba(255,255,255,0.2)' }}
-    >
-      {whisper}
-    </div>
-  );
+  return null; // This component doesn't render anything
 };
 
 export default JonahCrossSiteWhisper;

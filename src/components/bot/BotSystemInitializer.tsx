@@ -23,7 +23,6 @@ const BotSystemInitializer: React.FC = () => {
         score: 0,
         failCount: 0,
         rank: "drifter",
-        sessionStartTime: Date.now(),
         whispersFound: [],
         jokesDisplayed: [],
         storyFlags: [],
@@ -63,7 +62,9 @@ const BotSystemInitializer: React.FC = () => {
             anomalies: 0,
             mood: "neutral",
             dreamState: false,
-            lastDreamTime: 0
+            lastDreamTime: 0,
+            currentMood: "watching",
+            moodChangeTime: Date.now()
           }
         }
       };

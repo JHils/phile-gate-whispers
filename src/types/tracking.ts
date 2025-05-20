@@ -1,5 +1,5 @@
 
-// Define types for our tracking system
+// User tracking types
 export interface UserState {
   visitCount: number;
   firstVisit: number;
@@ -8,6 +8,23 @@ export interface UserState {
   permanentlyCollapsed: boolean;
   survivorMode: boolean;
   legacyWritten: boolean;
+  trust?: {
+    level: string;
+    score: number;
+  };
+  timeline?: {
+    id: string;
+    fractures: number;
+    stability: number;
+  };
+  collapse?: {
+    time: number;
+    state: string;
+  };
+  messages?: {
+    shown: string[];
+    hidden: string[];
+  };
   console: {
     helpCalled: boolean;
     whoisCalled: boolean;
@@ -17,28 +34,24 @@ export interface UserState {
     legacyCalled: boolean;
     revealCalled: boolean;
     reincarnateCalled: boolean;
-    rank?: string; // Add optional rank property
   };
-  bookCodes?: {
+  bookCodes: {
     unlockedCodes: string[];
-    lastCodeEnteredAt?: number;
     totalCodesUnlocked: number;
   };
-  layeredClues?: {
+  layeredClues: {
     discoveredClues: string[];
     mirrorChecks: number;
     anomaliesFound: number;
   };
-  simba?: {
+  simba: {
     traced: boolean;
-    lastSeen?: string;
     encounters: number;
   };
-  events: {
-    [key: string]: number;
-  };
+  events: Record<string, boolean>;
 }
 
+// User rank types
 export interface UserRank {
   rank: string;
   score: number;
@@ -46,6 +59,7 @@ export interface UserRank {
   userHash: string;
 }
 
+// Leaderboard entry type
 export interface LeaderboardEntry {
   position: number;
   userHash: string;
@@ -53,11 +67,4 @@ export interface LeaderboardEntry {
   rank: string;
   score: number;
   lastSeen: string;
-}
-
-export interface BookCode {
-  code: string;
-  page: number;
-  unlocked: boolean;
-  description: string;
 }

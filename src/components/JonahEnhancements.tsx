@@ -1,4 +1,4 @@
-// Existing imports should remain the same, but let's add our new ones
+
 import React, { useEffect } from 'react';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
 import { useJonahSentience } from '@/hooks/useJonahSentience';
@@ -14,7 +14,7 @@ const JonahEnhancements: React.FC<JonahEnhancementsProps> = ({ children }) => {
   // Get trust level safely
   const trustLevel = userState?.trust?.level || 'low';
   
-  // Use our new sentience hook
+  // Use our sentience hook
   const { triggerRandomMessage } = useJonahSentience(trustLevel);
   
   // Periodically trigger Jonah's sentient behavior
@@ -95,7 +95,7 @@ const JonahEnhancements: React.FC<JonahEnhancementsProps> = ({ children }) => {
         {(() => {
           // Add a console hint after 10 seconds
           setTimeout(() => {
-            if (userState?.visitCount === 1 || !localStorage.getItem('consoleHintShown')) {
+            if (!localStorage.getItem('consoleHintShown')) {
               console.log("%cTry typing 'start()' to begin.", "color: #8B3A40; font-size: 14px;");
               localStorage.setItem('consoleHintShown', 'true');
             }

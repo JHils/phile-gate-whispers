@@ -19,7 +19,7 @@ export function useRealityFabric(trustLevel: string) {
     // Function to check and update mood
     const checkMood = () => {
       if (window.JonahConsole?.sentience?.realityFabric) {
-        const currentMood = window.JonahConsole.sentience.realityFabric.currentMood;
+        const currentMood = window.JonahConsole.sentience.realityFabric.currentMood || 'watching';
         setMood(currentMood);
         
         // Track last mood change time
