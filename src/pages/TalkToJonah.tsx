@@ -1,14 +1,10 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { toast } from "@/components/ui/use-toast";
+import React, { useRef } from 'react';
 import { useJonahChat } from '@/hooks/useJonahChat';
 import JonahChatHeader from '@/components/jonahChat/JonahChatHeader';
 import JonahChatInput from '@/components/jonahChat/JonahChatInput';
 import JonahChatMessages from '@/components/jonahChat/JonahChatMessages';
-import JonahEmotionalIndicators from '@/components/jonahChat/JonahEmotionalIndicators';
-
-// Import types
-import { EmotionCategory, EmotionalTrend } from '@/utils/jonahAdvancedBehavior/types';
+import JonahChatContainer from '@/components/jonahChat/JonahChatContainer';
 
 const TalkToJonah: React.FC = () => {
   const {
@@ -29,13 +25,8 @@ const TalkToJonah: React.FC = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
   return (
-    <div className="min-h-screen bg-black text-green-400 p-4 flex flex-col">
+    <JonahChatContainer>
       <JonahChatHeader 
         jonahMood={jonahMood} 
         emotionalTrend={emotionalTrend} 
@@ -58,7 +49,7 @@ const TalkToJonah: React.FC = () => {
         setInput={setInput}
         handleSendMessage={handleSendMessage}
       />
-    </div>
+    </JonahChatContainer>
   );
 };
 
