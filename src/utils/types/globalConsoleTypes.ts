@@ -117,6 +117,17 @@ declare global {
     wearingYouNow?: () => void;
     toggleWrath?: () => void;
     
+    // New console commands (consoleNewCommands.ts)
+    avianBlessing?: () => void;
+    blessMe?: () => void;
+    initiateBirdProtocol?: () => void;
+    fleetSeenYou?: () => void;
+    messageYourself?: () => void;
+    bullsBalls?: () => void;
+    gav007?: () => void;
+    louisBarton?: () => void;
+    bridgeWhisperer?: () => void;
+    
     // Audio and miscellaneous
     displayRandomJoke?: () => void;
     showStatus?: () => Promise<void>;
