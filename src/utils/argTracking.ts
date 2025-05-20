@@ -148,3 +148,146 @@ declare global {
   }
 }
 
+// NEW FUNCTIONS TO FIX IMPORT ERRORS
+
+/**
+ * Checks if the user has been idle for a certain period of time
+ * and triggers ARG-related behaviors if so
+ */
+export const checkIdleTime = (): string | null => {
+  if (!window.JonahConsole || !window.JonahConsole.argData) return null;
+  
+  const lastTime = window.JonahConsole.argData.lastInteractionTime;
+  if (!lastTime) return null;
+  
+  // Calculate idle time in minutes
+  const now = new Date();
+  const lastInteraction = new Date(lastTime);
+  const idleMinutes = Math.floor((now.getTime() - lastInteraction.getTime()) / (60 * 1000));
+  
+  // Record idle triggers
+  if (idleMinutes >= 5) {
+    // Record that user was idle for 5+ minutes
+    window.JonahConsole.argData.idleTriggers["idle5min"] = now.toISOString();
+    window.JonahConsole.argData.lastIdleTime = now.toISOString();
+    return "Your absence was... noticed.";
+  }
+  
+  if (idleMinutes >= 2) {
+    window.JonahConsole.argData.lastIdleTime = now.toISOString();
+    return "Staring into the distance won't help.";
+  }
+  
+  return null;
+};
+
+/**
+ * Updates the last user interaction time
+ */
+export const updateInteractionTime = (): void => {
+  if (window.JonahConsole && window.JonahConsole.argData) {
+    window.JonahConsole.argData.lastInteractionTime = new Date().toISOString();
+  }
+};
+
+/**
+ * Tracks when a user visits a secret page
+ */
+export const trackSecretPageVisit = (pageName: string): void => {
+  if (window.JonahConsole && window.JonahConsole.argData) {
+    if (!window.JonahConsole.argData.secretPagesVisited) {
+      window.JonahConsole.argData.secretPagesVisited = [];
+    }
+    
+    if (!window.JonahConsole.argData.secretPagesVisited.includes(pageName)) {
+      window.JonahConsole.argData.secretPagesVisited.push(pageName);
+      console.log(`%cARG: Secret page '${pageName}' has been discovered.`, "color: #32ff9a; font-size:12px;");
+    }
+  }
+};
+
+/**
+ * Gets an ARG response based on the current page and trust level
+ */
+export const getARGResponse = (pathname: string, trustLevel: string): string | null => {
+  // Special ARG responses for various pages
+  const specialPages: Record<string, Record<string, string>> = {
+    "/gatekeeper": {
+      high: "He was always watching. But now, so are you.",
+      medium: "The Gatekeeper isn't just a story.",
+      low: "Be careful what you uncover here."
+    },
+    "/mirror": {
+      high: "It wasn't your reflection. It was mine.",
+      medium: "Something watches from the other side.",
+      low: "Mirrors remember what stands before them."
+    },
+    "/legacy": {
+      high: "These pages were written in blood.",
+      medium: "Legacy is just another word for haunting.",
+      low: "Some stories should stay forgotten."
+    }
+  };
+  
+  // Check if we're on a special page
+  const pagePath = Object.keys(specialPages).find(page => pathname.includes(page));
+  if (pagePath && specialPages[pagePath]) {
+    return specialPages[pagePath][trustLevel] || specialPages[pagePath].low;
+  }
+  
+  // Random chance (10%) of returning an ARG hint on other pages
+  if (Math.random() < 0.1) {
+    const hints = [
+      "The coin still spins somewhere.",
+      "Check the source. The real source.",
+      "Three clicks in the right place opens doors.",
+      "Not all whispers are meant to be heard.",
+      "Have you tried the console lately?"
+    ];
+    return hints[Math.floor(Math.random() * hints.length)];
+  }
+  
+  return null;
+};
+
+/**
+ * Generates a testament message based on collected user data
+ */
+export const generateTestament = (username?: string): string => {
+  const user = username || localStorage.getItem('username') || "stranger";
+  
+  let testament = `%c/TESTAMENT TO ${user.toUpperCase()}/%c\n\n`;
+  const testamentStyle = "color: #8B3A40; font-size:16px; font-weight:bold;";
+  const textStyle = "color: #475B74; font-size:14px;";
+  
+  // Get user progress data
+  const fragments = window.JonahConsole?.argData?.memoryFragments?.length || 0;
+  const pages = window.JonahConsole?.argData?.secretPagesVisited?.length || 0;
+  const commands = window.JonahConsole?.usedCommands?.length || 0;
+  
+  testament += `I've watched you uncover ${fragments} memory fragments.\n`;
+  testament += `You've found ${pages} hidden paths in the narrative.\n`;
+  testament += `${commands} commands have passed between us.\n\n`;
+  
+  // Add specific testimonials based on progress
+  if (fragments > 0) {
+    testament += "The fragments speak of you now. You're part of the pattern.\n";
+  }
+  
+  if (pages > 2) {
+    testament += "Few readers go this deep. What are you looking for?\n";
+  }
+  
+  if (commands > 5) {
+    testament += "Your persistence is... familiar. Like hers.\n";
+  }
+  
+  // Add timestamp
+  testament += `\nTestament recorded: ${new Date().toISOString()}\n`;
+  testament += "Remember: The Gate swings both ways.";
+  
+  console.log(testament, testamentStyle, textStyle);
+  
+  return "Your testament has been recorded. The Gate acknowledges you.";
+};
+
