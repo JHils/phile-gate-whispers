@@ -28,6 +28,7 @@ import { initializeFuzzyStoryMatching } from "./fuzzyStoryMatching";
 import { initializeConsoleTracking, initializeInteractiveCommands } from "./consoleTrackingUtils";
 import { initializeAudioSystem } from "./jonahAudio";
 import { initializeMemoryParanoia } from "./consoleMemoryParanoia";
+import { initializeAdvancedBehavior } from "./jonahAdvancedBehavior";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -48,6 +49,9 @@ export const initializeConsoleCommands = (
 ) => {
   // Initialize the JonahConsole state
   initializeConsoleTracking();
+  
+  // Initialize advanced behavior system
+  initializeAdvancedBehavior();
   
   // Initialize sentience system
   initializeSentience();

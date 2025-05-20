@@ -1,6 +1,6 @@
 
 /**
- * Jonah's varying length response system
+ * Jonah's response length variation system
  */
 
 // Generate varying length responses (short vs. reflective vs. story)

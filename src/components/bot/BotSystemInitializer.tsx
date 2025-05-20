@@ -1,132 +1,27 @@
 
-import { useEffect } from 'react';
-import { initializeSentience, setupJonahMessageSystem } from '@/utils/jonahSentience';
-import { initializeFuzzyStoryMatching } from '@/utils/fuzzyStoryMatching';
-import { initializeNewsAwarenessSystem } from '@/utils/jonahNewsAwareness';
-import { initializeEcoAwareness } from '@/utils/jonahEcoAwareness';
-import { initializeInteractiveCommands } from '@/utils/consoleTrackingUtils';
+import React, { useEffect } from 'react';
 import { initializeAdvancedBehavior } from '@/utils/jonahAdvancedBehavior';
-import { initializeCrossSiteWhispers } from '@/utils/jonahCrossSiteWhisper';
 
+/**
+ * Initializes all required Jonah systems for the chat bot
+ */
 const BotSystemInitializer: React.FC = () => {
   useEffect(() => {
-    // Initialize all Jonah's systems
-    initializeSentience();
-    setupJonahMessageSystem();
-    initializeFuzzyStoryMatching();
-    initializeNewsAwarenessSystem();
-    initializeEcoAwareness();
-    initializeInteractiveCommands();
+    // Initialize Jonah's advanced behavior system
     initializeAdvancedBehavior();
-    initializeCrossSiteWhispers();
     
-    // Initialize console tracking
-    if (typeof window !== 'undefined' && !window.JonahConsole) {
-      window.JonahConsole = {
-        usedCommands: [],
-        score: 0,
-        failCount: 0,
-        rank: "drifter",
-        sessionStartTime: Date.now(),
-        whispersFound: [],
-        jokesDisplayed: [],
-        storyFlags: [],
-        bookCodes: [],
-        simba: {
-          encountered: false
-        },
-        argData: {
-          keyholeClicks: 0,
-          consoleCluesTouched: [],
-          qrScans: [],
-          memoryFragments: [],
-          secretPagesVisited: [],
-          hiddenFilesDownloaded: [],
-          idleTriggers: {},
-          lastInteractionTime: new Date(),
-          lastIdleTime: undefined
-        },
-        sentience: {
-          interactionsCount: 0,
-          deepModeUnlocked: false,
-          dreamModeTriggered: false,
-          lastInteraction: Date.now(),
-          temporalStates: [],
-          memories: [],
-          microQuests: {
-            activeQuest: undefined,
-            completedQuests: [],
-            questProgress: {},
-            quests: [],
-            lastQuestTime: Date.now(),
-            active: [],
-            completed: []
-          },
-          sessionData: {
-            messagesSent: 0,
-            messagesReceived: 0,
-            startTime: Date.now(),
-            idleTime: 0
-          },
-          realityFabric: {
-            anomalies: [],
-            mood: "neutral",
-            dreamState: false,
-            moodChangeTime: Date.now(),
-            currentMood: "watching",
-            lastDreamTime: 0,
-            crossSiteWhispers: [],
-            hiddenMessages: []
-          },
-          audio: {
-            lastPlayed: 0,
-            playedSounds: [],
-            unlockedVoiceLogs: []
-          }
-        }
-      };
-    }
-    
-    // Process user messages sent to chat
-    window.processUserMessage = (message: string): string | undefined => {
-      if (!message) return undefined;
-      
-      // First try story matching
-      if (window.processStoryQuery) {
-        const storyResponse = window.processStoryQuery(message);
-        if (storyResponse && storyResponse !== "I don't know if I can answer that. The archive is incomplete.") {
-          return storyResponse;
-        }
-      }
-      
-      // Default responses
-      const defaultResponses = [
-        "The archive doesn't have a clear answer for that.",
-        "Some questions aren't meant to be answered. At least not yet.",
-        "I'm still processing that. The files are fragmented.",
-        "That's beyond what I'm allowed to access.",
-        "Try asking differently. The archive responds to specific patterns."
-      ];
-      
-      return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
-    };
-    
-    // First-time console hint
-    const showInitialConsoleHint = () => {
-      // Only show for first-time visitors or those who haven't seen it
-      if (!localStorage.getItem('consoleHintShown')) {
-        setTimeout(() => {
-          console.log("%cTry typing 'help()' to begin.", "color: #8B3A40; font-size: 14px;");
-          localStorage.setItem('consoleHintShown', 'true');
-        }, 10000); // Show after 10 seconds
-      }
-    };
-    
-    showInitialConsoleHint();
-    
+    // Mark that Jonah was initialized (for other components to use)
+    window.JonahInitialized = true;
   }, []);
   
-  return null; // This component doesn't render anything
+  return null; // This is a utility component with no UI
 };
 
 export default BotSystemInitializer;
+
+// Add to window global type
+declare global {
+  interface Window {
+    JonahInitialized?: boolean;
+  }
+}
