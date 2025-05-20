@@ -4,6 +4,7 @@ import { initializeSentience, setupJonahMessageSystem } from '@/utils/jonahSenti
 import { initializeFuzzyStoryMatching } from '@/utils/fuzzyStoryMatching';
 import { initializeNewsAwarenessSystem } from '@/utils/jonahNewsAwareness';
 import { initializeEcoAwareness } from '@/utils/jonahEcoAwareness';
+import { initializeInteractiveCommands } from '@/utils/consoleTrackingUtils';
 
 const BotSystemInitializer: React.FC = () => {
   useEffect(() => {
@@ -13,6 +14,7 @@ const BotSystemInitializer: React.FC = () => {
     initializeFuzzyStoryMatching();
     initializeNewsAwarenessSystem();
     initializeEcoAwareness();
+    initializeInteractiveCommands();
     
     // Initialize console tracking
     if (typeof window !== 'undefined' && !window.JonahConsole) {
@@ -21,6 +23,25 @@ const BotSystemInitializer: React.FC = () => {
         score: 0,
         failCount: 0,
         rank: "drifter",
+        sessionStartTime: Date.now(),
+        whispersFound: [],
+        jokesDisplayed: [],
+        storyFlags: [],
+        bookCodes: [],
+        simba: {
+          encountered: false
+        },
+        argData: {
+          keyholeClicks: 0,
+          consoleCluesTouched: [],
+          qrScans: [],
+          memoryFragments: [],
+          secretPagesVisited: [],
+          hiddenFilesDownloaded: [],
+          idleTriggers: {},
+          lastInteractionTime: new Date(),
+          lastIdleTime: undefined
+        },
         sentience: {
           interactionsCount: 0,
           deepModeUnlocked: false,
@@ -44,17 +65,6 @@ const BotSystemInitializer: React.FC = () => {
             dreamState: false,
             lastDreamTime: 0
           }
-        },
-        argData: {
-          keyholeClicks: 0,
-          consoleCluesTouched: [],
-          qrScans: [],
-          memoryFragments: [],
-          secretPagesVisited: [],
-          hiddenFilesDownloaded: [],
-          idleTriggers: {},
-          lastInteractionTime: new Date(),
-          lastIdleTime: undefined
         }
       };
     }

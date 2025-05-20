@@ -82,7 +82,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
   }, []);
 
   // Enhanced message handler with sentience integration
-  const handleEnhancedSendMessage = React.useCallback((message: string) => {
+  const handleEnhancedSendMessage = (message: string) => {
     // Process with regular handler first
     handleSendMessage(message);
     
@@ -107,7 +107,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
         }, 1500);
       }
     }, 1000);
-  }, [handleSendMessage, isDreamMode, sentience, triggerRandomMessage]);
+  };
 
   return (
     <>

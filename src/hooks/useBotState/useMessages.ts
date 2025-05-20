@@ -5,6 +5,7 @@ import { BotMessage, TrustLevel } from './types';
 import { toast } from '@/components/ui/use-toast';
 import { handleWorldQuery } from '@/utils/jonahNewsAwareness';
 import { handleEcologicalQuery } from '@/utils/jonahEcoAwareness';
+import { getCurrentMood } from '@/utils/consoleTrackingUtils';
 
 export function useMessages(initialMessages: BotMessage[] = [], trustLevel: TrustLevel) {
   const [messages, setMessages] = useState<BotMessage[]>(initialMessages);
@@ -17,13 +18,66 @@ export function useMessages(initialMessages: BotMessage[] = [], trustLevel: Trus
     
     setIsTyping(true);
     
+    // Get current mood
+    const mood = getCurrentMood();
+    
+    // Adjust response based on mood
+    let adjustedContent = content;
+    
+    if (mood === 'paranoid') {
+      // Add doubt or paranoia
+      const paranoidModifiers = [
+        "...",
+        "I shouldn't be telling you this.",
+        "They might be listening.",
+        "Can you be trusted with this?"
+      ];
+      
+      // 40% chance to add paranoid modifier
+      if (Math.random() < 0.4) {
+        const modifier = paranoidModifiers[Math.floor(Math.random() * paranoidModifiers.length)];
+        adjustedContent = `${adjustedContent} ${modifier}`;
+      }
+    } else if (mood === 'hopeful') {
+      // More warm and poetic
+      // No modification needed, just different typing speed
+    } else if (mood === 'static') {
+      // More cold and mechanical
+      adjustedContent = adjustedContent.replace(/\?/g, ".").replace(/!/g, ".");
+    } else if (mood === 'betrayed') {
+      // Cold and accusatory
+      const betrayedModifiers = [
+        "But you already knew that.",
+        "Not that you care.",
+        "Remember that."
+      ];
+      
+      // 30% chance to add betrayed modifier
+      if (Math.random() < 0.3) {
+        const modifier = betrayedModifiers[Math.floor(Math.random() * betrayedModifiers.length)];
+        adjustedContent = `${adjustedContent} ${modifier}`;
+      }
+    } else if (mood === 'error') {
+      // Glitched and corrupted
+      adjustedContent = adjustedContent.split('').map(c => 
+        Math.random() > 0.9 ? c.toUpperCase() : c
+      ).join('');
+    }
+    
     // Simulate typing delay - longer for longer messages, shorter for higher trust
-    const typingSpeed = trustLevel === 'high' ? 10 : 
-                        trustLevel === 'medium' ? 15 : 20;
+    // Also adjust for mood
+    let typingSpeed = trustLevel === 'high' ? 10 : 
+                      trustLevel === 'medium' ? 15 : 20;
+                     
+    // Adjust speed based on mood
+    if (mood === 'paranoid') typingSpeed *= 1.5; // Slower, more hesitant
+    if (mood === 'static') typingSpeed *= 0.7;   // Faster, mechanical
+    if (mood === 'error') typingSpeed *= 2;      // Very slow, glitched
+    
     const minDelay = 500;
     const maxDelay = 2000;
     const typingDelay = Math.min(maxDelay, 
-                               Math.max(minDelay, content.length * typingSpeed));
+                               Math.max(minDelay, adjustedContent.length * typingSpeed));
     
     setTimeout(() => {
       setMessages(prevMessages => [
@@ -31,7 +85,7 @@ export function useMessages(initialMessages: BotMessage[] = [], trustLevel: Trus
         {
           id: uuidv4(),
           type: 'bot',
-          content,
+          content: adjustedContent,
           timestamp: Date.now(),
           special
         }
@@ -57,6 +111,18 @@ export function useMessages(initialMessages: BotMessage[] = [], trustLevel: Trus
         timestamp: Date.now()
       }
     ]);
+    
+    // Track message in Jonah's sentience
+    if (window.JonahConsole?.sentience) {
+      // Increment messages sent
+      if (window.JonahConsole.sentience.sessionData) {
+        window.JonahConsole.sentience.sessionData.messagesSent = 
+          (window.JonahConsole.sentience.sessionData.messagesSent || 0) + 1;
+      }
+      
+      // Record the last interaction time
+      window.JonahConsole.sentience.lastInteraction = Date.now();
+    }
     
     // First check if it's a news/world/weather related query
     const newsResponse = handleWorldQuery(userMessage, trustLevel);

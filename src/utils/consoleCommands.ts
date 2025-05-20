@@ -25,7 +25,9 @@ import { initializeMirrorSite } from "./jonahMirrorSite";
 import { initializeNewsAwarenessSystem } from "./jonahNewsAwareness";
 import { initializeEcoAwareness } from "./jonahEcoAwareness";
 import { initializeFuzzyStoryMatching } from "./fuzzyStoryMatching";
-import { initializeConsoleTracking } from "./consoleTrackingUtils";
+import { initializeConsoleTracking, initializeInteractiveCommands } from "./consoleTrackingUtils";
+import { initializeAudioSystem } from "./jonahAudio";
+import { initializeMemoryParanoia } from "./consoleMemoryParanoia";
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 
@@ -64,6 +66,15 @@ export const initializeConsoleCommands = (
 
   // Initialize fuzzy story matching system
   initializeFuzzyStoryMatching();
+  
+  // Initialize audio system
+  initializeAudioSystem();
+  
+  // Initialize interactive commands
+  initializeInteractiveCommands();
+  
+  // Initialize memory paranoia system
+  initializeMemoryParanoia();
   
   // Update score and rank from real user state
   const updateConsoleState = async () => {
@@ -157,14 +168,14 @@ Time in session: ${formatSessionTime()}`;
         
         // Show console commands discovered
         const commands = [];
-        if (userState.console.helpCalled) commands.push("help()");
-        if (userState.console.whoisCalled) commands.push("whois()");
-        if (userState.console.gateCalled) commands.push("gate()");
-        if (userState.console.philesCalled) commands.push("philes()");
-        if (userState.console.monsterCalled) commands.push("monster()");
-        if (userState.console.legacyCalled) commands.push("legacy()");
-        if (userState.console.revealCalled) commands.push("reveal()");
-        if (userState.console.reincarnateCalled) commands.push("reincarnate()");
+        if (userState.console?.helpCalled) commands.push("help()");
+        if (userState.console?.whoisCalled) commands.push("whois()");
+        if (userState.console?.gateCalled) commands.push("gate()");
+        if (userState.console?.philesCalled) commands.push("philes()");
+        if (userState.console?.monsterCalled) commands.push("monster()");
+        if (userState.console?.legacyCalled) commands.push("legacy()");
+        if (userState.console?.revealCalled) commands.push("reveal()");
+        if (userState.console?.reincarnateCalled) commands.push("reincarnate()");
         
         setTimeout(() => {
           console.log("%cDiscovered commands: " + commands.join(", "), "color: #8B3A40; font-size:14px;");

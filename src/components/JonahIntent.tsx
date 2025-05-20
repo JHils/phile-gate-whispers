@@ -84,7 +84,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
       setPageEntryTime(Date.now());
       
       // Sometimes generate a page-specific comment
-      if (Math.random() > 0.8 && memory.trustLevelScore > 20) {
+      if (Math.random() > 0.8 && memory.memory.trustLevelScore > 20) {
         setTimeout(() => {
           const pageComments: Record<string, string[]> = {
             '/mirror_phile': [
