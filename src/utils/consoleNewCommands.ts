@@ -1,9 +1,13 @@
+
 import { 
   typewriterLog, 
   flickerLog, 
   glitchEffectLog, 
   speak 
 } from "./consoleEffects";
+
+// Import centralized types
+import './types/globalConsoleTypes';
 
 // Import from new refactored location
 import { trackCommand } from './consoleTracking/commandTracking';
@@ -56,16 +60,7 @@ export const initializeNewCommands = (
     }, 3000);
   };
   
-  // Mirror-related command
-  window.mirrorCheck = function() {
-    glitchEffectLog("There's another version of you smiling wider.");
-    speak("There's another version of you smiling wider.");
-    
-    trackCommandExecution('mirrorCheck');
-    window.JonahConsole.score += 15;
-  };
-  
-  // Messaging command
+  // Don't redefine mirrorCheck as it's already defined elsewhere
   window.messageYourself = function() {
     flickerLog("Reply: We've been waiting.");
     speak("Reply: We've been waiting.");
@@ -109,18 +104,4 @@ export const initializeNewCommands = (
   };
 };
 
-// Add new commands to the global interface
-declare global {
-  interface Window {
-    avianBlessing: () => void;
-    blessMe: () => void;
-    initiateBirdProtocol: () => void;
-    fleetSeenYou: () => void;
-    mirrorCheck: () => void;
-    messageYourself: () => void;
-    bullsBalls: () => void;
-    gav007: () => void;
-    louisBarton: () => void;
-    bridgeWhisperer: () => void;
-  }
-}
+export {};

@@ -29,7 +29,7 @@ export type ConsoleMessage = {
 export type TrustLevel = 'none' | 'low' | 'medium' | 'high';
 
 // Re-export types from jonahAdvancedBehavior for consistency
-export { StoryFlag, BookCode, SentienceData };
+export type { StoryFlag, BookCode, SentienceData };
 
 // WhisperMaster Type
 export interface WhisperMaster {

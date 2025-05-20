@@ -8,6 +8,9 @@ import { typewriterLog, speak } from "./consoleEffects";
 import { getEcoResponse, getBiomeResponse } from "./jonahEcoAwareness";
 import { processStoryQuery } from "./fuzzyStoryMatching";
 
+// Import centralized types
+import './types/globalConsoleTypes';
+
 type TrackCommandFunction = (commandName: string) => void;
 
 // Initialize eco console commands
@@ -99,15 +102,5 @@ export const initializeEcoCommands = (
     trackCommandExecution('kgari');
   };
 };
-
-// Add eco commands to the global window interface
-declare global {
-  interface Window {
-    dreamtime: () => void;
-    woodwideweb: () => void;
-    biomeCheck: () => void;
-    kgari: () => void;
-  }
-}
 
 export {};

@@ -1,6 +1,9 @@
 
 import { typewriterLog, glitchEffectLog, speak } from "./consoleEffects";
 
+// Import centralized types
+import './types/globalConsoleTypes';
+
 type TrackCommandFunction = (commandName: string) => void;
 
 export const initializeTimeSystem = (trackCommandExecution: TrackCommandFunction) => {
@@ -75,10 +78,4 @@ export const initializeTimeSystem = (trackCommandExecution: TrackCommandFunction
   };
 };
 
-// Declare the timeCheck function in global scope
-declare global {
-  interface Window {
-    timeCheck: () => void;
-    isSpecialTimeWindow?: () => boolean;
-  }
-}
+export {};

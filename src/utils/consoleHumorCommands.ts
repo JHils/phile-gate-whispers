@@ -8,6 +8,9 @@ import {
   playMagneticTentStory 
 } from "./consoleEffects";
 
+// Import centralized types
+import './types/globalConsoleTypes';
+
 type TrackCommandFunction = (commandName: string) => void;
 
 // Initialize humor-related commands
@@ -100,17 +103,4 @@ export const initializeHumorCommands = (
   };
 };
 
-// Add humor commands to the global interface
-declare global {
-  interface Window {
-    helpMe: () => void;
-    tea: () => void;
-    trousers: () => void;
-    moustache: () => void;
-    funny: () => void;
-    seenMyself: () => void;
-    youWereHimFirst: () => void;
-    wearingYouNow: () => void;
-    toggleWrath: () => void;
-  }
-}
+export {};

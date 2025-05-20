@@ -1,6 +1,9 @@
 
 import { typewriterLog, glitchEffectLog, speak } from "./consoleEffects";
 
+// Import centralized types
+import './types/globalConsoleTypes';
+
 type TrackCommandFunction = (commandName: string) => void;
 
 export const initializeSimbaSystem = (trackCommandExecution: TrackCommandFunction) => {
@@ -148,11 +151,4 @@ export const initializeSimbaSystem = (trackCommandExecution: TrackCommandFunctio
   };
 };
 
-// Declare the global functions for TypeScript
-declare global {
-  interface Window {
-    traceCat: () => void;
-    feedSimba: () => void;
-    triggerSimbaComment?: (message: string) => void;
-  }
-}
+export {};
