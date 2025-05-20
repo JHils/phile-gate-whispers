@@ -1,7 +1,8 @@
 
 import React from "react";
-import { X, Minus, Terminal, MessageSquare, Shield, Lock, LockOpen } from "lucide-react";
+import { X, Minus } from "lucide-react";
 import { BotMode, TrustLevel } from "@/types/chat";
+import JonahLogo from "../JonahLogo";
 
 interface BotHeaderProps {
   mode: BotMode;
@@ -28,21 +29,6 @@ export const BotHeader: React.FC<BotHeaderProps> = ({
     return "JONAH.log";
   };
 
-  // Get appropriate icon based on mode and trust
-  const renderStatusIcon = () => {
-    if (mode === "console") {
-      return <Terminal className="w-5 h-5 text-green-400 mr-2" />;
-    }
-
-    if (trustLevel === "high") {
-      return <LockOpen className="w-5 h-5 text-blue-400 mr-2" />;
-    } else if (trustLevel === "medium") {
-      return <Shield className="w-5 h-5 text-yellow-400 mr-2" />;
-    } else {
-      return <Lock className="w-5 h-5 text-red-400 mr-2" />;
-    }
-  };
-
   // Get appropriate trust level indicator color
   const getTrustLevelColor = () => {
     if (trustLevel === "high") return "text-blue-400";
@@ -53,7 +39,13 @@ export const BotHeader: React.FC<BotHeaderProps> = ({
   return (
     <div className="flex items-center justify-between bg-gray-800 p-2 rounded-t-lg">
       <div className="flex items-center">
-        {renderStatusIcon()}
+        {/* Use the Eye logo for regular mode, size based on if minimized */}
+        <JonahLogo 
+          variant="eye" 
+          size={isMinimized ? "sm" : "md"} 
+          className="mr-2"
+        />
+        
         <span className="text-sm font-mono">
           {getTitle()}
           {!isMinimized && trustScore !== undefined && (

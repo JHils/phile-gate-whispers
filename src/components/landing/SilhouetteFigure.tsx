@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useIsMobile } from "@/hooks/use-mobile";
+import JonahLogo from '../JonahLogo';
 
 const SilhouetteFigure: React.FC = () => {
   const isMobile = useIsMobile();
@@ -17,6 +18,11 @@ const SilhouetteFigure: React.FC = () => {
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#B09066]/60"></div>
+      
+      {/* Glyph watermark */}
+      <div className="absolute bottom-4 right-4 opacity-40">
+        <JonahLogo variant="glyph" size="lg" />
+      </div>
     </div>
   );
 };

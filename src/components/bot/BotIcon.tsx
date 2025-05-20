@@ -1,6 +1,6 @@
 
 import React from "react";
-import { MessageCircle, KeyRound } from "lucide-react";
+import JonahLogo from "../JonahLogo";
 
 interface BotIconProps {
   isOpen: boolean;
@@ -27,11 +27,10 @@ export const BotIcon: React.FC<BotIconProps> = ({
           ${glitchEffect ? 'glitch-icon' : ''}
           hover:bg-gray-700 transition-all duration-300`}
       >
-        {iconVariant === 2 ? (
-          <KeyRound className="w-5 h-5" />
-        ) : (
-          <MessageCircle className="w-5 h-5" />
-        )}
+        <JonahLogo 
+          variant={iconVariant === 2 ? "glyph" : "eye"} 
+          size="sm" 
+        />
       </button>
     </div>
   );

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import HiddenNav from "../components/HiddenNav";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
@@ -14,6 +13,7 @@ import MessageText from "@/components/index/MessageText";
 import NavLinks from "@/components/index/NavLinks";
 import FooterText from "@/components/index/FooterText";
 import JonahCrossSiteWhisper from "@/components/JonahCrossSiteWhisper";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
@@ -204,6 +204,9 @@ const Index = () => {
       
       {/* Footer text */}
       <FooterText visitCount={userState.visitCount} />
+      
+      {/* New Jonah Footer with Glyph */}
+      <Footer variant="light" />
       
       {/* Hidden data attributes for cross-site presence */}
       <div
