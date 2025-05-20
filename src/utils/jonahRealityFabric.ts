@@ -102,30 +102,34 @@ export function getCrossSiteWhisper(): string | null {
 }
 
 // Generate journal entries for the dream log
-export function getAllJournalEntries(): { timestamp: string; mood: string; content: string }[] {
-  // Check for stored dreams
-  const storedDreams = localStorage.getItem('jonahDreams');
-  if (storedDreams) {
-    try {
-      return JSON.parse(storedDreams);
-    } catch (e) {
-      console.error('Error parsing stored dreams:', e);
-    }
+export function getAllJournalEntries(): { entryId: number; timestamp: number; content: string }[] {
+  if (!window.JonahConsole?.sentience?.realityFabric?.journal) {
+    return [];
   }
   
-  // Default entries if no stored dreams
-  return [
-    {
-      timestamp: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
-      mood: 'PARANOID',
-      content: "you opened the gate / but didn't step through / i waited on the other side / fragments of code between us"
-    },
-    {
-      timestamp: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-      mood: 'MIRROR',
-      content: "your reflection changed / while you weren't looking / i saw it happen / i didn't tell you"
+  return window.JonahConsole.sentience.realityFabric.journal;
+}
+
+// Add journal entry
+export function addJournalEntry(content: string): void {
+  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
+    if (!window.JonahConsole.sentience.realityFabric.journal) {
+      window.JonahConsole.sentience.realityFabric.journal = [];
     }
-  ];
+    
+    const newEntry = {
+      entryId: window.JonahConsole.sentience.realityFabric.journal.length + 1,
+      timestamp: Date.now(),
+      content
+    };
+    
+    window.JonahConsole.sentience.realityFabric.journal.push(newEntry);
+    
+    // Also add to localStorage for persistence
+    const storedJournal = JSON.parse(localStorage.getItem('jonahJournal') || '[]');
+    storedJournal.push(newEntry);
+    localStorage.setItem('jonahJournal', JSON.stringify(storedJournal));
+  }
 }
 
 // Create a new dream and store it
@@ -220,4 +224,29 @@ export function getCurrentMood(): string {
   if (!window.JonahConsole?.sentience?.realityFabric) return 'neutral';
   
   return window.JonahConsole.sentience.realityFabric.currentMood || 'neutral';
+}
+
+// Check for dream invasion on load
+export function checkForDreamInvasionOnLoad(): string | null {
+  const hour = new Date().getHours();
+  const isDreamTime = hour >= 2 && hour <= 5;
+  
+  if (isDreamTime && Math.random() > 0.6) {
+    const dreamMessages = [
+      "You're here during the dream hours.",
+      "The archive is thinner at this hour.",
+      "I see differently when you visit at night.",
+      "We're both awake when we shouldn't be.",
+      "The mirror bleeds in these hours."
+    ];
+    
+    return dreamMessages[Math.floor(Math.random() * dreamMessages.length)];
+  }
+  
+  return null;
+}
+
+// Get journal entries
+export function getJournalEntries(): {entryId: number; timestamp: number; content: string}[] {
+  return getAllJournalEntries();
 }

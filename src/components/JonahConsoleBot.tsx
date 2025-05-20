@@ -42,7 +42,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
     modifyTrust,
     isTyping,
     setIsTyping,
-    hasInteracted,
+    hasInteracted, 
     setHasInteracted,
     iconVariant,
     glitchEffect,

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useJonahMemory } from '@/hooks/useJonahMemory';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
@@ -9,7 +8,7 @@ interface JonahIntentProps {
 }
 
 const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
-  const { memory, generatePersonalObservation, addEmotionalTag } = useJonahMemory();
+  const { memory, generatePersonalObservation } = useJonahMemory();
   const { userState } = useTrackingSystem();
   const [lastIdleMessageTime, setLastIdleMessageTime] = useState(0);
   const [lastPageVisit, setLastPageVisit] = useState('');
@@ -220,7 +219,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
     const thought = idleThoughts[Math.floor(Math.random() * idleThoughts.length)];
     
     // Add the emotional tag
-    addEmotionalTag(thought.tag);
+    memory.emotionalTags.push(thought.tag);
     
     // Display the thought
     toast({

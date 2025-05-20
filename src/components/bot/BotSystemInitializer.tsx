@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { initializeSentience, setupJonahMessageSystem } from '@/utils/jonahSentience';
 import { initializeFuzzyStoryMatching } from '@/utils/fuzzyStoryMatching';

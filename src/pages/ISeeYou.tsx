@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { getJournalEntries, addJournalEntry } from "@/utils/jonahRealityFabric";
+import { getAllJournalEntries, addJournalEntry } from "@/utils/jonahRealityFabric";
 import { useTrackingSystem } from "@/hooks/useTrackingSystem";
 
 const ISeeYou = () => {
@@ -27,7 +26,7 @@ const ISeeYou = () => {
       setAccessGranted(true);
       
       // Get journal entries
-      const journalEntries = getJournalEntries();
+      const journalEntries = getAllJournalEntries();
       setEntries(journalEntries);
       
       // Add special entry for finding this page

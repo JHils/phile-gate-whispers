@@ -1,4 +1,3 @@
-
 // System initializers for Jonah's Philes Phase 3
 import { SentienceData } from "./consoleTypes";
 
@@ -48,7 +47,11 @@ export function initializeSentience(): void {
         dreamModeTriggered: false,
         lastInteraction: Date.now(),
         temporalStates: [],
-        memories: []
+        memories: [],
+        microQuests: {
+          active: [],
+          completed: []
+        }
       };
     }
   }
@@ -145,7 +148,8 @@ export function initializeRealityFabric(): void {
       ],
       usedDreamMessages: [],
       lastVisitTime: Date.now(),
-      anomalies: []
+      anomalies: [],
+      journal: []
     };
     
     // Initialize journal with first entry

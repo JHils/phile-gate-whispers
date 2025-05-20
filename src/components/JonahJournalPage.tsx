@@ -1,6 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
-import { getJournalEntries } from '@/utils/jonahRealityFabric';
+import { getAllJournalEntries, addJournalEntry } from '@/utils/jonahRealityFabric';
 import { useNavigate } from 'react-router-dom';
 
 const JonahJournalPage: React.FC = () => {
@@ -18,7 +17,7 @@ const JonahJournalPage: React.FC = () => {
     }
     
     // Get journal entries
-    const journalEntries = getJournalEntries();
+    const journalEntries = getAllJournalEntries();
     setEntries(journalEntries);
   }, []);
   

@@ -44,7 +44,9 @@ export const useTrackingSystem = () => {
   const trackEvent = useCallback((eventName: string) => {
     setUserState(prevState => {
       const events = { ...prevState.events };
-      events[eventName] = (events[eventName] || 0) + 1;
+      // Make sure we're dealing with a number when incrementing
+      const currentValue = events[eventName];
+      events[eventName] = typeof currentValue === 'number' ? (currentValue as number) + 1 : 1;
       
       // Handle special events
       if (eventName === 'console_help_called') {
@@ -96,7 +98,9 @@ export const useTrackingSystem = () => {
       localStorage.setItem('phileRank', rank.toLowerCase());
       
       // Update rank in userState.console
-      newState.console.rank = rank.toLowerCase();
+      if (newState.console) {
+        newState.console.rank = rank.toLowerCase();
+      }
       
       // Only sync with Supabase occasionally
       if (Date.now() - lastSyncTime > SYNC_COOLDOWN) {
