@@ -25,10 +25,10 @@ const JonahLogo: React.FC<JonahLogoProps> = ({
     lg: 'w-16 h-16'
   }[size];
 
-  // Determine which logo to display
-  // Use glyph as primary, eye as secondary
-  const glyphLogoPath = '/lovable-uploads/7e579479-c6f1-4a36-a1b5-020457999470.png';
-  const eyeLogoPath = '/lovable-uploads/3782590e-764f-4030-909d-2d1982a726d9.png';
+  // Use the new cleaned transparent PNG images
+  // Glitched Glyph as primary, Eye of Memory as secondary
+  const glyphLogoPath = '/lovable-uploads/006a6b5c-46bb-47f8-8e0d-afec1e0151c9.png'; // Jonah_Glitched_Glyph_Logo_Cleaned.png
+  const eyeLogoPath = '/lovable-uploads/d31b1870-0252-45f0-bedf-e9c9ec6eaaab.png'; // Jonah_Eye_of_Memory_Logo_Cleaned.png
   
   const logoPath = variant === 'eye' 
     ? eyeLogoPath
@@ -69,11 +69,12 @@ const JonahLogo: React.FC<JonahLogoProps> = ({
   };
 
   return (
-    <div className={`flex items-center justify-center ${className} ${getGlowClass()}`}>
+    <div className={`flex items-center justify-center ${className} ${getGlowClass()}`} style={{ background: 'transparent' }}>
       <img 
         src={logoPath}
         alt={altText}
         className={`${sizeClass} object-contain ${glitchActive ? 'animate-pulse' : ''}`}
+        style={{ background: 'transparent' }}
       />
     </div>
   );

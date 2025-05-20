@@ -159,10 +159,7 @@ declare global {
     fragmentCheck: () => void;
     secretCheck: () => void;
     idleCheck: () => void;
-    JonahConsole?: {
-      argData: ArgData;
-      usedCommands?: string[];
-    };
+    // Don't redefine JonahConsole here to avoid conflicts with existing definitions
   }
 }
 
