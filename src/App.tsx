@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -47,6 +46,10 @@ import LostSisters from './pages/LostSisters';
 import RememberMe from './pages/RememberMe';
 import Tether from './pages/Tether';
 import Sanctuary from './pages/Sanctuary';
+import UnsaidArchivePage from './pages/UnsaidArchivePage';
+import TestamentPage from './pages/TestamentPage';
+import LogVersionsPage from './pages/LogVersionsPage';
+import EchoLogPage from './components/EchoLogPage';
 
 // Import JonahConsoleBot
 import JonahConsoleBot from './components/JonahConsoleBot';
@@ -138,6 +141,11 @@ function App() {
     { path: '/remember-me', element: <RememberMe /> },
     { path: '/tether', element: <Tether /> },
     { path: '/sanctuary', element: <Sanctuary /> },
+    { path: '/unsaid', element: <UnsaidArchivePage /> },
+    { path: '/testament', element: <TestamentPage /> },
+    { path: '/log-v1', element: <LogVersionsPage /> },
+    { path: '/log-v2', element: <LogVersionsPage /> },
+    { path: '/echo-log', element: <EchoLogPage /> },
     { path: '*', element: <NotFound /> }
   ];
 

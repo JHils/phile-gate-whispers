@@ -6,6 +6,7 @@
 import { jonah_storeMemoryFragment } from './trustSystem';
 import { initializeEnhancedConsole } from './consoleEmotionalEffects';
 import { generateDream } from './dreamSystem';
+import { initializeTestament } from './testament';
 import throttle from 'lodash/throttle';
 
 // Initialize the advanced behavior system
@@ -39,7 +40,18 @@ export function initializeBehavior(): void {
       },
       // Echo chamber system
       echoVault: [],
-      lastEchoTime: 0
+      lastEchoTime: 0,
+      // Unsaid archive system
+      unsaidArchive: [],
+      // Memory systems
+      loopCounters: [],
+      falseMemories: [],
+      memoryCorruption: 0,
+      lastMemoryConflict: 0,
+      // Testament system
+      testament: [],
+      testamentLastView: 0,
+      testamentUnlocked: false
     }));
   }
   
@@ -93,6 +105,9 @@ export function initializeBehavior(): void {
   
   // Initialize enhanced console with emotional effects
   initializeEnhancedConsole();
+  
+  // Initialize testament system
+  initializeTestament();
   
   // Generate a dream if it's been a while since the last session
   const lastInteraction = getBehaviorValue('lastInteraction');

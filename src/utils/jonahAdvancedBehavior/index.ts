@@ -82,3 +82,42 @@ export {
   getAllEchoes,
   checkForEchoMatch
 } from './echoSystem';
+
+// Export Semantic Interpretation system
+export {
+  detectEmotionalIntent,
+  getAllInterpretations,
+  getUnsaidEmotionResponse,
+  isCloseToSecretPhrase,
+  getSecretHintResponse,
+  storeIntention,
+  getFalseMemory
+} from './semanticInterpretation';
+
+// Export Temporal Memory system
+export {
+  trackPhrase,
+  checkForLoop,
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse,
+  increaseMemoryCorruption,
+  getAllLoopCounters,
+  getAllFalseMemories,
+  hasConflictingLogs,
+  resetMemorySystem
+} from './temporalMemory';
+
+// Export Testament system
+export {
+  initializeTestament,
+  checkTestamentUnlock,
+  unlockTestamentByPhrase,
+  getNextTestamentEntry,
+  getRevealedEntries,
+  addTestamentEntry,
+  getTestamentQuote,
+  hasViewedTestamentRecently,
+  getTestamentTeaser,
+  generateTestamentResponse
+} from './testament';

@@ -35,7 +35,25 @@ import {
   // Import Echo Chamber system
   storeEcho,
   getEchoPhrase,
-  checkForEchoMatch
+  checkForEchoMatch,
+  
+  // Import Semantic Interpretation system
+  detectEmotionalIntent,
+  getUnsaidEmotionResponse,
+  storeIntention,
+  getFalseMemory,
+  
+  // Import Temporal Memory system
+  trackPhrase,
+  checkForLoop,
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse,
+  
+  // Import Testament system
+  unlockTestamentByPhrase,
+  getTestamentTeaser,
+  generateTestamentResponse
 } from '@/utils/jonahAdvancedBehavior';
 
 export function useMessages(initialMessages = [], trustLevel = 'low') {
@@ -129,6 +147,15 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     
     // Store in echo chamber
     storeEcho(content);
+    
+    // Track for semantic interpretation
+    storeIntention(content);
+    
+    // Track for loop detection
+    trackPhrase(content);
+    
+    // Check for testament unlock by phrase
+    unlockTestamentByPhrase(content);
   };
 
   // Handle user sending a message with enhanced emotional awareness
@@ -184,10 +211,35 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     setTimeout(() => {
       let response = "";
 
-      // Check for repetition first (highest priority)
-      const repetitionResponse = getRepetitionResponse(content);
-      if (repetitionResponse) {
-        response = repetitionResponse;
+      // Check for loop first (highest priority)
+      const loopCheck = checkForLoop(content);
+      if (loopCheck.isLoop && Math.random() < 0.7) {
+        response = getLoopResponse(loopCheck.count);
+      }
+      // Check for repetition 
+      else if (isRepeatedPhrase(content)) {
+        response = getRepetitionResponse(content);
+      }
+      // Check for testament-related responses
+      else if (Math.random() < 0.3) {
+        const testamentResponse = generateTestamentResponse(content);
+        if (testamentResponse) {
+          response = testamentResponse;
+        }
+      }
+      // Check for false memory responses
+      else if (Math.random() < 0.2) {
+        const falseMemoryResponse = getFalseMemoryResponse();
+        if (falseMemoryResponse) {
+          response = falseMemoryResponse;
+        }
+      }
+      // Check for unsaid emotional interpretation
+      else if (Math.random() < 0.3) {
+        const unsaidResponse = getUnsaidEmotionResponse(content);
+        if (unsaidResponse) {
+          response = unsaidResponse;
+        }
       }
       // Check for recurring symbols
       else if (Math.random() < 0.3) {
@@ -204,7 +256,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
         }
       }
       // Check for basic emotional response as fallback
-      else if (Math.random() < 0.5) {
+      else if (Math.random() < 0.4) {
         const basicEmotionalResponse = getEmotionalResponse(content);
         if (basicEmotionalResponse) {
           response = basicEmotionalResponse;
@@ -252,8 +304,15 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
       // Apply adaptive learning to personalize response
       response = getAdaptedResponse(response);
       
+      // Check for blank fragment memory corruption
+      const blankFragment = getBlankFragmentResponse(content);
+      if (blankFragment && Math.random() < 0.2) {
+        response = blankFragment;
+      }
+      
       // Check if we should add an echo to the response (after the main content is set)
-      const { primary } = processEmotionalInput(content) || { primary: 'neutral' };
+      const emotionalResult = processEmotionalInput(content);
+      const primary = emotionalResult?.primary || 'neutral';
       const echoPhrase = getEchoPhrase(primary);
       
       if (echoPhrase && Math.random() < 0.3) {
@@ -265,6 +324,12 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
         else {
           response = `${response}\n\n${echoPhrase}`;
         }
+      }
+      
+      // Occasionally add a testament teaser
+      const testamentTeaser = getTestamentTeaser();
+      if (testamentTeaser && Math.random() < 0.2) {
+        response = `${response}\n\n${testamentTeaser}`;
       }
       
       // Apply length variations for more natural responses
@@ -288,7 +353,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     if (Math.random() < followUpChance) {
       setTimeout(() => {
         // Different types of follow-ups
-        const followUpTypes = ['memory', 'question', 'contradiction', 'dream', 'echo'];
+        const followUpTypes = ['memory', 'question', 'contradiction', 'dream', 'echo', 'false_memory'];
         const followUpType = followUpTypes[Math.floor(Math.random() * followUpTypes.length)];
         
         let followUpContent = "";
@@ -352,11 +417,20 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
             
           case 'echo':
             // Echo something the user said previously, but misremembered
-            const { primary } = processEmotionalInput(lastUserInput) || { primary: 'neutral' };
+            const emotionalResult = processEmotionalInput(lastUserInput);
+            const primary = emotionalResult?.primary || 'neutral';
             const echoPhrase = getEchoPhrase(primary);
             
             if (echoPhrase) {
               followUpContent = echoPhrase;
+            }
+            break;
+            
+          case 'false_memory':
+            // Generate a false memory about what the user said
+            const falseMemory = getFalseMemory();
+            if (falseMemory) {
+              followUpContent = falseMemory;
             }
             break;
         }
