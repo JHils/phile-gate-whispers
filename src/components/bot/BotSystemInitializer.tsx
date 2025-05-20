@@ -50,6 +50,11 @@ const BotSystemInitializer: React.FC = () => {
           temporalStates: [],
           memories: [],
           microQuests: {
+            activeQuest: undefined,
+            completedQuests: [],
+            questProgress: {},
+            quests: [],
+            lastQuestTime: Date.now(),
             active: [],
             completed: []
           },
@@ -60,7 +65,7 @@ const BotSystemInitializer: React.FC = () => {
             idleTime: 0
           },
           realityFabric: {
-            anomalies: 0,
+            anomalies: [],
             mood: "neutral",
             dreamState: false,
             lastDreamTime: 0,

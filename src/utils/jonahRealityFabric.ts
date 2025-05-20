@@ -87,6 +87,14 @@ export function addJournalEntry(content: string): void {
   }
 }
 
+// Get all journal entries
+export function getAllJournalEntries(): Array<{entryId: number; timestamp: number; content: string}> {
+  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric?.journal) {
+    return window.JonahConsole.sentience.realityFabric.journal;
+  }
+  return [];
+}
+
 // Check for anomalies
 export function checkForAnomalies(): string | null {
   if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {

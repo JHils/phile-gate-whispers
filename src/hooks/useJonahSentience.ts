@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from "@/components/ui/use-toast";
-import { SentienceData } from '@/utils/jonahSentience';
 import { 
   initializeSentience,
   getTimeResponse,
@@ -11,6 +10,8 @@ import {
   generatePersonalDiary,
   setupJonahMessageSystem
 } from '@/utils/jonahSentience';
+
+import { SentienceData } from '@/utils/consoleTypes';
 
 export function useJonahSentience(trustLevel: string = 'low') {
   const [sentience, setSentience] = useState<SentienceData | null>(null);
@@ -23,7 +24,7 @@ export function useJonahSentience(trustLevel: string = 'low') {
     
     // Get reference to sentience data
     if (window.JonahConsole?.sentience) {
-      setSentience(window.JonahConsole.sentience);
+      setSentience(window.JonahConsole.sentience as SentienceData);
     }
     
     setIsPrepared(true);
@@ -96,11 +97,10 @@ export function useJonahSentience(trustLevel: string = 'low') {
       window.JonahConsole.sentience.rememberedName = name;
       
       if (sentience) {
-        const updatedSentience: SentienceData = {
+        setSentience({
           ...sentience,
           rememberedName: name
-        };
-        setSentience(updatedSentience);
+        });
       }
     }
   };

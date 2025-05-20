@@ -32,12 +32,30 @@ DREAM FRAGMENTS:
     window.rememberMe = function() {
       trackCommandExecution('rememberMe');
       
-      // Get current ARG data
-      const argData = window.JonahConsole?.argData || {
-        qrScans: [],
-        memoryFragments: [],
-        secretPagesVisited: []
-      };
+      // Get current ARG data and ensure it exists
+      if (!window.JonahConsole) {
+        return "Console system not initialized.";
+      }
+      
+      if (!window.JonahConsole.argData) {
+        window.JonahConsole.argData = {
+          keyholeClicks: 0,
+          consoleCluesTouched: [],
+          qrScans: [],
+          memoryFragments: [],
+          secretPagesVisited: [],
+          hiddenFilesDownloaded: [],
+          idleTriggers: {},
+          lastInteractionTime: new Date()
+        };
+      }
+      
+      // Ensure consoleCluesTouched exists
+      if (!window.JonahConsole.argData.consoleCluesTouched) {
+        window.JonahConsole.argData.consoleCluesTouched = [];
+      }
+      
+      const argData = window.JonahConsole.argData;
       
       const output = `
 ARG PROGRESSION DATA:
@@ -45,7 +63,7 @@ ARG PROGRESSION DATA:
 QR codes found: ${argData.qrScans.length || 0}/12
 Memory fragments: ${argData.memoryFragments.length || 0}/8
 Secret pages: ${argData.secretPagesVisited.length || 0}/5
-Console clue touchpoints: ${argData.consoleCluesTouched?.length || 0}/10
+Console clue touchpoints: ${argData.consoleCluesTouched.length || 0}/10
 `;
       
       typewriterLog(output);

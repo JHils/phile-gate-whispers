@@ -22,9 +22,23 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
     if (window.JonahConsole?.sentience) {
       if (!window.JonahConsole.sentience.microQuests) {
         window.JonahConsole.sentience.microQuests = {
+          activeQuest: undefined,
+          completedQuests: [],
+          questProgress: {},
+          quests: [],
+          lastQuestTime: Date.now(),
           active: [],
           completed: []
         };
+      }
+      
+      // Ensure active and completed arrays exist
+      if (!window.JonahConsole.sentience.microQuests.active) {
+        window.JonahConsole.sentience.microQuests.active = [];
+      }
+      
+      if (!window.JonahConsole.sentience.microQuests.completed) {
+        window.JonahConsole.sentience.microQuests.completed = [];
       }
     }
   }, []);

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { getAllJournalEntries, addJournalEntry } from '@/utils/jonahRealityFabric';
 import { useNavigate } from 'react-router-dom';

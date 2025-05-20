@@ -1,4 +1,9 @@
 
+/**
+ * Console Types Definition
+ * Global interfaces and types for Jonah's Console
+ */
+
 // Define global JonahConsole interface
 declare global {
   interface Window {
@@ -32,75 +37,75 @@ declare global {
       lastCommand?: string;
     };
     // Console command definitions
-    help: () => void;
-    whois: () => void;
-    gate: () => void;
-    philes: () => void;
-    monster: () => void;
-    legacy: () => void;
-    reveal: () => void;
-    reincarnate: () => void;
-    displayRandomJoke: () => void;
-    showStatus: () => Promise<void>;
-    mirrorLogs: () => void;
-    whisperTree: () => void;
-    plea: () => void;
-    testament: () => void;
-    splitVoice: () => void;
-    mirrorMode: () => void;
-    storyFlags: () => void;
-    readPage: (page: number) => void;
-    verifyCode: (code: string) => void;
-    bridgeCollapse: () => void;
-    discoverStoryFlag: (flagId: string) => boolean;
-    findAnomaly: (text: string) => void;
+    help?: () => void;
+    whois?: () => void;
+    gate?: () => void;
+    philes?: () => void;
+    monster?: () => void;
+    legacy?: () => void;
+    reveal?: () => void;
+    reincarnate?: () => void;
+    displayRandomJoke?: () => void;
+    showStatus?: () => Promise<void>;
+    mirrorLogs?: () => void;
+    whisperTree?: () => void;
+    plea?: () => void;
+    testament?: () => void;
+    splitVoice?: () => void;
+    mirrorMode?: () => void;
+    storyFlags?: () => void;
+    readPage?: (page: number) => void;
+    verifyCode?: (code: string) => void;
+    bridgeCollapse?: () => void;
+    discoverStoryFlag?: (flagId: string) => boolean;
+    findAnomaly?: (text: string) => void;
     processUserMessage?: (message: string) => string | undefined;
     clearJonahOnPathChange?: boolean;
-    triggerJonahMessage: (message: string) => string;
+    triggerJonahMessage?: (message: string) => string;
     isSpecialTimeWindow?: () => boolean;
     triggerSimbaComment?: (message: string) => void;
     // Adding missing console commands
-    mirrorCheck: () => void;
-    timeCheck: () => void;
-    traceCat: () => void;
-    feedSimba: () => void;
-    addWhisper: (whisper: string) => boolean;
+    mirrorCheck?: () => void;
+    timeCheck?: () => void;
+    traceCat?: () => void;
+    feedSimba?: () => void;
+    addWhisper?: (whisper: string) => boolean;
     // Console functions from jonahSentience.ts
-    dreamJournal: () => string;
-    rememberMe: () => Record<string, any>;
-    lookInside: () => void; 
-    echoChamber: () => void;
+    dreamJournal?: () => string;
+    rememberMe?: () => Record<string, any>;
+    lookInside?: () => void; 
+    echoChamber?: () => void;
     WhisperMaster?: WhisperMaster;
-    helpMe: () => void;
-    tea: () => void;
-    trousers: () => void;
-    moustache: () => void;
-    funny: () => void;
-    seenMyself: () => void;
-    youWereHimFirst: () => void;
-    wearingYouNow: () => void;
-    toggleWrath: () => void;
-    hint: () => void;
+    helpMe?: () => void;
+    tea?: () => void;
+    trousers?: () => void;
+    moustache?: () => void;
+    funny?: () => void;
+    seenMyself?: () => void;
+    youWereHimFirst?: () => void;
+    wearingYouNow?: () => void;
+    toggleWrath?: () => void;
+    hint?: () => void;
     // New news awareness functions
-    newsFlash: () => string | null;
-    weatherReport: () => string | null;
+    newsFlash?: () => string | null;
+    weatherReport?: () => string | null;
     // Add ecological commands - making this consistent
-    dreamtime: () => void;
-    woodwideweb: () => void;
-    biomeCheck: () => void;
-    kgari: () => void;
+    dreamtime?: () => void;
+    woodwideweb?: () => void;
+    biomeCheck?: () => void;
+    kgari?: () => void;
     // Add processStoryQuery for fuzzy matching
     processStoryQuery?: (query: string) => string;
     // New Jonah console interactive commands
-    start: () => string;
-    inventory: () => string;
-    echo_me: (input: string) => string;
-    forget: () => string;
-    forget_confirm: () => string;
-    access_journal: () => string;
-    split: () => string;
-    re_entry: () => string;
-    talk_to_jonah: () => string;
+    start?: () => string;
+    inventory?: () => string;
+    echo_me?: (input: string) => string;
+    forget?: () => string;
+    forget_confirm?: () => string;
+    access_journal?: () => string;
+    split?: () => string;
+    re_entry?: () => string;
+    talk_to_jonah?: () => string;
     playJonahAudio?: (triggerType: string) => void;
   }
 }
@@ -228,6 +233,8 @@ export interface SentienceData {
       completed: boolean;
     }>;
     lastQuestTime?: number;
+    active?: string[];
+    completed?: string[];
   };
   realityFabric?: {
     currentMood?: string;
@@ -263,6 +270,12 @@ export interface SentienceData {
     crossSiteWhispers?: string[];
     hiddenMessages?: string[];
     qrScans?: string[];
+    mood?: string;
+  };
+  audio?: {
+    lastPlayed?: number;
+    playedSounds?: string[];
+    volumeLevel?: number;
   };
   typingQuirks?: {
     glitchProbability: number;
