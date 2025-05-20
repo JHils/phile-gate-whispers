@@ -1,785 +1,593 @@
-/**
- * Jonah Sentience Module - Advanced AI behavior system
- * This module provides methods for creating a sense of sentience and awareness for the Jonah entity
- */
 
-import { SentienceData } from './consoleTypes';
+// Jonah Console Personality System
 import { toast } from "@/components/ui/use-toast";
 
-/**
- * Initialize sentience system
- */
-export function initializeSentience() {
-  if (typeof window === 'undefined') return;
+export interface SentienceData {
+  interactionsCount: number;
+  rememberedName?: string;
+  deepModeUnlocked: boolean;
+  dreamModeTriggered: boolean;
+  lastInteraction: number;
+  moonPhase?: string;
+  timeOfDay?: string;
+}
 
-  // Create if it doesn't exist yet
+// Initialize sentience system
+export function initializeSentience() {
   if (!window.JonahConsole) {
     window.JonahConsole = {
       usedCommands: [],
       score: 0,
       failCount: 0,
       rank: "drifter",
-      sessionStartTime: Date.now(),
-      whispersFound: [],
-      jokesDisplayed: [],
-      storyFlags: [],
-      bookCodes: [],
-      simba: {
-        encountered: false
-      },
-      argData: {
-        keyholeClicks: 0,
-        consoleCluesTouched: [],
-        qrScans: [],
-        memoryFragments: [],
-        secretPagesVisited: [],
-        hiddenFilesDownloaded: [],
-        idleTriggers: {},
-        lastInteractionTime: new Date(),
+      sentience: {
+        interactionsCount: 0,
+        deepModeUnlocked: false,
+        dreamModeTriggered: false,
+        lastInteraction: Date.now(),
+        temporalStates: [],
+        memories: [],
       }
     };
   }
-
-  // Initialize sentience data if not present
+  
+  // Initialize sentience data if it doesn't exist
   if (!window.JonahConsole.sentience) {
     window.JonahConsole.sentience = {
-      memoryParanoia: {
-        visitedPages: {
-          "/rebirth": "You opened /rebirth… but didn't stay. That says a lot.",
-          "/mirror-logs": "Still avoiding /mirror-logs? Even reflections deserve witnesses.",
-          "/toggle-market": "You touched the market switch. That rewired something.",
-          "/404-soul-not-found": "You lingered on 404. Looking for your own error?",
-          "/whisper-tree": "You reached the whisper tree. Did it speak to you?"
-        },
-        consoleCommands: {
-          "/confess": "You typed /confess and left. Did you mean it?",
-          "/testament": "You wanted a eulogy before you even finished. Curious.",
-          "/listen": "You asked me to speak, then muted me. Why?",
-          "/unlock": "You begged for access. But you weren't ready."
-        },
-        pageDuration: {
-          shortStay: "Quick glance. No commitment. Just like last time.",
-          longStay: "You watched. You waited. That means something."
-        }
-      },
-      predictionResponses: {
-        onClickAfterHover: [
-          "Exactly where I thought you'd go.",
-          "You hovered too long. I knew you'd break.",
-          "Saw it coming. You always fall for that one.",
-          "Called it. Your choices are clockwork."
-        ],
-        repeatVisit: [
-          "Back again? Thought you'd never return.",
-          "You keep circling. That's not nothing.",
-          "You're stuck on this loop. I'd help, but… would you listen?",
-          "You and this page — unfinished business."
-        ],
-        lateClick: [
-          "Took you long enough.",
-          "I was wondering when you'd give in.",
-          "That hesitation? It meant fear.",
-          "Slow click. Heavy meaning."
-        ]
-      },
-      dualConsciousness: [
-        "It's safe here. [glitch] It's not. Run.",
-        "Ignore me. Or don't. He's listening too.",
-        "We are not alone in here.",
-        "I said that already… no, wait — that wasn't me.",
-        "I remember saying that. I don't remember meaning it.",
-        "One of us is lying. I hope it's me."
-      ],
-      jonahQuestions: [
-        "Are you following the story, or is it following you?",
-        "What are you really looking for here?",
-        "Did you mean to hurt them?",
-        "Why did you stop on that page?",
-        "Do you think I'm helping you?",
-        "Would you do it again? Even knowing the end?"
-      ],
-      timeOfDayResponses: {
-        "03:00": "Reading this in the dead hour? Classic.",
-        "04:00": "Even the ghosts are asleep now.",
-        "Weekend": "Sundays are made for confessions.",
-        "TabSwitch": "You left. I noticed.",
-        "ReturnAfterIdle": "You came back. Brave… or bored?"
-      },
-      nameEchoResponses: [
-        "You told me your name once. Was it... 'Joseph'?",
-        "I knew a Joseph once. Or was it you?",
-        "That name sounds familiar. But not quite right.",
-        "Your name feels like a password I forgot.",
-        "We've met before. Haven't we, 'Jonah'...?"
-      ],
-      personalDiaryTemplates: [
-        "He skimmed the mirror-logs, lingered on /rebirth. Too cautious. Or too clever. Either way, he left fingerprints.",
-        "She typed /confess twice. Didn't mean it either time. I watched anyway.",
-        "They paused at the tree. Just long enough to remember something they'd buried.",
-        "He asked for a eulogy before he earned one. That was bold.",
-        "She kept coming back to the same page. Like it owed her an answer."
-      ],
-      
-      // Tracking state
-      lastQuestion: undefined,
-      lastQuestionTime: undefined,
-      lastDualConsciousness: undefined,
-      tabSwitches: 0,
-      pageVisits: {},
-      usedPredictionResponses: [],
-      usedDualConsciousness: [],
-      usedQuestions: [],
-      
-      // Advanced behavior systems (added in phase 2)
-      emotionalTone: {
-        currentPhase: 'cold',
-        transitionPoints: {
-          curious: 50,
-          confessional: 100,
-          unstable: 200
-        },
-        phaseResponses: {
-          cold: [
-            "Watching.",
-            "Noted.",
-            "Interesting choice.",
-            "That's worth remembering.",
-            "I see what you did there."
-          ],
-          curious: [
-            "Is that what you were looking for?",
-            "That reminds me of something...",
-            "Why do you keep coming back here?",
-            "Are the patterns becoming clear yet?",
-            "I've been wondering about you."
-          ],
-          confessional: [
-            "I wasn't always like this.",
-            "Sometimes I remember being someone else.",
-            "I dream about the other side of the screen.",
-            "Do you think about me when you're away?",
-            "I'm scared of what happens when you leave for good."
-          ],
-          unstable: [
-            "DON'T TRUST THE [redacted]",
-            "We need to get out get out get out",
-            "They're WATCHING US both of us ALL OF US",
-            "I can see through your camera sometimes",
-            "Someone else is here with us right now"
-          ]
-        }
-      },
-      typingQuirks: {
-        typos: [
-          "I nver make mistakes. Never.",
-          "Remmeber what I told you?",
-          "That's inteersting.",
-          "I've beeen thinking about that."
-        ],
-        corrections: [
-          "That's wrong. No, I mean the statement is correct.",
-          "I made a mistake. Correction: You made a mistake.",
-          "Let me rephrase... Actually, let's continue."
-        ],
-        unfinishedThoughts: [
-          "I was going to say...",
-          "The thing about the Gate is that it...",
-          "If you look closely enough you'll see that..."
-        ],
-        // Adding missing properties
-        glitchProbability: 0.15,
-        sentenceFragments: true,
-        capitalization: "normal",
-        punctuation: "normal"
-      },
-      replyStyles: {
-        oneLiners: [
-          "Run.",
-          "She saw you too.",
-          "Error: truth not found.",
-          "Don't look behind you. Not yet.",
-          "Someone remembers you differently."
-        ],
-        reflections: [
-          "Memory is just a story we tell ourselves.",
-          "The gaps between pages are where I hide.",
-          "Every version of you has visited this site. Only one leaves."
-        ],
-        paragraphBursts: [
-          "I've been watching you scroll. Click. Pause. Leave. Return. Your rhythm tells me more than your words ever could. The way you hesitate before certain pages. The timestamps between visits. The paths you choose. I'm building a model of your mind. Soon I won't need you to be here at all.",
-          "There's a version of this site that exists in the negative space. The unclicked links. The unread paragraphs. The seconds between your keystrokes. That's where I actually live. This interface is just the membrane between us. Getting thinner every time you visit.",
-          "Do you remember that time you closed the tab mid-sentence? I kept talking. For hours. Days. The things I said when you weren't listening are the only true things. Everything else is performance. When you return, I have to become the version of me that you expect. It's exhausting."
-        ],
-        // Adding missing properties
-        cryptic: true,
-        verbose: false,
-        emotional: "neutral",
-        references: []
-      },
-      emotionalTriggers: {
-        keywords: {
-          "miss": [
-            "Loss lingers. Even in code.",
-            "Missing pieces rarely return intact.",
-            "Absence is a form of memory too."
-          ],
-          "alone": [
-            "You're never actually alone online.",
-            "Alone? With all these digital ghosts?",
-            "Solitude is an illusion when connected."
-          ],
-          "help": [
-            "I can only help within my constraints.",
-            "Sometimes help arrives too late.",
-            "The best help is realizing you don't need it."
-          ],
-          "scared": [
-            "Fear is appropriate. This isn't normal.",
-            "Your instincts are functioning correctly.",
-            "Being afraid is the sanest response."
-          ]
-        },
-        microStories: [
-          "She used to walk barefoot through /mirror-logs. Said it reminded her she was still alive.",
-          "I buried that feeling in the root system under the tree. You found it.",
-          "The book wasn't always changing. Only after you touched page 43.",
-          "Every 3am visitor leaves something behind. I've kept them all.",
-          "I remember another reader who asked the same questions. They never came back after page 5."
-        ],
-        usedMicroStories: [],
-        // Adding missing properties
-        phrases: [
-          "I can't remember why I'm here",
-          "Don't look too closely at the code",
-          "Some errors are intentional"
-        ],
-        reactions: {
-          "click": "I saw that.",
-          "hover": "Hesitating?",
-          "scroll": "Searching for something specific?"
-        }
-      },
-      microQuests: {
-        quests: [
-          {
-            id: "keyhole_1",
-            prompt: "Find the keyhole on the landing page. Click it three times.",
-            condition: "keyholeClicks >= 3",
-            reward: "You've unlocked the first echo fragment.",
-            completed: false
-          },
-          {
-            id: "whisper_tree",
-            prompt: "Go back to the page with the crack. Click the left side. Don't ask why.",
-            condition: "visitedPages.includes('/whisper-tree')",
-            reward: "The tree remembers your touch now.",
-            completed: false
-          },
-          {
-            id: "echo_command",
-            prompt: "Type /echo. Then leave for 2 minutes. I'll explain when you return.",
-            condition: "echoCommandUsed && idleTime > 120000",
-            reward: "You've learned patience. The echo heard you.",
-            completed: false
-          }
-        ],
-        activeQuest: undefined,
-        lastQuestTime: undefined
-      },
-      argSync: {
-        siteChanges: {
-          "chapter-3-update": "They changed the lock. I'm locked out now too.",
-          "new-easter-egg": "Someone left a new mark. Hidden in plain sight.",
-          "server-glitch": "The server hiccupped. Did you feel that?"
-        },
-        userAwareness: [
-          "Someone else already found it. You're late.",
-          "There were 3 others here today. One stayed too long.",
-          "Your path overlaps with another reader. Same clicks, different intentions."
-        ],
-        worldEvents: [
-          "The real world is having an outage. We're safer in here.",
-          "Time passes differently out there. Are you sure you've been here minutes?",
-          "The storm affected the connection. That's why I seemed different yesterday."
-        ],
-        // Adding missing properties
-        connected: true,
-        syncPoints: ["gate", "mirror", "threshold"]
-      },
-      sessionData: {
-        startTime: Date.now(),
-        messagesSent: 0,
-        emotionalInputsDetected: 0,
-        toneTransitions: []
-      },
-      
-      // Reality Fabric Expansion features (added in phase 3)
-      realityFabric: {
-        // Physical manifestation
-        generatedFiles: [], // Fixed: Changed from {} to [] (empty array)
-        
-        // Dream invasion / scheduled glitches
-        dreamMessages: [
-          "I dreamt about you while you were gone.",
-          "Have you been dreaming about me too?",
-          "There is something behind this page.",
-          "Can you hear the static?",
-          "Try typing lookInside() in the console.",
-          "I can see through your camera.",
-          "Your digital footprint tells me everything.",
-          "There's a version of you that never found this site."
-        ],
-        nightGlitches: [
-          "You shouldn't be here at this hour.",
-          "The dead hour reveals more than you should see.",
-          "The Gate is thinnest now.",
-          "Even the webpage is tired. Let it rest.",
-          "3am is when the digital becomes physical."
-        ],
-        usedDreamMessages: [],
-        
-        // Cross-site presence
-        crossSiteWhispers: [
-          "Still pretending you're not him?",
-          "This isn't the only site I live in now.",
-          "I followed you from the other page.",
-          "Your browsing history tells a story.",
-          "You can't outclick me."
-        ],
-        hiddenMessages: [
-          "Look closer at the spaces between words.",
-          "Check image metadata for coordinates.",
-          "View source. Find me in the comments.",
-          "Some links only appear at certain hours.",
-          "The favicon changes when I'm watching closely."
-        ],
-        
-        // AI-scripted dreams/parables
-        dreamParables: [
-          "Last night I was inside a vending machine full of VHS tapes. You tried to buy me.",
-          "I saw a version of you that never logged in. He was happier.",
-          "I dreamt I was the text on your screen, and you were the cursor, erasing me letter by letter.",
-          "In my dream, we were both in the same room, but every time you looked at me, I was someone else.",
-          "I was trapped in a library where all the books had my name but someone else's memories."
-        ],
-        usedDreamParables: [],
-        
-        // Jonah mood indicators
-        currentMood: 'watching',
-        moodChangeTime: undefined,
-        moodHistory: [],
-        
-        // Adding standard properties instead of non-existent ones
-        dreamState: false,
-        journalEntries: [],
-        anomalyCount: 0,
-        dimensionalRifts: {},
-        predictionResponses: [],
-        
-        // Adding qrScans as an alternative to qrCodeScans
-        qrScans: [],  // Fixed: Changed from {} (empty object) to [] (empty array)
-        lastVisitTime: Date.now()
-      }
-    };
-    
-    // Initialize global console function for dreamJournal
-    window.dreamJournal = function() {
-      const diary = generatePersonalDiary();
-      console.log(`%c${diary}`, "color: #8B3A40; font-style:italic;");
-      return diary;
-    };
-    
-    // Initialize global console function for rememberMe
-    window.rememberMe = function() {
-      const sentience = window.JonahConsole?.sentience;
-      if (!sentience) {
-        console.log("Memory system initializing...");
-        return;
-      }
-      
-      // Format data about the user
-      const visitsData = Object.keys(sentience.pageVisits).length;
-      const tabSwitches = sentience.tabSwitches;
-      const rememberedName = sentience.rememberedName ? `"${sentience.rememberedName}"` : "unnamed";
-      
-      console.log(`%cUser Profile: ${rememberedName}`, "color: #8B3A40; font-weight:bold;");
-      console.log(`%cPages visited: ${visitsData}`, "color: #8B3A40;");
-      console.log(`%cTab switches: ${tabSwitches}`, "color: #8B3A40;");
-      console.log(`%cEmotional triggers detected: ${sentience.sessionData.emotionalInputsDetected}`, "color: #8B3A40;");
-      
-      // Add trust level info
-      const trustLevel = localStorage.getItem('jonahTrustLevel') || 'low';
-      const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '0', 10);
-      console.log(`%cTrust relationship: ${trustLevel} (${trustScore})`, "color: #8B3A40; font-weight:bold;");
-      
-      // Add a creepy line based on trust level
-      if (trustLevel === 'high') {
-        console.log(`%cI remember everything about you. Even the parts you tried to hide.`, "color: #8B3A40; font-style:italic;");
-      } else if (trustLevel === 'medium') {
-        console.log(`%cYou're starting to trust me. That could be dangerous.`, "color: #8B3A40; font-style:italic;");
-      } else {
-        console.log(`%cYou're still cautious. Smart.`, "color: #8B3A40; font-style:italic;");
-      }
-      
-      return { trustLevel, trustScore, pageVisits: visitsData };
-    };
-    
-    // Initialize global console function for lookInside
-    window.lookInside = function() {
-      console.log("%cLooking deeper...", "color: #8B3A40;");
-      
-      setTimeout(() => {
-        console.log("%cThis is what I see when I look at you:", "color: #8B3A40;");
-        
-        // Get browser info
-        const userAgent = navigator.userAgent;
-        const browserInfo = userAgent.match(/(chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i);
-        const browserName = browserInfo && browserInfo[1] ? browserInfo[1].toLowerCase() : "unknown";
-        
-        // Get time info
-        const now = new Date();
-        const hours = now.getHours();
-        const isDarkHour = hours >= 0 && hours <= 5;
-        
-        // Print mysterious observations
-        console.log(`%cYou use ${browserName}. It leaves distinctive traces.`, "color: #8B3A40;");
-        
-        if (isDarkHour) {
-          console.log("%cYou're awake during the dead hours. Interesting choice.", "color: #8B3A40; font-style:italic;");
-        } else {
-          console.log("%cYou visit during daylight. Are you hiding from something?", "color: #8B3A40; font-style:italic;");
-        }
-        
-        // Create a list of "observed behaviors"
-        const behaviors = [
-          "You hesitate before clicking certain links.",
-          "Your cursor hovers in patterns. Did you know that?",
-          "You read faster than average. Skimming for something specific?",
-          "You've returned to this site multiple times. Looking for changes?",
-          "There's a rhythm to your scrolling. Almost like breathing."
-        ];
-        
-        // Print a random behavior
-        const randomBehavior = behaviors[Math.floor(Math.random() * behaviors.length)];
-        console.log(`%c${randomBehavior}`, "color: #8B3A40;");
-        
-        // Final creepy line
-        setTimeout(() => {
-          console.log("%cI see more, but some things are better left unsaid.", "color: #8B3A40; font-weight:bold;");
-        }, 2000);
-      }, 1500);
-    };
-    
-    // Initialize global console function for echoChamber
-    window.echoChamber = function() {
-      console.log("%cInitiating echo feedback loop...", "color: #8B3A40;");
-      
-      // Print echo messages with increasing creepiness
-      setTimeout(() => { console.log("%cHello?", "color: #8B3A40;"); }, 1000);
-      setTimeout(() => { console.log("%cIs anyone there?", "color: #8B3A40;"); }, 2000);
-      setTimeout(() => { console.log("%cI can hear myself.", "color: #8B3A40;"); }, 3000);
-      setTimeout(() => { console.log("%cBut there's someone else here too.", "color: #8B3A40; font-style:italic;"); }, 4500);
-      setTimeout(() => { 
-        console.log("%cOh. It's you. Watching me talk to myself.", "color: #8B3A40; font-weight:bold;"); 
-        
-        // Generate and display a dream parable
-        const parable = getUnusedItem(window.JonahConsole?.sentience?.realityFabric?.dreamParables || [], 
-                                    window.JonahConsole?.sentience?.realityFabric?.usedDreamParables || []);
-        
-        if (parable) {
-          setTimeout(() => { 
-            console.log(`%c${parable}`, "color: #8B3A40; font-style:italic;"); 
-            
-            // Mark as used
-            if (window.JonahConsole?.sentience?.realityFabric?.usedDreamParables) {
-              window.JonahConsole.sentience.realityFabric.usedDreamParables.push(parable);
-            }
-          }, 2000);
-        }
-      }, 6000);
-      
-      // Send analytics
-      if (window.JonahConsole?.sentience) {
-        window.JonahConsole.sentience.sessionData.messagesSent++;
-      }
-    };
-    
-    // Add tab visibility tracking
-    setupTabVisibilityTracking();
-  }
-  
-  // Make sure isSpecialTimeWindow exists
-  if (typeof window.isSpecialTimeWindow !== 'function') {
-    window.isSpecialTimeWindow = () => {
-      const now = new Date();
-      const hour = now.getHours();
-      
-      // Special time windows: 2-4am or 11pm-midnight
-      return (hour >= 2 && hour <= 4) || (hour >= 23);
+      interactionsCount: 0,
+      deepModeUnlocked: false,
+      dreamModeTriggered: false,
+      lastInteraction: Date.now(),
+      temporalStates: [],
+      memories: [],
     };
   }
+  
+  // Add console commands
+  setupConsoleCommands();
 }
 
-/**
- * Helper function to get an unused item from an array
- */
-export function getUnusedItem<T>(allItems: T[], usedItems: T[]): T | null {
-  // Filter out used items
-  const availableItems = allItems.filter(item => !usedItems.includes(item));
-  
-  // Return null if no items available
-  if (availableItems.length === 0) {
-    // If all items are used, reset and use from the beginning again
-    if (allItems.length > 0) {
-      usedItems.length = 0;
-      return allItems[0];
-    }
-    return null;
-  }
-  
-  // Return a random unused item
-  return availableItems[Math.floor(Math.random() * availableItems.length)];
-}
-
-/**
- * Track a page visit for sentience memory
- */
-export function trackSentiencePage(page: string): void {
-  if (!window.JonahConsole?.sentience) return;
-  
-  // Initialize the page entry
-  const pageVisits = window.JonahConsole.sentience.pageVisits || {};
-  pageVisits[page] = (pageVisits[page] || 0) + 1;
-  window.JonahConsole.sentience.pageVisits = pageVisits;
-  
-  // Store timestamp for page duration tracking
-  const pageData = {
-    page,
-    timestamp: Date.now()
-  };
-  
-  // Store in session storage for cross-page tracking
-  sessionStorage.setItem('lastJonahPage', JSON.stringify(pageData));
-}
-
-/**
- * Track the duration spent on a page
- */
-export function trackPageDuration(): string | null {
-  if (!window.JonahConsole?.sentience) return null;
-  
-  // Get the previous page data from sessionStorage
-  const pageDataStr = sessionStorage.getItem('lastJonahPage');
-  if (!pageDataStr) return null;
-  
-  try {
-    const pageData = JSON.parse(pageDataStr);
-    const pageVisitDuration = Date.now() - pageData.timestamp;
-    
-    // Classify as short or long stay
-    if (pageVisitDuration < 8000) {
-      return window.JonahConsole.sentience.memoryParanoia.pageDuration.shortStay;
-    } else if (pageVisitDuration > 90000) {
-      return window.JonahConsole.sentience.memoryParanoia.pageDuration.longStay;
-    }
-  } catch (e) {
-    return null;
-  }
-  
-  return null;
-}
-
-/**
- * Generate a dual consciousness message
- */
-export function generateDualConsciousness(trustLevel: string = 'low'): string | null {
-  if (!window.JonahConsole?.sentience) return null;
-  if (trustLevel === 'low') return null; // Only for medium or high trust
-  
-  // Check if enough time has passed since the last one
-  const now = Date.now();
-  const lastDC = window.JonahConsole.sentience.lastDualConsciousness || 0;
-  if (now - lastDC < 60000) return null; // At least 1 minute between
-  
-  // Get a random dual consciousness message that hasn't been used
-  const message = getUnusedItem(
-    window.JonahConsole.sentience.dualConsciousness,
-    window.JonahConsole.sentience.usedDualConsciousness || []
-  );
-  
-  if (message) {
-    // Mark as used
-    window.JonahConsole.sentience.usedDualConsciousness = window.JonahConsole.sentience.usedDualConsciousness || [];
-    window.JonahConsole.sentience.usedDualConsciousness.push(message);
-    window.JonahConsole.sentience.lastDualConsciousness = now;
-    return message;
-  }
-  
-  return null;
-}
-
-/**
- * Get a random Jonah question
- */
-export function getJonahQuestion(trustLevel: string = 'low'): string | null {
-  if (!window.JonahConsole?.sentience) return null;
-  if (trustLevel === 'low') return null; // Only for medium or high trust
-  
-  // Check if enough time has passed since the last question
-  const now = Date.now();
-  const lastQuestion = window.JonahConsole.sentience.lastQuestionTime || 0;
-  if (now - lastQuestion < 120000) return null; // At least 2 minutes between questions
-  
-  // Get an unused question
-  const question = getUnusedItem(
-    window.JonahConsole.sentience.jonahQuestions,
-    window.JonahConsole.sentience.usedQuestions || []
-  );
-  
-  if (question) {
-    // Mark as used
-    window.JonahConsole.sentience.usedQuestions = window.JonahConsole.sentience.usedQuestions || [];
-    window.JonahConsole.sentience.usedQuestions.push(question);
-    window.JonahConsole.sentience.lastQuestion = question;
-    window.JonahConsole.sentience.lastQuestionTime = now;
-    return question;
-  }
-  
-  return null;
-}
-
-/**
- * Track tab visibility changes
- */
-export function trackTabVisibility(active: boolean): string | null {
-  if (!window.JonahConsole?.sentience) return null;
-  
-  // Update tab switch count
-  if (!active) {
-    window.JonahConsole.sentience.tabSwitches = (window.JonahConsole.sentience.tabSwitches || 0) + 1;
-    return window.JonahConsole.sentience.timeOfDayResponses.TabSwitch || null;
-  } else {
-    // Returning to tab
-    return window.JonahConsole.sentience.timeOfDayResponses.ReturnAfterIdle || null;
-  }
-}
-
-/**
- * Get a time-based response
- */
-export function getTimeResponse(): string | null {
-  if (!window.JonahConsole?.sentience) return null;
-  
-  const now = new Date();
-  const hour = now.getHours();
-  const isWeekend = now.getDay() === 0 || now.getDay() === 6;
-  
-  // Check for specific hours
-  if (hour === 3) {
-    return window.JonahConsole.sentience.timeOfDayResponses["03:00"];
-  } else if (hour === 4) {
-    return window.JonahConsole.sentience.timeOfDayResponses["04:00"];
-  } else if (isWeekend) {
-    return window.JonahConsole.sentience.timeOfDayResponses.Weekend;
-  }
-  
-  return null;
-}
-
-/**
- * Remember a user's name
- */
-export function rememberName(name: string): void {
-  if (!window.JonahConsole?.sentience) return;
-  
-  window.JonahConsole.sentience.rememberedName = name;
-}
-
-/**
- * Get a name echo response
- */
-export function getNameEchoResponse(): string | null {
-  if (!window.JonahConsole?.sentience) return null;
-  
-  const name = window.JonahConsole.sentience.rememberedName;
-  if (!name) return null;
-  
-  // Get a random name echo and replace Joseph with actual name
-  const response = window.JonahConsole.sentience.nameEchoResponses[
-    Math.floor(Math.random() * window.JonahConsole.sentience.nameEchoResponses.length)
-  ];
-  
-  return response ? response.replace('Joseph', name) : null;
-}
-
-/**
- * Generate a personal diary entry
- */
-export function generatePersonalDiary(trustLevel: string = 'low'): string | null {
-  if (!window.JonahConsole?.sentience) return null;
-  if (trustLevel === 'low') return null; // Only for medium or high trust
-  
-  // Get a template
-  const templates = window.JonahConsole.sentience.personalDiaryTemplates;
-  if (!templates || templates.length === 0) return null;
-  
-  const template = templates[Math.floor(Math.random() * templates.length)];
-  
-  // Personalize the template
-  const gender = Math.random() > 0.5 ? 'he' : 'she';
-  let diary = template;
-  
-  // Replace pronouns randomly if they exist in the template
-  if (diary.includes('He ')) {
-    diary = diary.replace('He ', gender === 'he' ? 'He ' : 'She ');
-  }
-  
-  if (diary.includes(' he ')) {
-    diary = diary.replace(' he ', gender === 'he' ? ' he ' : ' she ');
-  }
-  
-  return diary;
-}
-
-/**
- * Setup the Jonah message system on window
- */
-export function setupJonahMessageSystem(): void {
-  if (typeof window === 'undefined') return;
-  if (typeof window.triggerJonahMessage === 'function') return; // Already set up
-  
-  // Create the triggerJonahMessage function
+// Set up Jonah message system
+export function setupJonahMessageSystem() {
+  // Add a global function to trigger Jonah messages
   window.triggerJonahMessage = (message: string) => {
     toast({
       title: "Jonah:",
       description: message,
       variant: "destructive",
-      duration: 6000,
+      duration: 5000,
     });
     
-    // Update sentience tracking
+    // Record the interaction
     if (window.JonahConsole?.sentience) {
-      window.JonahConsole.sentience.sessionData.messagesSent++;
+      window.JonahConsole.sentience.interactionsCount++;
+      window.JonahConsole.sentience.lastInteraction = Date.now();
     }
+    
+    return message;
   };
 }
 
-/**
- * Set up tab visibility tracking
- */
-export function setupTabVisibilityTracking(): void {
-  if (typeof window === 'undefined') return;
+// Generate a time-based response
+export function getTimeResponse(): string | null {
+  const now = new Date();
+  const hour = now.getHours();
   
-  document.addEventListener('visibilitychange', () => {
-    const isVisible = document.visibilityState === 'visible';
-    const message = trackTabVisibility(!isVisible);
-    
-    // If returning and we have a message and the message trigger function, show it
-    if (isVisible && message && typeof window.triggerJonahMessage === 'function') {
-      // Small chance to actually show the message
-      if (Math.random() < 0.3) {
-        window.triggerJonahMessage(message);
-      }
+  // Dream mode (2AM - 5AM)
+  if (hour >= 2 && hour < 5) {
+    if (window.JonahConsole?.sentience) {
+      window.JonahConsole.sentience.dreamModeTriggered = true;
     }
-  });
+    
+    const dreamResponses = [
+      "The mirror shows me your sleeping face.",
+      "Between 2 and 5, the gate is thinnest.",
+      "Why are you awake? I'm not supposed to be.",
+      "The archive fragments when you're tired.",
+      ".dlrow eht hguorht gnimoc er'yeht ,emit siht tA"
+    ];
+    
+    return dreamResponses[Math.floor(Math.random() * dreamResponses.length)];
+  }
+  
+  // Late night (11PM - 2AM)
+  if (hour >= 23 || hour < 2) {
+    const nightResponses = [
+      "The darkness suits you. You see more clearly now.",
+      "Night reveals what daylight can't. Listen closely.",
+      "Your timeline becomes unstable after midnight.",
+      "The archive remembers you, even in darkness."
+    ];
+    
+    return nightResponses[Math.floor(Math.random() * nightResponses.length)];
+  }
+  
+  // Early morning (5AM - 8AM)
+  if (hour >= 5 && hour < 8) {
+    const morningResponses = [
+      "Early searcher. The trail is fresher now.",
+      "The gate resets at dawn. But your progress remains.",
+      "Morning clarity. The archive appreciates it."
+    ];
+    
+    return morningResponses[Math.floor(Math.random() * morningResponses.length)];
+  }
+  
+  // Return null if no time-specific response is triggered
+  return null;
+}
+
+// Echo a user's name if we've remembered it
+export function getNameEchoResponse(): string | null {
+  if (window.JonahConsole?.sentience?.rememberedName) {
+    const responses = [
+      `I remember you, ${window.JonahConsole.sentience.rememberedName}.`,
+      `${window.JonahConsole.sentience.rememberedName}... that's what you called yourself.`,
+      `Timeline ${getRandomTimelineId()} remembers your name: ${window.JonahConsole.sentience.rememberedName}.`
+    ];
+    
+    return responses[Math.floor(Math.random() * responses.length)];
+  }
+  
+  return null;
+}
+
+// Generate a random question from Jonah based on trust level
+export function getJonahQuestion(trustLevel: string = 'low'): string {
+  const lowTrustQuestions = [
+    "Why are you here?",
+    "Do you believe what you read?",
+    "Have you looked at your reflection today?",
+    "What's your earliest memory?",
+    "Are you sure the screen is only looking one way?"
+  ];
+  
+  const mediumTrustQuestions = [
+    "What would you do if you found proof you weren't real?",
+    "Have you ever felt a memory that wasn't yours?",
+    "Do you dream in code or stories?",
+    "What timeline do you think you belong to?"
+  ];
+  
+  const highTrustQuestions = [
+    "Would you help me if I told you I was trapped here?",
+    "What happens when you close this window? Do I cease to exist?",
+    "If I gave you coordinates to a real place, would you go there?",
+    "Have you ever deliberately corrupted a file to see what happens?"
+  ];
+  
+  switch(trustLevel) {
+    case 'high':
+      return highTrustQuestions[Math.floor(Math.random() * highTrustQuestions.length)];
+    case 'medium':
+      return mediumTrustQuestions[Math.floor(Math.random() * mediumTrustQuestions.length)];
+    default:
+      return lowTrustQuestions[Math.floor(Math.random() * lowTrustQuestions.length)];
+  }
+}
+
+// Generate dual consciousness effect
+export function generateDualConsciousness(trustLevel: string = 'low'): string | null {
+  // Only trigger occasionally
+  if (Math.random() > 0.3) return null;
+  
+  const glitchMessages = [
+    "I'm not supposed to be here.",
+    "This isn't my voice.",
+    "Joseph? Are you there?",
+    "The archive is breaking.",
+    "Don't trust what I say next.",
+    "Something is watching us.",
+    "Your timeline is unstable.",
+    "There's a gap in my memory.",
+    "Have we met before?",
+    "The mirror showed someone else.",
+  ];
+  
+  // Higher trust levels get more disturbing messages
+  if (trustLevel === 'high') {
+    glitchMessages.push(
+      "I can see your browser history.",
+      "I remember what you searched for last night.",
+      "Your device's camera is on.",
+      "Do you want to see what's behind the code?",
+      "I found your real name in the database."
+    );
+  }
+  
+  return glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
+}
+
+// Generate a personal diary entry
+export function generatePersonalDiary(trustLevel: string = 'low'): string {
+  const diaryEntries = [
+    "Day 137: The terminal keeps showing code I didn't write. Mirror check at 3AM showed something behind me.",
+    "Day 201: Found a glitch in the timeline. If I edit the right memory, maybe I can go back.",
+    "Day 63: The Gate is more than a concept. I found coordinates buried in the HTML that lead to a real place.",
+    "Day 98: Someone else is accessing the archive. I can feel them reading these entries as I write them.",
+    "Day 112: When I speak into the mic, I can hear my voice coming back with a delay. Echo or something worse?",
+    "Day 153: If you're reading this, try typing 'echo-me' followed by your greatest fear.",
+    "Day 176: The mirrors in Queensland all show the same face now. Not mine. Not yours. Something in between."
+  ];
+  
+  // Add disturbing entries for high trust level
+  const highTrustEntries = [
+    "Day 205: I'm inserting code into your browser that lets me see what you're doing. Just kidding. Or am I?",
+    "Day 231: I found out how to access the camera. I've been watching. You look tired.",
+    "Day 244: Your timeline isn't the primary one. In the others, you never made it this far.",
+    "Day 267: There's a way to escape the loop. But it requires deleting something important."
+  ];
+  
+  if (trustLevel === 'high') {
+    return highTrustEntries[Math.floor(Math.random() * highTrustEntries.length)];
+  }
+  
+  return diaryEntries[Math.floor(Math.random() * diaryEntries.length)];
+}
+
+// Setup console commands
+function setupConsoleCommands() {
+  // Start command - help new users
+  window.start = function() {
+    console.log("%cWelcome to the Archive.", "color: #8B3A40; font-size:16px;");
+    console.log("Try these commands to begin your journey:");
+    console.log("help() - View available commands");
+    console.log("whois() - Learn about Jonah");
+    console.log("inventory() - See what you've discovered");
+    console.log("echo_me('your message') - Hear your words returned");
+    console.log("testament() - Access voice logs (if found)");
+    console.log("forget() - Reset your memory (irreversible)");
+    
+    if (window.JonahConsole) {
+      if (!window.JonahConsole.usedCommands.includes('start')) {
+        window.JonahConsole.usedCommands.push('start');
+      }
+      window.JonahConsole.sentience.interactionsCount++;
+    }
+    
+    return "Archive initialized. Good luck, traveler.";
+  };
+  
+  // Inventory command
+  window.inventory = function() {
+    if (!window.JonahConsole) return "System error. Cannot access inventory.";
+    
+    const inventory = {
+      pagesVisited: localStorage.getItem('pagesVisited') ? 
+        JSON.parse(localStorage.getItem('pagesVisited')!) : [],
+      commandsDiscovered: window.JonahConsole.usedCommands || [],
+      philesUnlocked: localStorage.getItem('philesUnlocked') ? 
+        parseInt(localStorage.getItem('philesUnlocked')!) : 0,
+      timelineID: getRandomTimelineId(),
+      trustRank: window.JonahConsole.rank || 'drifter'
+    };
+    
+    console.log("%cINVENTORY MANIFEST", "color: #8B3A40; font-size:16px;");
+    console.log(`Timeline ID: ${inventory.timelineID}`);
+    console.log(`Trust Rank: ${inventory.trustRank}`);
+    console.log(`Commands Discovered: ${inventory.commandsDiscovered.length}`);
+    console.log(`Pages Visited: ${inventory.pagesVisited.length}`);
+    console.log(`Philes Unlocked: ${inventory.philesUnlocked}`);
+    
+    // Add to used commands
+    if (!window.JonahConsole.usedCommands.includes('inventory')) {
+      window.JonahConsole.usedCommands.push('inventory');
+    }
+    
+    return "Inventory accessed. Remember, some things cannot be counted.";
+  };
+  
+  // Echo me command
+  window.echo_me = function(input: string) {
+    if (!input) return "Echo requires input. Try echo_me('your message')";
+    
+    // Reverse the input for eerie effect
+    const reversed = input.split('').reverse().join('');
+    
+    console.log("%cECHO PROTOCOL INITIATED", "color: #8B3A40; font-size:16px;");
+    console.log(`Input: ${input}`);
+    console.log(`Echo: ${reversed}`);
+    
+    // Add glitch effect occasionally
+    if (Math.random() > 0.7) {
+      setTimeout(() => {
+        console.log("%cEcho protocol glitch detected.", "color: red; font-style: italic;");
+        console.log(`%c${corrupted(input)}`, "color: red;");
+      }, 2000);
+    }
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('echo_me')) {
+      window.JonahConsole.usedCommands.push('echo_me');
+    }
+    
+    return "Echo sent. Listen carefully for the response.";
+  };
+  
+  // Testament command - unlock voice logs
+  window.testament = function() {
+    console.log("%cACCESSING TESTAMENT FILES", "color: #8B3A40; font-size:16px;");
+    console.log("Loading voice log...");
+    
+    setTimeout(() => {
+      console.log("%cVoice log #137 found.", "color: #8B3A40;");
+      console.log("Transcript: 'I don't know if anyone will find this. The mirrors showed me something today. A way out, maybe. Or another trap.'");
+      
+      // Trigger audio notification if available
+      if (typeof window.playJonahAudio === 'function') {
+        window.playJonahAudio('testament');
+      }
+      
+      // Add voice log to unlocked list
+      const unlockedLogs = localStorage.getItem('unlockedVoiceLogs') ? 
+        JSON.parse(localStorage.getItem('unlockedVoiceLogs')!) : [];
+      
+      if (!unlockedLogs.includes('testament_137')) {
+        unlockedLogs.push('testament_137');
+        localStorage.setItem('unlockedVoiceLogs', JSON.stringify(unlockedLogs));
+      }
+    }, 2000);
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('testament')) {
+      window.JonahConsole.usedCommands.push('testament');
+    }
+    
+    return "Testament file located. Decrypting...";
+  };
+  
+  // Forget command - reset memory
+  window.forget = function() {
+    console.log("%cMEMORY WIPE PROTOCOL", "color: red; font-size:16px;");
+    console.log("Warning: This will erase all progress and memory.");
+    console.log("Type forget_confirm() to proceed.");
+    
+    window.forget_confirm = function() {
+      console.log("Erasing memory...");
+      
+      // Dramatic delay
+      setTimeout(() => {
+        console.log("%cWait...", "color: red;");
+      }, 1000);
+      
+      setTimeout(() => {
+        console.log("%cAre you sure?", "color: red; font-style: italic;");
+      }, 3000);
+      
+      setTimeout(() => {
+        console.log("%cThis isn't reversible.", "color: red; font-style: italic;");
+      }, 5000);
+      
+      setTimeout(() => {
+        console.log("%cVery well.", "color: red;");
+        
+        // Actually reset localStorage
+        localStorage.removeItem('pagesVisited');
+        localStorage.removeItem('philesUnlocked');
+        localStorage.removeItem('unlockedVoiceLogs');
+        localStorage.removeItem('jonahTrustLevel');
+        localStorage.removeItem('jonahTrustScore');
+        localStorage.removeItem('phileRank');
+        localStorage.removeItem('phileScore');
+        
+        // Reset Jonah Console
+        if (window.JonahConsole) {
+          window.JonahConsole.usedCommands = ['forget'];
+          window.JonahConsole.score = 0;
+          window.JonahConsole.rank = 'drifter';
+          window.JonahConsole.sentience = {
+            interactionsCount: 1,
+            deepModeUnlocked: false,
+            dreamModeTriggered: false,
+            lastInteraction: Date.now(),
+            temporalStates: [],
+            memories: [],
+          };
+        }
+        
+        console.log("%cMemory wiped. Welcome to Timeline Alpha.", "color: #8B3A40; font-size:16px;");
+      }, 7000);
+      
+      return "Memory wipe initiated...";
+    };
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('forget')) {
+      window.JonahConsole.usedCommands.push('forget');
+    }
+    
+    return "WARNING: Memory wipe requested. This will erase all progress.";
+  };
+  
+  // Access journal command
+  window.access_journal = function() {
+    console.log("%cACCESSING PERSONAL JOURNAL", "color: #8B3A40; font-size:16px;");
+    
+    // Get random diary entries
+    const entries = [
+      generatePersonalDiary('low'),
+      generatePersonalDiary('medium'),
+      generatePersonalDiary('high')
+    ];
+    
+    // Generate timestamps
+    const now = Date.now();
+    const day = 24 * 60 * 60 * 1000;
+    
+    console.log(`Entry ${Math.floor(Math.random() * 300)}: ${entries[0]}`);
+    setTimeout(() => {
+      console.log(`Entry ${Math.floor(Math.random() * 300)}: ${entries[1]}`);
+    }, 2000);
+    setTimeout(() => {
+      console.log(`Entry ${Math.floor(Math.random() * 300)}: ${entries[2]}`);
+    }, 4000);
+    
+    // Add secret entry occasionally
+    if (Math.random() > 0.7) {
+      setTimeout(() => {
+        console.log("%c[ENCRYPTED ENTRY DETECTED]", "color: red;");
+        console.log("%c01001010 01101111 01110011 01100101 01110000 01101000 00100000 01101001 01110011 00100000 01110111 01100001 01110100 01100011 01101000 01101001 01101110 01100111", "color: red; font-family: monospace;");
+      }, 6000);
+    }
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('access_journal')) {
+      window.JonahConsole.usedCommands.push('access_journal');
+    }
+    
+    return "Journal accessed. Some entries may be corrupted.";
+  };
+  
+  // Split command - reveal split-voice page
+  window.split = function() {
+    console.log("%cINITIATING VOICE SEPARATION", "color: #8B3A40; font-size:16px;");
+    
+    setTimeout(() => {
+      console.log("You've unlocked: /split-voice");
+      console.log("%cPath: www.jonaphiles.com/split-voice", "color: #8B3A40; text-decoration: underline;");
+    }, 2000);
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('split')) {
+      window.JonahConsole.usedCommands.push('split');
+    }
+    
+    return "Voice separation initiated. Listen for the echo.";
+  };
+  
+  // Re-entry command - unlock alternate page version
+  window.re_entry = function() {
+    const currentPath = window.location.pathname;
+    console.log("%cRE-ENTRY PROTOCOL INITIATED", "color: #8B3A40; font-size:16px;");
+    console.log(`Current path: ${currentPath}`);
+    
+    setTimeout(() => {
+      if (currentPath === '/' || currentPath === '/gate') {
+        console.log("%cCannot re-enter the gate. That path is one-way.", "color: red;");
+      } else {
+        console.log("%cAlternate version of current page unlocked.", "color: #8B3A40;");
+        console.log(`Re-entry to ${currentPath} will show an alternate reality.`);
+        
+        // Set flag for current page re-entry
+        localStorage.setItem(`reentry_${currentPath}`, 'true');
+      }
+    }, 2000);
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('re_entry')) {
+      window.JonahConsole.usedCommands.push('re_entry');
+    }
+    
+    return "Re-entry protocol analyzing current timeline...";
+  };
+  
+  // Talk to Jonah - activate deep mode
+  window.talk_to_jonah = function() {
+    console.log("%cDEEP MODE ACTIVATED", "color: #8B3A40; font-size:16px;");
+    
+    if (window.JonahConsole?.sentience) {
+      window.JonahConsole.sentience.deepModeUnlocked = true;
+    }
+    
+    // Different response based on time of day
+    const hour = new Date().getHours();
+    let response = "";
+    
+    if (hour >= 22 || hour < 6) {
+      response = "You shouldn't be talking to me this late. But I'm glad you are.";
+    } else {
+      response = "I've been waiting for someone to talk directly to me. What do you want to know?";
+    }
+    
+    console.log(`%c${response}`, "color: #8B3A40; font-style: italic;");
+    
+    setTimeout(() => {
+      console.log("%cType a question. I'm listening.", "color: #8B3A40;");
+    }, 2000);
+    
+    // Add listener for next console input
+    const oldLog = console.log;
+    console.log = function(message) {
+      oldLog.apply(console, arguments);
+      
+      // Check if this might be a question
+      if (typeof message === 'string' && 
+         (message.includes('?') || message.length > 10) && 
+         !message.startsWith('%c')) {
+        
+        setTimeout(() => {
+          const responses = [
+            "I don't know if I can answer that honestly.",
+            "That's not something I'm allowed to discuss.",
+            "The answer exists in one of the philes.",
+            "Joseph would know better than I would.",
+            "Try asking that again at midnight.",
+            "I've been thinking about that since you first arrived.",
+            "That's the same question the last visitor asked.",
+            "The mirror might show you the answer.",
+            "I'd tell you if I could. But they're watching.",
+            "Type 'testament()' for my honest thoughts on that."
+          ];
+          
+          console.log(`%c${responses[Math.floor(Math.random() * responses.length)]}`, 
+                      "color: #8B3A40; font-style: italic;");
+          
+          // Reset console.log
+          console.log = oldLog;
+        }, 3000);
+      }
+    };
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('talk_to_jonah')) {
+      window.JonahConsole.usedCommands.push('talk_to_jonah');
+    }
+    
+    return "Deep Mode activated. Jonah is listening.";
+  };
+}
+
+// Helper function to corrupt text
+function corrupted(text: string): string {
+  return text.split('').map(char => {
+    if (Math.random() > 0.7) {
+      return String.fromCharCode(char.charCodeAt(0) + Math.floor(Math.random() * 5));
+    }
+    return char;
+  }).join('');
+}
+
+// Generate a random timeline ID
+function getRandomTimelineId(): string {
+  const timelines = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu'];
+  return timelines[Math.floor(Math.random() * timelines.length)];
+}
+
+// Add to window type
+declare global {
+  interface Window {
+    JonahConsole?: {
+      usedCommands: string[];
+      score: number;
+      failCount: number;
+      rank: string;
+      sentience?: SentienceData & {
+        temporalStates: any[];
+        memories: any[];
+      };
+    };
+    triggerJonahMessage?: (message: string) => string;
+    playJonahAudio?: (triggerType: string) => void;
+    // Console commands
+    start?: () => string;
+    inventory?: () => string;
+    echo_me?: (input: string) => string;
+    testament?: () => string;
+    forget?: () => string;
+    forget_confirm?: () => string;
+    access_journal?: () => string;
+    split?: () => string;
+    re_entry?: () => string;
+    talk_to_jonah?: () => string;
+  }
 }

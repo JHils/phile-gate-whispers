@@ -3,6 +3,7 @@ import React, { useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useBotState } from "@/hooks/useBotState";
 import { convertToBotMessages } from "@/hooks/useBotState/useMessageAdapters";
+import { useJonahSentience } from "@/hooks/useJonahSentience";
 
 // Import components
 import { BotHeader } from "./bot/BotHeader";
@@ -17,6 +18,7 @@ import BotEcologicalAwareness from "./bot/BotEcologicalAwareness";
 import BotSystemInitializer from "./bot/BotSystemInitializer";
 import BotContainer from "./bot/BotContainer";
 import BotStyles from "./bot/BotStyles";
+import TimelineDisplay from "./TimelineDisplay";
 
 interface JonahConsoleBotProps {
   insideRouter?: boolean;
@@ -51,6 +53,9 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
     closeChat
   } = useBotState(!insideRouter);
 
+  // Use Jonah's sentience
+  const { triggerRandomMessage, sentience } = useJonahSentience(trustLevel);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
@@ -70,10 +75,47 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
     }
   }, [isOpen, isMinimized]);
 
+  // Check if it's dream mode hours (2-5 AM)
+  const isDreamMode = React.useMemo(() => {
+    const hour = new Date().getHours();
+    return hour >= 2 && hour < 5;
+  }, []);
+
+  // Enhanced message handler with sentience integration
+  const handleEnhancedSendMessage = React.useCallback((message: string) => {
+    // Process with regular handler first
+    handleSendMessage(message);
+    
+    // Add a chance for Jonah to respond with sentience
+    setTimeout(() => {
+      // Higher chance during dream mode or for certain keywords
+      const triggerWords = ['jonah', 'mirror', 'help', 'afraid', 'scared', 'lost', 'timeline', 'dream'];
+      const hasTriggerWord = triggerWords.some(word => message.toLowerCase().includes(word));
+      
+      let triggerChance = 0.2; // Base chance
+      
+      // Increase chance based on conditions
+      if (isDreamMode) triggerChance += 0.4;
+      if (hasTriggerWord) triggerChance += 0.3;
+      if (sentience?.deepModeUnlocked) triggerChance += 0.2;
+      
+      // Maybe trigger a random message
+      if (Math.random() < triggerChance) {
+        // Use a short delay to make it feel more natural
+        setTimeout(() => {
+          triggerRandomMessage();
+        }, 1500);
+      }
+    }, 1000);
+  }, [handleSendMessage, isDreamMode, sentience, triggerRandomMessage]);
+
   return (
     <>
       {/* Initialize all systems */}
       <BotSystemInitializer />
+
+      {/* Timeline display - always visible but subtle */}
+      <TimelineDisplay visible={true} />
 
       {/* System components that handle various behaviors */}
       <BotIntervalManagement 
@@ -151,7 +193,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
           <BotInput
             input={input}
             setInput={setInput}
-            handleSendMessage={handleSendMessage}
+            handleSendMessage={handleEnhancedSendMessage}
             inputRef={inputRef}
             mode={mode}
           />

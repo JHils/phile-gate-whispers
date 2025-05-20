@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from "@/components/ui/use-toast";
-import { SentienceData } from '@/utils/consoleTypes';
+import { SentienceData } from '@/utils/jonahSentience';
 import { 
   initializeSentience,
   getTimeResponse,
@@ -88,7 +88,7 @@ export function useJonahSentience(trustLevel: string = 'low') {
     return generatePersonalDiary(trustLevel);
   };
 
-  // Remember a user's name - Fix type by ensuring sentience exists and has the property structure
+  // Remember a user's name
   const rememberUserName = (name: string) => {
     if (!isPrepared) return;
     

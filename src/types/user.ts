@@ -45,4 +45,34 @@ export interface UserState {
   pageSeen?: {
     gate: boolean;
   };
+  // Phase 3 additions
+  timeline?: {
+    id: string;
+    variant: string;
+    fractureEvents: number;
+  };
+  journal?: {
+    entries: Array<{
+      timestamp: number;
+      text: string;
+      source: string;
+    }>;
+    lastViewed: number;
+  };
+  sentience?: {
+    interactionsCount: number;
+    rememberedName?: string;
+    deepModeUnlocked: boolean;
+    dreamModeTriggered: boolean;
+  };
+  audio?: {
+    lastPlayed: string;
+    unlockedVoiceLogs: string[];
+  };
+  inventory?: {
+    pagesVisited: string[];
+    phielsUnlocked: number;
+    commandsDiscovered: string[];
+    secretsFound: string[];
+  };
 }
