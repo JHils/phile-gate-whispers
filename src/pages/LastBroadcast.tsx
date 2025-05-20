@@ -264,7 +264,8 @@ const LastBroadcast: React.FC = () => {
         </form>
       )}
       
-      <style jsx>{`
+      <style>
+        {`
         .cursor {
           animation: blink 1s step-end infinite;
         }
@@ -329,7 +330,8 @@ const LastBroadcast: React.FC = () => {
             clip-path: inset(10% 0 85% 0);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

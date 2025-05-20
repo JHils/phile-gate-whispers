@@ -61,15 +61,15 @@ export const processEmotionalInput = (input: string): { primary: string; seconda
   // If we found a trigger, update the emotional state
   if (primaryTrigger && triggerStrength > 0.1) {
     // If the trigger is different from current primary mood, make it secondary
-    let secondaryMood = currentState.secondaryMood;
+    let newSecondaryMood = currentState.secondaryMood;
     
     if (primaryTrigger !== currentState.primaryMood) {
-      secondaryMood = currentState.primaryMood;
+      newSecondaryMood = currentState.primaryMood;
       
       // Update the emotional state
       saveEmotionalState({
         primaryMood: primaryTrigger,
-        secondaryMood: secondaryMood,
+        secondaryMood: newSecondaryMood,
         lastMoodChange: Date.now(),
         moodTriggers: [...(currentState.moodTriggers || []).slice(-4), primaryTrigger]
       });
@@ -108,7 +108,7 @@ export const processEmotionalInput = (input: string): { primary: string; seconda
   
   return {
     primary: primaryTrigger || currentState.primaryMood,
-    secondary: secondaryMood || currentState.secondaryMood
+    secondary: currentState.secondaryMood
   };
 };
 

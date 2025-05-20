@@ -211,12 +211,14 @@ const ConfessionLog: React.FC = () => {
         </div>
       </div>
       
-      <style jsx>{`
+      <style>
+        {`
         .corrupted-text {
           text-shadow: 0 0 5px #3b82f6;
           letter-spacing: 0.5px;
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

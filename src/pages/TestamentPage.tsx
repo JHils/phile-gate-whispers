@@ -33,7 +33,7 @@ const TestamentPage: React.FC = () => {
     if (unlocked) {
       // Get revealed entries
       const revealedEntries = getRevealedEntries();
-      setEntries(revealedEntries);
+      setEntries(revealedEntries as TestamentEntry[]);
       setRevealedCount(revealedEntries.length);
     }
     
@@ -93,7 +93,9 @@ const TestamentPage: React.FC = () => {
     const nextEntry = getNextTestamentEntry(forceUnlock);
     
     if (nextEntry) {
-      setEntries(prev => [...prev, nextEntry]);
+      // Cast the entry to match our interface
+      const typedEntry = nextEntry as unknown as TestamentEntry;
+      setEntries(prev => [...prev, typedEntry]);
       setRevealedCount(prev => prev + 1);
     } else {
       // No more entries available yet
@@ -259,7 +261,8 @@ const TestamentPage: React.FC = () => {
         )}
       </div>
       
-      <style jsx>{`
+      <style>
+        {`
         .corrupt-text {
           text-shadow: 0 0 5px #00ff00;
           letter-spacing: 0.5px;
@@ -319,7 +322,8 @@ const TestamentPage: React.FC = () => {
             transform: translate(2px, 0);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

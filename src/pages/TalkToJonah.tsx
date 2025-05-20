@@ -131,8 +131,8 @@ const TalkToJonah: React.FC = () => {
   
   // Add bot message with typing simulation
   const addBotMessage = (content: string) => {
-    // Apply typing quirks
-    const quirkLevel = jonahVersion === 'RESIDUE' ? 'heavy' : 'minimal';
+    // Apply typing quirks - use 'moderate' instead of 'heavy'
+    const quirkLevel = jonahVersion === 'RESIDUE' ? 'moderate' : 'minimal';
     const processedContent = applyTypingQuirks(content, quirkLevel);
     
     setIsTyping(false);
@@ -334,7 +334,8 @@ const TalkToJonah: React.FC = () => {
         </form>
       </div>
       
-      <style jsx>{`
+      <style>
+        {`
         .typing-indicator {
           display: flex;
           align-items: center;
@@ -370,7 +371,8 @@ const TalkToJonah: React.FC = () => {
             transform: translateY(-5px);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
