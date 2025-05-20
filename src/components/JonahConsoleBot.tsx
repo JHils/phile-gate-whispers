@@ -1,57 +1,28 @@
+
 import React, { useRef } from "react";
+import { useLocation } from "react-router-dom";
+import { useBotState } from "@/hooks/useBotState";
+import { convertToBotMessages } from "@/hooks/useBotState/useMessageAdapters";
+
+// Import components
 import { BotHeader } from "./bot/BotHeader";
 import { BotMessages } from "./bot/BotMessages";
 import { BotInput } from "./bot/BotInput";
-import { useBotState } from "@/hooks/useBotState";
 import { BotIcon } from "./bot/BotIcon";
-import { 
-  initializeARGTracking, 
-  initializeSentience,
-  initializeAdvancedBehavior,
-  initializeRealityFabric,
-  initializeEcologicalAwareness
-} from "@/utils/systemInitializers";
 import BotIntervalManagement from "./bot/BotIntervalManagement";
 import BotQuestSystem from "./bot/BotQuestSystem";
 import BotPageNavigation from "./bot/BotPageNavigation";
 import BotNewsAwareness from "./bot/BotNewsAwareness";
 import BotEcologicalAwareness from "./bot/BotEcologicalAwareness";
-import { getMoodClassName } from "./bot/BotMoodManager";
-import { useLocation } from "react-router-dom";
-import { BotMessage } from "@/hooks/useBotState/types";
-import { initializeNewsAwarenessSystem } from "@/utils/jonahNewsAwareness";
+import BotSystemInitializer from "./bot/BotSystemInitializer";
+import BotContainer from "./bot/BotContainer";
+import BotStyles from "./bot/BotStyles";
 
 interface JonahConsoleBotProps {
   insideRouter?: boolean;
 }
 
-// Create a helper to initialize all systems
-const initializeAllSystems = () => {
-  initializeARGTracking();
-  initializeSentience();
-  initializeAdvancedBehavior();
-  initializeRealityFabric();
-  initializeNewsAwarenessSystem();
-  initializeEcologicalAwareness();
-};
-
-// Helper function to convert messages to BotMessages
-const convertToBotMessages = (messages: any[]): BotMessage[] => {
-  return messages.map(msg => ({
-    id: msg.id || `msg-${Date.now()}-${Math.random()}`,
-    type: msg.sender === 'character' ? 'bot' : 'user',
-    content: msg.text || msg.content || '',
-    timestamp: msg.timestamp || Date.now(),
-    special: msg.special || false
-  }));
-};
-
 const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false }) => {
-  // Make sure ARG tracking and sentience systems are initialized first
-  React.useEffect(() => {
-    initializeAllSystems();
-  }, []);
-
   // Use our extracted hook for bot state management
   const {
     isOpen,
@@ -84,9 +55,8 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
   const inputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
   
-  // Get mood state from getMoodClassName helper - Convert messages to BotMessage[]
+  // Convert messages to BotMessage[] format
   const botMessages = convertToBotMessages(messages);
-  const moodColor = getMoodClassName(trustLevel, botMessages);
 
   // Scroll to bottom when messages change
   React.useEffect(() => {
@@ -102,7 +72,10 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
 
   return (
     <>
-      {/* Add interval management system */}
+      {/* Initialize all systems */}
+      <BotSystemInitializer />
+
+      {/* System components that handle various behaviors */}
       <BotIntervalManagement 
         isOpen={isOpen}
         isMinimized={isMinimized}
@@ -115,33 +88,29 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
         currentPath={location.pathname}
       />
       
-      {/* Add quest system */}
       <BotQuestSystem 
         isOpen={isOpen}
         addBotMessage={addBotMessage}
         modifyTrust={modifyTrust}
       />
       
-      {/* Add page navigation tracker */}
       <BotPageNavigation 
         addBotMessage={addBotMessage}
         modifyTrust={modifyTrust}
         isOpen={isOpen}
       />
       
-      {/* Add news awareness system */}
       <BotNewsAwareness
         trustLevel={trustLevel}
         addBotMessage={addBotMessage}
       />
       
-      {/* Add ecological awareness system */}
       <BotEcologicalAwareness
         trustLevel={trustLevel}
         addBotMessage={addBotMessage}
       />
 
-      {/* Chat icon with trust level indicator */}
+      {/* Chat icon - shown when chat is closed */}
       <BotIcon 
         isOpen={isOpen}
         iconVariant={iconVariant}
@@ -150,129 +119,47 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
         trustLevel={trustLevel}
       />
 
-      {/* Chat window */}
-      {isOpen && (
-        <div 
-          className={`fixed z-50 ${isMinimized ? 'bottom-6 right-6 w-64 h-12' : 'bottom-6 right-6 w-80 md:w-96 h-96'} 
-            bg-gray-900 text-white rounded-lg shadow-xl transition-all duration-300
-            ${glitchEffect ? 'animate-glitch' : ''}`}
-        >
-          <BotHeader 
-            mode={mode}
-            isMinimized={isMinimized}
-            minimizeChat={minimizeChat}
-            closeChat={closeChat}
-            trustLevel={trustLevel}
-            trustScore={trustScore}
+      {/* Chat window - when opened */}
+      <BotContainer 
+        isOpen={isOpen}
+        isMinimized={isMinimized}
+        glitchEffect={glitchEffect}
+        messagesEndRef={messagesEndRef}
+        trustLevel={trustLevel}
+        messages={botMessages}
+      >
+        <BotHeader 
+          mode={mode}
+          isMinimized={isMinimized}
+          minimizeChat={minimizeChat}
+          closeChat={closeChat}
+          trustLevel={trustLevel}
+          trustScore={trustScore}
+        />
+
+        {/* Messages area - only shown when not minimized */}
+        {!isMinimized && (
+          <BotMessages 
+            messages={botMessages}
+            isTyping={isTyping}
+            messagesEndRef={messagesEndRef}
           />
+        )}
 
-          {/* Mood indicator - visible during high trust */}
-          {!isMinimized && trustLevel === 'high' && (
-            <div className={`text-center py-1 text-xs border-b ${moodColor} transition-colors duration-500`}>
-              {window.JonahConsole?.sentience?.realTimeMood || "watching"}
-            </div>
-          )}
+        {/* Input area - only shown when not minimized */}
+        {!isMinimized && (
+          <BotInput
+            input={input}
+            setInput={setInput}
+            handleSendMessage={handleSendMessage}
+            inputRef={inputRef}
+            mode={mode}
+          />
+        )}
+      </BotContainer>
 
-          {/* Messages area - only shown when not minimized */}
-          {!isMinimized && (
-            <BotMessages 
-              messages={botMessages}
-              isTyping={isTyping}
-              messagesEndRef={messagesEndRef}
-            />
-          )}
-
-          {/* Input area - only shown when not minimized */}
-          {!isMinimized && (
-            <BotInput
-              input={input}
-              setInput={setInput}
-              handleSendMessage={handleSendMessage}
-              inputRef={inputRef}
-              mode={mode}
-            />
-          )}
-        </div>
-      )}
-
-      {/* Import CSS for trust animations */}
-      <link rel="stylesheet" href="/src/styles/trust-animations.css" />
-
-      {/* CSS for glitch effects */}
-      <style>
-        {`
-        .animate-glitch {
-          animation: glitch 0.5s cubic-bezier(.25, .46, .45, .94) both;
-        }
-        
-        @keyframes glitch {
-          0% {
-            transform: translate(0);
-          }
-          20% {
-            transform: translate(-2px, 2px);
-          }
-          40% {
-            transform: translate(-2px, -2px);
-          }
-          60% {
-            transform: translate(2px, 2px);
-          }
-          80% {
-            transform: translate(2px, -2px);
-          }
-          100% {
-            transform: translate(0);
-          }
-        }
-        
-        .glitch-icon {
-          position: relative;
-        }
-        
-        .glitch-icon::before,
-        .glitch-icon::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-        }
-        
-        .glitch-icon::before {
-          background: rgba(255, 0, 0, 0.2);
-          animation: glitch-animation 1s infinite linear alternate-reverse;
-        }
-        
-        .glitch-icon::after {
-          background: rgba(0, 0, 255, 0.2);
-          animation: glitch-animation 0.7s infinite linear alternate;
-        }
-        
-        @keyframes glitch-animation {
-          0% {
-            transform: translate(0);
-          }
-          20% {
-            transform: translate(-1px, 1px);
-          }
-          40% {
-            transform: translate(-1px, -1px);
-          }
-          60% {
-            transform: translate(1px, 1px);
-          }
-          80% {
-            transform: translate(1px, -1px);
-          }
-          100% {
-            transform: translate(0);
-          }
-        }
-        `}
-      </style>
+      {/* CSS and styling */}
+      <BotStyles />
     </>
   );
 };
