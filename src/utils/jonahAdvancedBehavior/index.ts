@@ -4,22 +4,19 @@
  */
 
 // Export initialization function
-export { initializeAdvancedBehavior } from './initializeBehavior';
+export { initializeBehavior as initializeAdvancedBehavior } from './initializeBehavior';
 
 // Export trust system
 export { jonah_checkTrustTransition } from './trustSystem';
 
-// Export response generators
+// Export response generators - check that these exports actually exist in their modules
 export { generateFirstTimeResponse } from './responses/firstTimeResponses';
 export { getVaryingLengthResponse } from './responses/lengthVariations';
-export { getToneResponse } from './responses/toneResponses';
-export { getEmotionalResponse } from './responses/emotionalResponses';
 
-// Export quest system
-export { initializeMicroQuests } from './quests/microQuests';
+// Ensure these functions exist in their respective files before uncommenting
+// export { getToneResponse } from './responses/toneResponses';
+// export { getEmotionalResponse } from './responses/emotionalResponses';
+// export { initializeMicroQuests } from './quests/microQuests';
+// export { applyTypingQuirks } from './quirks/typingQuirks';
+// export { syncWithARG } from './argSync';
 
-// Export quirks system
-export { applyTypingQuirks } from './quirks/typingQuirks';
-
-// Export ARG sync utilities
-export { syncWithARG } from './argSync';

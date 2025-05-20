@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+
+import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { addJournalEntry } from '@/utils/jonahRealityFabric';
 
@@ -10,12 +11,17 @@ interface BotPageNavigationProps {
 
 const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, modifyTrust, isOpen }) => {
   const location = useLocation();
+  const previousPathRef = useRef<string>('');
   
   useEffect(() => {
     // Only trigger on specific pages and when the chat is open
     if (!isOpen) return;
     
     const pathname = location.pathname;
+    
+    // Skip if path hasn't changed to prevent duplicate processing
+    if (pathname === previousPathRef.current) return;
+    previousPathRef.current = pathname;
     
     // Define page-specific messages and trust adjustments
     const pageTriggers: { [key: string]: { message: string; trust: number } } = {

@@ -89,5 +89,7 @@ export const initializeConsoleCommands = (
   initializeTimeSystem(trackCommandExecution);
   initializeNewsCommands();
   initializeEcoCommands();
-  initializeARGCommands(trackCommandExecution); // Fixed: Passing the required argument
+  
+  // Fix the missing argument by passing trackCommandExecution
+  initializeARGCommands(trackCommandExecution);
 };
