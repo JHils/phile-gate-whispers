@@ -1,4 +1,3 @@
-
 /**
  * Jonah's Ecological Awareness System
  * Processes queries related to environmental and ecological topics
@@ -17,8 +16,11 @@ export function initializeEcoAwareness(): void {
         lastBiomeCheck: Date.now(),
         connectionStrength: 20, // Start with a low connection
         currentBiome: null,
-        previousResponses: [] // Adding the property here as well
+        previousResponses: [] // Initialize the previousResponses array
       };
+    } else if (!window.JonahConsole.sentience.ecoAwareness.previousResponses) {
+      // Ensure previousResponses exists if ecoAwareness was already initialized
+      window.JonahConsole.sentience.ecoAwareness.previousResponses = [];
     }
   }
 }

@@ -10,52 +10,18 @@ import {
   applyTypingQuirks,
   jonah_storeMemoryFragment,
   jonah_recallMemoryFragment,
-  
-  // Import enhanced emotional system
-  processEmotionalInput,
-  getLayeredEmotionalResponse,
-  checkForRecurringSymbols,
-  
-  // Import adaptive learning
-  trackUserInput,
-  isRepeatedPhrase,
-  getRepetitionResponse,
-  getAdaptedResponse,
-  
-  // Import typing simulator
-  splitAndTypeMessage,
-  
-  // Import dream system
-  getDreamReturnResponse,
-  
-  // Import vocabulary system
-  getResponseTemplate,
-  generateEmotionalResponse,
-  
-  // Import Echo Chamber system
-  storeEcho,
-  getEchoPhrase,
-  checkForEchoMatch,
-  
-  // Import Semantic Interpretation system
-  detectEmotionalIntent,
-  getUnsaidEmotionResponse,
-  storeIntention,
-  getFalseMemory,
-  
-  // Import Temporal Memory system
-  trackPhrase,
-  checkForLoop,
-  getFalseMemoryResponse,
-  getLoopResponse,
-  getBlankFragmentResponse,
-  
-  // Import Testament system
-  unlockTestamentByPhrase,
-  getTestamentTeaser,
-  generateTestamentResponse
 } from '@/utils/jonahAdvancedBehavior';
 
+// Import from newly refactored files
+import { processEmotionalInput, getLayeredEmotionalResponse, checkForRecurringSymbols } from '@/hooks/useBotState/useEmotionalSystem';
+import { trackUserInput, isRepeatedPhrase, getRepetitionResponse, getAdaptedResponse } from '@/hooks/useBotState/useAdaptiveLearning';
+import { splitAndTypeMessage } from '@/hooks/useBotState/useTypingSimulator';
+import { getDreamReturnResponse } from '@/hooks/useBotState/useDreamSystem';
+import { getResponseTemplate, generateEmotionalResponse } from '@/hooks/useBotState/useVocabularySystem';
+import { storeEcho, getEchoPhrase, checkForEchoMatch } from '@/hooks/useBotState/useEchoSystem';
+import { detectEmotionalIntent, getUnsaidEmotionResponse, storeIntention, getFalseMemory } from '@/hooks/useBotState/useSemanticSystem';
+import { trackPhrase, checkForLoop, getFalseMemoryResponse, getLoopResponse, getBlankFragmentResponse } from '@/hooks/useBotState/useTemporalSystem';
+import { unlockTestamentByPhrase, getTestamentTeaser, generateTestamentResponse } from '@/hooks/useBotState/useTestamentSystem';
 import { EmotionalState, EmotionCategory, createEmotionalState } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useMessages(initialMessages = [], trustLevel = 'low') {
@@ -496,7 +462,7 @@ function generateResponseFromTemplate(content: string, trustLevel: string): stri
   
   const emotion = emotionMap[trustLevel] || 'neutral';
   
-  // Generate response from template - using the createEmotionalState helper
-  // The createEmotionalState function expects an EmotionCategory string, not a boolean
+  // Generate response from template
+  // Fix: Pass the template as the second argument (was causing the error)
   return generateEmotionalResponse(createEmotionalState(emotion), template);
 }
