@@ -4,6 +4,7 @@ import {
   generateReturningResponse,
   getVaryingLengthResponse,
   getEmotionalResponse,
+  jonah_recallMemoryFragment
 } from '@/utils/jonahAdvancedBehavior';
 
 import { 
@@ -33,8 +34,7 @@ export function useResponseGeneration(
 ) {
   // Schedule a follow-up message with enhanced behaviors
   const scheduleFollowUpMessage = (
-    lastUserInput: string, 
-    jonah_recallMemoryFragment: () => string | null
+    lastUserInput: string
   ) => {
     // Higher trust levels get more follow-ups
     const followUpChance = trustLevel === 'high' ? 0.4 : 
@@ -156,7 +156,7 @@ export function useResponseGeneration(
     
     const emotion = emotionMap[trustLevel] || 'neutral';
     
-    // Generate response from template - FIXED: pass template as second argument
+    // Generate response from template - passing template as second argument
     return generateEmotionalResponse(createEmotionalState(emotion), template);
   };
 
@@ -296,7 +296,7 @@ export function useResponseGeneration(
     addBotMessage(response);
     
     // Occasionally add a follow-up message (enhanced)
-    scheduleFollowUpMessage(content, jonah_recallMemoryFragment);
+    scheduleFollowUpMessage(content);
   };
 
   return { handleResponseGeneration };
