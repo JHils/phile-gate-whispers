@@ -43,10 +43,10 @@ export const BotIcon: React.FC<BotIconProps> = ({
   
   // Get icon glow class based on trust level
   const getIconGlowClass = () => {
-    if (trustLevel === 'high') return 'trust-shadow-high';
-    if (trustLevel === 'medium') return 'trust-shadow-medium';
-    if (trustLevel === 'low') return 'trust-shadow-low';
-    return '';
+    if (trustLevel === 'high') return 'trust-shadow-high trust-glow-high';
+    if (trustLevel === 'medium') return 'trust-shadow-medium trust-glow-medium';
+    if (trustLevel === 'low') return 'trust-shadow-low trust-glow-low';
+    return 'trust-glow-none';
   };
 
   return (
@@ -66,6 +66,7 @@ export const BotIcon: React.FC<BotIconProps> = ({
           size="sm"
           animated={trustLevel === 'high'} 
           trustLevel={trustLevel}
+          showHoverEffects={true}
         />
         
         {/* Trust indicator dot */}

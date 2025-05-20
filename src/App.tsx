@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -46,6 +45,9 @@ import UberDriver from './pages/UberDriver';
 import JonahConsoleBot from './components/JonahConsoleBot';
 import './App.css';
 
+// Import JonahEnhancements at the top of App.tsx
+import JonahEnhancements from './components/JonahEnhancements';
+
 // Create a layout component that includes the console bot within router context
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -57,7 +59,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const App: React.FC = () => {
+function App() {
   const { userState, updateUserState } = useTrackingSystem();
   
   useEffect(() => {
@@ -118,6 +120,6 @@ const App: React.FC = () => {
   );
 
   return <RouterProvider router={router} />;
-};
+}
 
 export default App;

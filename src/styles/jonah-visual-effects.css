@@ -1,0 +1,44 @@
+
+/* Jonah Visual Effects - Trust-based styling and hover animations */
+
+/* Glitched Glyph Hover Pulse */
+.jonah-glyph {
+  transition: transform 0.2s ease, filter 0.3s ease;
+}
+
+.jonah-glyph:hover {
+  transform: scale(1.02) rotate(0.3deg);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3)) contrast(120%);
+}
+
+/* Trust-based Console Glow */
+.trust-glow-none {
+  border: 1px solid #444;
+  box-shadow: none;
+}
+
+.trust-glow-low {
+  border: 1px solid #444;
+  box-shadow: none;
+}
+
+.trust-glow-medium {
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+}
+
+.trust-glow-high {
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35), 0 0 20px rgba(255, 255, 255, 0.1);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Pulse animation for high trust */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+/* Eye of Memory rare symbol trigger */
+.eye-transition {
+  transition: opacity 0.5s ease-in-out;
+}

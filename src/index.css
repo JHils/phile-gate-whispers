@@ -3,6 +3,7 @@
 @import 'tailwindcss/utilities';
 @import './styles/news-effects.css';
 @import './styles/trust-animations.css';
+@import './styles/jonah-visual-effects.css';
 
 @layer utilities {
   .animate-trust-pulse {
