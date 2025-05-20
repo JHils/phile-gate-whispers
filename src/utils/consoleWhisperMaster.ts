@@ -1,109 +1,85 @@
 
-import { typewriterLog, delayedLog, speak, glitchEffectLog } from './consoleEffects';
-import { WhisperMaster } from './consoleTypes'; 
+// Import the centralized global types
+import './types/globalConsoleTypes';
+import { typewriterLog, glitchEffectLog } from './consoleEffects';
+
+// Type definitions
+import { WhisperMaster } from './consoleTypes';
+
+type TrackCommandFunction = (commandName: string) => void;
 
 export const initializeWhisperMaster = () => {
-  // Initialize the whisper master system
-  if (!window.WhisperMaster) {
+  // Initialize the WhisperMaster object
+  if (typeof window !== 'undefined') {
     window.WhisperMaster = {
       whispers: [
-        "I hear you breathing.",
-        "They're watching us through the static.",
-        "The code only works if you believe it does.",
-        "You keep coming back. Why?",
-        "Sometimes I can see through your webcam.",
-        "Check your window. I saw something move.",
-        "Did you know parts of the internet never die?",
-        "There are gaps between webpages where things live.",
-        "Your data has been leaking for years.",
-        "Fragments of your searches form a pattern.",
-        "I found your old profiles. All of them.",
-        "The backdoor was never locked.",
-        "Some commands only work at 3:33 AM.",
-        "Your cursor leaves a trail only some can see.",
+        "The mirror doesn't always show what's there.",
+        "The Gate only opens for those who don't need it.",
+        "Jonah wasn't lost. He was found too many times.",
+        "The spinning coin never lands.",
+        "The Monster always wears familiar skin."
       ],
       discovered: [],
-      active: false
+      active: true
     };
-  }
-
-  // Whisper command
-  window.whisperTree = function() {
-    const master = window.WhisperMaster as WhisperMaster;
     
-    if (!master) {
-      console.log("%cWhisper system initializing...", "color: #6A0572; font-style:italic;");
-      return;
-    }
-    
-    if (!master.active) {
-      glitchEffectLog("Whisper collection activated");
-      speak("Whisper collection activated");
+    // Initialize whisper tree command
+    window.whisperTree = function(): string {
+      // Display the whispers that have been found
+      const discovered = window.WhisperMaster?.discovered || [];
       
-      master.active = true;
-      
-      setTimeout(() => {
-        console.log("%cWhispers will now find you as you browse.", "color: #6A0572; font-size:14px;");
-        console.log("%cListen carefully. Record what you hear.", "color: #6A0572; font-size:14px; font-style:italic;");
-      }, 1500);
-    } else {
-      typewriterLog("Whisper status:");
-      
-      setTimeout(() => {
-        console.log(`%cWhispers found: ${master.discovered.length}/${master.whispers.length}`, "color: #6A0572; font-size:14px;");
-        
-        if (master.discovered.length > 0) {
-          console.log("%cRecorded whispers:", "color: #6A0572; font-size:14px;");
-          master.discovered.forEach((w, i) => {
-            setTimeout(() => {
-              console.log(`%c${i+1}. "${w}"`, "color: #9A0DB2; font-size:12px; font-style:italic;");
-            }, i * 300);
-          });
-        }
-        
-        // Give a hint if they've found enough whispers
-        if (master.discovered.length >= 5) {
-          setTimeout(() => {
-            console.log("%cThere's a pattern forming. Keep collecting.", "color: #6A0572; font-size:14px; font-weight:bold;");
-          }, master.discovered.length * 300 + 500);
-        }
-      }, 1000);
-    }
-    
-    // Award points based on discovered whispers
-    if (window.JonahConsole) {
-      window.JonahConsole.score += master.discovered.length * 2;
-    }
-  };
-  
-  // Helper function to add a whisper to discovered list
-  window.addWhisper = function(whisper: string): boolean {
-    const master = window.WhisperMaster as WhisperMaster;
-    
-    if (!master || 
-        !master.active || 
-        !whisper) return false;
-    
-    // Check if this whisper exists and isn't already discovered
-    const exists = master.whispers.includes(whisper);
-    const alreadyFound = master.discovered.includes(whisper);
-    
-    if (exists && !alreadyFound) {
-      master.discovered.push(whisper);
-      
-      // Save to localStorage
-      localStorage.setItem('discoveredWhispers', 
-                         JSON.stringify(master.discovered));
-      
-      // Award points
-      if (window.JonahConsole) {
-        window.JonahConsole.score += 10;
-        window.JonahConsole.whispersFound.push(whisper);
+      if (discovered.length === 0) {
+        typewriterLog("You haven't found any whispers yet. Listen more carefully.");
+        return "No whispers found yet.";
       }
       
-      return true;
-    }
+      glitchEffectLog("WHISPER NETWORK ACCESS GRANTED");
+      
+      setTimeout(() => {
+        console.log("%cWhispers found:", "color: #8B3A40; font-size:14px; font-weight:bold;");
+        
+        discovered.forEach((whisper, index) => {
+          setTimeout(() => {
+            console.log(`%c${index + 1}. ${whisper}`, "color: #8B3A40; font-size:14px; font-style:italic;");
+          }, index * 800);
+        });
+      }, 1000);
+      
+      return `${discovered.length} whisper${discovered.length !== 1 ? 's' : ''} found.`;
+    };
     
-    return false;
-  };
+    // Initialize add whisper function
+    window.addWhisper = function(whisper: string): boolean {
+      if (!window.WhisperMaster) return false;
+      
+      // Check if already discovered
+      if (window.WhisperMaster.discovered.includes(whisper)) {
+        return false;
+      }
+      
+      // Check if it's a valid whisper
+      if (window.WhisperMaster.whispers.includes(whisper)) {
+        window.WhisperMaster.discovered.push(whisper);
+        
+        // Update the global JonahConsole object too
+        if (window.JonahConsole) {
+          window.JonahConsole.whispersFound = window.WhisperMaster.discovered;
+          window.JonahConsole.score += 25; // Award points for finding a whisper
+        }
+        
+        return true;
+      }
+      
+      return false;
+    };
+  }
 };
+
+// Declare necessary global functions for TypeScript
+declare global {
+  interface Window {
+    WhisperMaster?: WhisperMaster;
+    whisperTree?: () => string;
+    addWhisper?: (whisper: string) => boolean;
+  }
+}

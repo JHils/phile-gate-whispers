@@ -61,29 +61,29 @@ import TalkToJonah from './pages/TalkToJonah';
 import JonahConsoleBot from './components/JonahConsoleBot';
 import './App.css';
 
+// Import system initializers from the centralized location
+import {
+  initializeAllSystems
+} from './utils/systemInitializers';
+
+// Import additional systems not covered by initializeAllSystems
+import { initializeEcoAwareness } from './utils/jonahEcoAwareness';
+import { initializeFuzzyStoryMatching } from './utils/fuzzyStoryMatching';
+import { initializeNewsAwarenessSystem } from './utils/jonahNewsAwareness';
+
 // Import JonahEnhancements at the top of App.tsx
 import JonahEnhancements from './components/JonahEnhancements';
 import JonahGlitchEffects from './components/JonahGlitchEffects';
 import JonahActivityTracker from './components/JonahActivityTracker';
-import { 
-  initializeAllSystems, 
-  initializeSentience, 
-  initializeAdvancedBehavior, 
-  initializeRealityFabric 
-} from './utils/systemInitializers';
-import { initializeEcoAwareness } from './utils/jonahEcoAwareness';
-import { initializeNewsAwarenessSystem } from './utils/jonahNewsAwareness';
-import { initializeFuzzyStoryMatching } from './utils/fuzzyStoryMatching';
 
 // Create a layout component that includes the console bot within router context
 const Layout = ({ children }: { children: React.ReactNode }) => {
   // Initialize all Jonah systems
   useEffect(() => {
-    // Option 1: Initialize all systems at once
+    // Initialize all core systems at once
     initializeAllSystems();
     
-    // Option 2: Initialize individual systems as needed
-    // These are still here for backward compatibility
+    // Initialize additional systems
     initializeEcoAwareness();
     initializeFuzzyStoryMatching();
     initializeNewsAwarenessSystem();

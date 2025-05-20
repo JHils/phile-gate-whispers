@@ -8,6 +8,9 @@ import { trackCommand } from './consoleTracking/commandTracking';
 import { getNewsResponse, getWeatherResponse } from './jonahNewsAwareness';
 import { typewriterLog } from './consoleEffects';
 
+// Import centralized types
+import './types/globalConsoleTypes';
+
 type TrackCommandFunction = (commandName: string) => void;
 
 // Initialize news command system

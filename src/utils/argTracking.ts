@@ -7,6 +7,9 @@
 import { typewriterLog, glitchEffectLog } from './consoleEffects';
 import { trackCommand } from './consoleTracking/commandTracking';
 
+// Import centralized types
+import './types/globalConsoleTypes';
+
 // Initialize ARG tracking commands
 export function initializeARGCommands(trackCommandExecution: (command: string) => void): void {
   if (typeof window !== 'undefined') {

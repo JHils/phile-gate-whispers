@@ -11,6 +11,9 @@ import { initializeAdvancedBehavior } from './jonahAdvancedBehavior';
 import { initializeRealityFabric } from './jonahRealityFabric';
 import { initializeSentience } from './jonahSentience';
 
+// Import our centralized types
+import './types/globalConsoleTypes';
+
 // Initialize all console tracking systems
 export const initializeAllSystems = () => {
   // Initialize console tracking

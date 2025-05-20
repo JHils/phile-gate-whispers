@@ -4,113 +4,8 @@
  * Global interfaces and types for Jonah's Console
  */
 
-// Define global JonahConsole interface
-declare global {
-  interface Window {
-    JonahConsole?: {
-      usedCommands: string[];
-      score: number;
-      failCount: number;
-      rank: string;
-      sessionStartTime: number;
-      whispersFound: string[];
-      jokesDisplayed: string[];
-      storyFlags: StoryFlag[];
-      bookCodes: BookCode[];
-      simba: {
-        encountered: boolean;
-        lastSeen?: string;
-        interactions?: number;
-      };
-      argData: {
-        keyholeClicks: number;
-        consoleCluesTouched: string[];
-        qrScans: string[];
-        memoryFragments: string[];
-        secretPagesVisited: string[];
-        hiddenFilesDownloaded: string[];
-        idleTriggers: Record<string, any>;
-        lastInteractionTime: Date;
-        lastIdleTime?: Date;
-      };
-      sentience?: SentienceData;
-      lastCommand?: string;
-      processUserMessage?: (input: string) => string | null;
-      clearOnPathChange?: boolean;
-    };
-    
-    // Console command declarations - using optional for compatibility
-    displayRandomJoke?: () => void;
-    showStatus?: () => Promise<void>;
-    mirrorLogs?: () => void;
-    whisperTree?: () => string; // Changed to return string to match windowTypes.ts
-    plea?: () => void;
-    testament?: () => string;
-    splitVoice?: () => void;
-    mirrorMode?: () => void;
-    storyFlags?: () => void;
-    readPage?: (page: number) => void;
-    verifyCode?: (code: string) => void;
-    bridgeCollapse?: () => void;
-    discoverStoryFlag?: (flagId: string) => boolean;
-    findAnomaly?: (text: string) => void;
-    clearJonahOnPathChange?: boolean;
-    triggerJonahMessage?: (message: string) => string;
-    isSpecialTimeWindow?: () => boolean;
-    triggerSimbaComment?: (message: string) => void;
-    // Adding missing console commands
-    mirrorCheck?: () => void;
-    timeCheck?: () => void;
-    traceCat?: () => void;
-    feedSimba?: () => void;
-    addWhisper?: (whisper: string) => boolean;
-    // Console functions from jonahSentience.ts
-    dreamJournal?: () => string; // Changed to return string to match windowTypes.ts
-    rememberMe?: () => Record<string, any>;
-    lookInside?: () => void; 
-    echoChamber?: () => void;
-    WhisperMaster?: WhisperMaster;
-    helpMe?: () => void;
-    tea?: () => void;
-    trousers?: () => void;
-    moustache?: () => void;
-    funny?: () => void;
-    seenMyself?: () => void;
-    youWereHimFirst?: () => void;
-    wearingYouNow?: () => void;
-    toggleWrath?: () => void;
-    // New news awareness functions
-    newsFlash?: () => string;
-    weatherReport?: () => string;
-    // Add ecological commands - making this consistent
-    dreamtime?: () => void;
-    woodwideweb?: () => void;
-    biomeCheck?: () => void;
-    kgari?: () => void;
-    // Add processStoryQuery for fuzzy matching
-    processStoryQuery?: (query: string) => string;
-    // New Jonah console interactive commands 
-    start?: () => string;
-    inventory?: () => string;
-    echo_me?: (input: string) => string;
-    forget?: () => string;
-    forget_confirm?: () => string;
-    access_journal?: () => string;
-    split?: () => string;
-    re_entry?: () => string;
-    talk_to_jonah?: () => string;
-    playJonahAudio?: (triggerType: string) => void;
-    help?: () => void;
-    whois?: () => void;
-    gate?: () => void;
-    philes?: () => void;
-    monster?: () => void;
-    legacy?: () => void;
-    reveal?: () => void;
-    reincarnate?: () => void;
-    hint?: () => void;
-  }
-}
+// Import the centralized global types
+import './types/globalConsoleTypes';
 
 // ARG Command Type
 export type ARGCommand = {
@@ -261,7 +156,7 @@ export interface SentienceData {
     usedDreamParables?: string[];
     generatedFiles?: string[];
     nightGlitches?: string[];
-    lastDreamTime?: number; // Added this property
+    lastDreamTime?: number;
     anomalies?: Array<{
       id: string;
       triggered: boolean;
@@ -286,7 +181,7 @@ export interface SentienceData {
     lastPlayed?: number;
     playedSounds?: string[];
     volumeLevel?: number;
-    unlockedVoiceLogs?: string[]; // Added this property
+    unlockedVoiceLogs?: string[];
   };
   typingQuirks?: {
     glitchProbability: number;
@@ -322,12 +217,11 @@ export interface SentienceData {
     worldEvents?: string[];
   };
   newsAwareness?: NewsAwareness;
-  // Add ecological awareness types
   ecoAwareness?: {
     lastBiomeCheck: number;
     currentBiome: string | null;
     previousResponses: string[];
-    connectionStrength: number; // 0-100 scale of connection to nature
+    connectionStrength: number;
   };
   temporalStates?: any[];
   memories?: any[];
