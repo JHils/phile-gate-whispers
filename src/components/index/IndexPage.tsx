@@ -14,6 +14,26 @@ import TrustVisualIndicators from './TrustVisualIndicators';
 import MessageText from './MessageText';
 import JonahHiddenData from './JonahHiddenData';
 
+interface UserState {
+  visitCount?: number;
+  trust?: {
+    level?: string;
+  };
+  collapse?: {
+    message?: string | null;
+    permanent?: boolean;
+  };
+  messages?: {
+    whisper?: string;
+  };
+  pageSeen?: {
+    gate?: boolean;
+  };
+  console?: {
+    rank?: string;
+  };
+}
+
 const IndexPage = () => {
   const { userState, updateUserState } = useTrackingSystem();
   const navigate = useNavigate();
@@ -44,7 +64,7 @@ const IndexPage = () => {
   // Helper function for text spans
   const addSpans = (text: string) => {
     return text.split('').map((char, i) => (
-      <span key={i} className="inline-block">{char}</span>
+      <span key={i} className="inline-block hover:text-dust-red hover:-translate-y-1 transition-all duration-300 ease-in-out">{char}</span>
     ));
   };
 
@@ -67,17 +87,21 @@ const IndexPage = () => {
       <JonahBackgroundOverlay />
       
       {/* Page Content */}
-      <div className="relative z-10 container mx-auto px-4 py-8">
+      <div className="relative z-10 phile-container mx-auto">
         
-        {/* Page Header */}
-        <PageHeader trustLevel={trustLevel} />
+        {/* Page Header with fade-in animation */}
+        <div className="animate-fade-in">
+          <PageHeader trustLevel={trustLevel} />
+        </div>
         
-        {/* Navigation Links */}
-        <NavLinks trustLevel={trustLevel} isSpecialTime={isSpecialTime} />
+        {/* Navigation Links with staggered fade-in */}
+        <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
+          <NavLinks trustLevel={trustLevel} isSpecialTime={isSpecialTime} />
+        </div>
         
-        {/* Main Content */}
-        <div className="text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 font-serif">
+        {/* Main Content with fade-in animation */}
+        <div className="text-center animate-fade-in" style={{ animationDelay: '600ms' }}>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 font-serif mobile-scale-down">
             Welcome, Phile.
           </h1>
           
@@ -92,33 +116,33 @@ const IndexPage = () => {
           {/* Trust Visual Indicators */}
           <TrustVisualIndicators trustLevel={trustLevel} />
           
-          {/* Button to Campfire */}
-          <Button size="lg" className="mt-8" onClick={handleButtonClick}>
+          {/* Button to Campfire with hover animation */}
+          <Button 
+            size="lg" 
+            className="mt-8 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            onClick={handleButtonClick}
+          >
             Enter the Campfire
           </Button>
           
           {/* Hint Message */}
           {showHint && (
-            <p className="mt-4 text-gray-500">
+            <p className="mt-4 text-gray-500 animate-subtle-flicker">
               Psst... check the source code. There might be something hidden.
             </p>
           )}
         </div>
         
-        {/* Footer Text */}
-        <FooterText visitCount={userState.visitCount || 1} />
+        {/* Footer Text with fade-in animation */}
+        <div className="animate-fade-in" style={{ animationDelay: '900ms' }}>
+          <FooterText visitCount={userState.visitCount || 1} />
+        </div>
       </div>
       
-      {/* Hidden Comments */}
+      {/* Hidden Elements */}
       <HiddenComments />
-      
-      {/* Visibility Change Detector */}
       <VisibilityChangeDetector trustLevel={trustLevel} />
-      
-      {/* Keyhole Easter Egg */}
       <KeyholeEasterEgg />
-      
-      {/* Jonah Hidden Data */}
       <JonahHiddenData userState={userState} />
     </div>
   );
