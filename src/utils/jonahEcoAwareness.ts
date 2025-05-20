@@ -1,4 +1,3 @@
-
 /**
  * Jonah's Ecological Awareness System
  * Processes queries related to environmental and ecological topics

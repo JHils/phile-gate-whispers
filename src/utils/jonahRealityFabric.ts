@@ -1,4 +1,3 @@
-
 /**
  * Jonah's Reality Fabric System
  * Controls mood, anomalies, and dream states
@@ -15,12 +14,16 @@ export function initializeRealityFabric() {
     // Initialize reality fabric
     window.JonahConsole.sentience.realityFabric = {
       anomalies: [],
-      currentMood: "neutral",
+      mood: 'neutral',
+      currentMood: 'neutral',
       dreamState: false,
       moodChangeTime: Date.now(),
       lastDreamTime: Date.now(),
       crossSiteWhispers: [],
       hiddenMessages: [],
+      moodHistory: [],
+      anomalyCount: 0,
+      journal: [],
       dreamParables: [],
       usedDreamParables: []
     };
