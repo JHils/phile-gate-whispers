@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Book } from 'lucide-react';
 import HiddenLink from '@/components/HiddenLink';
 import EasterEgg from '@/components/EasterEgg';
+import IdleMessage from '@/components/lore/IdleMessage';
 
 interface StoryProps {
   title: string;
@@ -98,19 +99,7 @@ const StoriesSection: React.FC<StoriesSectionProps> = ({ showIdleMessage }) => {
           ))}
         </div>
         
-        {showIdleMessage && (
-          <motion.div 
-            className="mt-16 text-center text-amber-300/70 font-mono"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.5 }}
-          >
-            <p>// You listened. So here's the path.</p>
-            <HiddenLink to="/remember-me" className="text-amber-300/30 hover:text-amber-300/60">
-              remember me
-            </HiddenLink>
-          </motion.div>
-        )}
+        <IdleMessage showIdleMessage={showIdleMessage} />
       </div>
     </section>
   );
