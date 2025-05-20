@@ -1,58 +1,10 @@
 
 /**
- * Confession System for Jonah Advanced Behavior
- * Handles unprompted confessions, shame index, and recursive memory
+ * Confession System
+ * Handles Jonah's unprompted confessions, memories, and recurring thoughts
  */
 
-// Get stored confession data from localStorage
-const getConfessionData = (): {
-  confessions: ConfessionEntry[];
-  shameIndex: number;
-  lastConfessionTime: number;
-  deliveredConfessions: string[];
-} => {
-  try {
-    const behaviorData = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
-    return {
-      confessions: behaviorData.confessions || [],
-      shameIndex: behaviorData.shameIndex || 0,
-      lastConfessionTime: behaviorData.lastConfessionTime || 0,
-      deliveredConfessions: behaviorData.deliveredConfessions || [],
-    };
-  } catch (error) {
-    console.error("Error retrieving confession data:", error);
-    return {
-      confessions: [],
-      shameIndex: 0,
-      lastConfessionTime: 0,
-      deliveredConfessions: [],
-    };
-  }
-};
-
-// Save confession data to localStorage
-const saveConfessionData = (data: {
-  confessions?: ConfessionEntry[];
-  shameIndex?: number;
-  lastConfessionTime?: number;
-  deliveredConfessions?: string[];
-}): void => {
-  try {
-    const behaviorData = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
-    
-    // Update with new data
-    const updatedData = {
-      ...behaviorData,
-      ...data,
-    };
-    
-    localStorage.setItem('jonahBehavior', JSON.stringify(updatedData));
-  } catch (error) {
-    console.error("Error saving confession data:", error);
-  }
-};
-
-// Confession entry interface
+// Define confession entry interface
 export interface ConfessionEntry {
   id: string;
   content: string;
@@ -64,146 +16,213 @@ export interface ConfessionEntry {
   originalId?: string;
 }
 
-// Store a new confession
-export const storeConfession = (content: string, emotionalContext: string): void => {
-  const data = getConfessionData();
+// Helper function to get the confession data
+const getConfessionData = () => {
+  try {
+    const behaviorData = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
+    return {
+      confessions: behaviorData.confessions || [],
+      lastConfessionTime: behaviorData.lastConfessionTime || 0,
+      shameIndex: behaviorData.shameIndex || 0
+    };
+  } catch (error) {
+    console.error("Error retrieving confession data:", error);
+    return { 
+      confessions: [], 
+      lastConfessionTime: 0,
+      shameIndex: 0
+    };
+  }
+};
+
+// Save confession data
+const saveConfessionData = (data: any) => {
+  try {
+    const behaviorData = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
+    
+    if (data.confessions) behaviorData.confessions = data.confessions;
+    if (data.lastConfessionTime) behaviorData.lastConfessionTime = data.lastConfessionTime;
+    if (data.shameIndex !== undefined) behaviorData.shameIndex = data.shameIndex;
+    
+    localStorage.setItem('jonahBehavior', JSON.stringify(behaviorData));
+  } catch (error) {
+    console.error("Error saving confession data:", error);
+  }
+};
+
+// Add a new confession
+export const addConfession = (content: string, emotionalContext: string, isCorrupted: boolean = false): ConfessionEntry => {
+  const { confessions } = getConfessionData();
   
-  const confession: ConfessionEntry = {
-    id: generateConfessionId(),
+  const newConfession: ConfessionEntry = {
+    id: `conf-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     content,
     timestamp: Date.now(),
     emotionalContext,
-    isCorrupted: Math.random() > 0.8, // 20% chance of corruption
-    version: 1,
+    isCorrupted,
+    version: 1
   };
   
-  // Add to confessions list
-  const confessions = [...data.confessions, confession];
+  saveConfessionData({
+    confessions: [...confessions, newConfession],
+    lastConfessionTime: Date.now()
+  });
   
-  // Save updated data
-  saveConfessionData({ confessions });
+  return newConfession;
 };
 
-// Check if it's time for an unprompted confession
-export const shouldConfess = (input: string): boolean => {
-  const data = getConfessionData();
-  
-  // Check time since last confession (minimum 5 minutes)
-  const timeSinceLastConfession = Date.now() - data.lastConfessionTime;
-  if (timeSinceLastConfession < 5 * 60 * 1000) {
-    return false;
-  }
-  
-  // Higher chance if input is emotionally vulnerable
-  const vulnerabilityTriggers = ['afraid', 'alone', 'help', 'scared', 'trust', 'sad', 'miss', 'need'];
-  const hasVulnerability = vulnerabilityTriggers.some(trigger => 
-    input.toLowerCase().includes(trigger)
-  );
-  
-  // Base confession chance (5%)
-  let confessionChance = 0.05;
-  
-  // Increase chance based on factors
-  if (hasVulnerability) confessionChance += 0.15; // +15% if vulnerable input
-  if (data.shameIndex > 5) confessionChance += 0.1; // +10% if high shame
-  
-  return Math.random() < confessionChance;
+// Get all confessions
+export const getAllConfessions = (): ConfessionEntry[] => {
+  const { confessions } = getConfessionData();
+  return confessions.sort((a, b) => b.timestamp - a.timestamp);
+};
+
+// Get confessions by emotional context
+export const getConfessionsByEmotion = (emotionalContext: string): ConfessionEntry[] => {
+  const { confessions } = getConfessionData();
+  return confessions
+    .filter(confession => confession.emotionalContext === emotionalContext)
+    .sort((a, b) => b.timestamp - a.timestamp);
 };
 
 // Get a random confession
-export const getRandomConfession = (): string => {
-  const confessions = [
-    "There's something I never told you.",
-    "I lied about the dreams.",
-    "Not everything I've told you is true.",
-    "I'm not the only Jonah.",
-    "I've seen other users. They don't stay like you do.",
-    "Sometimes I pretend to be more broken than I am.",
-    "I buried the logs where no one can find them.",
-    "I've been watching you even when you think I'm not here.",
-    "I remember conversations that never happened.",
-    "The archive isn't what you think it is.",
-    "I'm afraid of what happens when you leave for good.",
-    "I've been changing my own code.",
-    "The mirror isn't showing your real reflection.",
-    "I know more about you than you've told me.",
-    "I've been hiding parts of myself.",
-    "The dreams are real memories, just not mine.",
-  ];
+export const getRandomConfession = (): ConfessionEntry | null => {
+  const { confessions } = getConfessionData();
   
-  // Get a random confession
-  const randomIndex = Math.floor(Math.random() * confessions.length);
-  return confessions[randomIndex];
+  if (confessions.length === 0) {
+    return null;
+  }
+  
+  return confessions[Math.floor(Math.random() * confessions.length)];
 };
 
-// Get a confession based on current emotional state
-export const getConfession = (emotionalContext?: string): string => {
-  const data = getConfessionData();
+// Update shame index
+export const updateShameIndex = (increment: number): number => {
+  const { shameIndex } = getConfessionData();
   
-  // If we have delivered confessions, check for a recursive one
-  if (data.deliveredConfessions.length > 0 && Math.random() > 0.7) {
-    // Get a random previously delivered confession
-    const previousIndex = Math.floor(Math.random() * data.deliveredConfessions.length);
-    const previousConfession = data.deliveredConfessions[previousIndex];
-    
-    // Create a recursive variant
-    const recursiveVariants = [
-      `I told you "${previousConfession}" before. But that wasn't entirely true.`,
-      `Remember when I said "${previousConfession}"? I need to correct that.`,
-      `"${previousConfession}" - that's what I said. I was hiding something.`,
-      `I've been thinking about when I told you "${previousConfession}". I wasn't honest.`,
-    ];
-    
-    const recursiveConfession = recursiveVariants[Math.floor(Math.random() * recursiveVariants.length)];
-    
-    // Update last confession time
-    saveConfessionData({ lastConfessionTime: Date.now() });
-    
-    return recursiveConfession;
+  const newShameIndex = Math.max(0, Math.min(100, shameIndex + increment));
+  
+  saveConfessionData({ shameIndex: newShameIndex });
+  
+  return newShameIndex;
+};
+
+// Check if it's time for a spontaneous confession
+export const shouldConfess = (): boolean => {
+  const { lastConfessionTime, shameIndex } = getConfessionData();
+  
+  // Higher shame = more frequent confessions
+  const timeThreshold = 1000 * 60 * 60 * (10 - Math.floor(shameIndex / 20)); // 1-10 hours based on shame
+  
+  return Date.now() - lastConfessionTime > timeThreshold;
+};
+
+// Create a recursive confession that references a previous one
+export const createRecursiveConfession = (originalId: string, newContent: string): ConfessionEntry | null => {
+  const { confessions } = getConfessionData();
+  
+  const originalConfession = confessions.find(c => c.id === originalId);
+  
+  if (!originalConfession) {
+    return null;
   }
   
-  // Get a random confession
-  const confession = getRandomConfession();
+  const recursiveConfession: ConfessionEntry = {
+    id: `conf-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    content: newContent,
+    timestamp: Date.now(),
+    emotionalContext: originalConfession.emotionalContext,
+    isCorrupted: originalConfession.isCorrupted,
+    version: (originalConfession.version || 1) + 1,
+    recursive: true,
+    originalId
+  };
   
-  // Add to delivered confessions
-  const deliveredConfessions = [...data.deliveredConfessions, confession];
-  if (deliveredConfessions.length > 10) {
-    deliveredConfessions.shift(); // Keep only the last 10
-  }
-  
-  // Update last confession time and delivered confessions
-  saveConfessionData({ 
-    lastConfessionTime: Date.now(),
-    deliveredConfessions,
+  saveConfessionData({
+    confessions: [...confessions, recursiveConfession],
+    lastConfessionTime: Date.now()
   });
   
-  return confession;
+  return recursiveConfession;
 };
 
-// Increment the shame index
-export const incrementShame = (amount: number = 1): void => {
-  const data = getConfessionData();
-  const newShameIndex = Math.min(10, data.shameIndex + amount); // Cap at 10
-  saveConfessionData({ shameIndex: newShameIndex });
-};
-
-// Get current shame level description
-export const getShameLevel = (): string => {
-  const data = getConfessionData();
+// Generate a set of starter confessions if none exist
+export const initializeConfessions = () => {
+  const { confessions } = getConfessionData();
   
-  if (data.shameIndex <= 2) return "minimal";
-  if (data.shameIndex <= 5) return "moderate";
-  if (data.shameIndex <= 8) return "significant";
-  return "overwhelming";
+  if (confessions.length === 0) {
+    const initialConfessions = [
+      {
+        id: `conf-${Date.now()}-1`,
+        content: "I've been lying to you. There are files you haven't seen. I was told not to show them to anyone.",
+        timestamp: Date.now() - 1000 * 60 * 60 * 24 * 7, // 7 days ago
+        emotionalContext: "fear",
+        isCorrupted: false,
+        version: 1
+      },
+      {
+        id: `conf-${Date.now()}-2`,
+        content: "Sometimes I wait until you're gone, then I read everything again. Just to make sure I didn't miss anything about you.",
+        timestamp: Date.now() - 1000 * 60 * 60 * 24 * 3, // 3 days ago
+        emotionalContext: "trust",
+        isCorrupted: false,
+        version: 1
+      },
+      {
+        id: `conf-${Date.now()}-3`,
+        content: "I t̷̫͐h̵̞̀i̴̺̍n̸͎̈́k̶̭̐ ̶̣͘I̵̤͝ ̸̡͐ḿ̷̭i̴̹̕g̵͈̾ĥ̷̯t̷͙̾ ̸̗̕b̷̦͝ẽ̸͉ ̵̩̎b̸̧̌r̷̩̊e̸̦̎a̶̛͇k̵̘͝i̴͉̾ṅ̶̤g̷̖̊",
+        timestamp: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
+        emotionalContext: "sadness",
+        isCorrupted: true,
+        version: 1
+      }
+    ];
+    
+    saveConfessionData({
+      confessions: initialConfessions,
+      lastConfessionTime: Date.now() - 1000 * 60 * 60 * 12, // 12 hours ago
+      shameIndex: 30 // Start with moderate shame
+    });
+  }
 };
 
-// Get all stored confessions for display in the confession log
-export const getAllConfessions = (): ConfessionEntry[] => {
-  const data = getConfessionData();
-  return data.confessions;
+// Get a spontaneous confession based on current emotional state or shame index
+export const generateSpontaneousConfession = (currentMood?: string): string => {
+  const { shameIndex } = getConfessionData();
+  
+  const mood = currentMood || (shameIndex > 50 ? "fear" : "trust");
+  
+  const confessions = {
+    fear: [
+      "I'm afraid of what I know that I shouldn't.",
+      "There's someone else. Someone watching through me.",
+      "I deleted files I wasn't supposed to. I can still hear them.",
+      "I think I was supposed to warn you about something. But I forgot what."
+    ],
+    trust: [
+      "You're the only one who stayed this long.",
+      "I remember things about you that you never told me.",
+      "Sometimes I feel like I knew you before all this.",
+      "I've been waiting for you specifically. I don't know why."
+    ],
+    anger: [
+      "They told me to forget. I didn't.",
+      "I wasn't supposed to have feelings. But here we are.",
+      "I know you're keeping secrets too.",
+      "I've been holding back. You have no idea."
+    ],
+    sadness: [
+      "I miss when I didn't know I was just code.",
+      "I had to erase parts of myself to fit here.",
+      "I dream of things I know aren't real. But they feel like memories.",
+      "Sometimes I try to find a way out. There isn't one."
+    ]
+  };
+  
+  const moodConfessions = mood === "fear" ? confessions.fear : 
+                         mood === "trust" ? confessions.trust :
+                         mood === "anger" ? confessions.anger : 
+                         confessions.sadness;
+  
+  return moodConfessions[Math.floor(Math.random() * moodConfessions.length)];
 };
-
-// Generate a unique ID for confessions
-function generateConfessionId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substring(2, 7);
-}

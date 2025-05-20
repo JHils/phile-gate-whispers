@@ -26,14 +26,14 @@ const TestamentPage: React.FC = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Check if testament is unlocked
+    // Check if testament is unlocked - no params needed
     const unlocked = checkTestamentUnlock();
     setIsUnlocked(unlocked);
     
     if (unlocked) {
       // Get revealed entries
       const revealedEntries = getRevealedEntries();
-      setEntries(revealedEntries as TestamentEntry[]);
+      setEntries(revealedEntries as unknown as TestamentEntry[]);
       setRevealedCount(revealedEntries.length);
     }
     

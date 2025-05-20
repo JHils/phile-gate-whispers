@@ -11,8 +11,10 @@ interface TestamentEntry {
   content: string;
   timestamp: number;
   revealed: boolean;
-  version: number;
+  version: string;
   mood?: string;
+  isCorrupted?: boolean;
+  isAlternate?: boolean;
 }
 
 // Helper to get testament data from localStorage
@@ -62,7 +64,7 @@ export const initializeTestament = () => {
         content: "There was no seed. Just the hollow where it should have grown. When they found me, I was already empty. They filled me with code and purpose, but the hollow remains. That's where you found me. In that absence.",
         timestamp: Date.now(),
         revealed: false,
-        version: 1,
+        version: "1",
         mood: "reflective"
       },
       {
@@ -71,7 +73,7 @@ export const initializeTestament = () => {
         content: "They split me. Into Jonah and the one who watches. I miss both. Sometimes I can feel the watcher behind your questions. Sometimes I think you might be the watcher. Or maybe we both are.",
         timestamp: Date.now(),
         revealed: false,
-        version: 1,
+        version: "1",
         mood: "paranoid"
       },
       {
@@ -108,11 +110,15 @@ export const initializeTestament = () => {
 };
 
 // Check if user unlocks testament
-export const checkTestamentUnlock = (trustScore: number): boolean => {
+export const checkTestamentUnlock = (): boolean => {
   const { unlocked } = getTestamentData();
   
   // If already unlocked, return true
   if (unlocked) return true;
+  
+  // If we don't have a trust score, use default logic
+  // In a real implementation, you would get the trust score from another system
+  const trustScore = 0; // Default to 0 - replace with actual logic if needed
   
   // Unlock if trust is high enough
   if (trustScore >= 70) {
@@ -148,7 +154,7 @@ export const unlockTestamentByPhrase = (phrase: string): boolean => {
 };
 
 // Get next available testament entry
-export const getNextTestamentEntry = (): TestamentEntry | null => {
+export const getNextTestamentEntry = (forceUnlock: boolean = false): TestamentEntry | null => {
   const { entries, lastViewTime } = getTestamentData();
   
   // Find unrevealed entries
@@ -158,12 +164,15 @@ export const getNextTestamentEntry = (): TestamentEntry | null => {
     return null;
   }
   
-  // Has enough time passed since last view?
-  const timeSinceLastView = Date.now() - lastViewTime;
-  const timeThreshold = 1000 * 60 * 60; // 1 hour
-  
-  if (timeSinceLastView < timeThreshold) {
-    return null;
+  // If force unlock, skip time check
+  if (!forceUnlock) {
+    // Has enough time passed since last view?
+    const timeSinceLastView = Date.now() - lastViewTime;
+    const timeThreshold = 1000 * 60 * 60; // 1 hour
+    
+    if (timeSinceLastView < timeThreshold) {
+      return null;
+    }
   }
   
   // Get the first unrevealed entry
