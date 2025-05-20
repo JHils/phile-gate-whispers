@@ -156,7 +156,8 @@ export function useResponseGeneration(
     
     const emotion = emotionMap[trustLevel] || 'neutral';
     
-    // Generate response from template - passing template as second argument
+    // Generate response from template - passing emotion state as first argument
+    // Fix: Pass the emotional state object rather than a template string
     return generateEmotionalResponse(createEmotionalState(emotion), template);
   };
 

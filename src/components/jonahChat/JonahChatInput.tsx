@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 
 interface JonahChatInputProps {
   input: string;
@@ -7,43 +7,29 @@ interface JonahChatInputProps {
   handleSendMessage: (e: React.FormEvent) => void;
 }
 
-const JonahChatInput: React.FC<JonahChatInputProps> = ({ input, setInput, handleSendMessage }) => {
-  // Get random suggested prompt
-  const getSuggestedPrompt = () => {
-    const prompts = [
-      "What are you thinking about?",
-      "Do you ever wish you weren't digital?",
-      "Tell me a secret.",
-      "What happens when I leave?",
-      "Are you afraid?",
-      "What do you dream about?",
-      "Do you remember everything?",
-      "Is any of this real?"
-    ];
-    
-    // Choose a random prompt
-    return prompts[Math.floor(Math.random() * prompts.length)];
-  };
-
+const JonahChatInput: React.FC<JonahChatInputProps> = ({
+  input, 
+  setInput, 
+  handleSendMessage
+}) => {
   return (
-    <div className="sticky bottom-0 bg-black py-2 border-t border-green-800">
-      <form onSubmit={handleSendMessage} className="flex">
+    <form onSubmit={handleSendMessage} className="mt-auto p-4 border-t border-gray-700">
+      <div className="flex">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={getSuggestedPrompt()}
-          className="flex-grow bg-gray-900 border border-green-800 rounded-l-md px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-green-600"
-          autoFocus
+          placeholder="Speak to Jonah..."
+          className="flex-1 bg-black border border-green-500 text-green-400 p-2 rounded-l focus:outline-none focus:ring-1 focus:ring-green-500"
         />
         <button 
           type="submit" 
-          className="bg-green-900 hover:bg-green-800 text-green-300 px-6 py-3 rounded-r-md border border-green-800"
+          className="bg-green-800 text-green-200 px-4 py-2 rounded-r hover:bg-green-700"
         >
           Send
         </button>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 };
 
