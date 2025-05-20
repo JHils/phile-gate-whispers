@@ -147,6 +147,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
         iconVariant={iconVariant}
         glitchEffect={glitchEffect}
         toggleChat={toggleChat}
+        trustLevel={trustLevel}
       />
 
       {/* Chat window */}
@@ -193,6 +194,9 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
           )}
         </div>
       )}
+
+      {/* Import CSS for trust animations */}
+      <link rel="stylesheet" href="/src/styles/trust-animations.css" />
 
       {/* CSS for glitch effects */}
       <style>

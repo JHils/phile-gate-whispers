@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { TrustLevel } from './types';
 
 export function useVisualEffects(trustLevel: TrustLevel) {
-  const [iconVariant, setIconVariant] = useState<'default' | 'glitch' | 'error'>('default');
+  const [iconVariant, setIconVariant] = useState<number>(1); // Changed to use numbers: 1 = default, 2 = glitch
   const [glitchEffect, setGlitchEffect] = useState(false);
   
   // Update icon variant based on trust level
@@ -11,20 +11,20 @@ export function useVisualEffects(trustLevel: TrustLevel) {
     if (trustLevel === 'high') {
       // Sometimes show glitch effect for high trust users
       if (Math.random() > 0.7) {
-        setIconVariant('glitch');
+        setIconVariant(2); // Glitch glyph variant
       } else {
-        setIconVariant('default');
+        setIconVariant(1); // Default eye variant
       }
     } else if (trustLevel === 'medium') {
       // Rarely show glitch effect for medium trust users
       if (Math.random() > 0.9) {
-        setIconVariant('glitch');
+        setIconVariant(2); // Glitch glyph variant
       } else {
-        setIconVariant('default');
+        setIconVariant(1); // Default eye variant
       }
     } else {
       // Always default for low trust
-      setIconVariant('default');
+      setIconVariant(1); // Default eye variant
     }
   }, [trustLevel]);
   

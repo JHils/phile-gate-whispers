@@ -1,7 +1,6 @@
-
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
 	darkMode: ["class"],
 	content: [
 		"./pages/**/*.{ts,tsx}",
@@ -115,6 +114,18 @@ export default {
 					'50%': {
 						opacity: '0.5'
 					}
+				},
+				"trust-pulse": {
+					"0%, 100%": { boxShadow: "0 0 0 0 rgba(96, 165, 250, 0)" },
+					"50%": { boxShadow: "0 0 0 6px rgba(96, 165, 250, 0.3)" }
+				},
+				"trust-glow": {
+					"0%, 100%": { opacity: "0.5", filter: "blur(1px)" },
+					"50%": { opacity: "0.8", filter: "blur(3px)" }
+				},
+				"trust-border-pulse": {
+					"0%, 100%": { borderColor: "rgba(96, 165, 250, 0.4)" },
+					"50%": { borderColor: "rgba(96, 165, 250, 0.8)" }
 				}
 			},
 			animation: {
@@ -124,9 +135,14 @@ export default {
 				'text-glitch': 'text-glitch 8s ease-in-out infinite',
 				'subtle-flicker': 'subtle-flicker 2s ease-in-out infinite',
 				'fade-in': 'fade-in 0.3s ease-out',
-				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				"trust-pulse": "trust-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+				"trust-glow": "trust-glow 3s ease-in-out infinite",
+				"trust-border": "trust-border-pulse 4s ease-in-out infinite",
 			}
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+};
+
+export default config;

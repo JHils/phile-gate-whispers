@@ -3,6 +3,7 @@ import React from "react";
 import { X, Minus } from "lucide-react";
 import { BotMode, TrustLevel } from "@/types/chat";
 import JonahLogo from "../JonahLogo";
+import JonahTrustIndicator from "../JonahTrustIndicator";
 
 interface BotHeaderProps {
   mode: BotMode;
@@ -36,8 +37,16 @@ export const BotHeader: React.FC<BotHeaderProps> = ({
     return "text-red-400";
   };
 
+  // Add glow effect class based on trust level
+  const getHeaderGlowClass = () => {
+    if (trustLevel === "high") return "trust-shadow-high";
+    if (trustLevel === "medium") return "trust-shadow-medium";
+    if (trustLevel === "low") return "trust-shadow-low";
+    return "";
+  };
+
   return (
-    <div className="flex items-center justify-between bg-gray-800 p-2 rounded-t-lg">
+    <div className={`flex items-center justify-between bg-gray-800 p-2 rounded-t-lg ${getHeaderGlowClass()}`}>
       <div className="flex items-center">
         {/* Use the Eye logo for regular mode, size based on if minimized */}
         <JonahLogo 
@@ -46,12 +55,19 @@ export const BotHeader: React.FC<BotHeaderProps> = ({
           className="mr-2"
         />
         
-        <span className="text-sm font-mono">
+        <span className="text-sm font-mono flex items-center">
           {getTitle()}
           {!isMinimized && trustScore !== undefined && (
-            <span className={`ml-2 text-xs ${getTrustLevelColor()}`}>
-              (trust: {Math.min(100, trustScore)}%)
-            </span>
+            <>
+              <span className={`ml-2 text-xs ${getTrustLevelColor()}`}>
+                (trust: {Math.min(100, trustScore)}%)
+              </span>
+              
+              <JonahTrustIndicator 
+                trustLevel={trustLevel} 
+                className="ml-2"
+              />
+            </>
           )}
         </span>
       </div>

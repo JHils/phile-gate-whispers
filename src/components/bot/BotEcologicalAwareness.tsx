@@ -1,66 +1,55 @@
 
 import React, { useEffect, useState } from 'react';
-import { 
-  initializeEcoAwareness, 
-  getEcoResponse, 
-  getBiomeResponse,
-  handleEcologicalQuery 
-} from '@/utils/jonahEcoAwareness';
+import { getUserWeather, getWeatherDescription } from '@/utils/weatherService';
 
 interface BotEcologicalAwarenessProps {
   trustLevel: string;
-  addBotMessage: (message: string, special?: boolean) => void;
+  addBotMessage: (content: string, special?: boolean) => void;
 }
 
 const BotEcologicalAwareness: React.FC<BotEcologicalAwarenessProps> = ({
   trustLevel,
   addBotMessage
 }) => {
-  const [lastChecked, setLastChecked] = useState<number>(0);
+  const [lastWeatherCheck, setLastWeatherCheck] = useState<number>(0);
   
-  // Initialize ecological awareness system on mount
+  // Only proceed if trust level is medium or high
   useEffect(() => {
-    // Don't check too frequently
-    const now = Date.now();
-    if (now - lastChecked < 3600000) return; // Once per hour max
+    if (trustLevel !== 'medium' && trustLevel !== 'high') return;
     
-    const initializeEcosystem = async () => {
-      initializeEcoAwareness();
-      setLastChecked(Date.now());
+    // Check weather randomly - but not too often
+    const checkWeather = async () => {
+      const now = Date.now();
+      // Only check if 24 hours have passed since last check
+      if (now - lastWeatherCheck < 24 * 60 * 60 * 1000) return;
       
-      // For medium and high trust levels, occasionally send an eco message
-      if ((trustLevel === 'medium' || trustLevel === 'high') && Math.random() < 0.25) {
-        const ecoComment = getEcoResponse(trustLevel);
-        if (ecoComment) {
-          // Allow time for the user to settle in first
+      try {
+        // Get weather data and generate description
+        const weatherData = await getUserWeather();
+        const weatherDesc = getWeatherDescription(weatherData);
+        
+        // 30% chance to share weather observations
+        if (Math.random() < 0.3 && weatherDesc) {
           setTimeout(() => {
-            addBotMessage(ecoComment, true);
-          }, 25000); // Wait 25 seconds before commenting
+            addBotMessage(weatherDesc, true);
+            setLastWeatherCheck(now);
+          }, 2000);
         }
+      } catch (error) {
+        console.error("Weather check failed:", error);
       }
     };
     
-    initializeEcosystem();
-  }, [trustLevel, addBotMessage, lastChecked]);
-  
-  // Periodically check for biome-related comments (for high trust only)
-  useEffect(() => {
-    if (trustLevel !== 'high') return;
+    // Run weather check on component mount
+    checkWeather();
     
-    const biomeInterval = setInterval(() => {
-      if (Math.random() < 0.2) { // 20% chance
-        const biomeComment = getBiomeResponse();
-        if (biomeComment) {
-          addBotMessage(biomeComment, true);
-        }
-      }
-    }, 60 * 60 * 1000); // Every 60 minutes
+    // Also run weather check every few hours
+    const interval = setInterval(checkWeather, 6 * 60 * 60 * 1000); // every 6 hours
     
-    return () => clearInterval(biomeInterval);
-  }, [trustLevel, addBotMessage]);
+    return () => clearInterval(interval);
+  }, [trustLevel, addBotMessage, lastWeatherCheck]);
   
-  // No visible UI, this is just a behavior component
-  return null;
+  return null; // This is a non-visual component
 };
 
 export default BotEcologicalAwareness;
