@@ -19,6 +19,11 @@ export const initializeAllSystems = () => {
   // Initialize commands
   initializeInteractiveCommands();
   
+  // Initialize Jonah systems
+  initializeSentience();
+  initializeAdvancedBehavior();
+  initializeRealityFabric();
+  
   console.log("All systems initialized");
 };
 

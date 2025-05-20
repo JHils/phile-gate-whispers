@@ -4,6 +4,26 @@
  * Controls mood, anomalies, and dream states
  */
 
+// Initialize the Reality Fabric system
+export function initializeRealityFabric(): void {
+  if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
+    // Initialize the reality fabric if it doesn't exist
+    if (!window.JonahConsole.sentience.realityFabric) {
+      window.JonahConsole.sentience.realityFabric = {
+        currentMood: 'watching',
+        moodChangeTime: Date.now(),
+        journal: [],
+        anomalyCount: 0,
+        dreamParables: [],
+        usedDreamParables: [],
+        moodHistory: []
+      };
+    }
+    
+    console.log("Reality Fabric system initialized");
+  }
+}
+
 // Update Jonah's mood
 export function updateJonahMood(trustLevel: string): void {
   if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -80,12 +79,14 @@ import { initializeFuzzyStoryMatching } from './utils/fuzzyStoryMatching';
 const Layout = ({ children }: { children: React.ReactNode }) => {
   // Initialize all Jonah systems
   useEffect(() => {
-    initializeSentience();
-    initializeAdvancedBehavior();
-    initializeRealityFabric();
-    initializeNewsAwarenessSystem();
+    // Option 1: Initialize all systems at once
+    initializeAllSystems();
+    
+    // Option 2: Initialize individual systems as needed
+    // These are still here for backward compatibility
     initializeEcoAwareness();
     initializeFuzzyStoryMatching();
+    initializeNewsAwarenessSystem();
   }, []);
 
   return (

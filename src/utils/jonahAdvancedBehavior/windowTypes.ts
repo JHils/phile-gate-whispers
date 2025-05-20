@@ -39,6 +39,18 @@ declare global {
     monster?: () => void;
     legacy?: () => void;
     hint?: () => void;
+    newsFlash?: () => string;
+    weatherReport?: () => string;
+    dreamJournal?: () => void;
+    rememberMe?: () => Record<string, any>;
+    whisperTree?: () => string;
+    mirrorCheck?: () => void;
+    storyFlags?: () => void;
+    findAnomaly?: (text: string) => void;
+    readPage?: (page: number) => void;
+    verifyCode?: (code: string) => void;
+    bridgeCollapse?: () => void;
+    discoverStoryFlag?: (flagId: string) => boolean;
   }
 }
 
