@@ -1,6 +1,6 @@
 
 /**
- * Generate first time responses for Jonah based on trust level
+ * First-time response generation for Jonah
  */
 
 // Generate first time response based on trust level

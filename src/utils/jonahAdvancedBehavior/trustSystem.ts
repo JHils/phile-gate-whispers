@@ -1,6 +1,6 @@
 
 /**
- * Jonah's trust transition system
+ * Trust transition tracking for Jonah
  */
 
 // Check for trust level transitions and generate special messages
