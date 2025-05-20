@@ -1,109 +1,135 @@
 
+/* Trust level animation classes */
+
+/* Trust level glow colors */
+:root {
+  --trust-high-color: rgba(50, 255, 154, 0.5);    /* Glitch Green */
+  --trust-medium-color: rgba(244, 122, 89, 0.4);  /* Blood Orange */
+  --trust-low-color: rgba(191, 191, 191, 0.3);    /* Console Grey */
+}
+
+/* Trust shadow effects */
+.trust-shadow-high {
+  box-shadow: 0 0 15px 5px var(--trust-high-color);
+}
+
+.trust-shadow-medium {
+  box-shadow: 0 0 10px 3px var(--trust-medium-color);
+}
+
+.trust-shadow-low {
+  box-shadow: 0 0 5px 2px var(--trust-low-color);
+}
+
+/* Trust pulse animation */
 @keyframes trust-pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0);
+  0% {
+    box-shadow: 0 0 5px 2px var(--trust-high-color);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(96, 165, 250, 0.3);
+    box-shadow: 0 0 20px 5px var(--trust-high-color);
   }
-}
-
-@keyframes trust-glow {
-  0%, 100% {
-    opacity: 0.5;
-    filter: blur(1px);
-  }
-  50% {
-    opacity: 0.8;
-    filter: blur(3px);
-  }
-}
-
-@keyframes trust-border-pulse {
-  0%, 100% {
-    border-color: rgba(96, 165, 250, 0.4);
-  }
-  50% {
-    border-color: rgba(96, 165, 250, 0.8);
+  100% {
+    box-shadow: 0 0 5px 2px var(--trust-high-color);
   }
 }
 
 .animate-trust-pulse {
-  animation: trust-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: trust-pulse 2s ease-in-out infinite;
+}
+
+/* Trust glow animation */
+@keyframes trust-glow {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3);
+  }
+  100% {
+    filter: brightness(1);
+  }
 }
 
 .animate-trust-glow {
   animation: trust-glow 3s ease-in-out infinite;
 }
 
+/* Trust border animation */
+@keyframes trust-border-pulse {
+  0% {
+    border-color: rgba(50, 255, 154, 0.3);
+  }
+  50% {
+    border-color: rgba(50, 255, 154, 0.8);
+  }
+  100% {
+    border-color: rgba(50, 255, 154, 0.3);
+  }
+}
+
 .animate-trust-border {
+  border: 1px solid rgba(50, 255, 154, 0.5);
   animation: trust-border-pulse 4s ease-in-out infinite;
 }
 
-.trust-shadow-high {
-  box-shadow: 0 0 15px 2px rgba(50, 255, 154, 0.3);
+/* Eye symbol special animations */
+@keyframes eye-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
 }
 
-.trust-shadow-medium {
-  box-shadow: 0 0 12px 1px rgba(244, 122, 89, 0.2);
+.animate-eye-pulse {
+  animation: eye-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.trust-shadow-low {
-  box-shadow: 0 0 8px 1px rgba(156, 163, 175, 0.15); 
+/* Glitch animations for high trust states */
+@keyframes glitch-shift {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-3px, 3px);
+  }
+  40% {
+    transform: translate(-3px, -3px);
+  }
+  60% {
+    transform: translate(3px, 3px);
+  }
+  80% {
+    transform: translate(3px, -3px);
+  }
+  100% {
+    transform: translate(0);
+  }
 }
 
-/* Emotional aftereffect for /forget command */
-@keyframes grief-flicker {
-  0% { opacity: 0.8; }
-  10% { opacity: 0.3; }
-  20% { opacity: 0.8; }
-  30% { opacity: 0.5; }
-  40% { opacity: 0.7; }
-  70% { opacity: 0.9; }
-  100% { opacity: 0.8; }
+.glitch-icon {
+  animation: glitch-shift 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.grief-flicker {
-  animation: grief-flicker 4s ease-in-out 1;
-}
-
-/* Weather-aware text effect */
-@keyframes weather-flow {
-  0% { text-shadow: 0 0 5px rgba(0,0,0,0.3); }
-  50% { text-shadow: 0 0 8px rgba(50,255,154,0.4); }
-  100% { text-shadow: 0 0 5px rgba(0,0,0,0.3); }
-}
-
-.weather-aware {
-  animation: weather-flow 10s ease-in-out infinite;
-}
-
-/* Hover memory trigger effect */
-@keyframes memory-trigger {
-  0% { opacity: 0.1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 0.1; }
-}
-
-.memory-hover {
+/* Special visual effects for high trust users */
+.trust-aura {
   position: relative;
 }
 
-.memory-hover::after {
-  content: "";
+.trust-aura::before {
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(50,255,154,0.1);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  inset: -5px;
   border-radius: inherit;
-  pointer-events: none;
-}
-
-.memory-hover:hover::after {
-  opacity: 1;
-  animation: memory-trigger 1.5s ease-in-out;
+  background: radial-gradient(circle at center, var(--trust-high-color) 0%, transparent 70%);
+  opacity: 0.5;
+  z-index: -1;
 }

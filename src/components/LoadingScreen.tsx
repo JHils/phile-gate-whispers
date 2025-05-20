@@ -13,6 +13,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
 }) => {
   const [loadingText, setLoadingText] = useState('Loading...');
   const [visible, setVisible] = useState(true);
+  const trustLevel = localStorage.getItem('jonahTrustLevel') || 'low';
   
   const loadingMessages = [
     "Decrypting your alias...",
@@ -47,7 +48,12 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   return (
     <div className="loading-screen">
       <div className="mb-6 animate-trust-pulse">
-        <JonahLogo variant="glyph" size="lg" />
+        <JonahLogo 
+          variant="glyph" 
+          size="lg" 
+          animated={trustLevel === 'high'}
+          trustLevel={trustLevel}
+        />
       </div>
       <p className="loading-text">{loadingText}</p>
     </div>

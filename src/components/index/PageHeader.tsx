@@ -12,7 +12,13 @@ const PageHeader: React.FC<PageHeaderProps> = ({ trustLevel }) => {
   return (
     <>
       <div className="flex justify-between px-4 py-2">
-        <JonahLogo variant="eye" size="lg" className="ml-4" />
+        <JonahLogo 
+          variant="glyph" 
+          size="lg" 
+          className="ml-4" 
+          animated={trustLevel === 'high'} 
+          trustLevel={trustLevel}
+        />
         <JonahMoodIndicator trustLevel={trustLevel} />
       </div>
       

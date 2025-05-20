@@ -48,11 +48,13 @@ export const BotHeader: React.FC<BotHeaderProps> = ({
   return (
     <div className={`flex items-center justify-between bg-gray-800 p-2 rounded-t-lg ${getHeaderGlowClass()}`}>
       <div className="flex items-center">
-        {/* Use the Eye logo for regular mode, size based on if minimized */}
+        {/* Use the glyph logo by default, only use Eye for high trust */}
         <JonahLogo 
-          variant="eye" 
+          variant={trustLevel === 'high' ? "eye" : "glyph"} 
           size={isMinimized ? "sm" : "md"} 
           className="mr-2"
+          animated={trustLevel === 'high'}
+          trustLevel={trustLevel}
         />
         
         <span className="text-sm font-mono flex items-center">

@@ -61,8 +61,11 @@ export const BotIcon: React.FC<BotIconProps> = ({
           hover:bg-gray-700 transition-all duration-300 relative`}
       >
         <JonahLogo 
-          variant={iconVariant === 2 ? "glyph" : "eye"} 
-          size="sm" 
+          // Use glyph as primary, eye only for special occasions (high trust)
+          variant={trustLevel === 'high' && iconVariant === 2 ? "eye" : "glyph"} 
+          size="sm"
+          animated={trustLevel === 'high'} 
+          trustLevel={trustLevel}
         />
         
         {/* Trust indicator dot */}

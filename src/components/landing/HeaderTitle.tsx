@@ -6,6 +6,7 @@ import JonahLogo from '../JonahLogo';
 const HeaderTitle: React.FC = () => {
   const [glitchActive, setGlitchActive] = useState(false);
   const isMobile = useIsMobile();
+  const trustLevel = localStorage.getItem('jonahTrustLevel') || 'low';
 
   // Trigger second visit behavior - show Joseph Hilson name briefly
   useEffect(() => {
@@ -33,6 +34,8 @@ const HeaderTitle: React.FC = () => {
         variant="glyph"
         size="lg"
         className="mb-4"
+        animated={trustLevel === 'high'}
+        trustLevel={trustLevel}
       />
       <h1 
         id="main-header" 
