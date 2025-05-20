@@ -372,8 +372,9 @@ export function initializeEcoConsoleCommands(): void {
 // Add eco commands to the global window interface
 declare global {
   interface Window {
-    dreamtime: () => string;
-    woodwideweb: () => string;
-    biomeCheck: () => string;
+    dreamtime: () => void;
+    woodwideweb: () => void;
+    biomeCheck: () => void;
+    kgari: () => void;
   }
 }
