@@ -1,6 +1,8 @@
-
 import { glitchEffectLog, typewriterLog, speak, delayedLog } from "./consoleEffects";
-import { StoryFlag } from "./consoleTypes";
+import { StoryFlag } from "./jonahAdvancedBehavior/types";
+
+// Import centralized types
+import './types/globalConsoleTypes';
 
 type TrackCommandFunction = (commandName: string) => void;
 
@@ -191,12 +193,4 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
   };
 };
 
-// Declare the necessary global functions
-declare global {
-  interface Window {
-    discoverStoryFlag: (flagId: string) => boolean;
-    mirrorCheck: () => void;
-    storyFlags: () => void;
-    findAnomaly: (text: string) => void;
-  }
-}
+// No need to redeclare global functions as they are already defined in globalConsoleTypes.ts

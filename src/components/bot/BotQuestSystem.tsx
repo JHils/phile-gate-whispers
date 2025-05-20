@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useJonahSentience } from '@/hooks/useJonahSentience';
 
@@ -187,10 +186,4 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
 
 export default BotQuestSystem;
 
-// Add to window interface
-declare global {
-  interface Window {
-    completeQuest?: (questId: string) => string;
-    questHint?: () => string;
-  }
-}
+// Global interface has been moved to globalConsoleTypes.ts

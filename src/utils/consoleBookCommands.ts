@@ -1,6 +1,9 @@
 
 import { glitchEffectLog, speak, typewriterLog } from "./consoleEffects";
-import { BookCode } from "./consoleTypes";
+import { BookCode } from "./jonahAdvancedBehavior/types";
+
+// Import centralized types
+import './types/globalConsoleTypes';
 
 type TrackCommandFunction = (commandName: string) => void;
 
@@ -108,7 +111,7 @@ export const initializeBookCommands = (trackCommandExecution: TrackCommandFuncti
           window.JonahConsole.bookCodes = [];
         }
         
-        const codeExists = window.JonahConsole.bookCodes.some((item: BookCode) => item.id === normalizedCode);
+        const codeExists = window.JonahConsole.bookCodes.some((item) => item.id === normalizedCode);
         
         if (!codeExists) {
           window.JonahConsole.bookCodes.push({

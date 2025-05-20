@@ -1,4 +1,3 @@
-
 // Import the centralized global types
 import './types/globalConsoleTypes';
 import { typewriterLog, glitchEffectLog } from './consoleEffects';
@@ -74,12 +73,3 @@ export const initializeWhisperMaster = () => {
     };
   }
 };
-
-// Declare necessary global functions for TypeScript
-declare global {
-  interface Window {
-    WhisperMaster?: WhisperMaster;
-    whisperTree?: () => string;
-    addWhisper?: (whisper: string) => boolean;
-  }
-}

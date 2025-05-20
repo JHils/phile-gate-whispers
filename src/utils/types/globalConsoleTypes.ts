@@ -87,6 +87,10 @@ declare global {
     bridgeCollapse?: () => void;
     discoverStoryFlag?: (flagId: string) => boolean;
     
+    // Quest system
+    completeQuest?: (questId: string) => string;
+    questHint?: () => string;
+    
     // Time system
     timeCheck?: () => void;
     isSpecialTimeWindow?: () => boolean;
