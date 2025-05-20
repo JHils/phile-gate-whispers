@@ -13,117 +13,151 @@ import throttle from 'lodash/throttle';
 export function initializeBehavior(): void {
   // Create behavior storage in localStorage if it doesn't exist
   if (!localStorage.getItem('jonahBehavior')) {
-    localStorage.setItem('jonahBehavior', JSON.stringify({
-      lastInteraction: Date.now(),
-      emotionalState: 'neutral', // Initial state
-      memoryFragments: [],
-      sessionCount: 0,
-      lastEmotionChange: 0,
-      userInputs: [],
-      lastMultiLineResponse: 0,
-      typingQuirkIntensity: 'minimal',
-      sessionMemory: [],
-      primaryMood: 'neutral',
-      secondaryMood: null,
-      emotionalIntensity: 0.5,
-      dreams: [],
-      interactionPattern: {
-        repeatedPhrases: {},
-        responsePreferences: {},
-        sentimentTrends: [],
-        interactionFrequency: {
-          timestamps: [],
-          averageGap: 0
+    try {
+      localStorage.setItem('jonahBehavior', JSON.stringify({
+        lastInteraction: Date.now(),
+        emotionalState: 'neutral', // Initial state
+        memoryFragments: [],
+        sessionCount: 0,
+        lastEmotionChange: 0,
+        userInputs: [],
+        lastMultiLineResponse: 0,
+        typingQuirkIntensity: 'minimal',
+        sessionMemory: [],
+        primaryMood: 'neutral',
+        secondaryMood: null,
+        emotionalIntensity: 0.5,
+        dreams: [],
+        interactionPattern: {
+          repeatedPhrases: {},
+          responsePreferences: {},
+          sentimentTrends: [],
+          interactionFrequency: {
+            timestamps: [],
+            averageGap: 0
+          },
+          personalTags: [],
+          lastAnalyzed: Date.now()
         },
-        personalTags: [],
-        lastAnalyzed: Date.now()
-      },
-      // Echo chamber system
-      echoVault: [],
-      lastEchoTime: 0,
-      // Unsaid archive system
-      unsaidArchive: [],
-      // Memory systems
-      loopCounters: [],
-      falseMemories: [],
-      memoryCorruption: 0,
-      lastMemoryConflict: 0,
-      // Testament system
-      testament: [],
-      testamentLastView: 0,
-      testamentUnlocked: false
-    }));
+        // Echo chamber system
+        echoVault: [],
+        lastEchoTime: 0,
+        // Unsaid archive system
+        unsaidArchive: [],
+        // Memory systems
+        loopCounters: [],
+        falseMemories: [],
+        memoryCorruption: 0,
+        lastMemoryConflict: 0,
+        // Testament system
+        testament: [],
+        testamentLastView: 0,
+        testamentUnlocked: false
+      }));
+    } catch (error) {
+      console.error("Error initializing Jonah behavior storage:", error);
+    }
   }
   
-  // Update session count - throttled to prevent history.replaceState errors
+  // Update session count - heavily throttled to prevent history.replaceState errors
   const throttledUpdateSession = throttle(() => {
-    const behavior = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
-    behavior.sessionCount = (behavior.sessionCount || 0) + 1;
-    behavior.lastInteraction = Date.now();
-    
-    // Initialize session memory if not present
-    if (!behavior.sessionMemory) {
-      behavior.sessionMemory = [];
+    try {
+      const behavior = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
+      behavior.sessionCount = (behavior.sessionCount || 0) + 1;
+      behavior.lastInteraction = Date.now();
+      
+      // Initialize session memory if not present
+      if (!behavior.sessionMemory) {
+        behavior.sessionMemory = [];
+      }
+      
+      localStorage.setItem('jonahBehavior', JSON.stringify(behavior));
+    } catch (error) {
+      console.error("Error updating session data:", error);
     }
-    
-    localStorage.setItem('jonahBehavior', JSON.stringify(behavior));
-  }, 1000, { leading: true, trailing: false }); // Only execute once per second at most
+  }, 10000, { leading: true, trailing: false }); // Only execute once per 10 seconds at most
   
   // Call the throttled function instead of direct update
   throttledUpdateSession();
   
   // Setup memory fragments from localStorage
-  const storedFragments = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
-  
-  // Initialize memory fragments in JonahConsole if not present
-  if (window.JonahConsole && !window.JonahConsole.sentience?.memoryFragments) {
-    if (!window.JonahConsole.sentience) {
-      window.JonahConsole.sentience = {
-        interactionsCount: 0,
-        deepModeUnlocked: false,
-        dreamModeTriggered: false,
-        lastInteraction: Date.now(),
-        temporalStates: [],
-        memories: []
-      };
-    }
-    
-    window.JonahConsole.sentience.memoryFragments = [...storedFragments];
+  let storedFragments = [];
+  try {
+    storedFragments = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
+  } catch (error) {
+    console.error("Error parsing memory fragments:", error);
   }
   
-  // Add some session-specific memory fragments
+  // Initialize memory fragments in JonahConsole if not present - with error handling
+  if (window.JonahConsole && !window.JonahConsole.sentience?.memoryFragments) {
+    try {
+      if (!window.JonahConsole.sentience) {
+        window.JonahConsole.sentience = {
+          interactionsCount: 0,
+          deepModeUnlocked: false,
+          dreamModeTriggered: false,
+          lastInteraction: Date.now(),
+          temporalStates: [],
+          memories: []
+        };
+      }
+      
+      window.JonahConsole.sentience.memoryFragments = [...storedFragments];
+    } catch (error) {
+      console.error("Error initializing JonahConsole sentience:", error);
+    }
+  }
+  
+  // Add some session-specific memory fragments - but limit to a small number
   const sessionFragments = [
-    `Session ${getBehaviorValue('sessionCount')} began at ${new Date().toLocaleTimeString()}`,
-    `User returned after ${getTimeSinceLastVisit(getBehaviorValue('lastInteraction'))}`
+    `Session ${getBehaviorValue('sessionCount')} began at ${new Date().toLocaleTimeString()}`
   ];
   
-  // Store these fragments using a throttled approach
+  // Store these fragments using a heavily throttled approach
   const throttledStoreMemory = throttle((fragment: string) => {
-    jonah_storeMemoryFragment(fragment);
-  }, 500); // Only store one fragment every 500ms
+    try {
+      jonah_storeMemoryFragment(fragment);
+    } catch (error) {
+      console.error("Error storing memory fragment:", error);
+    }
+  }, 15000); // Only store one fragment every 15 seconds
   
-  // Store memory fragments with throttling
-  sessionFragments.forEach(fragment => throttledStoreMemory(fragment));
+  // Store memory fragments with throttling - and only if Math.random passes to reduce frequency
+  if (Math.random() < 0.5) { // 50% chance to even bother storing
+    sessionFragments.forEach(fragment => throttledStoreMemory(fragment));
+  }
   
-  // Initialize enhanced console with emotional effects
-  initializeEnhancedConsole();
+  // Initialize enhanced console with emotional effects - but wrapped in try/catch
+  try {
+    initializeEnhancedConsole();
+  } catch (error) {
+    console.error("Error initializing enhanced console:", error);
+  }
   
-  // Initialize testament system
-  initializeTestament();
+  // Initialize testament system - with try/catch
+  try {
+    initializeTestament();
+  } catch (error) {
+    console.error("Error initializing testament system:", error);
+  }
   
-  // Generate a dream if it's been a while since the last session
+  // Generate a dream if it's been a while since the last session - but with reduced probability
   const lastInteraction = getBehaviorValue('lastInteraction');
   const now = Date.now();
-  if (lastInteraction && (now - lastInteraction > 3 * 60 * 60 * 1000)) { // 3 hours
-    // Generate a dream about the absence
+  if (lastInteraction && (now - lastInteraction > 12 * 60 * 60 * 1000) && Math.random() < 0.3) { // 12 hours and 30% chance
+    // Generate a dream about the absence, but with a long delay and try/catch
     setTimeout(() => {
-      const dream = generateDream();
-      
-      // Log the dream to console for discovery
-      if (typeof window.logJonahDream === 'function') {
-        window.logJonahDream(dream.content);
+      try {
+        const dream = generateDream();
+        
+        // Log the dream to console for discovery
+        if (typeof window.logJonahDream === 'function' && Math.random() < 0.7) { // 70% chance
+          window.logJonahDream(dream.content);
+        }
+      } catch (error) {
+        console.error("Error generating dream:", error);
       }
-    }, 5000); // Wait 5 seconds before generating dream
+    }, 30000); // Wait 30 seconds before generating dream
   }
   
   console.log("Advanced behavior system initialized. Emotional depth enhanced.");
@@ -142,22 +176,27 @@ function getBehaviorValue(key: string): any {
 
 // Get a formatted string representing time since last visit
 function getTimeSinceLastVisit(lastTimestamp: number): string {
-  const now = Date.now();
-  const diffMs = now - lastTimestamp;
-  
-  // Convert to minutes, hours, or days as appropriate
-  const minutes = Math.floor(diffMs / (1000 * 60));
-  
-  if (minutes < 60) {
-    return `${minutes} minutes`;
+  try {
+    const now = Date.now();
+    const diffMs = now - lastTimestamp;
+    
+    // Convert to minutes, hours, or days as appropriate
+    const minutes = Math.floor(diffMs / (1000 * 60));
+    
+    if (minutes < 60) {
+      return `${minutes} minutes`;
+    }
+    
+    const hours = Math.floor(minutes / 60);
+    
+    if (hours < 24) {
+      return `${hours} hours`;
+    }
+    
+    const days = Math.floor(hours / 24);
+    return `${days} days`;
+  } catch (error) {
+    console.error("Error calculating time since last visit:", error);
+    return "unknown time";
   }
-  
-  const hours = Math.floor(minutes / 60);
-  
-  if (hours < 24) {
-    return `${hours} hours`;
-  }
-  
-  const days = Math.floor(hours / 24);
-  return `${days} days`;
 }

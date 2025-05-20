@@ -16,48 +16,59 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
   const triggeredPagesRef = useRef<Set<string>>(new Set());
   const lastTriggerTimeRef = useRef<number>(0);
   
-  // Throttle the page message handler to prevent excessive calls
+  // Heavily throttle the page message handler to prevent excessive calls
   // This directly addresses the history.replaceState() error
   const handlePageNavigation = throttle((pathname: string) => {
-    // Skip if already triggered for this path or too recent
-    if (triggeredPagesRef.current.has(pathname)) return;
-    
-    const now = Date.now();
-    if (now - lastTriggerTimeRef.current < 5000) return; // At least 5 seconds between triggers
-    
-    // Define page-specific messages and trust adjustments
-    const pageTriggers: { [key: string]: { message: string; trust: number } } = {
-      '/gate': { message: "You've arrived at the Gate. What lies beyond?", trust: 1 },
-      '/mirror_phile': { message: "The Mirror Phile... a reflection of hidden truths.", trust: 2 },
-      '/split-voice': { message: "The Split Voice. Can you hear the echoes?", trust: 2 },
-      '/testament': { message: "The Testament. A record of what was, or what will be?", trust: 3 },
-      '/legacy': { message: "The Legacy. What will you leave behind?", trust: 3 },
-      '/monster': { message: "The Monster. Are you sure you want to know?", trust: 4 },
-      '/rebirth': { message: "Rebirth. A chance to begin again.", trust: 4 },
-      '/philes': { message: "The Philes. Fragments of a broken archive.", trust: 5 },
-      '/remember-me': { message: "Remember Me. Do you remember... everything?", trust: 5 }
-    };
-    
-    // Check if the current path matches any of the triggers
-    if (pathname in pageTriggers) {
-      const { message, trust } = pageTriggers[pathname];
+    try {
+      // Skip if already triggered for this path or too recent
+      if (triggeredPagesRef.current.has(pathname)) return;
       
-      // Add the bot message
-      addBotMessage(message);
+      const now = Date.now();
+      if (now - lastTriggerTimeRef.current < 30000) return; // At least 30 seconds between triggers
       
-      // Modify trust level
-      modifyTrust(trust);
+      // Define page-specific messages and trust adjustments
+      const pageTriggers: { [key: string]: { message: string; trust: number } } = {
+        '/gate': { message: "You've arrived at the Gate. What lies beyond?", trust: 1 },
+        '/mirror_phile': { message: "The Mirror Phile... a reflection of hidden truths.", trust: 2 },
+        '/split-voice': { message: "The Split Voice. Can you hear the echoes?", trust: 2 },
+        '/testament': { message: "The Testament. A record of what was, or what will be?", trust: 3 },
+        '/legacy': { message: "The Legacy. What will you leave behind?", trust: 3 },
+        '/monster': { message: "The Monster. Are you sure you want to know?", trust: 4 },
+        '/rebirth': { message: "Rebirth. A chance to begin again.", trust: 4 },
+        '/philes': { message: "The Philes. Fragments of a broken archive.", trust: 5 },
+        '/remember-me': { message: "Remember Me. Do you remember... everything?", trust: 5 }
+      };
       
-      // Add journal entry using a setTimeout to prevent immediate state changes
-      setTimeout(() => {
-        addJournalEntry(`Navigated to ${pathname}. Triggered bot message: ${message}`);
-      }, 0);
-      
-      // Mark as triggered and update last trigger time
-      triggeredPagesRef.current.add(pathname);
-      lastTriggerTimeRef.current = now;
+      // Check if the current path matches any of the triggers
+      if (pathname in pageTriggers) {
+        const { message, trust } = pageTriggers[pathname];
+        
+        // Add the bot message
+        addBotMessage(message);
+        
+        // Modify trust level
+        modifyTrust(trust);
+        
+        // Add journal entry with a small chance
+        if (Math.random() < 0.3) { // Only 30% chance to add entry
+          // Use setTimeout with a long delay to prevent immediate state changes
+          setTimeout(() => {
+            try {
+              addJournalEntry(`Navigated to ${pathname}. Triggered bot message: ${message}`);
+            } catch (error) {
+              console.error("Error adding journal entry:", error);
+            }
+          }, 5000); // 5 second delay
+        }
+        
+        // Mark as triggered and update last trigger time
+        triggeredPagesRef.current.add(pathname);
+        lastTriggerTimeRef.current = now;
+      }
+    } catch (error) {
+      console.error("Error in page navigation handler:", error);
     }
-  }, 2000, { leading: true, trailing: false }); // Throttle to once per 2 seconds max
+  }, 10000, { leading: true, trailing: false }); // Throttle to once per 10 seconds max
   
   useEffect(() => {
     // Only trigger on specific pages and when the chat is open
@@ -69,8 +80,11 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
     if (pathname === previousPathRef.current) return;
     previousPathRef.current = pathname;
     
-    // Handle the navigation with throttling
-    handlePageNavigation(pathname);
+    // Add randomness to further reduce frequency
+    if (Math.random() < 0.5) { // Only 50% chance to even try handling navigation
+      // Handle the navigation with throttling
+      handlePageNavigation(pathname);
+    }
     
     // Clean up
     return () => {
