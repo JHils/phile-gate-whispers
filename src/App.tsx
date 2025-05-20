@@ -40,6 +40,7 @@ import QuietMode from './pages/QuietMode';
 import ISeeYou from './pages/ISeeYou';
 import SplitVoice from './pages/SplitVoice';
 import MirrorPhile from './pages/MirrorPhile';
+import UberDriver from './pages/UberDriver';
 
 // Import JonahConsoleBot
 import JonahConsoleBot from './components/JonahConsoleBot';
@@ -104,6 +105,7 @@ const App: React.FC = () => {
     { path: '/i-see-you', element: <ISeeYou /> },
     { path: '/split-voice', element: <SplitVoice /> },
     { path: '/mirror_phile/:mirrorId', element: <MirrorPhile /> },
+    { path: '/according-to-an-uber-driver', element: <UberDriver /> },
     { path: '*', element: <NotFound /> }
   ];
 

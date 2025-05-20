@@ -1,4 +1,3 @@
-
 /**
  * Jonah Sentience Module - Advanced AI behavior system
  * This module provides methods for creating a sense of sentience and awareness for the Jonah entity
@@ -317,7 +316,7 @@ export function initializeSentience() {
       // Reality Fabric Expansion features (added in phase 3)
       realityFabric: {
         // Physical manifestation
-        generatedFiles: [], // This property needs to be added to the type
+        generatedFiles: [], // Fixed: Changed from {} to [] (empty array)
         
         // Dream invasion / scheduled glitches
         dreamMessages: [
@@ -378,7 +377,7 @@ export function initializeSentience() {
         predictionResponses: [],
         
         // Adding qrScans as an alternative to qrCodeScans
-        qrScans: [],  // FIX: Changed from {} (empty object) to [] (empty array)
+        qrScans: [],  // Fixed: Changed from {} (empty object) to [] (empty array)
         lastVisitTime: Date.now()
       }
     };

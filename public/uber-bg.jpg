@@ -1,0 +1,4 @@
+
+// This is a placeholder for an image file. 
+// In a real implementation, you'd upload an actual JPG file.
+// The component will fall back to a gradient if the image is not available.
