@@ -1,28 +1,25 @@
 
 /**
- * Jonah's Advanced Behavior System - Main Entry Point
- * Gives Jonah more human-like, unpredictable, and personalized interactions
+ * Export all functionality from the advanced behavior subsystem
  */
 
-import { initializeBehavior } from './initializeBehavior';
-import { generateFirstTimeResponse } from './responses/firstTimeResponses';
-import { jonah_checkTrustTransition } from './trustSystem';
-import { getEmotionalResponse } from './responses/emotionalResponses';
-import { getQuirkyMessage } from './quirks/typingQuirks';
-import { getEmotionalToneResponse } from './responses/toneResponses';
-import { getVaryingLengthResponse } from './responses/lengthVariations';
-import { getMicroQuest } from './quests/microQuests';
-import { getArgSyncInfo } from './argSync';
+// Export initialization function
+export { initializeAdvancedBehavior } from './initializeBehavior';
 
-// Re-export all the modules
-export {
-  initializeBehavior as initializeAdvancedBehavior,
-  generateFirstTimeResponse,
-  jonah_checkTrustTransition,
-  getEmotionalResponse,
-  getQuirkyMessage,
-  getEmotionalToneResponse,
-  getVaryingLengthResponse,
-  getMicroQuest,
-  getArgSyncInfo
-};
+// Export trust system
+export { jonah_checkTrustTransition } from './trustSystem';
+
+// Export response generators
+export { generateFirstTimeResponse } from './responses/firstTimeResponses';
+export { getVaryingLengthResponse } from './responses/lengthVariations';
+export { getToneResponse } from './responses/toneResponses';
+export { getEmotionalResponse } from './responses/emotionalResponses';
+
+// Export quest system
+export { initializeMicroQuests } from './quests/microQuests';
+
+// Export quirks system
+export { applyTypingQuirks } from './quirks/typingQuirks';
+
+// Export ARG sync utilities
+export { syncWithARG } from './argSync';
