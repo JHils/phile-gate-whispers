@@ -496,6 +496,6 @@ function generateResponseFromTemplate(content: string, trustLevel: string): stri
   const emotion = emotionMap[trustLevel] || 'neutral';
   
   // Generate response from template - using the createEmotionalState helper
-  // Fix: Pass the emotion as a string to createEmotionalState, not as a boolean
+  // Fix: Pass the emotion as a string to createEmotionalState, not a boolean
   return generateEmotionalResponse(createEmotionalState(emotion), template);
 }
