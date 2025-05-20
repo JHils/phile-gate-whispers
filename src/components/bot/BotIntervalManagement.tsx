@@ -20,6 +20,9 @@ interface BotIntervalManagementProps {
   currentPath: string;
 }
 
+/**
+ * Component that manages periodic behaviors for the Jonah bot
+ */
 const BotIntervalManagement: React.FC<BotIntervalManagementProps> = ({
   isOpen,
   isMinimized,
@@ -32,7 +35,7 @@ const BotIntervalManagement: React.FC<BotIntervalManagementProps> = ({
   currentPath
 }) => {
   const [idleCheckInterval, setIdleCheckInterval] = useState<NodeJS.Timeout | null>(null);
-  const [sentenceCheckInterval, setDualConsciousnessInterval] = useState<NodeJS.Timeout | null>(null);
+  const [dualConsciousnessInterval, setDualConsciousnessInterval] = useState<NodeJS.Timeout | null>(null);
   const [questionInterval, setQuestionInterval] = useState<NodeJS.Timeout | null>(null);
   const [anomalyCheckInterval, setAnomalyCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [dreamCheckInterval, setDreamCheckInterval] = useState<NodeJS.Timeout | null>(null);
@@ -63,13 +66,13 @@ const BotIntervalManagement: React.FC<BotIntervalManagementProps> = ({
         clearInterval(idleCheckInterval);
       }
     };
-  }, [isOpen, isMinimized, currentPath, addBotMessage, setIsOpen, setIsMinimized]);
+  }, [isOpen, isMinimized, addBotMessage, setIsOpen, setIsMinimized]);
 
   // Setup dual consciousness glitch checking
   useEffect(() => {
     // Clear existing interval
-    if (sentenceCheckInterval) {
-      clearInterval(sentenceCheckInterval);
+    if (dualConsciousnessInterval) {
+      clearInterval(dualConsciousnessInterval);
     }
     
     // Only set up glitches if chat is open and user has interacted
@@ -86,8 +89,8 @@ const BotIntervalManagement: React.FC<BotIntervalManagementProps> = ({
     }
     
     return () => {
-      if (sentenceCheckInterval) {
-        clearInterval(sentenceCheckInterval);
+      if (dualConsciousnessInterval) {
+        clearInterval(dualConsciousnessInterval);
       }
     };
   }, [isOpen, hasInteracted, trustLevel, addBotMessage]);

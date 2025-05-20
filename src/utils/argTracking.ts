@@ -1,4 +1,3 @@
-
 /**
  * ARG Tracking Module
  * Tracks ARG-related commands and events
@@ -8,7 +7,22 @@ import { addUsedCommand } from "./consoleTrackingUtils";
 
 type TrackCommandFunction = (commandName: string) => void;
 
-// Initialize ARG commands
+/**
+ * ARG Data Interface
+ */
+interface ArgData {
+  lastInteractionTime?: Date;
+  lastIdleTime?: Date;
+  keyholeClicks?: number;
+  qrScans?: string[];
+  memoryFragments?: string[];
+  secretPagesVisited?: string[];
+  idleTriggers?: Record<string, Date>;
+}
+
+/**
+ * Initialize ARG commands
+ */
 export const initializeARGCommands = (
   trackCommandExecution: TrackCommandFunction
 ) => {
@@ -145,6 +159,10 @@ declare global {
     fragmentCheck: () => void;
     secretCheck: () => void;
     idleCheck: () => void;
+    JonahConsole?: {
+      argData: ArgData;
+      usedCommands?: string[];
+    };
   }
 }
 
@@ -160,8 +178,7 @@ export const checkIdleTime = (): string | null => {
   
   // Calculate idle time in minutes
   const now = new Date();
-  const lastInteraction = new Date(lastTime);
-  const idleMinutes = Math.floor((now.getTime() - lastInteraction.getTime()) / (60 * 1000));
+  const idleMinutes = Math.floor((now.getTime() - lastTime.getTime()) / (60 * 1000));
   
   // Record idle triggers
   if (idleMinutes >= 5) {
@@ -169,13 +186,13 @@ export const checkIdleTime = (): string | null => {
     if (!window.JonahConsole.argData.idleTriggers) {
       window.JonahConsole.argData.idleTriggers = {};
     }
-    window.JonahConsole.argData.idleTriggers["idle5min"] = now.toISOString();
-    window.JonahConsole.argData.lastIdleTime = now.toISOString();
+    window.JonahConsole.argData.idleTriggers["idle5min"] = now;
+    window.JonahConsole.argData.lastIdleTime = now;
     return "Your absence was... noticed.";
   }
   
   if (idleMinutes >= 2) {
-    window.JonahConsole.argData.lastIdleTime = now.toISOString();
+    window.JonahConsole.argData.lastIdleTime = now;
     return "Staring into the distance won't help.";
   }
   
@@ -187,7 +204,7 @@ export const checkIdleTime = (): string | null => {
  */
 export const updateInteractionTime = (): void => {
   if (window.JonahConsole && window.JonahConsole.argData) {
-    window.JonahConsole.argData.lastInteractionTime = new Date().toISOString();
+    window.JonahConsole.argData.lastInteractionTime = new Date();
   }
 };
 
@@ -213,6 +230,8 @@ export const trackSecretPageVisit = (pageName: string): string | undefined => {
  * Gets an ARG response based on the current page and trust level
  */
 export const getARGResponse = (pathname: string, trustLevel: string): string | null => {
+  if (!pathname) return null;
+  
   // Special ARG responses for various pages
   const specialPages: Record<string, Record<string, string>> = {
     "/gatekeeper": {
