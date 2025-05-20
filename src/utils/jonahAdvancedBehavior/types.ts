@@ -33,6 +33,7 @@ export interface SentienceData {
     moodHistory?: Array<{mood: string, timestamp: number}>;
     anomalyCount?: number;
     journal?: any[];
+    dreamParables?: any[]; // Added missing property
   };
   audio?: {
     lastPlayed: number;
@@ -52,7 +53,7 @@ export interface SentienceData {
     tabSwitches?: number;
   };
   memoryFragments?: string[];
-  predictionResponses?: string[];
+  predictionResponses?: Record<string, string[]>; // Changed from string[] to Record<string, string[]>
   usedPredictionResponses?: string[];
   conversationMemory?: {
     recentInputs: string[];
@@ -69,6 +70,27 @@ export interface SentienceData {
     adaptationLevel: number;
   };
   rememberedName?: string;
+  pageVisits?: string[]; // Added missing property
+  tabSwitches?: number; // Added missing property
+  ecoAwareness?: { // Added missing property
+    lastChecked: number;
+    biomeResponses: any[];
+    knownBiomes: string[];
+    dreamtimeActive: boolean;
+    woodsResponses: string[];
+  };
+  newsAwareness?: { // Added missing property
+    lastChecked: number;
+    currentResponses: Array<{
+      topic: string;
+      headline: string;
+      response: string;
+      timestamp: number;
+    }>;
+    weatherCondition: string;
+    weatherResponse: string | null;
+    moodShift: 'normal' | 'anxious' | 'somber' | 'agitated';
+  };
 }
 
 // Story Flag interface
@@ -125,4 +147,3 @@ export type ResponseStyle = 'direct' | 'elaborate' | 'poetic' | 'technical';
 
 // Define emotional trend
 export type EmotionalTrend = 'improving' | 'deteriorating' | 'fluctuating' | 'stable';
-

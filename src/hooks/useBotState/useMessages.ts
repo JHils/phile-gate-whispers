@@ -55,6 +55,8 @@ import {
   generateTestamentResponse
 } from '@/utils/jonahAdvancedBehavior';
 
+import { EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
+
 export function useMessages(initialMessages = [], trustLevel = 'low') {
   const [messages, setMessages] = useState(initialMessages);
   const [isTyping, setIsTyping] = useState(false);
@@ -139,7 +141,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     jonah_storeMemoryFragment(`User said: ${content}`);
     
     // Process input for emotional triggers - returns {primary, secondary}
-    processEmotionalInput(content);
+    const emotionalResult = processEmotionalInput(content);
     
     // Track input for adaptive learning
     trackUserInput(content);
@@ -485,10 +487,10 @@ function generateResponseFromTemplate(content: string, trustLevel: string): stri
   const template = getResponseTemplate(templateType);
   
   // Map trust level to emotion
-  const emotionMap: Record<string, string> = {
-    'low': 'paranoid',
-    'medium': 'mirror',
-    'high': 'hopeful'
+  const emotionMap: Record<string, EmotionCategory> = {
+    'low': 'paranoia',
+    'medium': 'trust',
+    'high': 'hope'
   };
   
   const emotion = emotionMap[trustLevel] || 'neutral';

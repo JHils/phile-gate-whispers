@@ -1,26 +1,29 @@
-
 /**
  * Jonah's Audio System
  * Handles audio playback for various Jonah events
  */
 
-// Initialize the audio system
-export function initializeAudioSystem(): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
-    // Initialize audio in sentience data if it doesn't exist
-    if (!window.JonahConsole.sentience.audio) {
-      window.JonahConsole.sentience.audio = {
-        lastPlayed: 0,
-        playedSounds: [],
-        volumeLevel: 0.7
-      };
-    }
-    
-    // Create global function for playing Jonah sounds
-    window.playJonahAudio = (triggerType: string): void => {
-      playAudioByTrigger(triggerType);
+// Initialize audio for Jonah
+export function initializeJonahAudio() {
+  // Check if we already have audio initialized
+  if (!window.JonahConsole?.sentience) {
+    return;
+  }
+  
+  // Initialize audio data if it doesn't exist
+  if (!window.JonahConsole.sentience.audio) {
+    window.JonahConsole.sentience.audio = {
+      lastPlayed: Date.now(),
+      playedSounds: [] as string[], // Fixed type
+      unlockedVoiceLogs: [], // Added required property
+      volumeLevel: 75 // Default volume level
     };
   }
+  
+  // Create global function for playing Jonah sounds
+  window.playJonahAudio = (triggerType: string): void => {
+    playAudioByTrigger(triggerType);
+  };
 }
 
 // Play audio by trigger type

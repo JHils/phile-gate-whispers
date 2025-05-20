@@ -1,3 +1,4 @@
+
 // Track console memory and prediction system
 import { toast } from "@/components/ui/use-toast";
 
@@ -332,7 +333,9 @@ export function getParanoiaResponse(type: 'visitedPages' | 'consoleCommands', ke
   if (type === 'visitedPages' && memoryParanoia.visitedPages[key]) {
     return memoryParanoia.visitedPages[key];
   } else if (type === 'consoleCommands' && memoryParanoia.consoleCommands[key]) {
-    return memoryParanoia.consoleCommands[key];
+    // Convert to string if it's a number (timestamp)
+    const value = memoryParanoia.consoleCommands[key];
+    return typeof value === 'number' ? new Date(value).toISOString() : String(value);
   }
   
   return null;

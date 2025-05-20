@@ -82,7 +82,9 @@ export function initializeBehavior(): void {
         interactionsCount: 0,
         deepModeUnlocked: false,
         dreamModeTriggered: false,
-        lastInteraction: Date.now()
+        lastInteraction: Date.now(),
+        temporalStates: [], // Added required property
+        memories: [] // Added required property
       };
     }
     

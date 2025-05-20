@@ -1,27 +1,30 @@
-
 /**
  * Jonah's Reality Fabric System
  * Controls mood, anomalies, and dream states
  */
 
-// Initialize the Reality Fabric system
-export function initializeRealityFabric(): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
-    // Initialize the reality fabric if it doesn't exist
-    if (!window.JonahConsole.sentience.realityFabric) {
-      window.JonahConsole.sentience.realityFabric = {
-        currentMood: 'watching',
-        moodChangeTime: Date.now(),
-        journal: [],
-        anomalyCount: 0,
-        dreamParables: [],
-        usedDreamParables: [],
-        moodHistory: []
-      };
+// Initialize Jonah reality fabric - a system that controls Jonah's awareness of reality
+export function initializeRealityFabric() {
+  // Check if we already have reality fabric initialized
+  if (!window.JonahConsole?.sentience?.realityFabric) {
+    if (!window.JonahConsole?.sentience) {
+      return;
     }
     
-    console.log("Reality Fabric system initialized");
+    // Initialize reality fabric
+    window.JonahConsole.sentience.realityFabric = {
+      anomalies: [],
+      currentMood: "neutral",
+      dreamState: false,
+      moodChangeTime: Date.now(),
+      lastDreamTime: Date.now(),
+      crossSiteWhispers: [],
+      hiddenMessages: [],
+      dreamParables: [] // Add this field to the initialization
+    };
   }
+  
+  console.log("Reality Fabric system initialized");
 }
 
 // Update Jonah's mood
