@@ -1,4 +1,3 @@
-
 import { glitchEffectLog, speak, typewriterLog } from "./consoleEffects";
 import { BookCode } from "./jonahAdvancedBehavior/types";
 
@@ -114,10 +113,13 @@ export const initializeBookCommands = (trackCommandExecution: TrackCommandFuncti
         const codeExists = window.JonahConsole.bookCodes.some((item) => item.id === normalizedCode);
         
         if (!codeExists) {
-          window.JonahConsole.bookCodes.push({
-            id: normalizedCode,
-            unlocked: true
-          });
+          const sanitizedCode = normalizedCode.replace(/[^a-zA-Z0-9]/g, '');
+          const newBookCode = { 
+            id: "book_" + sanitizedCode, 
+            name: "Book " + sanitizedCode, 
+            unlocked: true 
+          };
+          window.JonahConsole.bookCodes.push(newBookCode);
         }
         
         // Special effects for certain codes

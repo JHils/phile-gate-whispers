@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from "@/components/ui/use-toast";
 import { 
@@ -24,7 +23,9 @@ import {
 import { 
   EmotionalState, 
   ConversationMemory,
-  EmotionCategory
+  EmotionCategory,
+  ResponseStyle,
+  EmotionalTrend
 } from '@/utils/jonahAdvancedBehavior/types';
 
 const TalkToJonah: React.FC = () => {
@@ -55,8 +56,8 @@ const TalkToJonah: React.FC = () => {
   
   // Visual indicators of conversation state
   const [conversationDepth, setConversationDepth] = useState<number>(0);
-  const [emotionalTrend, setEmotionalTrend] = useState<'improving' | 'deteriorating' | 'fluctuating' | 'stable'>('stable');
-  const [responseStyle, setResponseStyle] = useState<'direct' | 'elaborate' | 'poetic' | 'technical'>('direct');
+  const [emotionalTrend, setEmotionalTrend] = useState<EmotionalTrend>('stable');
+  const [responseStyle, setResponseStyle] = useState<ResponseStyle>('direct');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   

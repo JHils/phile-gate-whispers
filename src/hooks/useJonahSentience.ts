@@ -17,9 +17,13 @@ export function useJonahSentience() {
         deepModeUnlocked: false,
         dreamModeTriggered: false,
         lastInteraction: Date.now(),
+        temporalStates: [],
+        memories: [],
         sessionData: {
           messagesReceived: 0,
-          messagesSent: 0
+          messagesSent: 0,
+          startTime: Date.now(),
+          idleTime: 0
         }
       };
       
@@ -37,8 +41,19 @@ export function useJonahSentience() {
           jokesDisplayed: [],
           storyFlags: [],
           bookCodes: [],
-          simba: null,
-          argData: null,
+          simba: {
+            encountered: false
+          },
+          argData: {
+            keyholeClicks: 0,
+            consoleCluesTouched: [],
+            qrScans: [],
+            memoryFragments: [],
+            secretPagesVisited: [],
+            hiddenFilesDownloaded: [],
+            idleTriggers: {},
+            lastInteractionTime: new Date()
+          },
           sentience: newSentience
         };
       }
@@ -113,3 +128,4 @@ export function useJonahSentience() {
 }
 
 export default useJonahSentience;
+

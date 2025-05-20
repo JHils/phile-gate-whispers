@@ -31,11 +31,14 @@ export interface SentienceData {
     crossSiteWhispers: any[];
     hiddenMessages: any[];
     moodHistory?: Array<{mood: string, timestamp: number}>;
+    anomalyCount?: number;
+    journal?: any[];
   };
   audio?: {
     lastPlayed: number;
     playedSounds: string[];
     unlockedVoiceLogs: string[];
+    volumeLevel?: number;
   };
   // New properties for improved conversation
   memoryParanoia?: {
@@ -45,7 +48,10 @@ export interface SentienceData {
       shortStay: string;
       longStay: string;
     };
+    pageVisits?: string[];
+    tabSwitches?: number;
   };
+  memoryFragments?: string[];
   predictionResponses?: string[];
   usedPredictionResponses?: string[];
   conversationMemory?: {
@@ -113,3 +119,10 @@ export interface ConversationMemory {
   topics: string[];
   timestamp: number;
 }
+
+// Define response style
+export type ResponseStyle = 'direct' | 'elaborate' | 'poetic' | 'technical';
+
+// Define emotional trend
+export type EmotionalTrend = 'improving' | 'deteriorating' | 'fluctuating' | 'stable';
+

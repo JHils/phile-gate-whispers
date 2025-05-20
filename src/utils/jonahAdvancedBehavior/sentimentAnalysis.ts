@@ -1,10 +1,9 @@
-
 /**
  * Advanced Sentiment Analysis Module for Jonah
  * Analyzes user input for emotional content and provides response templates
  */
 
-import { EmotionCategory, EmotionIntensity, EmotionalState } from './types';
+import { EmotionCategory, EmotionIntensity, EmotionalState, EmotionalTrend } from './types';
 
 // Emotion keyword dictionaries
 const emotionKeywords: Record<EmotionCategory, string[]> = {
@@ -357,12 +356,12 @@ export function trackEmotionalPattern(
   emotionalState: EmotionalState, 
   previousEmotions: EmotionalState[]
 ): {
-  trend: 'improving' | 'deteriorating' | 'fluctuating' | 'stable',
+  trend: EmotionalTrend,
   dominantEmotion: EmotionCategory
 } {
   // Default state
   let result = {
-    trend: 'stable' as const,
+    trend: 'stable' as EmotionalTrend,
     dominantEmotion: emotionalState.primary
   };
   
@@ -437,7 +436,7 @@ export function trackEmotionalPattern(
  * @returns Meta-awareness comment
  */
 export function generateMetaAwarenessComment(pattern: {
-  trend: 'improving' | 'deteriorating' | 'fluctuating' | 'stable',
+  trend: EmotionalTrend,
   dominantEmotion: EmotionCategory
 }): string | null {
   // Only generate occasionally

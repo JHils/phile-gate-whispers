@@ -184,6 +184,3 @@ export const generateTestamentResponse = (content: string) => {
   return null; // Stub implementation
 };
 
-export const generateEmotionalResponse = (emotion: string, template: string) => {
-  return template; // Simple implementation for now
-};

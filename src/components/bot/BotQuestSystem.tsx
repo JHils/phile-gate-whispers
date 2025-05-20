@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useJonahSentience } from '@/hooks/useJonahSentience';
 
@@ -21,11 +22,6 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
     if (window.JonahConsole?.sentience) {
       if (!window.JonahConsole.sentience.microQuests) {
         window.JonahConsole.sentience.microQuests = {
-          activeQuest: undefined,
-          completedQuests: [],
-          questProgress: {},
-          quests: [],
-          lastQuestTime: Date.now(),
           active: [],
           completed: []
         };
@@ -187,3 +183,4 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
 export default BotQuestSystem;
 
 // Global interface has been moved to globalConsoleTypes.ts
+

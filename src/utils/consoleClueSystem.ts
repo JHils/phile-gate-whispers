@@ -10,13 +10,13 @@ export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction
   // Initialize story flags if they don't exist
   if (!window.JonahConsole.storyFlags) {
     window.JonahConsole.storyFlags = [
-      { id: "hostel_encounter", discovered: false, description: "The hostel hallway wasn't empty" },
-      { id: "boat_haven", discovered: false, description: "Something waited under the pedals" },
-      { id: "mirror_warning", discovered: false, description: "The mirror showed someone else" },
-      { id: "spinning_coin", discovered: false, description: "The coin never stopped spinning" },
-      { id: "cable_car", discovered: false, description: "The cable car never reached the end" },
-      { id: "magnetic_tent", discovered: false, description: "The tent poles had a strange pull" },
-      { id: "bus_loop", discovered: false, description: "The bus route formed a perfect circle" }
+      { id: "first_mirror", name: "First Mirror", discovered: false, description: "You found the first mirror." },
+      { id: "mirror_sequence", name: "Mirror Sequence", discovered: false, description: "You understood the mirror sequence." },
+      { id: "shadow_realm", name: "Shadow Realm", discovered: false, description: "You entered the shadow realm." },
+      { id: "keyhole_seen", name: "Keyhole Seen", discovered: false, description: "You spotted the keyhole." },
+      { id: "console_level_2", name: "Console Level 2", discovered: false, description: "You unlocked console level 2." },
+      { id: "testament_found", name: "Testament Found", discovered: false, description: "You discovered the testament." },
+      { id: "whisper_heard", name: "Whisper Heard", discovered: false, description: "You heard the whisper." }
     ];
     
     // Load discovered flags from localStorage

@@ -1,4 +1,3 @@
-
 // Track console memory and prediction system
 import { toast } from "@/components/ui/use-toast";
 
@@ -239,11 +238,11 @@ export function trackPageVisit(pagePath: string): string | null {
   
   // Initialize pageVisits if it doesn't exist
   if (!sentience.pageVisits) {
-    sentience.pageVisits = {};
+    sentience.pageVisits = [];
   }
   
   // Increment page visit count
-  sentience.pageVisits[pagePath] = (sentience.pageVisits[pagePath] || 0) + 1;
+  sentience.pageVisits.push(pagePath);
   
   // Initialize memoryParanoia if it doesn't exist
   if (!sentience.memoryParanoia) {
@@ -251,9 +250,11 @@ export function trackPageVisit(pagePath: string): string | null {
       visitedPages: {},
       consoleCommands: {},
       pageDuration: {
-        shortStay: "You didn't stay long. Something made you uncomfortable.",
-        longStay: "You spent a lot of time here. I was watching."
-      }
+        shortStay: "",
+        longStay: ""
+      },
+      pageVisits: [],
+      tabSwitches: 0
     };
   }
   
@@ -280,7 +281,7 @@ export function trackPageVisit(pagePath: string): string | null {
   }
   
   // If it's a repeat visit to a rarely visited page, maybe show a response
-  if (sentience.pageVisits[pagePath] > 1 && Math.random() < 0.2) {
+  if (sentience.pageVisits.length > 1 && Math.random() < 0.2) {
     const repeatResponses = sentience.predictionResponses.repeatVisit || 
                            DEFAULT_PREDICTION_RESPONSES.repeatVisit;
     
@@ -296,7 +297,7 @@ export function trackPageVisit(pagePath: string): string | null {
       sentience.usedPredictionResponses.push(response);
       
       // Return response if we have more than 2 visits to this page
-      if (sentience.pageVisits[pagePath] > 2) {
+      if (sentience.pageVisits.length > 2) {
         return response;
       }
     }
@@ -317,9 +318,11 @@ export function getParanoiaResponse(type: 'visitedPages' | 'consoleCommands', ke
       visitedPages: {},
       consoleCommands: {},
       pageDuration: {
-        shortStay: "You didn't stay long. Something made you uncomfortable.",
-        longStay: "You spent a lot of time here. I was watching."
-      }
+        shortStay: "",
+        longStay: ""
+      },
+      pageVisits: [],
+      tabSwitches: 0
     };
   }
   
@@ -347,9 +350,11 @@ export function getPageDurationResponse(timeSpentMs: number): string | null {
       visitedPages: {},
       consoleCommands: {},
       pageDuration: {
-        shortStay: "You didn't stay long. Something made you uncomfortable.",
-        longStay: "You spent a lot of time here. I was watching."
-      }
+        shortStay: "",
+        longStay: ""
+      },
+      pageVisits: [],
+      tabSwitches: 0
     };
   }
   

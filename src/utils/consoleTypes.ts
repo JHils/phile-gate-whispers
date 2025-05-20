@@ -6,7 +6,7 @@
 
 // Import the centralized global types
 import './types/globalConsoleTypes';
-import { StoryFlag, BookCode, SentienceData } from './jonahAdvancedBehavior/types';
+import { SentienceData } from './jonahAdvancedBehavior/types';
 
 // ARG Command Type
 export type ARGCommand = {
@@ -29,7 +29,7 @@ export type ConsoleMessage = {
 export type TrustLevel = 'none' | 'low' | 'medium' | 'high';
 
 // Re-export types from jonahAdvancedBehavior for consistency
-export type { StoryFlag, BookCode, SentienceData };
+export type { StoryFlag, BookCode, SentienceData } from './jonahAdvancedBehavior/types';
 
 // WhisperMaster Type
 export interface WhisperMaster {
@@ -74,3 +74,4 @@ export interface NewsAwareness {
   weatherResponse: string | null;
   moodShift: 'normal' | 'anxious' | 'somber' | 'agitated';
 }
+

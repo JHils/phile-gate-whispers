@@ -1,9 +1,10 @@
+
 /**
  * Conversation Memory System
  * Tracks conversation history and generates contextually relevant responses
  */
 
-import { ConversationMemory, EmotionalState } from './types';
+import { ConversationMemory, EmotionalState, ResponseStyle } from './types';
 
 // Maximum number of inputs to remember
 const MAX_MEMORY_SIZE = 5;
@@ -234,13 +235,13 @@ export function getAmbiguityResponse(emotion: EmotionalState): string {
 export function getPersonalizationInfo(memory: ConversationMemory): {
   topFrequentTopics: string[];
   dominantEmotion: string;
-  responseStyle: 'direct' | 'elaborate' | 'poetic' | 'technical';
+  responseStyle: ResponseStyle;
 } {
   // Default values
   const result = {
     topFrequentTopics: [],
     dominantEmotion: 'neutral',
-    responseStyle: 'direct' as const
+    responseStyle: 'direct' as ResponseStyle
   };
   
   // Not enough data
@@ -316,3 +317,4 @@ export function getPersonalizationInfo(memory: ConversationMemory): {
   
   return result;
 }
+

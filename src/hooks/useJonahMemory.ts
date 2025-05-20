@@ -119,9 +119,9 @@ export function useJonahMemory(): JonahMemory {
     if (typeof window !== 'undefined' && 
         window.JonahConsole?.sentience?.memoryParanoia) {
           
-      // Record command with timestamp
-      window.JonahConsole.sentience.memoryParanoia.consoleCommands[command] = 
-        new Date().toISOString();
+      // Record command with timestamp - use number for timestamp
+      const timestamp = Date.now();
+      window.JonahConsole.sentience.memoryParanoia.consoleCommands[command] = timestamp;
     }
   };
   
@@ -184,3 +184,4 @@ export function useJonahMemory(): JonahMemory {
     generatePersonalObservation
   };
 }
+
