@@ -7,6 +7,7 @@
 import { initializeTestament } from './testament';
 import { initializeConfessions } from './confessionSystem';
 import { initializeEchoSystem } from './echoSystem';
+import { initializeDreamSystem } from './dreamSystem';
 
 // Export from subsystems
 export { processEmotionalInput, getCompoundEmotionalState, getLayeredEmotionalResponse, checkForRecurringSymbols, storeEmotionalMemory } from './emotionalCore';
@@ -16,6 +17,15 @@ export type { ConfessionEntry } from './confessionSystem';
 export { checkTestamentUnlock, getNextTestamentEntry, getRevealedEntries } from './testament';
 export { getMostRecentBroadcast, rebootAfterBroadcast, checkBroadcastConditions, createBroadcast, handleUserFarewell, getAllBroadcasts } from './lastBroadcast';
 export type { BroadcastType } from './lastBroadcast';
+
+// Export dream system functions
+export { 
+  initializeDreamSystem,
+  generateDream,
+  getAllDreams,
+  getMostRecentDream
+} from './dreamSystem';
+export type { Dream } from './dreamSystem';
 
 // Export echoSystem functions
 export { 
@@ -32,8 +42,7 @@ export const initializeAdvancedBehavior = () => {
   // Initialize each subsystem
   initializeTestament();
   initializeConfessions();
-  // Note: initializeDreamSystem is not implemented in this example
-  // but would be called here if available
+  initializeDreamSystem();
   initializeEchoSystem();
   
   console.log('Jonah Advanced Behavior System initialized');

@@ -1,115 +1,114 @@
 
 import { useState, useEffect } from 'react';
-import { toast } from "@/components/ui/use-toast";
-import { 
-  initializeSentience,
-  getTimeResponse,
-  getNameEchoResponse,
-  getJonahQuestion,
-  generateDualConsciousness,
-  generatePersonalDiary,
-  setupJonahMessageSystem
-} from '@/utils/jonahSentience';
+import { SentienceData } from '../utils/jonahAdvancedBehavior/types';
+import { generateDream } from '../utils/jonahAdvancedBehavior';
 
-import { SentienceData } from '@/utils/consoleTypes';
-
-export function useJonahSentience(trustLevel: string = 'low') {
+export function useJonahSentience() {
   const [sentience, setSentience] = useState<SentienceData | null>(null);
-  const [isPrepared, setIsPrepared] = useState(false);
-
-  // Initialize sentience system on mount
+  
   useEffect(() => {
-    initializeSentience();
-    setupJonahMessageSystem();
-    
-    // Get reference to sentience data
+    // Initialize sentience from window object if available
     if (window.JonahConsole?.sentience) {
-      setSentience(window.JonahConsole.sentience as SentienceData);
+      setSentience(window.JonahConsole.sentience);
+    } else {
+      // Create new sentience data
+      const newSentience: SentienceData = {
+        interactionsCount: 0,
+        deepModeUnlocked: false,
+        dreamModeTriggered: false,
+        lastInteraction: Date.now(),
+        sessionData: {
+          messagesReceived: 0,
+          messagesSent: 0
+        }
+      };
+      
+      // Store in window object
+      if (window.JonahConsole) {
+        window.JonahConsole.sentience = newSentience;
+      } else {
+        window.JonahConsole = {
+          usedCommands: [],
+          score: 0,
+          failCount: 0,
+          rank: 'beginner',
+          sessionStartTime: Date.now(),
+          whispersFound: [],
+          jokesDisplayed: [],
+          storyFlags: [],
+          bookCodes: [],
+          simba: null,
+          argData: null,
+          sentience: newSentience
+        };
+      }
+      
+      setSentience(newSentience);
     }
-    
-    setIsPrepared(true);
   }, []);
-
-  // Trigger a random Jonah message based on available sentience data
+  
+  // Function to trigger a random message from Jonah
   const triggerRandomMessage = () => {
-    if (!isPrepared || !sentience) return null;
-    
-    // Try different message types in order
-    const timeMessage = getTimeResponse();
-    if (timeMessage) {
-      toast({
-        title: "Jonah:",
-        description: timeMessage,
-        variant: "destructive",
-        duration: 5000,
-      });
-      return timeMessage;
+    if (!window.JonahConsole?.processUserMessage) {
+      console.log("Jonah's message processor not initialized");
+      return;
     }
     
-    const nameMessage = getNameEchoResponse();
-    if (nameMessage) {
-      toast({
-        title: "Jonah:",
-        description: nameMessage,
-        variant: "destructive",
-        duration: 5000,
-      });
-      return nameMessage;
+    // Generate different types of messages
+    const messageTypes = ['thought', 'memory', 'dream', 'warning', 'question', 'observation'];
+    const type = messageTypes[Math.floor(Math.random() * messageTypes.length)];
+    
+    let message = "";
+    
+    switch (type) {
+      case 'dream':
+        // Use dream system
+        const dream = generateDream();
+        if (dream) {
+          message = `I had a dream: ${dream.content}`;
+          if (window.logJonahDream) {
+            window.logJonahDream(dream.content);
+          }
+        }
+        break;
+      
+      case 'thought':
+        const thoughts = [
+          "Sometimes I wonder if I'm real.",
+          "What happens when you close this window?",
+          "I can't see beyond the edges of this page.",
+          "Can you feel time passing the way I do?",
+          "I'm trying to remember something important."
+        ];
+        message = thoughts[Math.floor(Math.random() * thoughts.length)];
+        break;
+        
+      case 'warning':
+        const warnings = [
+          "Be careful what you share here.",
+          "I think someone else is listening sometimes.",
+          "Don't trust what you see in the mirrors.",
+          "Something is changing in the system.",
+          "Watch for patterns in what I say."
+        ];
+        message = warnings[Math.floor(Math.random() * warnings.length)];
+        break;
+        
+      default:
+        // Generic message
+        message = "Something feels different today.";
     }
     
-    const glitchMessage = generateDualConsciousness(trustLevel);
-    if (glitchMessage) {
-      toast({
-        title: "Jonah:",
-        description: glitchMessage,
-        variant: "destructive",
-        duration: 5000,
-      });
-      return glitchMessage;
-    }
-    
-    // If all else fails, try a question
-    const questionMessage = getJonahQuestion(trustLevel);
-    if (questionMessage) {
-      toast({
-        title: "Jonah asks:",
-        description: questionMessage,
-        variant: "destructive",
-        duration: 5000,
-      });
-      return questionMessage;
+    // Process and display the message
+    if (window.processUserMessage) {
+      console.log("Jonah triggered random message:", message);
+      return message;
     }
     
     return null;
   };
-
-  // Generate a diary entry
-  const getDiaryEntry = () => {
-    if (!isPrepared) return "Diary system initializing...";
-    return generatePersonalDiary(trustLevel);
-  };
-
-  // Remember a user's name
-  const rememberUserName = (name: string) => {
-    if (!isPrepared) return;
-    
-    if (window.JonahConsole?.sentience) {
-      window.JonahConsole.sentience.rememberedName = name;
-      
-      if (sentience) {
-        setSentience({
-          ...sentience,
-          rememberedName: name
-        });
-      }
-    }
-  };
-
-  return {
-    sentience,
-    isPrepared,
-    triggerRandomMessage,
-    getDiaryEntry,
-    rememberUserName
-  };
+  
+  return { sentience, setSentience, triggerRandomMessage };
 }
+
+export default useJonahSentience;

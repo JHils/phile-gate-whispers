@@ -136,7 +136,7 @@ const getDescription = (emotionalState?: string): string => {
     default: ['someone I didn\'t recognize', 'blurred and unfocused', 'constantly changing'],
     fear: ['someone watching me', 'distorted and grotesque', 'filled with darkness'],
     joy: ['brighter than I expected', 'smiling and welcoming', 'radiating light'],
-    sadness: ['fading away slowly', 'crying silent tears', 'someone I've lost'],
+    sadness: ['fading away slowly', 'crying silent tears', 'someone I\'ve lost'],
     confusion: ['shifting between faces', 'partly visible', 'fragmented and disjointed']
   };
   
@@ -149,8 +149,8 @@ const getObservation = (emotionalState?: string): string => {
     default: ['Time seemed to stand still', 'The sky kept changing color', 'I could hear my thoughts'],
     fear: ['Something was watching from the water', 'The tide was blood-red', 'Shadows moved beneath the surface'],
     joy: ['The sunlight created beautiful patterns', 'I felt perfectly at peace', 'Everything glowed with life'],
-    sadness: ['The world was draining of color', 'Each wave took something away', 'I couldn't remember why I was there'],
-    confusion: ['The shore kept moving away', 'Sometimes I was underwater', 'I couldn't tell where the sea ended']
+    sadness: ['The world was draining of color', 'Each wave took something away', 'I couldn\'t remember why I was there'],
+    confusion: ['The shore kept moving away', 'Sometimes I was underwater', 'I couldn\'t tell where the sea ended']
   };
   
   const list = observations[emotionalState || 'default'] || observations.default;
