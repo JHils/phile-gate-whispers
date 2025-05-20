@@ -4,6 +4,13 @@
  * Enables whispers that appear across different pages
  */
 
+// Interface for whisper with metadata
+interface WhisperWithMetadata {
+  whisper: string;
+  timestamp: number;
+  path: string;
+}
+
 // Initialize whisper system
 export function initializeCrossSiteWhispers(): void {
   if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
@@ -68,7 +75,7 @@ export function addWhisperWithMetadata(whisper: string, path: string): boolean {
     addWhisper(whisper);
     
     // Create metadata record
-    const whisperData = {
+    const whisperData: WhisperWithMetadata = {
       whisper,
       timestamp: Date.now(),
       path

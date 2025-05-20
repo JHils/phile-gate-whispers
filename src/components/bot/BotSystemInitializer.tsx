@@ -5,6 +5,8 @@ import { initializeFuzzyStoryMatching } from '@/utils/fuzzyStoryMatching';
 import { initializeNewsAwarenessSystem } from '@/utils/jonahNewsAwareness';
 import { initializeEcoAwareness } from '@/utils/jonahEcoAwareness';
 import { initializeInteractiveCommands } from '@/utils/consoleTrackingUtils';
+import { initializeAdvancedBehavior } from '@/utils/jonahAdvancedBehavior';
+import { initializeCrossSiteWhispers } from '@/utils/jonahCrossSiteWhisper';
 
 const BotSystemInitializer: React.FC = () => {
   useEffect(() => {
@@ -15,6 +17,8 @@ const BotSystemInitializer: React.FC = () => {
     initializeNewsAwarenessSystem();
     initializeEcoAwareness();
     initializeInteractiveCommands();
+    initializeAdvancedBehavior();
+    initializeCrossSiteWhispers();
     
     // Initialize console tracking
     if (typeof window !== 'undefined' && !window.JonahConsole) {
@@ -69,7 +73,9 @@ const BotSystemInitializer: React.FC = () => {
             mood: "neutral",
             dreamState: false,
             moodChangeTime: Date.now(),
-            currentMood: "watching"
+            currentMood: "watching",
+            crossSiteWhispers: [],
+            hiddenMessages: []
           }
         }
       };

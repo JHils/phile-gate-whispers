@@ -1,9 +1,7 @@
-
 import { useState } from 'react';
 import { BotMessage, TrustLevel } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { generateFirstTimeResponse } from '@/utils/jonahAdvancedBehavior';
-// Since handleWorldQuery is not exported from jonahNewsAwareness, let's avoid using it
 
 export function useMessages(initialMessages: BotMessage[] = [], trustLevel: TrustLevel = 'low') {
   const [messages, setMessages] = useState<BotMessage[]>(initialMessages);
