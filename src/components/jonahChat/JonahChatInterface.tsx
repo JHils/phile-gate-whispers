@@ -3,18 +3,19 @@ import React, { useRef } from 'react';
 import JonahChatHeader from './JonahChatHeader';
 import JonahChatMessages from './JonahChatMessages';
 import JonahChatInput from './JonahChatInput';
+import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
 
 type JonahChatInterfaceProps = {
   messages: any[];
   input: string;
   setInput: (value: string) => void;
   isTyping: boolean;
-  jonahMood: string;
+  jonahMood: EmotionCategory;
   jonahVersion: 'PRIME' | 'RESIDUE';
   messageWeight: 'light' | 'medium' | 'heavy';
   conversationDepth: number;
-  emotionalTrend: string;
-  responseStyle: string;
+  emotionalTrend: EmotionalTrend;
+  responseStyle: ResponseStyle;
   handleSendMessage: (e: React.FormEvent) => void;
   toggleVersion: () => void;
   resetConversation: () => void;
