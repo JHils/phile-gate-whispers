@@ -111,8 +111,9 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({
         addJournalEntry(`Hidden page visited: ${currentPath}`);
       }
       
-      // Check for ARG progression responses
-      const argResponse = getARGResponse();
+      // Check for ARG progression responses - pass the currentPath and trustLevel
+      const trustLevel = localStorage.getItem('jonahTrustLevel') || 'low';
+      const argResponse = getARGResponse(currentPath, trustLevel);
       if (argResponse && Math.random() > 0.7) { // 30% chance to show ARG-specific response on page change
         setTimeout(() => {
           addBotMessage(argResponse);

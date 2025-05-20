@@ -148,8 +148,6 @@ declare global {
   }
 }
 
-// NEW FUNCTIONS TO FIX IMPORT ERRORS
-
 /**
  * Checks if the user has been idle for a certain period of time
  * and triggers ARG-related behaviors if so
@@ -168,6 +166,9 @@ export const checkIdleTime = (): string | null => {
   // Record idle triggers
   if (idleMinutes >= 5) {
     // Record that user was idle for 5+ minutes
+    if (!window.JonahConsole.argData.idleTriggers) {
+      window.JonahConsole.argData.idleTriggers = {};
+    }
     window.JonahConsole.argData.idleTriggers["idle5min"] = now.toISOString();
     window.JonahConsole.argData.lastIdleTime = now.toISOString();
     return "Your absence was... noticed.";
@@ -193,7 +194,7 @@ export const updateInteractionTime = (): void => {
 /**
  * Tracks when a user visits a secret page
  */
-export const trackSecretPageVisit = (pageName: string): void => {
+export const trackSecretPageVisit = (pageName: string): string | undefined => {
   if (window.JonahConsole && window.JonahConsole.argData) {
     if (!window.JonahConsole.argData.secretPagesVisited) {
       window.JonahConsole.argData.secretPagesVisited = [];
@@ -202,8 +203,10 @@ export const trackSecretPageVisit = (pageName: string): void => {
     if (!window.JonahConsole.argData.secretPagesVisited.includes(pageName)) {
       window.JonahConsole.argData.secretPagesVisited.push(pageName);
       console.log(`%cARG: Secret page '${pageName}' has been discovered.`, "color: #32ff9a; font-size:12px;");
+      return `This place... I know it from before.`;
     }
   }
+  return undefined;
 };
 
 /**
@@ -290,4 +293,3 @@ export const generateTestament = (username?: string): string => {
   
   return "Your testament has been recorded. The Gate acknowledges you.";
 };
-

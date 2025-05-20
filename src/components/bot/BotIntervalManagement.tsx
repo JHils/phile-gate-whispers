@@ -46,7 +46,7 @@ const BotIntervalManagement: React.FC<BotIntervalManagementProps> = ({
     
     // Create new idle check interval - check every 30 seconds
     const interval = setInterval(() => {
-      const idleMessage = checkIdleTime(currentPath);
+      const idleMessage = checkIdleTime();
       
       if (idleMessage && (!isOpen || isMinimized)) {
         // Auto-open chat with idle message if not already open
