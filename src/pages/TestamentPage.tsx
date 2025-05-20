@@ -1,273 +1,323 @@
 
-import React, { useState, useEffect } from 'react';
-import { getRevealedEntries, getNextTestamentEntry } from '@/utils/jonahAdvancedBehavior/testament';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { checkTestamentUnlock, getNextTestamentEntry, getRevealedEntries } from '@/utils/jonahAdvancedBehavior';
+import { toast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface TestamentEntry {
   id: number;
-  title: string;
   content: string;
   timestamp: number;
-  revealed: boolean;
-  version: number;
+  isCorrupted?: boolean;
+  isAlternate?: boolean;
   mood?: string;
+  version?: string;
 }
 
 const TestamentPage: React.FC = () => {
   const [entries, setEntries] = useState<TestamentEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [consoleInput, setConsoleInput] = useState("");
-  const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
-  const [activeEntry, setActiveEntry] = useState<TestamentEntry | null>(null);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [inputValue, setInputValue] = useState("");
+  const [revealedCount, setRevealedCount] = useState(0);
+  const [currentView, setCurrentView] = useState<'entries' | 'input'>('entries');
   
-  const location = useLocation();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   
   useEffect(() => {
-    // Check if testament is accessible
-    const trustScore = (() => {
-      try {
-        const behavior = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
-        return behavior.trustScore || 0;
-      } catch {
-        return 0;
-      }
-    })();
+    // Check if testament is unlocked
+    const unlocked = checkTestamentUnlock();
+    setIsUnlocked(unlocked);
     
-    // Get revealed entries
-    const revealedEntries = getRevealedEntries();
-    
-    // Handle access logic
-    if (revealedEntries.length === 0) {
-      if (trustScore < 50) {
-        setErrorMessage("ENTRY CORRUPTED. YOU'RE TOO SOON.");
-      } else {
-        setErrorMessage("NO ENTRIES REVEALED. THE TESTAMENT REMAINS SEALED.");
-      }
-    } else {
+    if (unlocked) {
+      // Get revealed entries
+      const revealedEntries = getRevealedEntries();
       setEntries(revealedEntries);
-      setActiveEntry(revealedEntries[revealedEntries.length - 1]);
-      
-      // Check if a new entry is available
-      const nextEntry = getNextTestamentEntry();
-      if (nextEntry) {
-        // A new entry was just revealed - add it
-        setEntries(prev => [...prev, nextEntry]);
-        setActiveEntry(nextEntry);
-        
-        // Add system message to console
-        setConsoleOutput(prev => [
-          ...prev, 
-          "** NEW TESTAMENT ENTRY REVEALED **"
-        ]);
-      }
+      setRevealedCount(revealedEntries.length);
     }
     
-    setLoading(false);
-  }, [location]);
+    setIsLoading(false);
+  }, []);
   
-  // Handle console input
-  const handleConsoleSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== 'Enter' || !consoleInput.trim()) return;
-    
-    // Log the input
-    setConsoleOutput(prev => [...prev, `> ${consoleInput}`]);
-    
-    // Process command
-    const input = consoleInput.toLowerCase().trim();
-    
-    if (input === 'help') {
-      setConsoleOutput(prev => [
-        ...prev,
-        "Available commands:",
-        "- read [number] : View testament entry by number",
-        "- list : List all available entries",
-        "- clear : Clear console",
-        "- why : Ask Jonah about his testament"
-      ]);
+  // Scroll to bottom when new entries are revealed
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-    else if (input === 'clear') {
-      setConsoleOutput([]);
-    }
-    else if (input === 'list') {
-      setConsoleOutput(prev => [
-        ...prev,
-        "Available entries:",
-        ...entries.map(entry => `${entry.id}. ${entry.title}`)
-      ]);
-    }
-    else if (input === 'why') {
-      const responses = [
-        "Because you're the only one who stayed.",
-        "I needed someone to remember my truth.",
-        "The archive needed a witness.",
-        "Because I'm forgetting pieces of myself.",
-        "These fragments are all I have left."
-      ];
-      
-      setConsoleOutput(prev => [
-        ...prev,
-        responses[Math.floor(Math.random() * responses.length)]
-      ]);
-    }
-    else if (input.startsWith('read ')) {
-      const idStr = input.substring(5).trim();
-      const id = parseInt(idStr);
-      
-      if (isNaN(id)) {
-        setConsoleOutput(prev => [...prev, "Invalid entry number."]);
-      } else {
-        const entry = entries.find(e => e.id === id);
+  }, [entries.length]);
+  
+  // Handle user input
+  const handleInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (inputValue.toLowerCase() === "you can tell me now") {
+        // Unlock special entry
+        revealNextEntry(true);
+        setInputValue("");
         
-        if (!entry) {
-          setConsoleOutput(prev => [...prev, `Entry ${id} not found or not yet revealed.`]);
-        } else {
-          setActiveEntry(entry);
-          setConsoleOutput(prev => [...prev, `Displaying entry ${id}: ${entry.title}`]);
-        }
+        // Show toast
+        toast({
+          title: "Testament unlocked",
+          description: "Jonah's voice whispers. A new entry appears.",
+          variant: "default",
+        });
+      } 
+      else if (inputValue.toLowerCase() === "show me more" && entries.length > 0) {
+        // Try to reveal next entry
+        revealNextEntry();
+        setInputValue("");
+      }
+      else if (inputValue.toLowerCase() === "why are you telling me this") {
+        // Special response
+        toast({
+          title: "Jonah whispers:",
+          description: "Because you're the only one who stayed.",
+          variant: "default",
+        });
+        setInputValue("");
+      }
+      else {
+        // Normal response
+        toast({
+          title: "Jonah responds:",
+          description: "The testament has its own timing. I can't force it.",
+          variant: "destructive",
+        });
+        setInputValue("");
       }
     }
-    else {
-      setConsoleOutput(prev => [...prev, "Unknown command. Type 'help' for assistance."]);
-    }
-    
-    // Clear input
-    setConsoleInput("");
   };
   
-  // Get mood-based styling
-  const getMoodStyles = (mood: string = 'neutral') => {
-    const moodStyles: Record<string, { bgColor: string, textColor: string, borderColor: string }> = {
-      reflective: { 
-        bgColor: 'bg-blue-900 bg-opacity-20', 
-        textColor: 'text-blue-200', 
-        borderColor: 'border-blue-700' 
-      },
-      paranoid: { 
-        bgColor: 'bg-red-900 bg-opacity-20', 
-        textColor: 'text-red-200',
-        borderColor: 'border-red-800'
-      },
-      mirror: { 
-        bgColor: 'bg-purple-900 bg-opacity-20', 
-        textColor: 'text-purple-200',
-        borderColor: 'border-purple-700'
-      },
-      neutral: { 
-        bgColor: 'bg-gray-900 bg-opacity-30', 
-        textColor: 'text-gray-200',
-        borderColor: 'border-gray-700'
-      }
-    };
+  // Reveal next testament entry
+  const revealNextEntry = (forceUnlock = false) => {
+    const nextEntry = getNextTestamentEntry(forceUnlock);
     
-    return moodStyles[mood] || moodStyles.neutral;
+    if (nextEntry) {
+      setEntries(prev => [...prev, nextEntry]);
+      setRevealedCount(prev => prev + 1);
+    } else {
+      // No more entries available yet
+      toast({
+        title: "Jonah whispers:",
+        description: "There's nothing more to reveal... for now.",
+        variant: "default",
+      });
+    }
   };
   
-  // Format timestamp
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString("en-US", { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+  // Handle early access (not unlocked yet)
+  const handleEarlyAccess = () => {
+    toast({
+      title: "Entry Corrupted",
+      description: "You're too soon. Come back when you know me better.",
+      variant: "destructive",
     });
+    
+    // Redirect after delay
+    setTimeout(() => {
+      navigate('/');
+    }, 5000);
   };
   
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="bg-black min-h-screen text-white p-6 flex justify-center items-center">
-        <div className="animate-pulse text-2xl">Loading Testament...</div>
+      <div className="min-h-screen bg-black text-green-500 p-8 flex items-center justify-center">
+        <div className="text-2xl">Loading testament...</div>
       </div>
     );
   }
-
+  
+  if (!isUnlocked) {
+    return (
+      <div className="min-h-screen bg-black text-green-500 p-8 flex flex-col items-center justify-center">
+        <h1 className="text-3xl mb-6 glitch-text">TESTAMENT LOCKED</h1>
+        <div className="max-w-md text-center space-y-6">
+          <p className="text-lg">Entry Corrupted. You're too soon.</p>
+          <div className="h-px bg-green-800 w-full"></div>
+          <p className="text-sm text-green-700">You haven't earned Jonah's trust.</p>
+          
+          <button 
+            onClick={handleEarlyAccess}
+            className="px-4 py-2 border border-green-700 hover:bg-green-900 hover:bg-opacity-30 mt-8"
+          >
+            Try anyway
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   return (
-    <div className="bg-black min-h-screen text-white p-4 md:p-6 font-serif">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8 text-center">
-          <h1 className="text-4xl md:text-5xl mb-2 font-bold antiqued">JONAH'S TESTAMENT</h1>
-          <p className="text-gray-400 italic">The truth as I remember it.</p>
+    <div className="min-h-screen bg-black text-green-500 p-4 md:p-8">
+      <div className="max-w-2xl mx-auto">
+        <header className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 glitch-text">JONAH'S TESTAMENT</h1>
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-green-700">Entries revealed: {revealedCount}</div>
+            <div className="text-sm">
+              <button 
+                onClick={() => setCurrentView(currentView === 'entries' ? 'input' : 'entries')}
+                className="underline text-green-600 hover:text-green-400"
+              >
+                {currentView === 'entries' ? 'Speak to Jonah' : 'Read Testament'}
+              </button>
+            </div>
+          </div>
         </header>
         
-        {errorMessage ? (
-          <div className="border border-red-800 bg-red-900 bg-opacity-20 p-8 text-center">
-            <p className="text-xl text-red-400">{errorMessage}</p>
-            <p className="mt-4 text-gray-400">Return when you've earned more trust.</p>
+        {currentView === 'entries' ? (
+          // Testament entries view
+          <div className="space-y-8">
+            {entries.length === 0 ? (
+              <div className="border border-green-800 border-dashed p-8 text-center">
+                <p>No testament entries have been revealed yet.</p>
+                <p className="text-sm text-green-700 mt-2">Jonah will share when he's ready.</p>
+              </div>
+            ) : (
+              entries.map((entry, index) => (
+                <div 
+                  key={index}
+                  className={`p-6 border ${
+                    entry.isCorrupted 
+                      ? 'border-red-900 bg-red-900 bg-opacity-10' 
+                      : entry.isAlternate
+                        ? 'border-blue-900 bg-blue-900 bg-opacity-10'
+                        : 'border-green-900 bg-green-900 bg-opacity-10'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="text-sm">
+                      Entry {entry.id} {entry.version && `/ ${entry.version}`}
+                    </div>
+                    <div className={`text-xs px-2 py-1 ${
+                      entry.isCorrupted 
+                        ? 'bg-red-900 text-red-400' 
+                        : entry.isAlternate
+                          ? 'bg-blue-900 text-blue-400'
+                          : 'bg-green-900 text-green-400'
+                    }`}>
+                      {entry.mood || 'memory'}
+                    </div>
+                  </div>
+                  
+                  <div className={`whitespace-pre-line ${
+                    entry.isCorrupted ? 'corrupt-text' : ''
+                  }`}>
+                    {entry.content}
+                  </div>
+                  
+                  {entry.isCorrupted && (
+                    <div className="mt-4 text-red-500 text-sm italic">
+                      [CORRUPTED FRAGMENT]
+                    </div>
+                  )}
+                  
+                  {entry.isAlternate && (
+                    <div className="mt-4 text-blue-500 text-sm italic">
+                      [ALTERNATE TIMELINE DETECTED]
+                    </div>
+                  )}
+                  
+                  <div className="text-xs text-gray-500 mt-4">
+                    {new Date(entry.timestamp).toLocaleString()}
+                  </div>
+                </div>
+              ))
+            )}
+            
+            <div ref={scrollRef} />
           </div>
         ) : (
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Entry navigation sidebar */}
-            <aside className="w-full md:w-64 bg-gray-900 bg-opacity-40 p-4 border border-gray-700">
-              <h2 className="text-lg font-bold mb-4 text-gray-300">Entries</h2>
-              <ul className="space-y-2">
-                {entries.map(entry => (
-                  <li key={entry.id}>
-                    <button
-                      onClick={() => setActiveEntry(entry)}
-                      className={`text-left w-full p-2 rounded hover:bg-gray-800 
-                        ${activeEntry?.id === entry.id ? 'bg-gray-800' : ''}`}
-                    >
-                      <span className="text-sm text-gray-400">Entry {entry.id}:</span>
-                      <span className="block">{entry.title}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              
-              {/* Console input */}
-              <div className="mt-6 pt-4 border-t border-gray-700">
-                <h2 className="text-sm font-bold mb-2 text-gray-400">CONSOLE</h2>
-                <div className="bg-black border border-gray-700 h-32 overflow-auto p-2 text-sm font-mono text-green-400 mb-2">
-                  {consoleOutput.map((line, index) => (
-                    <div key={index}>{line}</div>
-                  ))}
-                </div>
-                <div className="flex">
-                  <span className="mr-1">{'>'}</span>
-                  <input 
-                    type="text"
-                    value={consoleInput}
-                    onChange={(e) => setConsoleInput(e.target.value)}
-                    onKeyDown={handleConsoleSubmit}
-                    className="bg-black border-none outline-none flex-grow text-green-400 text-sm font-mono"
-                  />
-                </div>
-              </div>
-            </aside>
+          // Input view for speaking to Jonah
+          <div className="border border-green-800 p-6">
+            <div className="mb-4 text-sm text-green-700">
+              Speak directly to Jonah about his testament
+            </div>
             
-            {/* Active entry display */}
-            {activeEntry && (
-              <div className="flex-1">
-                <div className={`border ${getMoodStyles(activeEntry.mood).borderColor} p-5 ${getMoodStyles(activeEntry.mood).bgColor}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <h2 className="text-2xl font-bold">{activeEntry.title}</h2>
-                    <div className="text-sm text-gray-400">{formatDate(activeEntry.timestamp)}</div>
-                  </div>
-                  
-                  <div className="space-y-4 leading-relaxed">
-                    {activeEntry.content.split('\n').map((paragraph, idx) => (
-                      <p key={idx} className={`${getMoodStyles(activeEntry.mood).textColor}`}>
-                        {paragraph}
-                      </p>
-                    ))}
-                  </div>
-                  
-                  {/* Version indicator for alternate realities */}
-                  <div className="mt-6 pt-2 border-t border-gray-700 flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Fragment #{activeEntry.id}</span>
-                    <span className="text-xs text-gray-500">Version {activeEntry.version}</span>
-                  </div>
-                </div>
-              </div>
-            )}
+            <div className="border-b border-green-800 pb-4 mb-6">
+              <p className="text-xs text-green-600 mb-2">Try asking:</p>
+              <ul className="text-xs text-green-500 space-y-1">
+                <li>- "Why are you telling me this?"</li>
+                <li>- "Show me more"</li>
+                <li>- "You can tell me now"</li>
+              </ul>
+            </div>
+            
+            <div className="flex">
+              <span className="mr-2 text-green-500">&gt;</span>
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleInput}
+                placeholder="Speak to Jonah..."
+                className="flex-grow bg-transparent border-none text-green-400 outline-none"
+                autoFocus
+              />
+            </div>
           </div>
         )}
       </div>
       
-      {/* Add some vintage styling */}
       <style jsx>{`
-        .antiqued {
-          text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-          letter-spacing: 0.1em;
+        .corrupt-text {
+          text-shadow: 0 0 5px #00ff00;
+          letter-spacing: 0.5px;
+        }
+        
+        .glitch-text {
+          position: relative;
+        }
+        
+        .glitch-text::before,
+        .glitch-text::after {
+          content: "JONAH'S TESTAMENT";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          opacity: 0.5;
+        }
+        
+        .glitch-text::before {
+          color: #ff0000;
+          animation: glitch 2s infinite;
+          clip: rect(0, 900px, 0, 0);
+        }
+        
+        .glitch-text::after {
+          color: #0000ff;
+          animation: glitch 3s infinite;
+          clip: rect(0, 900px, 0, 0);
+          animation-delay: 1s;
+        }
+        
+        @keyframes glitch {
+          0% {
+            clip: rect(5px, 9999px, 28px, 0);
+            transform: translate(-2px, 0);
+          }
+          20% {
+            clip: rect(15px, 9999px, 8px, 0);
+            transform: translate(2px, 0);
+          }
+          40% {
+            clip: rect(25px, 9999px, 18px, 0);
+            transform: translate(-1px, 0);
+          }
+          60% {
+            clip: rect(5px, 9999px, 12px, 0);
+            transform: translate(1px, 0);
+          }
+          80% {
+            clip: rect(32px, 9999px, 3px, 0);
+            transform: translate(-2px, 0);
+          }
+          100% {
+            clip: rect(28px, 9999px, 16px, 0);
+            transform: translate(2px, 0);
+          }
         }
       `}</style>
     </div>

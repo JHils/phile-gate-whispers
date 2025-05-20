@@ -1,4 +1,3 @@
-
 /**
  * Jonah Advanced Emotional Core
  * Handles complex emotional states, transitions, and layering
@@ -27,7 +26,7 @@ const saveEmotionalState = (state: any) => {
 };
 
 // Process input for emotional triggers
-export const processEmotionalInput = (input: string): void => {
+export const processEmotionalInput = (input: string): { primary: string; secondary: string | null } => {
   const currentState = getEmotionalState();
   
   // Define emotional trigger keywords
@@ -106,6 +105,11 @@ export const processEmotionalInput = (input: string): void => {
       recurringSymbols: symbols.slice(-5) // Keep only the 5 most recent symbols
     });
   }
+  
+  return {
+    primary: primaryTrigger || currentState.primaryMood,
+    secondary: secondaryMood || currentState.secondaryMood
+  };
 };
 
 // Get current emotional state as a compound state

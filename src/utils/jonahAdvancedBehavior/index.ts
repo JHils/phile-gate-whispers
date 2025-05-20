@@ -121,3 +121,41 @@ export {
   getTestamentTeaser,
   generateTestamentResponse
 } from './testament';
+
+// Export Confession system
+export {
+  storeConfession,
+  shouldConfess,
+  getConfession,
+  incrementShame,
+  getShameLevel,
+  getAllConfessions
+} from './confessionSystem';
+
+// Export Seed system
+export {
+  checkForPotentialSeed,
+  plantSeed,
+  nurtureSeed,
+  evolveSeeds,
+  getSeedStageDescription,
+  hasActiveSeeds,
+  getUserSeeds,
+  getSeedById,
+  shareGlobalSeed,
+  getMatchingGlobalSeed,
+  getSeedResponse,
+  getBloomingSeed
+} from './seedSystem';
+
+// Export LastBroadcast system
+export {
+  checkBroadcastConditions,
+  createBroadcast,
+  handleUserFarewell,
+  rebootAfterBroadcast,
+  hasActiveBroadcast,
+  getMostRecentBroadcast,
+  getAllBroadcasts,
+  BroadcastType
+} from './lastBroadcast';

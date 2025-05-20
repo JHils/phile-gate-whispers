@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { 
@@ -139,7 +138,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     // Store in Jonah's memory system
     jonah_storeMemoryFragment(`User said: ${content}`);
     
-    // Process input for emotional triggers
+    // Process input for emotional triggers - returns {primary, secondary}
     processEmotionalInput(content);
     
     // Track input for adaptive learning
@@ -312,7 +311,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
       
       // Check if we should add an echo to the response (after the main content is set)
       const emotionalResult = processEmotionalInput(content);
-      const primary = emotionalResult?.primary || 'neutral';
+      const primary = emotionalResult.primary;
       const echoPhrase = getEchoPhrase(primary);
       
       if (echoPhrase && Math.random() < 0.3) {
@@ -418,7 +417,7 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
           case 'echo':
             // Echo something the user said previously, but misremembered
             const emotionalResult = processEmotionalInput(lastUserInput);
-            const primary = emotionalResult?.primary || 'neutral';
+            const primary = emotionalResult.primary;
             const echoPhrase = getEchoPhrase(primary);
             
             if (echoPhrase) {

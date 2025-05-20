@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -50,6 +51,12 @@ import UnsaidArchivePage from './pages/UnsaidArchivePage';
 import TestamentPage from './pages/TestamentPage';
 import LogVersionsPage from './pages/LogVersionsPage';
 import EchoLogPage from './components/EchoLogPage';
+
+// Import new pages
+import ConfessionLog from './pages/ConfessionLog';
+import SeedLog from './pages/SeedLog';
+import LastBroadcast from './pages/LastBroadcast';
+import TalkToJonah from './pages/TalkToJonah';
 
 // Import JonahConsoleBot
 import JonahConsoleBot from './components/JonahConsoleBot';
@@ -146,6 +153,12 @@ function App() {
     { path: '/log-v1', element: <LogVersionsPage /> },
     { path: '/log-v2', element: <LogVersionsPage /> },
     { path: '/echo-log', element: <EchoLogPage /> },
+    
+    // Add new pages
+    { path: '/confession-log', element: <ConfessionLog /> },
+    { path: '/seed-log', element: <SeedLog /> },
+    { path: '/last-broadcast', element: <LastBroadcast /> },
+    { path: '/talk-to-jonah', element: <TalkToJonah /> },
     { path: '*', element: <NotFound /> }
   ];
 
