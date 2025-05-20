@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { useTrackingSystem } from './hooks/useTrackingSystem';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Import pages
 import Landing from './pages/Landing';
@@ -126,7 +127,11 @@ function App() {
     }))
   );
 
-  return <RouterProvider router={router} />;
+  return (
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
+  );
 }
 
 export default App;

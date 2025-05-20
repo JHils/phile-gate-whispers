@@ -13,25 +13,10 @@ import FooterText from './FooterText';
 import TrustVisualIndicators from './TrustVisualIndicators';
 import MessageText from './MessageText';
 import JonahHiddenData from './JonahHiddenData';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface UserState {
   visitCount?: number;
-  trust?: {
-    level?: string;
-  };
-  collapse?: {
-    message?: string | null;
-    permanent?: boolean;
-  };
-  messages?: {
-    whisper?: string;
-  };
-  pageSeen?: {
-    gate?: boolean;
-  };
-  console?: {
-    rank?: string;
-  };
 }
 
 const IndexPage = () => {
@@ -42,10 +27,13 @@ const IndexPage = () => {
   // Log page visit
   useEffect(() => {
     if (!hasSeenPage) {
-      updateUserState({ pageSeen: { gate: true } });
+      // Update with proper type that exists in UserState
+      updateUserState({
+        visitCount: (userState.visitCount || 0) + 1
+      });
       setHasSeenPage(true);
     }
-  }, [hasSeenPage, updateUserState]);
+  }, [hasSeenPage, updateUserState, userState.visitCount]);
   
   const [showHint, setShowHint] = useState(false);
   
@@ -68,17 +56,17 @@ const IndexPage = () => {
     ));
   };
 
-  // Trust level from user state
+  // Get trust level safely
   const trustLevel = userState?.trust?.level || 'low';
   
   // Check if it's a special time window
   const isSpecialTime = typeof window.isSpecialTimeWindow === 'function' && window.isSpecialTimeWindow();
   
-  // Collapse messaging
+  // Get collapse message safely
   const collapseMessage = userState?.collapse?.message || null;
   const userIsPermanentlyCollapsed = userState?.collapse?.permanent || false;
   
-  // Whisper text
+  // Get whisper text safely
   const whisperText = userState?.messages?.whisper || "They wait for you in the dark corners of the web.";
   
   return (
@@ -88,6 +76,11 @@ const IndexPage = () => {
       
       {/* Page Content */}
       <div className="relative z-10 phile-container mx-auto">
+        
+        {/* Theme Toggle */}
+        <div className="absolute top-4 right-4 z-20">
+          <ThemeToggle />
+        </div>
         
         {/* Page Header with fade-in animation */}
         <div className="animate-fade-in">

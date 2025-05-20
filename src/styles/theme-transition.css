@@ -1,0 +1,21 @@
+
+/* Theme transition styles */
+:root {
+  --transition-duration: 0.3s;
+}
+
+html {
+  transition: background-color var(--transition-duration) ease,
+              color var(--transition-duration) ease;
+}
+
+body {
+  transition: background-color var(--transition-duration) ease,
+              color var(--transition-duration) ease;
+}
+
+.theme-transition * {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: var(--transition-duration);
+  transition-timing-function: ease;
+}

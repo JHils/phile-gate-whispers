@@ -17,6 +17,32 @@ html, body, #root {
   position: relative;
 }
 
+/* Dark mode properties */
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+  --dust-red: #8B3A40;
+  --dust-orange: #A86F44;
+  --dust-blue: #475B74;
+  --phile-dark: #333333;
+  --phile-light: #EEEEEE;
+}
+
+.dark {
+  --background: #121212;
+  --foreground: #ffffff;
+  --dust-red: #a84a52;
+  --dust-orange: #c88f64;
+  --dust-blue: #677d96;
+  --phile-dark: #222222;
+  --phile-light: #CCCCCC;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
 /* Typography custom classes */
 .font-serif {
   font-family: 'IM Fell English SC', serif;
@@ -44,3 +70,41 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+/* Dark mode class overrides */
+.dark .text-dust-red {
+  color: var(--dust-red);
+}
+
+.dark .text-dust-orange {
+  color: var(--dust-orange);
+}
+
+.dark .text-dust-blue {
+  color: var(--dust-blue);
+}
+
+.dark .text-phile-light {
+  color: var(--phile-light);
+}
+
+.dark .text-phile-dark {
+  color: var(--phile-dark);
+}
+
+.dark .bg-black {
+  background-color: #000000;
+}
+
+.dark .hover\:text-dust-red:hover {
+  color: var(--dust-red);
+}
+
+.dark .border-dust-red {
+  border-color: var(--dust-red);
+}
+
+.dark .border-dust-blue {
+  border-color: var(--dust-blue);
+}
+

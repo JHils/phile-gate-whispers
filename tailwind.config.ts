@@ -1,7 +1,8 @@
+
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-	darkMode: ["class"],
+	darkMode: ["class"], // Enable class strategy for dark mode
 	content: [
 		"./pages/**/*.{ts,tsx}",
 		"./components/**/*.{ts,tsx}",
@@ -54,14 +55,29 @@ const config: Config = {
 				},
 				// Custom colors for Jonah's Philes
 				dust: {
-					red: '#8B3A40',
-					orange: '#A86F44',
-					blue: '#475B74',
+					red: {
+            DEFAULT: '#8B3A40',
+            dark: '#a84a52'
+          },
+					orange: {
+            DEFAULT: '#A86F44',
+            dark: '#c88f64'
+          },
+					blue: {
+            DEFAULT: '#475B74',
+            dark: '#677d96'
+          },
 				},
 				silver: '#9F9EA1',
 				phile: {
-					dark: '#333333',
-					light: '#EEEEEE',
+					dark: {
+            DEFAULT: '#333333',
+            dark: '#222222'
+          },
+					light: {
+            DEFAULT: '#EEEEEE',
+            dark: '#CCCCCC'
+          },
 				},
 			},
 			fontFamily: {
