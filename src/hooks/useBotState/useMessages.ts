@@ -55,7 +55,7 @@ import {
   generateTestamentResponse
 } from '@/utils/jonahAdvancedBehavior';
 
-import { EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionalState, EmotionCategory, createEmotionalState } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useMessages(initialMessages = [], trustLevel = 'low') {
   const [messages, setMessages] = useState(initialMessages);
@@ -495,6 +495,6 @@ function generateResponseFromTemplate(content: string, trustLevel: string): stri
   
   const emotion = emotionMap[trustLevel] || 'neutral';
   
-  // Generate response from template
-  return generateEmotionalResponse(emotion, template);
+  // Generate response from template - using the createEmotionalState helper
+  return generateEmotionalResponse(createEmotionalState(emotion), template);
 }

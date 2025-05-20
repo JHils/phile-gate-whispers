@@ -1,4 +1,3 @@
-
 // Track console memory and prediction system
 import { toast } from "@/components/ui/use-toast";
 
@@ -12,7 +11,7 @@ const clickedElements: Record<string, number> = {};
 const predictionHits: Record<string, number> = {};
 
 // Default prediction responses
-const DEFAULT_PREDICTION_RESPONSES = {
+const DEFAULT_PREDICTION_RESPONSES: Record<string, string[]> = {
   onClickAfterHover: [
     "I knew you'd click that.",
     "Your movements are so predictable.",

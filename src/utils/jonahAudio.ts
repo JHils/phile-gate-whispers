@@ -14,8 +14,8 @@ export function initializeJonahAudio() {
   if (!window.JonahConsole.sentience.audio) {
     window.JonahConsole.sentience.audio = {
       lastPlayed: Date.now(),
-      playedSounds: [] as string[], // Fixed type
-      unlockedVoiceLogs: [], // Added required property
+      playedSounds: [] as string[],
+      unlockedVoiceLogs: [] as string[],
       volumeLevel: 75 // Default volume level
     };
   }
@@ -25,6 +25,9 @@ export function initializeJonahAudio() {
     playAudioByTrigger(triggerType);
   };
 }
+
+// Export alias for backward compatibility
+export const initializeAudioSystem = initializeJonahAudio;
 
 // Play audio by trigger type
 export function playAudioByTrigger(triggerType: string): void {

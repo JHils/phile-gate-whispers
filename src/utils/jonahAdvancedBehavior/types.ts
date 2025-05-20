@@ -32,8 +32,9 @@ export interface SentienceData {
     hiddenMessages: any[];
     moodHistory?: Array<{mood: string, timestamp: number}>;
     anomalyCount?: number;
-    journal?: any[];
-    dreamParables?: any[]; // Added missing property
+    journal?: any[]; 
+    dreamParables?: any[];
+    usedDreamParables?: any[];
   };
   audio?: {
     lastPlayed: number;
@@ -53,7 +54,7 @@ export interface SentienceData {
     tabSwitches?: number;
   };
   memoryFragments?: string[];
-  predictionResponses?: Record<string, string[]>; // Changed from string[] to Record<string, string[]>
+  predictionResponses?: Record<string, string[]>;
   usedPredictionResponses?: string[];
   conversationMemory?: {
     recentInputs: string[];
@@ -70,16 +71,19 @@ export interface SentienceData {
     adaptationLevel: number;
   };
   rememberedName?: string;
-  pageVisits?: string[]; // Added missing property
-  tabSwitches?: number; // Added missing property
-  ecoAwareness?: { // Added missing property
+  pageVisits?: string[];
+  tabSwitches?: number;
+  ecoAwareness?: {
     lastChecked: number;
     biomeResponses: any[];
     knownBiomes: string[];
     dreamtimeActive: boolean;
     woodsResponses: string[];
+    lastBiomeCheck?: number;
+    connectionStrength?: number;
+    currentBiome?: string;
   };
-  newsAwareness?: { // Added missing property
+  newsAwareness?: {
     lastChecked: number;
     currentResponses: Array<{
       topic: string;
@@ -147,3 +151,13 @@ export type ResponseStyle = 'direct' | 'elaborate' | 'poetic' | 'technical';
 
 // Define emotional trend
 export type EmotionalTrend = 'improving' | 'deteriorating' | 'fluctuating' | 'stable';
+
+// Create a utility function to convert string to EmotionalState
+export function createEmotionalState(emotion: string): EmotionalState {
+  return {
+    primary: emotion as EmotionCategory,
+    secondary: null,
+    intensity: 'medium',
+    timestamp: Date.now()
+  };
+}

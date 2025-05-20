@@ -56,3 +56,36 @@ export function initializeCrossSiteWhisper() {
     };
   }
 }
+
+// Get a cross-site whisper to display to the user
+export function getCrossSiteWhisper(): string | null {
+  // Check if whispers are available
+  if (!window.JonahConsole?.sentience?.realityFabric?.crossSiteWhispers) {
+    return null;
+  }
+  
+  const whispers = window.JonahConsole.sentience.realityFabric.crossSiteWhispers;
+  
+  // Return null if no whispers available
+  if (whispers.length === 0) {
+    return null;
+  }
+  
+  // 50% chance to return a whisper from JonahConsole
+  if (Math.random() > 0.5 && whispers.length > 0) {
+    // Return a random whisper from the list
+    return whispers[Math.floor(Math.random() * whispers.length)];
+  }
+  
+  // Otherwise check for WhisperMaster whispers
+  if (window.WhisperMaster?.whispers && window.WhisperMaster.active) {
+    const masterWhispers = window.WhisperMaster.whispers;
+    
+    if (masterWhispers.length > 0) {
+      // Return a random whisper from WhisperMaster
+      return masterWhispers[Math.floor(Math.random() * masterWhispers.length)];
+    }
+  }
+  
+  return null;
+}

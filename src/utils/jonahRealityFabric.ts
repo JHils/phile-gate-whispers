@@ -1,3 +1,4 @@
+
 /**
  * Jonah's Reality Fabric System
  * Controls mood, anomalies, and dream states
@@ -20,7 +21,8 @@ export function initializeRealityFabric() {
       lastDreamTime: Date.now(),
       crossSiteWhispers: [],
       hiddenMessages: [],
-      dreamParables: [] // Add this field to the initialization
+      dreamParables: [],
+      usedDreamParables: []
     };
   }
   
