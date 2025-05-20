@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
@@ -108,14 +109,25 @@ const IndexPage = () => {
           {/* Trust Visual Indicators */}
           <TrustVisualIndicators trustLevel={trustLevel} />
           
-          {/* Button to Campfire with hover animation */}
-          <Button 
-            size="lg" 
-            className="mt-8 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-            onClick={handleButtonClick}
-          >
-            Enter the Campfire
-          </Button>
+          {/* Buttons with hover animation */}
+          <div className="flex flex-col md:flex-row gap-4 justify-center mt-8">
+            <Button 
+              size="lg" 
+              className="transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              onClick={handleButtonClick}
+            >
+              Enter the Campfire
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="transition-all duration-300 hover:scale-105 hover:shadow-lg bg-opacity-70"
+              asChild
+            >
+              <Link to="/tether">You're Not Alone</Link>
+            </Button>
+          </div>
           
           {/* Hint Message */}
           {showHint && (

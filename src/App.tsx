@@ -45,6 +45,8 @@ import UberDriver from './pages/UberDriver';
 import Lore from './pages/Lore';
 import LostSisters from './pages/LostSisters';
 import RememberMe from './pages/RememberMe';
+import Tether from './pages/Tether';
+import Sanctuary from './pages/Sanctuary';
 
 // Import JonahConsoleBot
 import JonahConsoleBot from './components/JonahConsoleBot';
@@ -116,6 +118,8 @@ function App() {
     { path: '/lore', element: <Lore /> },
     { path: '/lost-sisters', element: <LostSisters /> },
     { path: '/remember-me', element: <RememberMe /> },
+    { path: '/tether', element: <Tether /> },
+    { path: '/sanctuary', element: <Sanctuary /> },
     { path: '*', element: <NotFound /> }
   ];
 
