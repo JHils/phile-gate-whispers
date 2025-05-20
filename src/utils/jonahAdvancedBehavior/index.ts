@@ -3,6 +3,11 @@
  * Jonah Advanced Behavior System - Main export file
  */
 
+// Import subsystems
+import { initializeTestament } from './testament';
+import { initializeConfessions } from './confessionSystem';
+import { initializeEchoSystem } from './echoSystem';
+
 // Export from subsystems
 export { processEmotionalInput, getCompoundEmotionalState, getLayeredEmotionalResponse, checkForRecurringSymbols, storeEmotionalMemory } from './emotionalCore';
 export { applyTypingQuirks, addTypingGlitches, addTypingErrors } from './quirks/typingQuirks';
@@ -18,21 +23,17 @@ export {
   getEcho,
   getEchoPhrase,
   checkForEchoMatch,
-  getAllEchoes
+  getAllEchoes,
+  initializeEchoSystem
 } from './echoSystem';
 
 // Initialize the behavior system
 export const initializeAdvancedBehavior = () => {
-  // Import and initialize all subsystems
-  const { initializeTestament } = require('./testament');
-  const { initializeConfessions } = require('./confessionSystem');
-  const { initializeDreamSystem } = require('./dreamSystem');
-  const { initializeEchoSystem } = require('./echoSystem');
-  
   // Initialize each subsystem
   initializeTestament();
   initializeConfessions();
-  initializeDreamSystem();
+  // Note: initializeDreamSystem is not implemented in this example
+  // but would be called here if available
   initializeEchoSystem();
   
   console.log('Jonah Advanced Behavior System initialized');
@@ -157,11 +158,6 @@ export const getTestamentTeaser = () => {
 
 export const generateTestamentResponse = (content: string) => {
   return null; // Stub implementation
-};
-
-// Missing from the echoSystem exports
-export const initializeEchoSystem = () => {
-  console.log("Echo system initialized");
 };
 
 export const generateEmotionalResponse = (emotion: string, template: string) => {

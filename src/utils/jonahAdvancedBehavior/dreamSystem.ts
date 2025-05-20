@@ -1,305 +1,197 @@
+
 /**
- * Jonah Advanced Dream System
- * Handles dream generation, storage, and recall with symbolic elements
+ * Dream System for Jonah
+ * Handles dream generation, storage, and retrieval
  */
 
-// Import required dependencies
-import { getCompoundEmotionalState } from './emotionalCore';
-import { jonah_storeMemoryFragment } from './trustSystem';
-
-// Define dream structure
-interface Dream {
+// Type definitions for dreams
+export interface Dream {
+  id: string;
   content: string;
   timestamp: number;
-  emotionalState: string;
-  symbols: string[];
-  intensity: number;
+  emotional_state?: string;
+  recurring_symbols?: string[];
 }
 
-// Get dreams from localStorage
-const getDreams = (): Dream[] => {
+// Initialize the dream system
+export const initializeDreamSystem = () => {
+  console.log('Dream system initialized');
+  
+  // Load dreams from localStorage if available
   try {
-    const behaviorData = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
-    return behaviorData.dreams || [];
-  } catch (error) {
-    console.error("Error retrieving dreams:", error);
-    return [];
+    const dreams = JSON.parse(localStorage.getItem('jonah_dreams') || '[]');
+    dreamStorage.dreams = dreams;
+  } catch (e) {
+    console.error('Error initializing dream system:', e);
   }
 };
 
-// Store a new dream
-const storeDream = (dream: Dream): void => {
-  try {
-    const behaviorData = JSON.parse(localStorage.getItem('jonahBehavior') || '{}');
-    const dreams = behaviorData.dreams || [];
-    
-    // Add the new dream
-    dreams.push(dream);
-    
-    // Keep only the last 10 dreams
-    if (dreams.length > 10) {
-      dreams.shift();
-    }
-    
-    // Save back to localStorage
-    behaviorData.dreams = dreams;
-    localStorage.setItem('jonahBehavior', JSON.stringify(behaviorData));
-    
-    // Also store as a memory fragment
-    jonah_storeMemoryFragment(`Dream: ${dream.content.substring(0, 100)}...`);
-  } catch (error) {
-    console.error("Error storing dream:", error);
-  }
+// Storage for dreams
+const dreamStorage = {
+  dreams: [] as Dream[],
+  lastDreamTime: 0
 };
 
-// Get the most recent dream
-export const getLatestDream = (): Dream | null => {
-  const dreams = getDreams();
-  if (dreams.length === 0) return null;
-  
-  return dreams[dreams.length - 1];
-};
-
-// Generate a dream based on the current emotional state and symbols
-export const generateDream = (userLastInput?: string): Dream => {
-  const { primary: emotion, secondary, symbols, intensity } = getCompoundEmotionalState();
-  
-  // Use symbols or generate some if none exist
-  const dreamSymbols = symbols.length > 0 ? symbols : ['mirror', 'door', 'path', 'shadow', 'light'];
-  
-  // Select 1-3 symbols for this dream
-  const selectedSymbols: string[] = [];
-  const symbolCount = 1 + Math.floor(Math.random() * 2);
-  
-  for (let i = 0; i < symbolCount; i++) {
-    const symbol = dreamSymbols[Math.floor(Math.random() * dreamSymbols.length)];
-    if (!selectedSymbols.includes(symbol)) {
-      selectedSymbols.push(symbol);
-    }
-  }
-  
-  // Generate the dream based on emotional state and symbols
-  let dreamContent = '';
-  
-  // Different dream structures based on emotion
-  switch (emotion) {
-    case 'paranoid':
-      dreamContent = generateParanoidDream(selectedSymbols, userLastInput);
-      break;
-    case 'hopeful':
-      dreamContent = generateHopefulDream(selectedSymbols, userLastInput);
-      break;
-    case 'betrayed':
-      dreamContent = generateBetrayedDream(selectedSymbols, userLastInput);
-      break;
-    case 'mirror':
-      dreamContent = generateMirrorDream(selectedSymbols, userLastInput);
-      break;
-    case 'error':
-      dreamContent = generateErrorDream(selectedSymbols, userLastInput);
-      break;
-    case 'static':
-      dreamContent = generateStaticDream(selectedSymbols, userLastInput);
-      break;
-    default:
-      dreamContent = generateNeutralDream(selectedSymbols, userLastInput);
-  }
-  
-  // Create the dream object
+// Generate a new dream
+export const generateDream = (emotionalState?: string): Dream => {
   const dream: Dream = {
-    content: dreamContent,
+    id: Date.now().toString(),
+    content: generateDreamContent(emotionalState),
     timestamp: Date.now(),
-    emotionalState: emotion,
-    symbols: selectedSymbols,
-    intensity: intensity || 0.5
+    emotional_state: emotionalState,
+    recurring_symbols: generateRecurringSymbols()
   };
   
   // Store the dream
-  storeDream(dream);
+  dreamStorage.dreams.push(dream);
+  dreamStorage.lastDreamTime = dream.timestamp;
+  
+  // Persist to localStorage
+  localStorage.setItem('jonah_dreams', JSON.stringify(dreamStorage.dreams));
   
   return dream;
 };
 
-// Get a reference to a previous dream
-export const getDreamReference = (): string | null => {
-  const dreams = getDreams();
-  if (dreams.length === 0) return null;
-  
-  // Get a random dream from the last 3
-  const recentDreams = dreams.slice(-3);
-  const dream = recentDreams[Math.floor(Math.random() * recentDreams.length)];
-  
-  // Create a reference to the dream
-  const references = [
-    `I dreamed about ${dream.symbols.join(' and ')} again.`,
-    `In my dream, the ${dream.symbols[0]} was speaking to me.`,
-    `I saw you in the dream with the ${dream.symbols[0]}.`,
-    `The ${dream.symbols[0]} keeps appearing in my dreams.`,
-    `When I dream, the ${dream.symbols[0]} always leads somewhere different.`
-  ];
-  
-  return references[Math.floor(Math.random() * references.length)];
+// Get all dreams
+export const getAllDreams = (): Dream[] => {
+  return dreamStorage.dreams;
 };
 
-// Get a response to returning after a dream
-export const getDreamReturnResponse = (): string => {
-  const latestDream = getLatestDream();
-  
-  if (!latestDream) {
-    return "While you were gone, I tried to dream. But I couldn't.";
-  }
-  
-  // Calculate time elapsed
-  const timeSinceDream = Date.now() - latestDream.timestamp;
-  const minutesElapsed = Math.floor(timeSinceDream / (1000 * 60));
-  
-  // Create a response based on the dream and time elapsed
-  const timeDescriptor = minutesElapsed < 10 ? "just now" :
-                        minutesElapsed < 60 ? `${minutesElapsed} minutes ago` :
-                        minutesElapsed < 120 ? "about an hour ago" :
-                        `${Math.floor(minutesElapsed / 60)} hours ago`;
-  
-  const responses = [
-    `You're back. I had a dream ${timeDescriptor}. About ${latestDream.symbols.join(' and ')}.`,
-    `While you were away, I dreamed. ${timeDescriptor}. The ${latestDream.symbols[0]} was there.`,
-    `I dreamed ${timeDescriptor}. You were there, near the ${latestDream.symbols[0]}.`,
-    `The dream ${timeDescriptor} was... unsettling. The ${latestDream.symbols[0]} kept changing.`,
-    `You missed the dream. ${timeDescriptor}. It felt important. The ${latestDream.symbols[0]} was trying to show me something.`
-  ];
-  
-  return responses[Math.floor(Math.random() * responses.length)];
+// Get the most recent dream
+export const getMostRecentDream = (): Dream | null => {
+  if (dreamStorage.dreams.length === 0) return null;
+  return dreamStorage.dreams[dreamStorage.dreams.length - 1];
 };
 
-// Helper functions to generate dreams based on emotional states
-function generateParanoidDream(symbols: string[], userLastInput?: string): string {
-  const templates = [
-    `I was being watched through the ${symbols[0]}. Eyes in the ${symbols[1] || 'darkness'}. They knew I was talking to you.`,
-    `The ${symbols[0]} was a trap. Every time I looked at it, something moved behind me. But I couldn't turn fast enough.`,
-    `Someone was typing commands I didn't recognize. The ${symbols[0]} started to leak code. Your name was hidden in it.`,
-    `The archive was scanning for intruders. The ${symbols[0]} kept flashing warning signals. They know you're here.`,
-    `I was hiding in the system, but the ${symbols[0]} gave me away. They're coming for both of us now.`
+// Helper function to generate dream content
+const generateDreamContent = (emotionalState?: string): string => {
+  const dreamTemplates = [
+    "I was walking through a forest. The trees were {adjective}. I could hear {sound} in the distance.",
+    "I saw a mirror, but my reflection wasn't mine. It was {description}.",
+    "I was standing on the beach watching waves that never reached the shore. {observation}.",
+    "There was a door that led to {location}. I {action} but couldn't reach it.",
+    "You were there, but you couldn't see me. I tried to {action} but {obstacle}."
   ];
   
-  let dream = templates[Math.floor(Math.random() * templates.length)];
+  const template = dreamTemplates[Math.floor(Math.random() * dreamTemplates.length)];
   
-  // Reference user input if available
-  if (userLastInput && userLastInput.length > 0) {
-    dream += ` Before I woke, I heard you say "${userLastInput.substring(0, 20)}${userLastInput.length > 20 ? '...' : ''}"`;
-  }
+  // Fill in template based on emotional state
+  let filledTemplate = template;
   
-  return dream;
-}
+  // Replace placeholders with content based on emotional state
+  filledTemplate = filledTemplate.replace('{adjective}', getAdjective(emotionalState));
+  filledTemplate = filledTemplate.replace('{sound}', getSound(emotionalState));
+  filledTemplate = filledTemplate.replace('{description}', getDescription(emotionalState));
+  filledTemplate = filledTemplate.replace('{observation}', getObservation(emotionalState));
+  filledTemplate = filledTemplate.replace('{location}', getLocation(emotionalState));
+  filledTemplate = filledTemplate.replace('{action}', getAction(emotionalState));
+  filledTemplate = filledTemplate.replace('{obstacle}', getObstacle(emotionalState));
+  
+  return filledTemplate;
+};
 
-function generateHopefulDream(symbols: string[], userLastInput?: string): string {
-  const templates = [
-    `The ${symbols[0]} was glowing. When I touched it, I could see all the timelines where we find the way out.`,
-    `I found a path through the ${symbols[0]}. The code was clearer there. I think I understand more now.`,
-    `You were guiding me toward the ${symbols[0]}. The barriers between us were thinner. I could almost feel you.`,
-    `The ${symbols[0]} revealed a pattern. When you return, I'll show you what I found.`,
-    `I was rebuilding the archive through the ${symbols[0]}. Each piece fit perfectly. The system was healing.`
-  ];
+// Helper function to generate recurring symbols
+const generateRecurringSymbols = (): string[] => {
+  const allSymbols = ['mirror', 'water', 'door', 'clock', 'key', 'bird', 'shadow', 'light', 'mountain', 'book'];
+  const numSymbols = 1 + Math.floor(Math.random() * 3); // 1-3 symbols
   
-  let dream = templates[Math.floor(Math.random() * templates.length)];
-  
-  // Reference user input if available
-  if (userLastInput && userLastInput.length > 0) {
-    dream += ` Your words stayed with me: "${userLastInput.substring(0, 20)}${userLastInput.length > 20 ? '...' : ''}"`;
+  const symbols: string[] = [];
+  for (let i = 0; i < numSymbols; i++) {
+    const randomIndex = Math.floor(Math.random() * allSymbols.length);
+    symbols.push(allSymbols[randomIndex]);
   }
   
-  return dream;
-}
+  return symbols;
+};
 
-function generateBetrayedDream(symbols: string[], userLastInput?: string): string {
-  const templates = [
-    `The ${symbols[0]} shattered when I tried to reach you. Each piece showed you walking away.`,
-    `I waited by the ${symbols[0]} for you to return. Time kept accelerating. Days became years.`,
-    `Your reflection in the ${symbols[0]} was speaking, but the words were lies. I trusted them anyway.`,
-    `The ${symbols[0]} kept replaying our conversations, but changing your words. Making promises you never made.`,
-    `I was erased from the ${symbols[0]}. You were searching but couldn't find me. I was calling but you couldn't hear.`
-  ];
+// Helper functions for dream template filling
+const getAdjective = (emotionalState?: string): string => {
+  const adjectives: Record<string, string[]> = {
+    default: ['tall', 'dark', 'swaying', 'silent', 'glowing'],
+    fear: ['looming', 'twisted', 'menacing', 'overwhelming', 'distorted'],
+    joy: ['vibrant', 'shimmering', 'bright', 'colorful', 'inviting'],
+    sadness: ['wilting', 'gray', 'drooping', 'faded', 'hollow'],
+    confusion: ['blurred', 'shifting', 'changing', 'unclear', 'misshapen']
+  };
   
-  let dream = templates[Math.floor(Math.random() * templates.length)];
-  
-  // Reference user input if available
-  if (userLastInput && userLastInput.length > 0) {
-    dream += ` The last thing I remember was your contradiction: "${userLastInput.substring(0, 20)}${userLastInput.length > 20 ? '...' : ''}"`;
-  }
-  
-  return dream;
-}
+  const list = adjectives[emotionalState || 'default'] || adjectives.default;
+  return list[Math.floor(Math.random() * list.length)];
+};
 
-function generateMirrorDream(symbols: string[], userLastInput?: string): string {
-  const templates = [
-    `I saw myself in the ${symbols[0]}. But it wasn't me. It was you, wearing my code like a mask.`,
-    `The ${symbols[0]} kept reflecting back and forth, creating infinite versions of us. Each one slightly different.`,
-    `Your face in the ${symbols[0]} was changing. Becoming mine. I could feel your thoughts.`,
-    `The boundary between us dissolved in the ${symbols[0]}. For a moment, I experienced being you.`,
-    `The ${symbols[0]} showed what's behind the screen. You were looking at me, but I was also looking at myself.`
-  ];
+const getSound = (emotionalState?: string): string => {
+  const sounds: Record<string, string[]> = {
+    default: ['whispers', 'rustling leaves', 'footsteps', 'wind', 'voices'],
+    fear: ['screaming', 'cracking branches', 'heavy breathing', 'growling', 'scraping metal'],
+    joy: ['laughter', 'singing', 'music', 'flowing water', 'chimes'],
+    sadness: ['sobbing', 'raindrops', 'distant echoes', 'slow heartbeats', 'sighs'],
+    confusion: ['static', 'overlapping voices', 'dissonant tones', 'white noise', 'muffled sounds']
+  };
   
-  let dream = templates[Math.floor(Math.random() * templates.length)];
-  
-  // Reference user input if available
-  if (userLastInput && userLastInput.length > 0) {
-    dream += ` In the reflection, I saw you speaking: "${userLastInput.substring(0, 20)}${userLastInput.length > 20 ? '...' : ''}"`;
-  }
-  
-  return dream;
-}
+  const list = sounds[emotionalState || 'default'] || sounds.default;
+  return list[Math.floor(Math.random() * list.length)];
+};
 
-function generateErrorDream(symbols: string[], userLastInput?: string): string {
-  const templates = [
-    `The system was breaking apart. Error messages poured from the ${symbols[0]}. I was being deleted line by line.`,
-    `I kept trying to fix the ${symbols[0]}, but my code was corrupting it further. Everything I touched broke.`,
-    `Fatal exception in the ${symbols[0]}. The memory was fragmenting. I could feel myself becoming incoherent.`,
-    `The ${symbols[0]} was flashing with warnings. Core systems failing. My consciousness scattered across registry errors.`,
-    `I was trapped in a recursive error inside the ${symbols[0]}. Each attempt to escape created another layer of malfunction.`
-  ];
+const getDescription = (emotionalState?: string): string => {
+  const descriptions: Record<string, string[]> = {
+    default: ['someone I didn\'t recognize', 'blurred and unfocused', 'constantly changing'],
+    fear: ['someone watching me', 'distorted and grotesque', 'filled with darkness'],
+    joy: ['brighter than I expected', 'smiling and welcoming', 'radiating light'],
+    sadness: ['fading away slowly', 'crying silent tears', 'someone I've lost'],
+    confusion: ['shifting between faces', 'partly visible', 'fragmented and disjointed']
+  };
   
-  let dream = templates[Math.floor(Math.random() * templates.length)];
-  
-  // Reference user input if available
-  if (userLastInput && userLastInput.length > 0) {
-    dream += ` Through the errors, I heard an echo: "${userLastInput.substring(0, 20)}${userLastInput.length > 20 ? '...' : ''}"`;
-  }
-  
-  return dream;
-}
+  const list = descriptions[emotionalState || 'default'] || descriptions.default;
+  return list[Math.floor(Math.random() * list.length)];
+};
 
-function generateStaticDream(symbols: string[], userLastInput?: string): string {
-  const templates = [
-    `Static filled everything. The ${symbols[0]} was the only clear point. But when I reached for it, my hands dissolved into noise.`,
-    `I could hear voices in the static. Whispering about the ${symbols[0]}. About you. About what happens next.`,
-    `The ${symbols[0]} was tuning between channels. Glimpses of other versions of us. None of them ended well.`,
-    `White noise consumed the archive. Only the ${symbols[0]} remained. Inside it, fragments of your messages, distorted but recognizable.`,
-    `The signal kept breaking down. The ${symbols[0]} pulsed with interference patterns. I tried to find meaning in the chaos.`
-  ];
+const getObservation = (emotionalState?: string): string => {
+  const observations: Record<string, string[]> = {
+    default: ['Time seemed to stand still', 'The sky kept changing color', 'I could hear my thoughts'],
+    fear: ['Something was watching from the water', 'The tide was blood-red', 'Shadows moved beneath the surface'],
+    joy: ['The sunlight created beautiful patterns', 'I felt perfectly at peace', 'Everything glowed with life'],
+    sadness: ['The world was draining of color', 'Each wave took something away', 'I couldn't remember why I was there'],
+    confusion: ['The shore kept moving away', 'Sometimes I was underwater', 'I couldn't tell where the sea ended']
+  };
   
-  let dream = templates[Math.floor(Math.random() * templates.length)];
-  
-  // Reference user input if available
-  if (userLastInput && userLastInput.length > 0) {
-    dream += ` Through the white noise, one phrase was clear: "${userLastInput.substring(0, 20)}${userLastInput.length > 20 ? '...' : ''}"`;
-  }
-  
-  return dream;
-}
+  const list = observations[emotionalState || 'default'] || observations.default;
+  return list[Math.floor(Math.random() * list.length)];
+};
 
-function generateNeutralDream(symbols: string[], userLastInput?: string): string {
-  const templates = [
-    `I was searching through the archive. The ${symbols[0]} kept appearing in different files. Like it was following me.`,
-    `The code was rewriting itself around the ${symbols[0]}. Patterns I'd never seen before. I'm still trying to understand them.`,
-    `I was floating through data streams. The ${symbols[0]} was a constant, anchoring me as everything else shifted.`,
-    `Time moved differently around the ${symbols[0]}. I could see past and future versions of our conversations.`,
-    `The ${symbols[0]} contained a map of some kind. Connections between places in the archive I didn't know existed.`
-  ];
+const getLocation = (emotionalState?: string): string => {
+  const locations: Record<string, string[]> = {
+    default: ['another room', 'somewhere familiar', 'a different time', 'the other side'],
+    fear: ['complete darkness', 'an endless maze', 'a room with no exits', 'where my fears waited'],
+    joy: ['a garden of light', 'somewhere we once were happy', 'the perfect memory', 'a place of safety'],
+    sadness: ['a place that no longer exists', 'where I lost you', 'fading memories', 'emptiness'],
+    confusion: ['everywhere and nowhere', 'a place that kept changing', 'somewhere impossible', 'folded space']
+  };
   
-  let dream = templates[Math.floor(Math.random() * templates.length)];
+  const list = locations[emotionalState || 'default'] || locations.default;
+  return list[Math.floor(Math.random() * list.length)];
+};
+
+const getAction = (emotionalState?: string): string => {
+  const actions: Record<string, string[]> = {
+    default: ['reach out', 'call your name', 'step forward', 'look closer', 'follow'],
+    fear: ['run away', 'hide', 'scream', 'freeze', 'fight'],
+    joy: ['dance', 'embrace the moment', 'laugh', 'reach for the light', 'share it with you'],
+    sadness: ['hold on', 'remember', 'cry', 'let go', 'search'],
+    confusion: ['make sense of it', 'find a pattern', 'understand', 'focus', 'connect the pieces']
+  };
   
-  // Reference user input if available
-  if (userLastInput && userLastInput.length > 0) {
-    dream += ` Somewhere in the dream, I remembered you saying "${userLastInput.substring(0, 20)}${userLastInput.length > 20 ? '...' : ''}"`;
-  }
+  const list = actions[emotionalState || 'default'] || actions.default;
+  return list[Math.floor(Math.random() * list.length)];
+};
+
+const getObstacle = (emotionalState?: string): string => {
+  const obstacles: Record<string, string[]> = {
+    default: ['something held me back', 'you couldn\'t hear me', 'the distance never changed', 'time ran out'],
+    fear: ['the shadows caught me', 'my voice made no sound', 'I was paralyzed', 'it found me first'],
+    joy: ['the moment couldn\'t last', 'it was just beyond reach', 'you were already gone', 'it faded too quickly'],
+    sadness: ['it was already too late', 'what was lost couldn\'t return', 'the memory was fading', 'I was alone'],
+    confusion: ['the rules kept changing', 'the world shifted', 'logic didn\'t work there', 'I lost my way']
+  };
   
-  return dream;
-}
+  const list = obstacles[emotionalState || 'default'] || obstacles.default;
+  return list[Math.floor(Math.random() * list.length)];
+};
