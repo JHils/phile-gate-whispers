@@ -200,5 +200,5 @@ Time in session: ${formatSessionTime()}`;
   initializeTimeSystem(trackCommandExecution);
   initializeNewsCommands();
   initializeEcoCommands();
-  initializeARGCommands(trackCommandExecution);
+  initializeARGCommands(trackCommandExecution); // Fixed: Passing the required argument
 };

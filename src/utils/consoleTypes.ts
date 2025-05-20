@@ -152,6 +152,13 @@ export interface WhisperMaster {
   active: boolean;
 }
 
+// Interface for whisper with metadata
+export interface WhisperWithMetadata {
+  whisper: string;
+  timestamp: number;
+  path: string;
+}
+
 // Extended BehaviorPhase Type
 export interface BehaviorPhase {
   currentPhase: string;
@@ -252,6 +259,7 @@ export interface SentienceData {
     usedDreamParables?: string[];
     generatedFiles?: string[];
     nightGlitches?: string[];
+    lastDreamTime?: number; // Added this property
     anomalies?: Array<{
       id: string;
       triggered: boolean;
@@ -276,6 +284,7 @@ export interface SentienceData {
     lastPlayed?: number;
     playedSounds?: string[];
     volumeLevel?: number;
+    unlockedVoiceLogs?: string[]; // Added this property
   };
   typingQuirks?: {
     glitchProbability: number;

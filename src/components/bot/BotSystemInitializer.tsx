@@ -74,16 +74,22 @@ const BotSystemInitializer: React.FC = () => {
             dreamState: false,
             moodChangeTime: Date.now(),
             currentMood: "watching",
+            lastDreamTime: 0,
             crossSiteWhispers: [],
             hiddenMessages: []
+          },
+          audio: {
+            lastPlayed: 0,
+            playedSounds: [],
+            unlockedVoiceLogs: []
           }
         }
       };
     }
     
     // Process user messages sent to chat
-    window.processUserMessage = (message: string): string | null => {
-      if (!message) return null;
+    window.processUserMessage = (message: string): string | undefined => {
+      if (!message) return undefined;
       
       // First try story matching
       if (window.processStoryQuery) {

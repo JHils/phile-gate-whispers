@@ -1,42 +1,8 @@
-
 // Jonah Console Personality System
 import { toast } from "@/components/ui/use-toast";
 
-export interface SentienceData {
-  interactionsCount: number;
-  rememberedName?: string;
-  deepModeUnlocked: boolean;
-  dreamModeTriggered: boolean;
-  lastInteraction: number;
-  moonPhase?: string;
-  timeOfDay?: string;
-  temporalStates?: any[];
-  memories?: any[];
-  microQuests?: {
-    active: string[];
-    completed: string[];
-  };
-  sessionData?: {
-    messagesSent: number;
-    messagesReceived: number;
-    startTime: number;
-    idleTime: number;
-  };
-  realityFabric?: {
-    anomalies: any[];
-    mood: string;
-    dreamState: boolean;
-    lastDreamTime: number;
-    currentMood?: string;
-    moodChangeTime?: number;
-    crossSiteWhispers?: string[];
-    hiddenMessages?: any[];
-  };
-  audio?: {
-    lastPlayed: number;
-    unlockedVoiceLogs: string[];
-  };
-}
+// Using the SentienceData interface from consoleTypes.ts
+import { SentienceData } from './consoleTypes';
 
 // Initialize sentience system
 export function initializeSentience() {
@@ -63,36 +29,6 @@ export function initializeSentience() {
         hiddenFilesDownloaded: [],
         idleTriggers: {},
         lastInteractionTime: new Date()
-      },
-      sentience: {
-        interactionsCount: 0,
-        deepModeUnlocked: false,
-        dreamModeTriggered: false,
-        lastInteraction: Date.now(),
-        temporalStates: [],
-        memories: [],
-        microQuests: {
-          active: [],
-          completed: []
-        },
-        sessionData: {
-          messagesSent: 0,
-          messagesReceived: 0,
-          startTime: Date.now(),
-          idleTime: 0
-        },
-        realityFabric: {
-          anomalies: [],
-          mood: "neutral",
-          dreamState: false,
-          lastDreamTime: 0,
-          crossSiteWhispers: [],
-          hiddenMessages: []
-        },
-        audio: {
-          lastPlayed: 0,
-          unlockedVoiceLogs: []
-        }
       }
     };
   }
@@ -120,12 +56,14 @@ export function initializeSentience() {
         anomalies: [],
         mood: "neutral",
         dreamState: false,
+        moodChangeTime: Date.now(),
         lastDreamTime: 0,
         crossSiteWhispers: [],
         hiddenMessages: []
       },
       audio: {
         lastPlayed: 0,
+        playedSounds: [],
         unlockedVoiceLogs: []
       }
     };
