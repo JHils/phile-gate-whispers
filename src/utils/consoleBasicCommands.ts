@@ -183,18 +183,3 @@ export const initializeBasicCommands = (
     trackCommandExecution('hint');
   };
 };
-
-// Add basic commands to the global interface
-declare global {
-  interface Window {
-    help: () => void;
-    reveal: () => void;
-    reincarnate: () => void;
-    whois: () => void;
-    gate: () => void;
-    philes: () => void;
-    monster: () => void;
-    legacy: () => void;
-    hint: () => void;
-  }
-}

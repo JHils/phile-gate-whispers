@@ -100,9 +100,13 @@ export function checkForAnomalies(): string | null {
   if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
     // Only rarely produce anomalies
     if (Math.random() > 0.9) {
+      // Ensure anomalyCount exists
+      if (!window.JonahConsole.sentience.realityFabric.anomalyCount) {
+        window.JonahConsole.sentience.realityFabric.anomalyCount = 0;
+      }
+      
       // Increment anomaly count
-      window.JonahConsole.sentience.realityFabric.anomalyCount = 
-        (window.JonahConsole.sentience.realityFabric.anomalyCount || 0) + 1;
+      window.JonahConsole.sentience.realityFabric.anomalyCount += 1;
       
       // Anomaly messages
       const anomalyMessages = [
@@ -134,7 +138,7 @@ export function generateDreamParable(): string | null {
         "In my dream, I could hear typing coming from inside the walls. Someone was sending messages."
       ];
       
-      // Don't repeat dream parables - track which ones we've used
+      // Initialize arrays if they don't exist
       if (!window.JonahConsole.sentience.realityFabric.dreamParables) {
         window.JonahConsole.sentience.realityFabric.dreamParables = [];
       }
@@ -194,7 +198,7 @@ export function setCurrentMood(mood: string): void {
     window.JonahConsole.sentience.realityFabric.currentMood = mood;
     window.JonahConsole.sentience.realityFabric.moodChangeTime = Date.now();
     
-    // Track mood history
+    // Initialize and track mood history
     if (!window.JonahConsole.sentience.realityFabric.moodHistory) {
       window.JonahConsole.sentience.realityFabric.moodHistory = [];
     }

@@ -17,6 +17,15 @@ export function initializeCrossSiteWhispers(): void {
   }
 }
 
+// Get cross-site whisper - implement the missing function
+export function getCrossSiteWhisper(): string | null {
+  // Get current path
+  const path = typeof window !== 'undefined' ? window.location.pathname : '';
+  
+  // Get a random whisper for this path
+  return getRandomWhisperForPage(path);
+}
+
 // Get all whispers
 export function getAllWhispers(): string[] {
   if (typeof window !== 'undefined' && 

@@ -68,9 +68,8 @@ const BotSystemInitializer: React.FC = () => {
             anomalies: [],
             mood: "neutral",
             dreamState: false,
-            lastDreamTime: 0,
-            currentMood: "watching",
-            moodChangeTime: Date.now()
+            moodChangeTime: Date.now(),
+            currentMood: "watching"
           }
         }
       };

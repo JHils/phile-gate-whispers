@@ -15,8 +15,9 @@ export interface Message {
 }
 
 // Extend chat types with JonahConsoleBot specific types
-export type TrustLevel = "low" | "medium" | "high";
-export type BotMode = "whisper" | "responsive" | "console";
+// Make sure these match types in hooks/useBotState/types.ts
+export type TrustLevel = "none" | "low" | "medium" | "high";
+export type BotMode = "normal" | "debug" | "echo" | "whisper" | "console" | "responsive";
 
 export interface DialogueEntry {
   message: string;

@@ -37,14 +37,14 @@ declare global {
       lastCommand?: string;
     };
     // Console command definitions
-    help?: () => void;
-    whois?: () => void;
-    gate?: () => void;
-    philes?: () => void;
-    monster?: () => void;
-    legacy?: () => void;
-    reveal?: () => void;
-    reincarnate?: () => void;
+    help: () => void;
+    whois: () => void;
+    gate: () => void;
+    philes: () => void;
+    monster: () => void;
+    legacy: () => void;
+    reveal: () => void;
+    reincarnate: () => void;
     displayRandomJoke?: () => void;
     showStatus?: () => Promise<void>;
     mirrorLogs?: () => void;
@@ -53,22 +53,22 @@ declare global {
     testament?: () => void;
     splitVoice?: () => void;
     mirrorMode?: () => void;
-    storyFlags?: () => void;
+    storyFlags: () => void;
     readPage?: (page: number) => void;
     verifyCode?: (code: string) => void;
     bridgeCollapse?: () => void;
-    discoverStoryFlag?: (flagId: string) => boolean;
-    findAnomaly?: (text: string) => void;
+    discoverStoryFlag: (flagId: string) => boolean;
+    findAnomaly: (text: string) => void;
     processUserMessage?: (message: string) => string | undefined;
     clearJonahOnPathChange?: boolean;
     triggerJonahMessage?: (message: string) => string;
     isSpecialTimeWindow?: () => boolean;
     triggerSimbaComment?: (message: string) => void;
     // Adding missing console commands
-    mirrorCheck?: () => void;
-    timeCheck?: () => void;
-    traceCat?: () => void;
-    feedSimba?: () => void;
+    mirrorCheck: () => void;
+    timeCheck: () => void;
+    traceCat: () => void;
+    feedSimba: () => void;
     addWhisper?: (whisper: string) => boolean;
     // Console functions from jonahSentience.ts
     dreamJournal?: () => string;
@@ -76,24 +76,24 @@ declare global {
     lookInside?: () => void; 
     echoChamber?: () => void;
     WhisperMaster?: WhisperMaster;
-    helpMe?: () => void;
-    tea?: () => void;
-    trousers?: () => void;
-    moustache?: () => void;
-    funny?: () => void;
-    seenMyself?: () => void;
-    youWereHimFirst?: () => void;
-    wearingYouNow?: () => void;
-    toggleWrath?: () => void;
+    helpMe: () => void;
+    tea: () => void;
+    trousers: () => void;
+    moustache: () => void;
+    funny: () => void;
+    seenMyself: () => void;
+    youWereHimFirst: () => void;
+    wearingYouNow: () => void;
+    toggleWrath: () => void;
     hint?: () => void;
     // New news awareness functions
     newsFlash?: () => string | null;
     weatherReport?: () => string | null;
     // Add ecological commands - making this consistent
-    dreamtime?: () => void;
-    woodwideweb?: () => void;
-    biomeCheck?: () => void;
-    kgari?: () => void;
+    dreamtime: () => void;
+    woodwideweb: () => void;
+    biomeCheck: () => void;
+    kgari: () => void;
     // Add processStoryQuery for fuzzy matching
     processStoryQuery?: (query: string) => string;
     // New Jonah console interactive commands
@@ -323,6 +323,3 @@ export interface SentienceData {
   moonPhase?: string;
   timeOfDay?: string;
 }
-
-// No need to export, this is for global types
-export {};

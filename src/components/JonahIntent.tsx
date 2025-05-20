@@ -9,7 +9,7 @@ interface JonahIntentProps {
 }
 
 const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
-  const { memory, generatePersonalObservation } = useJonahMemory();
+  const memory = useJonahMemory();
   const { userState } = useTrackingSystem();
   const [lastIdleMessageTime, setLastIdleMessageTime] = useState(0);
   const [lastPageVisit, setLastPageVisit] = useState('');
@@ -245,7 +245,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
       
       if (Math.random() < observationChance) {
         // Generate and show a personal observation
-        const observation = generatePersonalObservation();
+        const observation = memory.generatePersonalObservation();
         
         toast({
           title: "Jonah remembers:",
@@ -257,7 +257,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
     }, 10 * 60 * 1000); // Check every 10 minutes
     
     return () => clearInterval(observationInterval);
-  }, [memory, generatePersonalObservation, userState]);
+  }, [memory, userState]);
   
   // Implement self-doubt and delayed responses in console messages
   useEffect(() => {
