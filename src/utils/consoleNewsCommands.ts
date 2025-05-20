@@ -8,12 +8,19 @@ import { trackCommand } from './consoleTrackingUtils';
 import { getNewsResponse, getWeatherResponse } from './jonahNewsAwareness';
 import { typewriterLog } from './consoleEffects';
 
+type TrackCommandFunction = (commandName: string) => void;
+
 // Initialize news command system
-export function initializeNewsCommands(): void {
+export function initializeNewsCommands(trackCommandExecution?: TrackCommandFunction): void {
   if (typeof window !== 'undefined') {
     // News flash command
     window.newsFlash = function() {
-      trackCommand('newsFlash');
+      // Use provided trackCommandExecution if available, otherwise fall back to trackCommand
+      if (trackCommandExecution) {
+        trackCommandExecution('newsFlash');
+      } else {
+        trackCommand('newsFlash');
+      }
       
       // Get a news response
       const newsResponse = getNewsResponse();
@@ -32,7 +39,12 @@ ${newsResponse}
     
     // Weather report command
     window.weatherReport = function() {
-      trackCommand('weatherReport');
+      // Use provided trackCommandExecution if available, otherwise fall back to trackCommand
+      if (trackCommandExecution) {
+        trackCommandExecution('weatherReport');
+      } else {
+        trackCommand('weatherReport');
+      }
       
       // Get a weather response
       const weatherResponse = getWeatherResponse();

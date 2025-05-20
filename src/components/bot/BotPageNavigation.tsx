@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { addJournalEntry } from '@/utils/jonahRealityFabric';
+import { throttle } from 'lodash';
 
 interface BotPageNavigationProps {
   addBotMessage: (message: string, special?: boolean) => void;
@@ -12,16 +13,16 @@ interface BotPageNavigationProps {
 const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, modifyTrust, isOpen }) => {
   const location = useLocation();
   const previousPathRef = useRef<string>('');
+  const triggeredPagesRef = useRef<Set<string>>(new Set());
+  const lastTriggerTimeRef = useRef<number>(0);
   
-  useEffect(() => {
-    // Only trigger on specific pages and when the chat is open
-    if (!isOpen) return;
+  // Throttle the page message handler
+  const handlePageNavigation = throttle((pathname: string) => {
+    // Skip if already triggered for this path or too recent
+    if (triggeredPagesRef.current.has(pathname)) return;
     
-    const pathname = location.pathname;
-    
-    // Skip if path hasn't changed to prevent duplicate processing
-    if (pathname === previousPathRef.current) return;
-    previousPathRef.current = pathname;
+    const now = Date.now();
+    if (now - lastTriggerTimeRef.current < 5000) return; // At least 5 seconds between triggers
     
     // Define page-specific messages and trust adjustments
     const pageTriggers: { [key: string]: { message: string; trust: number } } = {
@@ -37,21 +38,40 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
     };
     
     // Check if the current path matches any of the triggers
-    Object.keys(pageTriggers).forEach(path => {
-      if (pathname === path) {
-        const { message, trust } = pageTriggers[path];
-        
-        // Add the bot message
-        addBotMessage(message);
-        
-        // Modify trust level
-        modifyTrust(trust);
-        
-        // Add journal entry
-        addJournalEntry(`Navigated to ${pathname}. Triggered bot message: ${message}`);
-      }
-    });
-  }, [location.pathname, addBotMessage, modifyTrust, isOpen]);
+    if (pathname in pageTriggers) {
+      const { message, trust } = pageTriggers[pathname];
+      
+      // Add the bot message
+      addBotMessage(message);
+      
+      // Modify trust level
+      modifyTrust(trust);
+      
+      // Add journal entry
+      addJournalEntry(`Navigated to ${pathname}. Triggered bot message: ${message}`);
+      
+      // Mark as triggered and update last trigger time
+      triggeredPagesRef.current.add(pathname);
+      lastTriggerTimeRef.current = now;
+    }
+  }, 2000);
+  
+  useEffect(() => {
+    // Only trigger on specific pages and when the chat is open
+    if (!isOpen) return;
+    
+    const pathname = location.pathname;
+    
+    // Skip if path hasn't changed to prevent duplicate processing
+    if (pathname === previousPathRef.current) return;
+    previousPathRef.current = pathname;
+    
+    // Handle the navigation with throttling
+    handlePageNavigation(pathname);
+    
+    // We don't need to clean up the throttle as it will
+    // be automatically garbage collected when not used
+  }, [location.pathname, addBotMessage, modifyTrust, isOpen, handlePageNavigation]);
   
   return null; // This component doesn't render anything
 };

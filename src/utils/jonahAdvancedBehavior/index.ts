@@ -9,14 +9,14 @@ export { initializeBehavior as initializeAdvancedBehavior } from './initializeBe
 // Export trust system
 export { jonah_checkTrustTransition } from './trustSystem';
 
-// Export response generators - check that these exports actually exist in their modules
+// Export response generators
 export { generateFirstTimeResponse } from './responses/firstTimeResponses';
 export { getVaryingLengthResponse } from './responses/lengthVariations';
 
-// Ensure these functions exist in their respective files before uncommenting
+// Export other functions as they become available
+// Uncomment these as they're implemented
 // export { getToneResponse } from './responses/toneResponses';
 // export { getEmotionalResponse } from './responses/emotionalResponses';
 // export { initializeMicroQuests } from './quests/microQuests';
 // export { applyTypingQuirks } from './quirks/typingQuirks';
 // export { syncWithARG } from './argSync';
-

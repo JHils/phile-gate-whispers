@@ -88,7 +88,7 @@ export const initializeConsoleCommands = (
   initializeSimbaSystem(trackCommandExecution);
   initializeTimeSystem(trackCommandExecution);
   initializeNewsCommands();
-  initializeEcoCommands();
+  initializeEcoCommands(trackCommandExecution); // Fixed: Passing the required argument
   
   // Fix the missing argument by passing trackCommandExecution
   initializeARGCommands(trackCommandExecution);
