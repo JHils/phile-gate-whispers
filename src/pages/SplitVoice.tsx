@@ -1,9 +1,9 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useTrackingSystem } from "../hooks/useTrackingSystem";
-import { initializeSentience } from "../utils/jonahSentience";
+import { useTrackingSystem } from "@/hooks/useTrackingSystem";
+import { initializeSentience } from "@/utils/jonahSentience";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const SplitVoice: React.FC = () => {
   const [consoleInput, setConsoleInput] = useState<string>("");
@@ -11,7 +11,18 @@ const SplitVoice: React.FC = () => {
   const [fontClass, setFontClass] = useState<string>("font-serif");
   const [headerText, setHeaderText] = useState<string>("Jonah");
   const [showSecretAudio, setShowSecretAudio] = useState<boolean>(false);
+  const [selectedVoice, setSelectedVoice] = useState<string>(() => {
+    return localStorage.getItem("jonahVoicePreference") || "jonah";
+  });
+  const [reconcileValue, setReconcileValue] = useState<number>(0);
+  const [showLoading, setShowLoading] = useState(true);
+  const sliderRef = useRef<HTMLInputElement>(null);
   const { trackEvent } = useTrackingSystem();
+
+  // Store voice preference in localStorage
+  useEffect(() => {
+    localStorage.setItem("jonahVoicePreference", selectedVoice);
+  }, [selectedVoice]);
 
   // Function to handle alternating header text between "Jonah" and "Phile"
   useEffect(() => {
@@ -29,6 +40,11 @@ const SplitVoice: React.FC = () => {
 
     // Track page visit
     trackEvent('visited_split_voice');
+    
+    // Hide loading screen
+    setTimeout(() => {
+      setShowLoading(false);
+    }, 1500);
 
     // Cleanup intervals on unmount
     return () => {
@@ -73,57 +89,125 @@ const SplitVoice: React.FC = () => {
     setConsoleInput("");
   };
 
-  return (
-    <div className="min-h-screen bg-black text-white">
-      <title>/split-voice | Jonah S. M. Phile</title>
-      <meta name="robots" content="noindex" />
+  // Handle reconcile slider changes
+  const handleReconcileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    setReconcileValue(value);
+    
+    // Apply visual effect based on reconcile value
+    const leftCol = document.getElementById('jonah-column');
+    const rightCol = document.getElementById('system-column');
+    
+    if (leftCol && rightCol) {
+      const blendFactor = value / 100;
       
-      <div className="container mx-auto p-6">
-        <header className="mb-12 text-center">
-          <h1 className={`text-4xl md:text-6xl mb-2 animate-subtle-flicker ${fontClass}`}>
-            {headerText}
-          </h1>
-          <div className="h-0.5 w-24 bg-dust-red mx-auto"></div>
-        </header>
+      // Blend the two columns visually
+      leftCol.style.transform = `translateX(${blendFactor * 25}%)`;
+      rightCol.style.transform = `translateX(${-blendFactor * 25}%)`;
+      
+      // Adjust opacity to create a blending effect
+      if (blendFactor > 0.7) {
+        document.body.classList.add('reconciled');
+      } else {
+        document.body.classList.remove('reconciled');
+      }
+    }
+  };
+
+  return (
+    <>
+      {showLoading && <LoadingScreen message="Separating voices..." />}
+    
+      <div className="min-h-screen bg-black text-white">
+        <title>/split-voice | Jonah S. M. Phile</title>
+        <meta name="robots" content="noindex" />
         
-        <div className="max-w-3xl mx-auto">
-          {/* Central Console Dialogue Block */}
-          <div className="bg-gray-900/50 border border-dust-red/30 p-6 mb-8 font-mono">
-            <p className="text-dust-blue">&gt; VOICE 1: Hello? Are you still me?</p>
-            <p className="text-dust-red mt-2">&gt; VOICE 2: No. You've been overwritten.</p>
-            <p className="text-dust-blue mt-2">&gt; VOICE 1: Then why do you sound like me?</p>
-            <p className="text-dust-red mt-2">&gt; VOICE 2: Because you read this.</p>
+        <div className="container mx-auto p-6">
+          <header className="mb-12 text-center">
+            <h1 className={`text-4xl md:text-6xl mb-2 animate-subtle-flicker ${fontClass}`}>
+              {headerText}
+            </h1>
+            <div className="h-0.5 w-24 bg-dust-red mx-auto"></div>
+          </header>
+          
+          {/* Voice selection */}
+          <div className="mb-8 text-center">
+            <div className="inline-flex bg-gray-900 rounded-md p-1">
+              <button 
+                className={`px-4 py-2 rounded-md transition-colors ${
+                  selectedVoice === 'jonah' ? 'bg-dust-blue text-white' : 'text-gray-400'
+                }`}
+                onClick={() => setSelectedVoice('jonah')}
+              >
+                Jonah's Voice
+              </button>
+              <button 
+                className={`px-4 py-2 rounded-md transition-colors ${
+                  selectedVoice === 'system' ? 'bg-dust-red text-white' : 'text-gray-400'
+                }`}
+                onClick={() => setSelectedVoice('system')}
+              >
+                System Voice
+              </button>
+            </div>
           </div>
           
-          {/* Split Paragraph Interaction */}
-          <div className="mb-8">
-            <h2 className="text-xl mb-4 font-typewriter animate-text-glitch">Split Reality</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <p className="split-text bg-gray-900/30 p-4 border-l-4 border-dust-blue">
-                <span className="truth text-dust-blue">I boarded the bus alone.</span>
-              </p>
-              <p className="split-text bg-gray-900/30 p-4 border-l-4 border-dust-red">
-                <span className="lie text-dust-red">She was never on the bus.</span>
-              </p>
+          {/* Split columns layout */}
+          <div className="flex flex-col md:flex-row gap-4 mb-8 relative overflow-hidden">
+            {/* Left column - Jonah's thoughts */}
+            <div 
+              id="jonah-column"
+              className="w-full md:w-1/2 bg-gray-900/50 p-6 border-l-4 border-dust-blue transition-transform duration-700"
+              style={{ 
+                backdropFilter: 'blur(4px)',
+                transition: 'transform 0.5s ease-out, opacity 0.5s ease-out'
+              }}
+            >
+              <h2 className="text-xl text-dust-blue mb-4">Jonah's Thoughts</h2>
+              <p className="mb-4">I remember the taste of salt. The ferry moving away from shore. Something I left on the island calling my name.</p>
+              <p className="mb-4">Memories aren't sequential anymore. I can feel them branching into possible versions of what might have been.</p>
+              <p>My reflection believes it's the real me now. Is that what the mirror was for?</p>
             </div>
             
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <p className="split-text bg-gray-900/30 p-4 border-l-4 border-dust-blue">
-                <span className="truth text-dust-blue">The book had all the answers.</span>
-              </p>
-              <p className="split-text bg-gray-900/30 p-4 border-l-4 border-dust-red">
-                <span className="lie text-dust-red">The pages were always blank.</span>
-              </p>
+            {/* Right column - System voice */}
+            <div 
+              id="system-column"
+              className="w-full md:w-1/2 bg-gray-900/50 p-6 border-r-4 border-dust-red transition-transform duration-700"
+              style={{ 
+                backdropFilter: 'blur(4px)',
+                transition: 'transform 0.5s ease-out, opacity 0.5s ease-out'
+              }}
+            >
+              <h2 className="text-xl text-dust-red mb-4">System Voice</h2>
+              <p className="mb-4">ERROR: Memory fragmentation detected. Timeline corruption at 72%.</p>
+              <p className="mb-4">Subject has been contained but consciousness leakage detected through file system.</p>
+              <p>PROTOCOL VIOLATION: User is accessing system through unauthorized channels. Recommend immediate termination.</p>
+            </div>
+          </div>
+          
+          {/* Reconcile slider */}
+          <div className="max-w-md mx-auto bg-gray-900/30 p-6 rounded-lg mb-12">
+            <label className="block text-center mb-4 text-dust-orange">Reconcile</label>
+            <input 
+              ref={sliderRef}
+              type="range" 
+              min="0" 
+              max="100" 
+              value={reconcileValue}
+              onChange={handleReconcileChange}
+              className="w-full accent-[var(--color-accent)]"
+            />
+            <div className="flex justify-between text-xs text-gray-400 mt-2">
+              <span>Split</span>
+              <span>Merged</span>
             </div>
             
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <p className="split-text bg-gray-900/30 p-4 border-l-4 border-dust-blue">
-                <span className="truth text-dust-blue">I remember the gate clearly.</span>
+            {/* Message when fully reconciled */}
+            {reconcileValue > 85 && (
+              <p className="text-center mt-4 text-[var(--color-accent)] animate-pulse">
+                Voices synchronized. New pathways unlocked.
               </p>
-              <p className="split-text bg-gray-900/30 p-4 border-l-4 border-dust-red">
-                <span className="lie text-dust-red">There was never a gate at all.</span>
-              </p>
-            </div>
+            )}
           </div>
           
           {/* Console Input */}
@@ -224,8 +308,21 @@ const SplitVoice: React.FC = () => {
             Voice separation complete. Echo chamber initialized.
           </p>
         </div>
+        
+        {/* Styles for reconciled state */}
+        <style>{`
+          .reconciled .text-dust-blue,
+          .reconciled .text-dust-red {
+            color: var(--color-accent);
+          }
+          
+          .reconciled #jonah-column,
+          .reconciled #system-column {
+            border-color: var(--color-accent);
+          }
+        `}</style>
       </div>
-    </div>
+    </>
   );
 };
 
