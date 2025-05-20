@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
@@ -21,7 +22,7 @@ const IndexPage = () => {
   // Log page visit
   useEffect(() => {
     if (!hasSeenPage) {
-      updateUserState({ lastPage: 'gate', pageSeen: { gate: true } });
+      updateUserState({ pageSeen: { gate: true } });
       setHasSeenPage(true);
     }
   }, [hasSeenPage, updateUserState]);
@@ -39,6 +40,26 @@ const IndexPage = () => {
   const handleButtonClick = () => {
     navigate('/campfire');
   };
+
+  // Helper function for text spans
+  const addSpans = (text: string) => {
+    return text.split('').map((char, i) => (
+      <span key={i} className="inline-block">{char}</span>
+    ));
+  };
+
+  // Trust level from user state
+  const trustLevel = userState?.trust?.level || 'low';
+  
+  // Check if it's a special time window
+  const isSpecialTime = typeof window.isSpecialTimeWindow === 'function' && window.isSpecialTimeWindow();
+  
+  // Collapse messaging
+  const collapseMessage = userState?.collapse?.message || null;
+  const userIsPermanentlyCollapsed = userState?.collapse?.permanent || false;
+  
+  // Whisper text
+  const whisperText = userState?.messages?.whisper || "They wait for you in the dark corners of the web.";
   
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -49,10 +70,10 @@ const IndexPage = () => {
       <div className="relative z-10 container mx-auto px-4 py-8">
         
         {/* Page Header */}
-        <PageHeader />
+        <PageHeader trustLevel={trustLevel} />
         
         {/* Navigation Links */}
-        <NavLinks />
+        <NavLinks trustLevel={trustLevel} isSpecialTime={isSpecialTime} />
         
         {/* Main Content */}
         <div className="text-center">
@@ -61,10 +82,15 @@ const IndexPage = () => {
           </h1>
           
           {/* Message Text */}
-          <MessageText />
+          <MessageText 
+            addSpans={addSpans} 
+            whisperText={whisperText}
+            collapseMessage={collapseMessage}
+            userIsPermanentlyCollapsed={userIsPermanentlyCollapsed}
+          />
           
           {/* Trust Visual Indicators */}
-          <TrustVisualIndicators />
+          <TrustVisualIndicators trustLevel={trustLevel} />
           
           {/* Button to Campfire */}
           <Button size="lg" className="mt-8" onClick={handleButtonClick}>
@@ -80,14 +106,14 @@ const IndexPage = () => {
         </div>
         
         {/* Footer Text */}
-        <FooterText />
+        <FooterText visitCount={userState.visitCount || 1} />
       </div>
       
       {/* Hidden Comments */}
       <HiddenComments />
       
       {/* Visibility Change Detector */}
-      <VisibilityChangeDetector />
+      <VisibilityChangeDetector trustLevel={trustLevel} />
       
       {/* Keyhole Easter Egg */}
       <KeyholeEasterEgg />

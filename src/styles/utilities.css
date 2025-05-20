@@ -1,0 +1,14 @@
+
+@layer utilities {
+  .animate-trust-pulse {
+    animation: trust-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .animate-trust-glow {
+    animation: trust-glow 3s ease-in-out infinite;
+  }
+  
+  .animate-trust-border {
+    animation: trust-border-pulse 4s ease-in-out infinite;
+  }
+}

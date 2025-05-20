@@ -1,0 +1,46 @@
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=VT323&family=IBM+Plex+Mono&display=swap');
+
+/* Base element styles */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  max-width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Typography custom classes */
+.font-serif {
+  font-family: 'IM Fell English SC', serif;
+}
+
+.font-mono {
+  font-family: 'VT323', 'IBM Plex Mono', monospace;
+}
+
+/* Background image global handling */
+.bg-cover-image {
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Prevent content from being cut off */
+.content-safe-area {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+  padding-top: env(safe-area-inset-top, 1rem);
+}
+
+/* Make images responsive */
+img {
+  max-width: 100%;
+  height: auto;
+}
