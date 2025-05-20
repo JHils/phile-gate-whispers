@@ -16,15 +16,15 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
   const triggeredPagesRef = useRef<Set<string>>(new Set());
   const lastTriggerTimeRef = useRef<number>(0);
   
-  // Heavily throttle the page message handler to prevent excessive calls
-  // This directly addresses the history.replaceState() error
+  // Super-heavily throttled handler with multiple safeguards
   const handlePageNavigation = throttle((pathname: string) => {
     try {
-      // Skip if already triggered for this path or too recent
+      // Skip if already triggered for this path
       if (triggeredPagesRef.current.has(pathname)) return;
       
       const now = Date.now();
-      if (now - lastTriggerTimeRef.current < 30000) return; // At least 30 seconds between triggers
+      // Much longer cooldown period - 2 minutes between triggers
+      if (now - lastTriggerTimeRef.current < 120000) return;
       
       // Define page-specific messages and trust adjustments
       const pageTriggers: { [key: string]: { message: string; trust: number } } = {
@@ -41,34 +41,37 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
       
       // Check if the current path matches any of the triggers
       if (pathname in pageTriggers) {
-        const { message, trust } = pageTriggers[pathname];
-        
-        // Add the bot message
-        addBotMessage(message);
-        
-        // Modify trust level
-        modifyTrust(trust);
-        
-        // Add journal entry with a small chance
-        if (Math.random() < 0.3) { // Only 30% chance to add entry
-          // Use setTimeout with a long delay to prevent immediate state changes
-          setTimeout(() => {
-            try {
-              addJournalEntry(`Navigated to ${pathname}. Triggered bot message: ${message}`);
-            } catch (error) {
-              console.error("Error adding journal entry:", error);
-            }
-          }, 5000); // 5 second delay
+        // Add additional random chance to further reduce frequency
+        if (Math.random() < 0.3) { // Only 30% chance to even proceed
+          const { message, trust } = pageTriggers[pathname];
+          
+          // Add the bot message
+          addBotMessage(message);
+          
+          // Modify trust level
+          modifyTrust(trust);
+          
+          // Add journal entry with an extremely small chance (5%)
+          if (Math.random() < 0.05) {
+            // Use setTimeout with a longer delay
+            setTimeout(() => {
+              try {
+                addJournalEntry(`Navigated to ${pathname}. Triggered bot message: ${message}`);
+              } catch (error) {
+                console.error("Error adding journal entry:", error);
+              }
+            }, 10000); // 10 second delay
+          }
+          
+          // Mark as triggered and update last trigger time
+          triggeredPagesRef.current.add(pathname);
+          lastTriggerTimeRef.current = now;
         }
-        
-        // Mark as triggered and update last trigger time
-        triggeredPagesRef.current.add(pathname);
-        lastTriggerTimeRef.current = now;
       }
     } catch (error) {
       console.error("Error in page navigation handler:", error);
     }
-  }, 10000, { leading: true, trailing: false }); // Throttle to once per 10 seconds max
+  }, 30000, { leading: true, trailing: false }); // Extreme throttle - once per 30 seconds maximum
   
   useEffect(() => {
     // Only trigger on specific pages and when the chat is open
@@ -80,9 +83,8 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({ addBotMessage, mo
     if (pathname === previousPathRef.current) return;
     previousPathRef.current = pathname;
     
-    // Add randomness to further reduce frequency
-    if (Math.random() < 0.5) { // Only 50% chance to even try handling navigation
-      // Handle the navigation with throttling
+    // Add extreme randomness to further reduce frequency
+    if (Math.random() < 0.2) { // Only 20% chance to even try handling navigation
       handlePageNavigation(pathname);
     }
     
