@@ -1,0 +1,54 @@
+
+/* Aboriginal-inspired dot painting pattern backgrounds */
+
+.dot-pattern-bg {
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.dot-pattern-bg::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 15px 15px;
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+.dot-pattern-bg:hover::before {
+  opacity: 0.5;
+  animation: pulse-dots 3s infinite;
+}
+
+@keyframes pulse-dots {
+  0% {
+    background-size: 15px 15px;
+  }
+  50% {
+    background-size: 16px 16px;
+  }
+  100% {
+    background-size: 15px 15px;
+  }
+}
+
+/* Dot pattern variations */
+.dot-pattern-spiral::before {
+  background-image: 
+    radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, transparent 8px, rgba(255, 255, 255, 0.05) 9px, transparent 10px);
+  background-size: 15px 15px, 30px 30px;
+}
+
+.dot-pattern-river::before {
+  background-image: 
+    radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(45deg, transparent 48%, rgba(255, 255, 255, 0.05) 49%, rgba(255, 255, 255, 0.05) 51%, transparent 52%);
+  background-size: 15px 15px, 30px 30px;
+}

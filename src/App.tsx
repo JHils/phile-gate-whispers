@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -40,6 +41,9 @@ import ISeeYou from './pages/ISeeYou';
 import SplitVoice from './pages/SplitVoice';
 import MirrorPhile from './pages/MirrorPhile';
 import UberDriver from './pages/UberDriver';
+import Lore from './pages/Lore';
+import LostSisters from './pages/LostSisters';
+import RememberMe from './pages/RememberMe';
 
 // Import JonahConsoleBot
 import JonahConsoleBot from './components/JonahConsoleBot';
@@ -108,6 +112,9 @@ function App() {
     { path: '/split-voice', element: <SplitVoice /> },
     { path: '/mirror_phile/:mirrorId', element: <MirrorPhile /> },
     { path: '/according-to-an-uber-driver', element: <UberDriver /> },
+    { path: '/lore', element: <Lore /> },
+    { path: '/lost-sisters', element: <LostSisters /> },
+    { path: '/remember-me', element: <RememberMe /> },
     { path: '*', element: <NotFound /> }
   ];
 
