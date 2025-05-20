@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { FilePdf } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface OfflineGuideDownloadProps {
@@ -47,7 +47,7 @@ const OfflineGuideDownload: React.FC<OfflineGuideDownloadProps> = ({
         onClick={handleDownload}
         className={`flex items-center gap-2 text-gray-600 hover:text-[var(--color-accent)] py-2 px-3 rounded-md hover:bg-black/10 transition-colors ${className}`}
       >
-        <FilePdf className="w-4 h-4" />
+        <Download className="w-4 h-4" />
         <span>Whisper Field Guide</span>
       </button>
     );
@@ -58,7 +58,7 @@ const OfflineGuideDownload: React.FC<OfflineGuideDownloadProps> = ({
       onClick={handleDownload}
       className={`bg-gray-800 hover:bg-gray-700 text-white flex items-center gap-2 ${className}`}
     >
-      <FilePdf className="w-5 h-5" />
+      <Download className="w-5 h-5" />
       <span>Download Whisper Field Guide</span>
     </Button>
   );

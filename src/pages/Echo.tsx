@@ -23,7 +23,7 @@ export default function Echo() {
     console.log("Listening for resonance...");
     
     setTimeout(() => {
-      console.log("Try typing 'echo()' in the console...");
+      console.log("Try typing 'echo.invert()' in the console...");
     }, 3000);
     
     // Flicker effect on page load
@@ -34,11 +34,14 @@ export default function Echo() {
     }, 1500);
     
     // Add console easter egg
-    window.echo = {};
-    window.echo.invert = function() {
-      setHiddenQuoteVisible(true);
-      console.log("%cResonance detected. Quote revealed.", "color: #32ff9a;");
-      return "Quote revealed at page bottom.";
+    window.echo = function() {
+      return {
+        invert: function() {
+          setHiddenQuoteVisible(true);
+          console.log("%cResonance detected. Quote revealed.", "color: #32ff9a;");
+          return "Quote revealed at page bottom.";
+        }
+      };
     };
     
     return () => {

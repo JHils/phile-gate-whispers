@@ -1,13 +1,14 @@
+
 import React, { useEffect, useState } from "react";
-import HiddenNav from "../components/HiddenNav";
 import { getTimeElapsedMessage, getThematicMessage } from "../utils/chronoLayer";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
 import { useConsoleMessages } from "../hooks/useConsoleMessages";
 import { initializeConsoleCommands } from "../utils/consoleCommands";
 import { checkForDreamInvasionOnLoad } from "../utils/jonahRealityFabric";
 import { useIsMobile } from "../hooks/use-mobile";
+import { toast } from "@/components/ui/use-toast";
 import LoadingScreen from "@/components/LoadingScreen";
-import OfflineGuideDownload from "@/components/OfflineGuideDownload";
+import HiddenNav from "../components/HiddenNav";
 
 // Import components
 import PageHeader from "@/components/index/PageHeader";
@@ -16,6 +17,18 @@ import NavLinks from "@/components/index/NavLinks";
 import FooterText from "@/components/index/FooterText";
 import JonahCrossSiteWhisper from "@/components/JonahCrossSiteWhisper";
 import Footer from "@/components/Footer";
+import OfflineGuideDownload from "@/components/OfflineGuideDownload";
+import TrustVisualIndicators from "@/components/index/TrustVisualIndicators";
+import KeyholeEasterEgg from "@/components/index/KeyholeEasterEgg";
+import HiddenComments from "@/components/index/HiddenComments";
+import JonahBackgroundOverlay from "@/components/index/JonahBackgroundOverlay";
+import JonahHiddenData from "@/components/index/JonahHiddenData";
+import VisibilityChangeDetector from "@/components/index/VisibilityChangeDetector";
+
+// Import hooks
+import useWeatherService from "@/components/weather/useWeatherService";
+import useConsoleForgetEmotions from "@/hooks/useConsoleForgetEmotions";
+import { initializeFuzzyStoryMatching } from "@/utils/fuzzyStoryMatching";
 
 const Index = () => {
   const [collapseMessage, setCollapseMessage] = useState<string | null>(null);
@@ -28,6 +41,12 @@ const Index = () => {
     userState 
   });
   const isMobile = useIsMobile();
+  
+  // Initialize weather service
+  const { weatherDescription } = useWeatherService(trustLevel);
+  
+  // Initialize forget emotions handler
+  const { triggerForgetRegret } = useConsoleForgetEmotions();
 
   // Add classes to individual characters for staggered animation
   const addSpans = (text: string) => {
@@ -80,6 +99,11 @@ const Index = () => {
         }, 2000);
       }
     }
+    
+    // If weather data is available, occasionally update whisper text
+    if (weatherDescription && Math.random() > 0.85) {
+      setWhisperText(weatherDescription);
+    }
   };
 
   useEffect(() => {
@@ -99,6 +123,9 @@ const Index = () => {
     if (!window.help) {
       initializeConsoleCommands(trackEvent, getUserRank, userState);
     }
+    
+    // Initialize fuzzy story matching system
+    initializeFuzzyStoryMatching();
     
     // Get current trust level from localStorage
     const storedTrustLevel = localStorage.getItem('jonahTrustLevel') || 'low';
@@ -124,8 +151,15 @@ const Index = () => {
       setShowLoading(false);
     }, 1500);
     
+    // Occasionally trigger the forget command regret
+    if (Math.random() > 0.7) {
+      setTimeout(() => {
+        triggerForgetRegret();
+      }, 60000 + Math.random() * 120000); // 1-3 minutes delay
+    }
+    
     return () => clearInterval(intervalId);
-  }, [trackEvent, getUserRank, userState, showConsoleMessages]);
+  }, [trackEvent, getUserRank, userState, showConsoleMessages, triggerForgetRegret]);
   
   // Check for dream messages on tab visibility change
   useEffect(() => {
@@ -155,7 +189,9 @@ const Index = () => {
       {showLoading && <LoadingScreen message="Accessing memory gate..." />}
       
       <div 
-        className="min-h-screen w-full max-w-100vw bg-black font-typewriter flex flex-col"
+        className={`min-h-screen w-full max-w-100vw bg-black font-typewriter flex flex-col 
+        ${trustLevel === 'high' ? 'trust-shadow-high' : 
+          trustLevel === 'medium' ? 'trust-shadow-medium' : ''}`}
         style={{ 
           backgroundImage: "linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&q=80&w=1600&ixlib=rb-4.0.3')",
           backgroundSize: "cover",
@@ -163,35 +199,13 @@ const Index = () => {
         }}
       >
         {/* Hidden comments for inspection */}
-        {/* <!-- Phile initiated. Tracking subject... --> */}
-        {/* <!-- The coin will fall. --> */}
-        {/* <!-- Warning: Surface Integrity Failing. --> */}
-        {/* <!-- The Gate watches. --> */}
-        {/* <!-- Left was never right. --> */}
-        {/* <!-- Coin Toss initiated. --> */}
-        {/* <!-- Try typing 'who am i?' in the console --> */}
-        {/* <!-- Try dreamJournal() to read Jonah's latest thoughts --> */}
-        {/* <!-- Try rememberMe() to see what's been stored about you --> */}
+        <HiddenComments />
         
-        {/* Ghost glyph in corner */}
-        <div className="absolute top-8 right-8 ghost-glyph">
-          <img 
-            src="/lovable-uploads/f33548f9-832f-426f-ac18-a6dbbcc8c1b3.png" 
-            alt="" 
-            className="w-32 h-32 opacity-5"
-          />
-        </div>
+        {/* Ghost glyph and background overlay */}
+        <JonahBackgroundOverlay />
         
         {/* Hidden keyhole element for micro-quest */}
-        <div 
-          className="keyhole absolute h-3 w-3 bg-transparent rounded-full opacity-5 hover:opacity-20 transition-opacity duration-300 cursor-default"
-          style={{ 
-            top: isMobile ? '15%' : '30%', 
-            right: isMobile ? '5%' : '8%' 
-          }}
-          id="index-keyhole"
-          title="A tiny anomaly in the code"
-        />
+        <KeyholeEasterEgg />
         
         {/* Cross-site whisper - appears rarely */}
         <JonahCrossSiteWhisper 
@@ -199,8 +213,11 @@ const Index = () => {
           className="absolute top-2 left-1/2 transform -translate-x-1/2" 
         />
         
+        {/* Main content container with visual trust indicators */}
         <div className="phile-container text-center z-10 flex flex-col items-center justify-center py-4">
           {/* Header with mood indicator and spinning coin */}
+          <TrustVisualIndicators trustLevel={trustLevel} className="absolute inset-0 pointer-events-none" />
+          
           <PageHeader trustLevel={trustLevel} />
           
           {/* Main message text area */}
@@ -223,9 +240,8 @@ const Index = () => {
           </div>
         </div>
         
+        {/* Hidden navigation */}
         <HiddenNav />
-        
-        <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
         
         {/* Footer text */}
         <FooterText visitCount={userState.visitCount} />
@@ -234,13 +250,10 @@ const Index = () => {
         <Footer variant="light" />
         
         {/* Hidden data attributes for cross-site presence */}
-        <div
-          className="hidden"
-          data-jonah-presence="true"
-          data-user-phile-rank={userState?.console?.rank || "drifter"}
-          data-visit-count={userState.visitCount}
-          data-whisper-code="GRFNDRZ"
-        />
+        <JonahHiddenData userState={userState} />
+        
+        {/* Visibility change detector for tab switching responses */}
+        <VisibilityChangeDetector trustLevel={trustLevel} />
       </div>
     </>
   );
