@@ -1,53 +1,62 @@
 
-import { TrackEventFunction } from "../consoleCommands/types";
-import { UserState } from "@/hooks/useTrackingSystem";
+/**
+ * Console Helper Functions
+ * Basic utility commands for the console
+ */
 
+import { TrackEventFunction, UserStateType } from './types';
+
+// Helper functions module
 export const helperFunctions = {
-  setupHelperFunctions: (trackEvent: TrackEventFunction, userState: UserState) => {
+  setupHelperFunctions: (trackEvent: TrackEventFunction, userState: UserStateType) => {
     // Basic help command
-    window.help = function(): string {
-      console.log("%cAvailable Commands:", "color:#4ade80; font-weight:bold;");
-      console.log("%cstatus() - View your current status and stats", "color:#4ade80;");
-      console.log("%cecho_me(message) - Echo a message back to you", "color:#4ade80;");
-      console.log("%cbook(code) - Enter a book code, or view found books", "color:#4ade80;");
-      console.log("%cbiome(name) - Explore a biome", "color:#4ade80;");
-      console.log("%chelp() - Show this help message", "color:#4ade80;");
+    window.help = function() {
+      console.log("%cJonah Console Help", "color: #8B3A40; font-size: 16px;");
+      console.log("%c-----------------", "color: #8B3A40;");
+      console.log("%cAvailable commands:", "color: #8B3A40;");
+      console.log("%c- help() - Display this help message", "color: #8B3A40;");
+      console.log("%c- status() - Check your current status", "color: #8B3A40;");
+      console.log("%c- echo_me('message') - Jonah will echo your message", "color: #8B3A40;");
+      console.log("%c- whois('name') - Find out about someone", "color: #8B3A40;");
+      console.log("%c- start() - Begin the journey", "color: #8B3A40;");
+      console.log("%c-----------------", "color: #8B3A40;");
+      console.log("%cMore commands will be revealed as you progress.", "color: #8B3A40; font-style: italic;");
       
-      trackEvent("command_help_viewed");
-      
-      return "Commands displayed in console";
+      trackEvent('console_help_command');
+      return "Helper commands displayed.";
     };
     
-    // Echo message command
-    window.echo_me = function(message: string): string {
+    // Echo command
+    window.echo_me = function(message: string) {
       if (!message) {
-        return "You need to provide a message to echo.";
+        console.log("%cYou didn't say anything.", "color: #8B3A40;");
+        return;
       }
       
-      // Add echo tracker to user stats
-      const trustIncrease = userState?.trust?.score ? 
-        Math.floor(userState.trust.score / 200) + 1 : 1;
+      console.log(`%c${message}`, "color: #8B3A40;");
+      setTimeout(() => {
+        console.log("%cI hear your echo...", "color: #8B3A40; font-style: italic;");
+      }, 1500);
       
-      trackEvent("command_echo_used");
-      
-      if (message.toLowerCase().includes("mirror") || 
-          message.toLowerCase().includes("echo") || 
-          message.toLowerCase().includes("gate")) {
-        trackEvent("command_echo_special");
-        return `ECHO: ${message.toUpperCase()} ... ${message.toUpperCase()} ... ${message.toUpperCase()}`;
-      }
-      
-      return `Echo: ${message}`;
+      trackEvent('console_echo_command');
+      return message;
     };
     
-    // Clear console command
-    window.clear_console = function(): string {
-      if (typeof window.console?.clear === 'function') {
-        console.clear();
-        return "Console cleared";
-      } else {
-        return "Console clear not supported in this browser";
-      }
+    // Clear console
+    window.clear_console = function() {
+      console.clear();
+      console.log("%cConsole cleared. The Gate remains.", "color: #8B3A40;");
     };
+    
+    // Track command use
+    trackEvent('helper_functions_setup');
   }
 };
+
+// Declare global window interface extensions
+declare global {
+  interface Window {
+    help: () => string;
+    echo_me: (message: string) => any;
+  }
+}

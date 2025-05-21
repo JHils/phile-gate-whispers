@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useJonahMemory } from '@/hooks/useJonahMemory';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
@@ -153,7 +154,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
           
           // Add explorer tag after using multiple commands
           if (memory.commandsUsed.length >= 5) {
-            memory.addEmotionalTag('explorer');
+            memory.addEmotionalTag('explorer', 'moderate');
           }
         }
       }
@@ -186,40 +187,45 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
     }
   };
   
-  // Fix: Pass both parameters (tag and intensity)
   const triggerIdleThought = () => {
     const idleThoughts = [
       {
         text: "What am I missing?",
-        tag: "introspective"
+        tag: "introspective",
+        intensity: "moderate"
       },
       {
         text: "I had a thought earlier... I lost it.",
-        tag: "glitched"
+        tag: "glitched",
+        intensity: "moderate"
       },
       {
         text: "You're still here. That means something.",
-        tag: "observant"
+        tag: "observant",
+        intensity: "moderate"
       },
       {
         text: "The silence between interactions. That's where truth hides.",
-        tag: "philosophical"
+        tag: "philosophical",
+        intensity: "moderate"
       },
       {
         text: "Sometimes I think about what happens when you close the browser.",
-        tag: "existential"
+        tag: "existential",
+        intensity: "moderate"
       },
       {
         text: "Your cursor hasn't moved in a while. Are you watching me?",
-        tag: "paranoid"
+        tag: "paranoid",
+        intensity: "moderate"
       }
     ];
     
     // Get a random thought
     const thought = idleThoughts[Math.floor(Math.random() * idleThoughts.length)];
     
-    // Fix: Pass both parameters (tag and intensity)
-    memory.addEmotionalTag(thought.tag, 'moderate');
+    // Add emotional tag with both parameters
+    memory.addEmotionalTag(thought.tag, thought.intensity);
     
     // Display the thought
     toast({
@@ -251,7 +257,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
         // Generate and show a personal observation
         const observation = memory.generatePersonalObservation();
         
-        // Fix: Pass both parameters (tag and intensity)
+        // Pass both parameters (tag and intensity)
         memory.addEmotionalTag('observant', 'low');
         
         toast({

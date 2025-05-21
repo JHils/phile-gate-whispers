@@ -56,3 +56,9 @@ export function getAllTestaments(): TestamentEntry[] {
     }
   ];
 }
+
+// Get only the revealed testament entries
+export function getRevealedEntries(): TestamentEntry[] {
+  const all = getAllTestaments();
+  return all.filter(entry => entry.revealed);
+}

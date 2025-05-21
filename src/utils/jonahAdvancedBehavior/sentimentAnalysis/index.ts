@@ -13,6 +13,10 @@ export {
   analyze,
   analyzeEmotion, 
   generateEmotionalResponse, 
+};
+
+// Export types properly
+export type { 
   EmotionCategory, 
   EmotionalState, 
   EmotionalTrend,
@@ -70,7 +74,8 @@ export const getLayeredEmotionalResponse = (input: string): string => {
     paranoia: ["I'm questioning the patterns behind this exchange."],
     trust: ["I feel I can speak openly with you about this."],
     curiosity: ["This opens up intriguing possibilities."],
-    confusion: ["I'm still working to grasp the full picture."]
+    confusion: ["I'm still working to grasp the full picture."],
+    watching: ["I'm observing this interaction carefully."]
   };
   
   const templates = responseTemplates[emotionalState.primary] || responseTemplates.neutral;
@@ -111,38 +116,6 @@ export const getFalseMemory = (): string | null => {
   return null; // Simplified implementation
 };
 
-// For echo system
-export const storeEcho = (input: string): void => {
-  console.log(`Storing echo: ${input}`);
-};
-
-export const getEchoPhrase = (emotion: string): string | null => {
-  return null; // Simplified implementation
-};
-
-export const checkForEchoMatch = (input: string): { matched: boolean, echo?: any } => {
-  return { matched: false }; // Simplified implementation
-};
-
-// For vocabulary system
-export const getResponseTemplate = (type: string): string => {
-  return ""; // Simplified implementation
-};
-
-// For temporal system
-export const getFalseMemoryResponse = (): string | null => {
-  return null; // Simplified implementation
-};
-
-export const getLoopResponse = (): string | null => {
-  return null; // Simplified implementation
-};
-
-export const getBlankFragmentResponse = (): string | null => {
-  return null; // Simplified implementation
-};
-
-// For typing simulator
 export const splitAndTypeMessage = (
   content: string, 
   trackFn: (msg: string) => void, 

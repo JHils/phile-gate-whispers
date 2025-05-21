@@ -42,13 +42,14 @@ export function analyzeEmotion(input: string): EmotionalState {
     paranoia: 0,
     trust: 0,
     curiosity: 0,
-    confusion: 0
+    confusion: 0,
+    watching: 0
   };
   
   // Check each word against emotional keywords
   words.forEach(word => {
     Object.entries(emotionKeywords).forEach(([emotion, keywords]) => {
-      if (keywords.some(keyword => word.includes(keyword))) {
+      if (keywords && Array.isArray(keywords) && keywords.some(keyword => word.includes(keyword))) {
         emotionScores[emotion as EmotionCategory] += 1;
       }
     });

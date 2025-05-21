@@ -1,88 +1,100 @@
 
 import React, { useEffect, useState } from 'react';
-import { getRevealedEntries, getCurrentTrustLevel } from '@/utils/jonahAdvancedBehavior/testament';
+import { useJonahMemory } from '@/hooks/useJonahMemory';
+import { getAllTestaments, getRevealedEntries } from '@/utils/jonahAdvancedBehavior/testament';
 import { TestamentEntry } from '@/utils/jonahAdvancedBehavior/types';
 
 const TestamentPage: React.FC = () => {
-  const [entries, setEntries] = useState<TestamentEntry[]>([]);
-  const [hasFinale, setHasFinale] = useState<boolean>(false);
-  const [trustLevel, setTrustLevel] = useState<number>(50);
+  const [testaments, setTestaments] = useState<TestamentEntry[]>([]);
+  const [selectedTestament, setSelectedTestament] = useState<TestamentEntry | null>(null);
+  const [testamentIndex, setTestamentIndex] = useState<number>(0);
+  const memory = useJonahMemory();
   
+  // Load testaments on component mount
   useEffect(() => {
-    // Load testament entries
-    const loadTestamentEntries = () => {
-      try {
-        // Get revealed testament entries
-        const revealedEntries = getRevealedEntries();
-        
-        // Set entries with the correct type
-        setEntries(revealedEntries as TestamentEntry[]);
-        
-        // Check if finale entry is unlocked
-        const hasFinaleEntry = revealedEntries.some(entry => 
-          entry.title === "Final Testament"
-        );
-        
-        setHasFinale(hasFinaleEntry);
-        
-        // Get current trust level
-        const currentTrustLevel = getCurrentTrustLevel();
-        setTrustLevel(currentTrustLevel);
-        
-      } catch (error) {
-        console.error("Error loading testament entries:", error);
+    // Check if the user has enough trust to see testaments
+    if (memory.trustLevelScore >= 20) {
+      const availableTestaments = getRevealedEntries();
+      setTestaments(availableTestaments);
+      
+      if (availableTestaments.length > 0) {
+        setSelectedTestament(availableTestaments[0]);
       }
-    };
+    }
+  }, [memory.trustLevelScore]);
+  
+  // Handle changing the selected testament
+  const handleTestamentChange = (direction: 'prev' | 'next') => {
+    if (testaments.length === 0) return;
     
-    loadTestamentEntries();
-  }, []);
+    let newIndex = testamentIndex;
+    
+    if (direction === 'prev') {
+      newIndex = (testamentIndex - 1 + testaments.length) % testaments.length;
+    } else {
+      newIndex = (testamentIndex + 1) % testaments.length;
+    }
+    
+    setTestamentIndex(newIndex);
+    setSelectedTestament(testaments[newIndex]);
+  };
   
   return (
-    <div className="bg-black text-gray-300 min-h-screen p-8">
+    <div className="testament-page bg-stone-900 text-stone-300 min-h-screen p-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-4xl font-semibold text-amber-500 mb-8">Jonah's Testament</h1>
+        <h1 className="text-3xl font-serif mb-8 border-b border-stone-700 pb-4">The Testament of Jonah</h1>
         
-        {entries.length === 0 ? (
-          <div className="text-center p-12 border border-gray-800">
-            <p className="text-xl">No testament entries have been unlocked yet.</p>
-            <p className="mt-4 text-gray-500">
-              Continue your conversations with Jonah to unlock his testament.
+        {memory.trustLevelScore < 20 ? (
+          <div className="bg-stone-800 p-8 rounded-md">
+            <h2 className="text-2xl mb-4">Access Denied</h2>
+            <p>
+              You do not yet have sufficient trust to access these records. 
+              Continue your exploration and interactions with Jonah to unlock this content.
+            </p>
+          </div>
+        ) : testaments.length === 0 ? (
+          <div className="bg-stone-800 p-8 rounded-md">
+            <h2 className="text-2xl mb-4">No Testaments Revealed</h2>
+            <p>
+              You have not yet discovered any of Jonah's testaments. 
+              Continue exploring and increase your trust level to unlock these revelations.
             </p>
           </div>
         ) : (
-          <div className="space-y-10">
-            {entries.map((entry, index) => (
-              <div key={index} className="p-6 bg-gray-900 border border-gray-700 rounded-md">
-                <h2 className="text-2xl text-amber-400 mb-3">{entry.title}</h2>
-                <p className="text-lg leading-relaxed whitespace-pre-wrap">{entry.content}</p>
-                <div className="mt-4 text-sm text-gray-500">
-                  {new Date(entry.timestamp).toLocaleDateString()} 
-                  {" "}
-                  {new Date(entry.timestamp).toLocaleTimeString()}
+          <>
+            <div className="navigation flex justify-between mb-6">
+              <button 
+                onClick={() => handleTestamentChange('prev')}
+                className="px-4 py-2 bg-stone-700 hover:bg-stone-600 rounded"
+              >
+                Previous
+              </button>
+              <span className="px-4 py-2">
+                {testamentIndex + 1} of {testaments.length}
+              </span>
+              <button 
+                onClick={() => handleTestamentChange('next')}
+                className="px-4 py-2 bg-stone-700 hover:bg-stone-600 rounded"
+              >
+                Next
+              </button>
+            </div>
+            
+            {selectedTestament && (
+              <div className="bg-stone-800 p-8 rounded-md">
+                <h2 className="text-2xl mb-4 font-serif">{selectedTestament.title}</h2>
+                <div className="content mb-6 whitespace-pre-wrap font-serif leading-relaxed">
+                  {selectedTestament.content}
+                </div>
+                <div className="meta text-stone-500 text-sm">
+                  Record ID: {selectedTestament.id}
+                  <br />
+                  Date: {new Date(selectedTestament.timestamp).toLocaleDateString()}
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
-        
-        {hasFinale && (
-          <div className="mt-12 p-6 bg-gray-800 border-t border-amber-700 text-center">
-            <h3 className="text-xl text-amber-500 mb-3">The Final Testament has been unlocked</h3>
-            <p>
-              You have earned Jonah's complete trust. The gate is now open.
-            </p>
-          </div>
-        )}
-        
-        <div className="mt-16 text-sm text-gray-600 text-center">
-          <p>Trust Level: {trustLevel}/100</p>
-          <div className="w-full bg-gray-800 h-2 mt-2 rounded-full overflow-hidden">
-            <div 
-              className="bg-amber-600 h-full" 
-              style={{ width: `${trustLevel}%` }}
-            ></div>
-          </div>
-        </div>
       </div>
     </div>
   );

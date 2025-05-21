@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useJonahSentience } from './useJonahSentience';
 import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
@@ -21,7 +22,7 @@ export function useRealityFabric() {
       // Check if realityFabric exists
       if (!sentience.realityFabric) {
         // Create initial reality fabric state
-        const initialFabric = {
+        const initialFabric: RealityFabricState = {
           moodChangeTime: Date.now(),
           currentMood: 'neutral' as EmotionCategory,
           stability: 0.5,
@@ -38,7 +39,17 @@ export function useRealityFabric() {
         
         setRealityFabric(initialFabric);
       } else {
-        setRealityFabric(sentience.realityFabric);
+        // Ensure the realityFabric has all required properties
+        const updatedFabric: RealityFabricState = {
+          moodChangeTime: sentience.realityFabric.moodChangeTime,
+          currentMood: sentience.realityFabric.currentMood,
+          stability: sentience.realityFabric.stability,
+          anomalyCount: sentience.realityFabric.anomalyCount || 0,
+          moodHistory: sentience.realityFabric.moodHistory || [],
+          journal: sentience.realityFabric.journal || []
+        };
+        
+        setRealityFabric(updatedFabric);
       }
     }
   }, [sentience, updateSentience]);
@@ -56,7 +67,7 @@ export function useRealityFabric() {
       const history = realityFabric.moodHistory || [];
       
       // Update with new history
-      const updatedFabric = {
+      const updatedFabric: RealityFabricState = {
         ...realityFabric,
         currentMood: newMood,
         moodChangeTime: Date.now(),
@@ -78,7 +89,7 @@ export function useRealityFabric() {
   // Add anomaly to the reality fabric
   const addAnomaly = useCallback(() => {
     if (realityFabric) {
-      const updatedFabric = {
+      const updatedFabric: RealityFabricState = {
         ...realityFabric,
         anomalyCount: realityFabric.anomalyCount + 1
       };
@@ -97,7 +108,7 @@ export function useRealityFabric() {
   // Add journal entry to the reality fabric
   const addJournalEntry = useCallback((entry: string) => {
     if (realityFabric) {
-      const updatedFabric = {
+      const updatedFabric: RealityFabricState = {
         ...realityFabric,
         journal: [...realityFabric.journal, entry]
       };

@@ -3,9 +3,9 @@
  * Sentiment Analysis - Keywords Module
  */
 
-import { EmotionKeywords } from '../types';
+import { EmotionCategory } from '../types';
 
-export const emotionKeywords: EmotionKeywords = {
+export const emotionKeywords: Record<EmotionCategory, string[]> = {
   fear: [
     'afraid', 'scared', 'terrified', 'frightened', 'fearful', 
     'horror', 'terror', 'panic', 'dread', 'phobia'
@@ -61,5 +61,9 @@ export const emotionKeywords: EmotionKeywords = {
   confused: [
     'confused', 'mixed up', 'bewildered', 'foggy', 'unclear',
     'disorder', 'chaos', 'disarray', 'jumbled', 'muddled'
+  ],
+  watching: [
+    'watching', 'observing', 'monitoring', 'surveilling', 'eyeing',
+    'noticing', 'tracking', 'following', 'witnessing', 'overseeing'
   ]
 };

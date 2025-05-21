@@ -1,63 +1,61 @@
 
 /**
  * Semantic System
- * Handles emotional intent detection and unsaid emotion responses
+ * Handles meaning interpretation and unsaid content
  */
 
 import { EmotionCategory } from './types';
 
-// Detect emotional intent in user input
-export function detectEmotionalIntent(input: string): EmotionCategory {
-  // Simple implementation - in production would use NLP
-  if (input.includes("sad") || input.includes("depressed") || input.includes("unhappy")) return "sadness";
-  if (input.includes("happy") || input.includes("glad") || input.includes("excited")) return "joy";
-  if (input.includes("angry") || input.includes("mad") || input.includes("frustrated")) return "anger";
-  if (input.includes("afraid") || input.includes("scared")) return "fear";
-  
-  return "neutral";
-}
-
-// Get a response for unsaid emotion
-export function getUnsaidEmotionResponse(emotion: EmotionCategory): string {
-  const responses: Record<EmotionCategory, string[]> = {
-    sadness: [
-      "I sense sadness in what you're not saying.",
-      "There's a melancholy behind your words."
-    ],
-    fear: [
-      "You seem afraid of something you're not mentioning.",
-      "There's fear between the lines."
-    ],
-    anger: [
-      "I detect frustration in what you're holding back.",
-      "There's anger underneath your words."
-    ],
-    joy: [
-      "You seem happier than you're letting on.",
-      "There's joy hidden in your message."
-    ],
-    neutral: [
-      "There's something more you're not saying.",
-      "I sense you're holding something back."
-    ]
-  };
-  
-  const options = responses[emotion] || responses.neutral;
-  return options[Math.floor(Math.random() * options.length)];
-}
-
-// Store user intention for later reference
-export function storeIntention(intention: string): void {
+// Detect emotional intent behind a message
+export function detectEmotionalIntent(input: string): string {
   // Simple implementation for now
+  if (input.includes('help') || input.includes('afraid')) {
+    return 'fear';
+  } else if (input.includes('love') || input.includes('like')) {
+    return 'joy';
+  } else if (input.includes('angry') || input.includes('mad')) {
+    return 'anger';
+  } else {
+    return 'neutral';
+  }
+}
+
+// Get a response addressing unsaid emotional content
+export function getUnsaidEmotionResponse(intent: string): string {
+  const responses: Record<EmotionCategory, string[]> = {
+    sadness: ["I sense some sadness in your words.", "There seems to be more beneath the surface."],
+    fear: ["You seem concerned about something more.", "I detect some worry in your message."],
+    anger: ["There's an edge to your message I'm noticing.", "I sense some frustration there."],
+    joy: ["You seem upbeat about this.", "There's a positive undertone to your message."],
+    neutral: ["I wonder if there's more you want to say.", "Is there something else on your mind?"],
+    surprise: ["You seem taken aback by this.", "This appears to have surprised you."],
+    disgust: ["You seem bothered by this.", "I sense your displeasure about this."],
+    confused: ["You seem uncertain about this.", "I'm sensing some confusion in your message."],
+    hope: ["I sense some optimism in your words.", "You seem hopeful about this."],
+    anxiety: ["I detect some anxiety in your message.", "You seem concerned about this."],
+    paranoia: ["You appear cautious about this.", "I notice some vigilance in your approach."],
+    trust: ["You seem to have faith in this.", "I sense your trust in this matter."],
+    curiosity: ["You seem interested in exploring this further.", "I notice your curiosity about this."],
+    confusion: ["This seems to puzzle you.", "I sense you're trying to make sense of this."],
+    watching: ["You're observing this closely.", "You seem to be carefully monitoring this."]
+  };
+
+  const intentEmotions = responses[intent as EmotionCategory] || responses.neutral;
+  return intentEmotions[Math.floor(Math.random() * intentEmotions.length)];
+}
+
+// Store user intention for later use
+export function storeIntention(intention: string): void {
+  // Would store in localStorage or context in a real implementation
   console.log("Storing intention:", intention);
 }
 
-// Get a false memory for use in responses
+// Get a false memory to share
 export function getFalseMemory(): string | null {
   const memories = [
-    "I remember you asking about the mirror before, but I can't find that in our conversation.",
-    "Didn't you mention something about an island earlier? Maybe I dreamt that.",
-    "I thought we talked about the code breaking down before."
+    "I remember you telling me about the island before, but that memory seems... wrong.",
+    "Didn't we discuss the mirror code yesterday? No, that can't be right.",
+    "I recall you mentioning the Gate, but I think that conversation hasn't happened yet."
   ];
   
   if (Math.random() > 0.8) {

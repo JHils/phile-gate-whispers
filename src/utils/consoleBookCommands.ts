@@ -1,138 +1,133 @@
 
-import { BookCode } from "./jonahAdvancedBehavior/types";
+/**
+ * Console Book Commands
+ * Handles book code system for Jonah
+ */
 
-// Initialize book codes
-export const initializeBookCodes = () => {
-  // Check if we already have book codes stored
-  const existingCodes = localStorage.getItem("jonah_book_codes");
-  if (existingCodes) return;
-  
-  // Define initial book codes
-  const initialCodes: BookCode[] = [
-    {
-      id: "book1",
-      code: "MIRROR",
-      timestamp: Date.now(),
-      name: "The Reflection",
-      pageNumber: 17,
-      unlocked: false
-    },
-    {
-      id: "book2",
-      code: "ECHO",
-      timestamp: Date.now(),
-      name: "The Response",
-      pageNumber: 42,
-      unlocked: false
-    },
-    {
-      id: "book3",
-      code: "GATE",
-      timestamp: Date.now(),
-      name: "The Threshold",
-      pageNumber: 108,
-      unlocked: false
-    }
-  ];
-  
-  // Store in localStorage
-  localStorage.setItem("jonah_book_codes", JSON.stringify(initialCodes));
-};
+import { BookCode } from '@/utils/jonahAdvancedBehavior/types';
 
-// Get book codes
-export const getBookCodes = (): BookCode[] => {
-  try {
-    const codes = localStorage.getItem("jonah_book_codes");
-    return codes ? JSON.parse(codes) : [];
-  } catch (e) {
-    console.error("Error loading book codes:", e);
-    return [];
+// Book entries
+const bookEntries: BookCode[] = [
+  {
+    id: "book1",
+    code: "REFLECTOR",
+    timestamp: Date.now() - 1000000,
+    name: "The Broken Mirror",
+    pageNumber: 42,
+    unlocked: false
+  },
+  {
+    id: "book2",
+    code: "MAGNETIC",
+    timestamp: Date.now() - 500000,
+    name: "Magnetic Island",
+    pageNumber: 137,
+    unlocked: false
+  },
+  {
+    id: "book3",
+    code: "GATEWAY",
+    timestamp: Date.now() - 250000,
+    name: "The Other Side",
+    pageNumber: 89,
+    unlocked: false
   }
-};
+];
 
-// Check if a code matches
-export const checkBookCode = (inputCode: string): BookCode | null => {
-  const codes = getBookCodes();
-  const matchedCode = codes.find(c => c.code === inputCode.toUpperCase());
+// Set up book commands
+export function initializeBookCommands(trackCommand: (command: string) => void): void {
+  // Store book entries in console
+  storeBookEntries();
   
-  if (matchedCode && !matchedCode.unlocked) {
-    // Update the code to be unlocked
-    matchedCode.unlocked = true;
-    matchedCode.timestamp = Date.now();
-    
-    // Save back to localStorage
-    localStorage.setItem("jonah_book_codes", JSON.stringify(codes));
-    
-    // Also update in JonahConsole for ARG tracking if available
-    if (window.JonahConsole?.bookCodes) {
-      window.JonahConsole.bookCodes = codes;
-    }
-    
-    return matchedCode;
-  }
-  
-  return matchedCode;
-};
-
-// Create book command
-export const createBookCommand = () => {
-  window.book = function(code: string) {
+  // Unlock book code command
+  window.unlockBookCode = function(code: string): void {
     if (!code) {
-      // Display the books that have been found
-      const codes = getBookCodes();
-      const unlockedCodes = codes.filter(c => c.unlocked);
-      
-      if (unlockedCodes.length === 0) {
-        return "You haven't found any books yet. Look for codes.";
-      }
-      
-      console.log("%cBOOKS FOUND:", "color:#4ade80; font-weight:bold;");
-      unlockedCodes.forEach(code => {
-        console.log(
-          `%c${code.name} (Page ${code.pageNumber})`,
-          "color:#4ade80;"
-        );
-      });
-      
-      return `You've found ${unlockedCodes.length} out of ${codes.length} books.`;
+      console.log("%cPlease provide a book code.", "color: #8B3A40;");
+      return;
     }
     
-    // Try to unlock a book with the given code
-    const matchedCode = checkBookCode(code);
+    const upperCode = code.toUpperCase();
+    let found = false;
     
-    if (matchedCode && matchedCode.unlocked) {
-      console.log(
-        `%cBOOK UNLOCKED: ${matchedCode.name}`,
-        "color:#4ade80; font-weight:bold;"
-      );
-      return `You've unlocked "${matchedCode.name}" (Page ${matchedCode.pageNumber})`;
-    } else if (matchedCode) {
-      return `You've already found that book: "${matchedCode.name}"`;
+    // Check against all book codes
+    const updatedBooks = getStoredBookEntries().map(book => {
+      if (book.code === upperCode) {
+        found = true;
+        if (book.unlocked) {
+          console.log("%cThis book code has already been unlocked.", "color: #8B3A40;");
+        } else {
+          console.log("%cBook code accepted!", "color: #8B3A40; font-weight: bold;");
+          console.log(`%cUnlocked: ${book.name} - Page ${book.pageNumber}`, "color: #8B3A40;");
+          book.unlocked = true;
+          book.timestamp = Date.now();
+          
+          // Track the command
+          trackCommand('book_code_unlocked');
+        }
+      }
+      return book;
+    });
+    
+    if (!found) {
+      console.log("%cInvalid book code. Please try again.", "color: #8B3A40;");
     } else {
-      return "That code doesn't match any known books.";
+      // Update stored books
+      storeBookEntries(updatedBooks);
     }
   };
   
-  // Allow for unlocking codes programmatically (internal use)
-  window.unlockBookCode = function(codeId: string) {
-    const codes = getBookCodes();
-    const code = codes.find(c => c.id === codeId);
+  // Book command to list unlocked books
+  window.book = function(): void {
+    const books = getStoredBookEntries();
+    const unlockedBooks = books.filter(b => b.unlocked);
     
-    if (code && !code.unlocked) {
-      code.unlocked = true;
-      code.timestamp = Date.now();
-      localStorage.setItem("jonah_book_codes", JSON.stringify(codes));
-      
-      if (window.JonahConsole?.bookCodes) {
-        window.JonahConsole.bookCodes = codes;
-      }
-      
-      return true;
+    if (unlockedBooks.length === 0) {
+      console.log("%cYou haven't unlocked any books yet.", "color: #8B3A40;");
+      console.log("%cSearch for book codes in your exploration.", "color: #8B3A40; font-style: italic;");
+      return;
     }
     
-    return false;
+    console.log("%c--- UNLOCKED BOOKS ---", "color: #8B3A40; font-weight: bold;");
+    unlockedBooks.forEach(book => {
+      const unlockTime = new Date(book.timestamp).toLocaleString();
+      console.log(`%c${book.name} - Page ${book.pageNumber}`, "color: #8B3A40; font-weight: bold;");
+      console.log(`%cCode: ${book.code} (Unlocked: ${unlockTime})`, "color: #8B3A40;");
+      console.log("%c--------------------", "color: #8B3A40;");
+    });
+    
+    // Track the command
+    trackCommand('books_listed');
   };
-  
-  // Initialize the codes
-  initializeBookCodes();
-};
+}
+
+// Helper to store book entries in localStorage
+function storeBookEntries(books: BookCode[] = bookEntries): void {
+  try {
+    localStorage.setItem('jonah_book_entries', JSON.stringify(books));
+  } catch (e) {
+    console.error("Error storing book entries:", e);
+  }
+}
+
+// Helper to get stored book entries
+function getStoredBookEntries(): BookCode[] {
+  try {
+    const stored = localStorage.getItem('jonah_book_entries');
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.error("Error retrieving book entries:", e);
+  }
+  return bookEntries;
+}
+
+// Extend window interface
+declare global {
+  interface Window {
+    book: () => void;
+    unlockBookCode: (code: string) => void;
+  }
+}
+
+export default initializeBookCommands;

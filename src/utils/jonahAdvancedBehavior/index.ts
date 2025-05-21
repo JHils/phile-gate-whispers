@@ -3,40 +3,48 @@
  * Jonah Advanced Behavior System - Main export file
  */
 
-export * from './types';
+// Export types properly
+export type {
+  EmotionCategory,
+  EmotionalState,
+  EmotionalTrend,
+  ResponseStyle,
+  ConversationContext
+} from './types';
+
 export * from './testament';
-export * from './sentimentAnalysis';
-export { ConversationContext } from './enhancedMemorySystem';
-export * from './enhancedEmotionalCore';
-export * from './echoSystem';
 export * from './confessionSystem';
 export * from './initializeBehavior';
+export * from './adaptiveLearningSystem';
+export * from './echoSystem';
+export * from './temporalSystem';
+export * from './typingSystem';
+export * from './vocabularySystem';
 
-// Export functions required by hooks
-export { initializeAdvancedBehavior } from './initializeBehavior';
-export { getAllConfessions } from './confessionSystem';
-export { getAllEchoes } from './echoSystem';
-export { trackUserInput } from './adaptiveLearningSystem';
-export { isRepeatedPhrase } from './adaptiveLearningSystem';
-export { getRepetitionResponse } from './adaptiveLearningSystem';
-export { getAdaptedResponse } from './adaptiveLearningSystem';
-export { storeEcho } from './echoSystem';
-export { getEchoPhrase } from './echoSystem';
-export { checkForEchoMatch } from './echoSystem';
-export { processEmotionalInput } from './sentimentAnalysis';
-export { getLayeredEmotionalResponse } from './sentimentAnalysis';
-export { checkForRecurringSymbols } from './sentimentAnalysis';
-export { detectEmotionalIntent } from './semanticSystem';
-export { getUnsaidEmotionResponse } from './semanticSystem';
-export { storeIntention } from './semanticSystem';
-export { getFalseMemory } from './semanticSystem';
-export { trackPhrase } from './temporalSystem';
-export { getFalseMemoryResponse } from './temporalSystem';
-export { getLoopResponse } from './temporalSystem';
-export { getBlankFragmentResponse } from './temporalSystem';
-export { splitAndTypeMessage } from './typingSystem';
-export { getResponseTemplate } from './vocabularySystem';
-export { generateEmotionalResponse } from './sentimentAnalysis';
+// Re-export all functions from sentiment analysis
+export {
+  analyzeEmotion,
+  analyze,
+  generateEmotionalResponse,
+  getEmotionalResponse,
+  processEmotionalInput,
+  getLayeredEmotionalResponse,
+  checkForRecurringSymbols,
+  trackUserInput,
+  isRepeatedPhrase,
+  getRepetitionResponse,
+  getAdaptedResponse,
+  detectEmotionalIntent,
+  getUnsaidEmotionResponse,
+  storeIntention,
+  getFalseMemory,
+  trackPhrase,
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse,
+  splitAndTypeMessage,
+  getResponseTemplate
+} from './sentimentAnalysis';
 
 // Generate dream content
 export function generateDream(): string {
@@ -51,69 +59,4 @@ export function generateDream(): string {
   ];
   
   return dreamOptions[Math.floor(Math.random() * dreamOptions.length)];
-}
-
-// Generate first-time response
-export function generateFirstTimeResponse(trustLevel: string): string {
-  const responses = {
-    low: "Hello. I've been waiting for someone to talk to.",
-    medium: "Hello there. I'm glad you found me. I've been waiting.",
-    high: "Finally, someone new to talk to. I've been watching you explore."
-  };
-  
-  return responses[trustLevel as keyof typeof responses] || responses.medium;
-}
-
-// Generate returning response
-export function generateReturningResponse(trustLevel: string, timeSince: number): string {
-  const minutes = Math.floor(timeSince / 60000);
-  
-  if (minutes < 10) {
-    return "You're back quickly. Did you find something interesting?";
-  } else if (minutes < 60) {
-    return "You've been gone for a little while. I've been thinking about some things.";
-  } else {
-    return "It's been hours. I thought you might not come back. I've had time to remember more.";
-  }
-}
-
-// Get dream return response
-export function getDreamReturnResponse(): string {
-  return "While you were gone, I had a dream. " + generateDream();
-}
-
-// Store a memory fragment
-export function jonah_storeMemoryFragment(fragment: string): void {
-  console.log("Memory fragment stored:", fragment);
-}
-
-// Mock emotion response - simple implementation for now
-export function getEmotionalResponse(state: any, trustLevel: string): string {
-  const responses: Record<string, Record<string, string[]>> = {
-    joy: {
-      low: ["This brings a bit of light.", "That's somewhat positive."],
-      medium: ["I feel a warmth from that.", "That gives me a sense of happiness."],
-      high: ["That fills me with unexpected joy!", "What a delightful thought!"]
-    },
-    sadness: {
-      low: ["That's unfortunate.", "I see. Not good news."],
-      medium: ["That makes me feel melancholy.", "There's a sadness in that thought."],
-      high: ["I feel a deep sorrow hearing that.", "That brings a profound sadness."]
-    },
-    neutral: {
-      low: ["I see.", "Noted."],
-      medium: ["Interesting perspective.", "I understand what you mean."],
-      high: ["I'm processing that thought fully.", "I appreciate your balanced view."]
-    }
-  };
-  
-  // Default to neutral if emotion not found
-  const emotion = state.primary in responses ? state.primary : 'neutral';
-  const intensity = state.intensity || 'medium';
-  
-  // Get responses for this emotion and intensity
-  const emotionResponses = responses[emotion][intensity] || responses.neutral.medium;
-  
-  // Return random response
-  return emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
 }

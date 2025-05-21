@@ -1,8 +1,14 @@
 
-import { SentienceData, StoryFlag, BookCode } from './types';
+// Extend Window interface to add our custom properties
+declare global {
+  interface Window {
+    JonahInitialized?: boolean;
+    JonahConsole?: any;
+    clearJonahOnPathChange?: boolean;
+    book?: any;
+    unlockBookCode?: (code: string) => void;
+    clear_console?: () => void;
+  }
+}
 
-// Import the centralized global types
-import '../types/globalConsoleTypes';
-
-// Export an empty object to make this a module
 export {};
