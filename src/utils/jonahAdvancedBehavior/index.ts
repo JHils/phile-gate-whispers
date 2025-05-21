@@ -20,31 +20,31 @@ export * from './echoSystem';
 export * from './temporalSystem';
 export * from './typingSystem';
 export * from './vocabularySystem';
+export * from './dreamSystem';
 
 // Re-export all functions from sentiment analysis
 export {
   analyzeEmotion,
-  analyze,
-  generateEmotionalResponse,
-  getEmotionalResponse,
-  processEmotionalInput,
-  getLayeredEmotionalResponse,
-  checkForRecurringSymbols,
+  analyze
+} from './sentimentAnalysis';
+
+// Re-export functions from the adaptive learning system
+export {
   trackUserInput,
   isRepeatedPhrase,
   getRepetitionResponse,
   getAdaptedResponse,
-  detectEmotionalIntent,
-  getUnsaidEmotionResponse,
-  storeIntention,
-  getFalseMemory,
+  resetMemory
+} from './adaptiveLearningSystem';
+
+// Re-export functions from the typing and temporal system
+export {
   trackPhrase,
   getFalseMemoryResponse,
   getLoopResponse,
   getBlankFragmentResponse,
-  splitAndTypeMessage,
-  getResponseTemplate
-} from './sentimentAnalysis';
+  splitAndTypeMessage
+} from './typingSystem';
 
 // Generate dream content
 export function generateDream(): string {
@@ -60,3 +60,6 @@ export function generateDream(): string {
   
   return dreamOptions[Math.floor(Math.random() * dreamOptions.length)];
 }
+
+// Re-export from dream system
+export { getDreamReturnResponse } from './dreamSystem';

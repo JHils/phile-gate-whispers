@@ -1,5 +1,5 @@
 
-import { splitAndTypeMessage as originalSplitAndType } from '@/utils/jonahAdvancedBehavior';
+import { splitAndTypeMessage } from '@/utils/jonahAdvancedBehavior';
 
 // Re-export function to maintain API compatibility
-export const splitAndTypeMessage = originalSplitAndType;
+export { splitAndTypeMessage };
