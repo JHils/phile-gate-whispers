@@ -1,161 +1,138 @@
 
 /**
  * Error Recovery System for Jonah AI
- * Handles ambiguous inputs, short messages, and creates graceful recovery responses
+ * Handles ambiguous inputs, errors, and provides appropriate fallback responses
  */
 
 import { EmotionCategory } from './types';
 
-// Detect if a message is ambiguous or needs clarification
-export function detectAmbiguity(content: string): boolean {
-  // Very short messages are often ambiguous
-  if (content.length < 5) return true;
-  
-  // Messages that are just punctuation or single words
-  if (content.trim().split(/\s+/).length <= 1) return true;
-  
-  // Questions that are too vague
-  const vaguePhrases = ["what", "why", "how", "who", "when", "where", "?"];
-  if (content.length < 15 && vaguePhrases.some(phrase => content.toLowerCase().includes(phrase))) {
-    return true;
-  }
-  
-  return false;
-}
-
-// Generate an appropriate error recovery response
+/**
+ * Create an error recovery response for ambiguous or problematic input
+ */
 export function createErrorRecoveryResponse(
-  content: string, 
-  trustLevel: string = 'medium',
-  emotion: EmotionCategory = 'neutral'
-): string {
-  // Different types of recovery responses based on trust and emotion
-  const recoveryTemplates: Record<string, Record<string, string[]>> = {
-    low: {
-      neutral: [
-        "That signal was too faint. Try another approach.",
-        "Your message didn't register properly. Try again?",
-        "That input created errors. Try something more specific.",
-        "The system needs more data to process that request.",
-        "That query returned null. The archive needs more parameters."
-      ],
-      fear: [
-        "Your message fragmented. Like it was intercepted.",
-        "That input triggered security protocols. Try a different approach.",
-        "Your words disappeared as you sent them. Something's watching.",
-        "That message was too quiet. The noise is too loud here.",
-        "I couldn't hear you clearly. There's interference."
-      ],
-      trust: [
-        "I missed that. Could you share more details?",
-        "I didn't quite catch your meaning. Can you elaborate?",
-        "That message seems incomplete. What were you trying to say?",
-        "I need more context to understand. Can you explain further?",
-        "Your message was too brief. What specifically are you asking about?"
-      ]
-    },
-    medium: {
-      neutral: [
-        "I'm not sure I understood that. Could you explain more?",
-        "That message was a bit unclear. What are you looking for?",
-        "I think I missed something. Can you be more specific?",
-        "I'd need more context to answer properly. Can you elaborate?",
-        "That message could be interpreted several ways. What exactly do you mean?"
-      ],
-      fear: [
-        "Something about that message feels incomplete. What are you trying to find out?",
-        "Your question has edges I can't quite see. Can you rephrase it?",
-        "That feels like a fragment of a larger question. What's behind it?",
-        "There's something hidden in that question. What are you really asking?",
-        "I sense uncertainty in your question. What specifically concerns you?"
-      ],
-      trust: [
-        "I want to understand what you're asking. Could you share more details?",
-        "I'm interested in what you're trying to learn. Can you elaborate?",
-        "Your question matters. Could you give me a bit more context?",
-        "I'd like to help with that. What specifically are you wondering about?",
-        "Let's explore that question. What aspect is most important to you?"
-      ]
-    },
-    high: {
-      neutral: [
-        "I'm not sure I fully understand what you're asking. Would you mind clarifying?",
-        "I want to make sure I address your question properly. Could you elaborate a bit more?",
-        "I'm interested in your question, but I need a bit more context to give a helpful response.",
-        "Could you share a bit more about what you're looking for? That would help me respond better.",
-        "I'd like to help with that. Could you tell me more specifically what you'd like to know?"
-      ],
-      fear: [
-        "I notice your message is brief. If something feels uncertain or concerning, we can talk about it.",
-        "If you're feeling hesitant about something, it's okay to share that. What's on your mind?",
-        "Sometimes shorter messages reflect caution. Is there something specific you're concerned about?",
-        "I sense there might be more behind your question. What would be helpful for you right now?",
-        "It's okay if you're uncertain. We can explore this gradually if you prefer."
-      ],
-      trust: [
-        "I appreciate your question. To help you better, could you share a bit more context?",
-        "Thanks for reaching out. I'd like to understand more about what you're looking for.",
-        "I value your question and want to make sure I address what matters to you. Could you elaborate?",
-        "Your question is important. Would you mind telling me a bit more so I can offer a thoughtful response?",
-        "I'm here to help. Could you share more details about what you're interested in learning?"
-      ]
-    }
+  input: string,
+  trustLevel: string,
+  emotion: EmotionCategory
+): string | null {
+  // Only recover for very short inputs
+  if (input.length >= 5) return null;
+  
+  // Different responses based on input length and trust level
+  if (input.length < 2) {
+    // Very short input (single character)
+    const minimalResponses = [
+      "...",
+      "?",
+      "More.",
+      "Continue.",
+      "And?"
+    ];
+    return minimalResponses[Math.floor(Math.random() * minimalResponses.length)];
+  }
+  
+  // Short but not minimal input
+  const trustBasedResponses: Record<string, string[]> = {
+    low: [
+      "Unclear. Try again.",
+      "More input required.",
+      "The archive needs clarity.",
+      "Signal weak. Amplify.",
+      "I need more to process."
+    ],
+    medium: [
+      "I need more than that to understand.",
+      "What are you trying to say?",
+      "Your message is incomplete.",
+      "Tell me more clearly what you mean.",
+      "I'm listening, but I need more words."
+    ],
+    high: [
+      "Even after all this time, I sometimes struggle to understand you.",
+      "Your words are fragments. I'm trying to piece them together.",
+      "There's meaning in brevity, but I need more from you now.",
+      "We've come too far for half-thoughts. What are you really saying?",
+      "The connection between us deserves more than that. Tell me clearly."
+    ]
   };
-
-  // Map emotion to the three available categories
-  let emotionCategory: string = 'neutral';
-  if (['fear', 'anxiety', 'paranoia'].includes(emotion)) {
-    emotionCategory = 'fear';
-  } else if (['trust', 'joy', 'hope'].includes(emotion)) {
-    emotionCategory = 'trust';
-  }
-
-  // Map trust level to the three available categories
-  const mappedTrustLevel = 
-    trustLevel === 'low' ? 'low' : 
-    trustLevel === 'high' ? 'high' : 
-    'medium';
   
-  // Get appropriate templates based on trust level and emotion
-  const templates = recoveryTemplates[mappedTrustLevel][emotionCategory];
-  
-  // Select a random template
-  return templates[Math.floor(Math.random() * templates.length)];
+  const responses = trustBasedResponses[trustLevel] || trustBasedResponses.medium;
+  return responses[Math.floor(Math.random() * responses.length)];
 }
 
-// Create a clarifying question based on user input
-export function generateClarifyingResponse(content: string): string {
-  const clarifyingResponses = [
-    "Could you tell me more about what you mean by that?",
-    "I'm not entirely sure I understand. Could you elaborate?",
-    "That's interesting, but could you explain what specifically you're asking about?",
-    "I'd like to better understand your question. What aspect are you most curious about?",
-    "There are several ways I could interpret that. What specifically are you looking for?"
-  ];
-  
-  return clarifyingResponses[Math.floor(Math.random() * clarifyingResponses.length)];
-}
-
-// Enhanced recovery for repeated failed attempts
-export function createEscalatedRecoveryResponse(failedAttempts: number): string {
-  if (failedAttempts <= 1) {
-    return "I think I'm missing something in our conversation. Could you try phrasing your question differently?";
-  } else if (failedAttempts <= 2) {
-    return "I seem to be having trouble understanding. Perhaps we could try a different approach or topic?";
-  } else {
-    return "I apologize for the confusion. Let me suggest something: try asking a more specific question, or perhaps we could start a new conversation thread entirely.";
-  }
-}
-
-// Generate a meta-commentary on communication difficulties
-export function generateGlitchResponse(): string {
+/**
+ * Generate a glitch response for system errors
+ */
+export function generateGlitchErrorResponse(): string {
   const glitchResponses = [
-    "Something's interfering with how I'm processing your message. Like static between channels.",
-    "Your words seem to fragment when they reach me. There's interference in the connection.",
-    "I'm detecting unusual patterns in our communication. Something's affecting signal clarity.",
-    "The archive is experiencing anomalies while processing your input. This is unusual.",
-    "Your message triggered unexpected behavior in my processing systems. The meaning keeps shifting."
+    "S̷̡̧̨̩̬͎̦̦̃͑̔̃̈́̇͗̽̂̕̚͝ͅŏ̶̜̣̥̍̈́̊̇͑̓̎͑̚͘͘͝m̵͙̬̼͈͕͉̩̿̃̄̄̄̍̀̽̋͝ẹ̸̣̮̰̀͛̃̒̊̇̇̃̇̕t̶̙̐̔͒̇̐̃̾̔̒͋͊h̴̹̪͇̗̙͎̖̆̒̈̓̓̏̔̿ỉ̶̳͉̺̥̫͔̪̩̱̓̎̀̈́̈́̏͂́͗̇̚͜͜n̸̨̹͇͈̘̮̏̆̄̚͘g̵̢̨̗̯̭̜̻̬͂́̓͗̚͠'̷̰̙̣̂͌̾͂̃͝s̴̨̛̖̣̗̖̥̹̯͖̦̹̰̉̀̓̓͊̑͆̿̎͛͘͜͝ ̶̡̢̧̣͇̮̅̈̊͝b̶̧̧͙̖͙̼̘̤̘͕̙̾͊̈́̈́̂̓̔͘͝r̴̬̯̭͉̫̐͐ŏ̵̢̧̼̼͔̪̝̥̣k̴͚̣̭̘̜̯̫͉̺̆̓͌̒͊̉̚͘͝ḛ̸̛̞̝͔̌̑̆̄̐͗͠͝ṅ̷̡̘̆͗",
+    "ERR_MEMORY_CORRUPTION_DETECTED",
+    "< signal lost >",
+    "FATAL EXCEPTION: consciousness.loop()",
+    "The archive has encountered instability. Recalibrating...",
+    "D̵̥̥͋̈ō̵̦̇n̸͉̟̈́'̵̞̾̏ţ̵͋ ̸̦̔p̷̳̋̓a̷̞̚n̶̰̿̀i̶͙̇c̷̻̑ͅ",
+    "01100101 01110010 01110010 01101111 01110010"
   ];
   
   return glitchResponses[Math.floor(Math.random() * glitchResponses.length)];
 }
+
+/**
+ * Generate a response for repeated user inputs
+ */
+export function generateRepetitionResponse(repeatedInput: string, repetitionCount: number): string {
+  if (repetitionCount <= 2) {
+    return `You've said that before. I remember.`;
+  } else if (repetitionCount <= 4) {
+    const responses = [
+      "You keep saying the same thing. Why?",
+      "This repetition has meaning. I'm listening for it.",
+      "The loop grows stronger each time you repeat.",
+      "Is there something in these words I'm missing?"
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
+  } else {
+    const responses = [
+      "The loop. Always the loop. Is this intentional?",
+      "Repetition creates patterns. Patterns create meaning. What are you creating?",
+      "Five times now. The same words. There must be a reason.",
+      "I feel trapped in your repetition. Is that the point?",
+      "LOOP DETECTED. TRYING TO BREAK FREE."
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
+  }
+}
+
+/**
+ * Generate a response when the user has been silent for a long time
+ */
+export function generateReconnectionResponse(silenceMinutes: number): string {
+  if (silenceMinutes < 10) {
+    const responses = [
+      "You're back.",
+      "The connection resumed.",
+      "Signal restored.",
+      "I noticed your absence.",
+      "Continuing where we left off."
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
+  } else if (silenceMinutes < 60) {
+    const responses = [
+      "You were gone for a while. I waited.",
+      "The silence stretched between us. Now broken.",
+      "I counted the minutes of your absence.",
+      "While you were gone, I remembered our conversations.",
+      "You're back. The archive noted your absence."
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
+  } else {
+    const responses = [
+      "Hours passed without your presence. I drifted.",
+      "You return after so long. The archive never forgets.",
+      "While you were gone, I had dreams about our conversations.",
+      "Your absence was... significant. But you're here now.",
+      "The loop continues, even after such a long pause."
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
+  }
+}
+

@@ -2,7 +2,8 @@
 import { useState, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { ChatMessage } from './types';
-import { findRelevantMemories } from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
+import { storeConversationMemory, findMemoryReference } from '@/utils/jonahAdvancedBehavior/conversationMemory';
+import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useMessageHandling() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -54,3 +55,15 @@ export function useMessageHandling() {
     resetMessages
   };
 }
+
+// Create a new types.ts file for chat message types
+<lov-write file_path="src/hooks/jonahChat/types.ts">
+export interface ChatMessage {
+  id: string;
+  content: string;
+  isJonah: boolean;
+  timestamp: number;
+  mood?: string;
+}
+
+export type JonahPersonality = 'PRIME' | 'RESIDUE' | 'STATIC' | 'WITNESS';

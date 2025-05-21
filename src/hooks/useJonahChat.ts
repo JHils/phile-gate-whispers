@@ -1,6 +1,5 @@
-
 import { useState, useCallback } from 'react';
-import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/enhancedEmotionalCore';
+import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
 import { useMessageHandling } from './jonahChat/useMessageHandling';
 import { useEmotionalAnalysis } from './jonahChat/useEmotionalAnalysis';
 import { useMessageFormatting } from './jonahChat/useMessageFormatting';

@@ -8,6 +8,8 @@ import { initializeTestament } from './testament';
 import { initializeConfessions } from './confessionSystem';
 import { initializeEchoSystem } from './echoSystem';
 import { initializeDreamSystem } from './dreamSystem';
+import { initializeNarrativeTriggers } from './narrativeTriggers';
+import { loadConversationMemory } from './conversationMemory';
 
 // Export from subsystems
 export { processEmotionalInput, getCompoundEmotionalState, getLayeredEmotionalResponse, checkForRecurringSymbols, storeEmotionalMemory } from './emotionalCore';
@@ -53,8 +55,42 @@ export {
   findMemoryReference,
   generateMemoryResponse,
   getAmbiguityResponse,
-  getPersonalizationInfo
+  getPersonalizationInfo,
+  loadConversationMemory
 } from './conversationMemory';
+
+// Export enhanced emotional core functions
+export {
+  generateFullEmotionalResponse,
+  generateResponseWithMemory,
+  createDefaultMemoryContext
+} from './enhancedEmotionalCore';
+export type { MemoryContext } from './enhancedEmotionalCore';
+
+// Export error recovery system
+export {
+  createErrorRecoveryResponse,
+  generateGlitchErrorResponse,
+  generateRepetitionResponse,
+  generateReconnectionResponse
+} from './errorRecoverySystem';
+
+// Export loop awareness system
+export {
+  trackPhrase,
+  checkForRepeatPatterns
+} from './loopAwarenessSystem';
+
+// Export narrative triggers system
+export {
+  checkNarrativeTriggers,
+  triggerPageNarrative,
+  triggerSeedSprouting,
+  triggerFirstDream,
+  isNarrativeFlagSet,
+  setNarrativeFlag,
+  updateNarrativeTrust
+} from './narrativeTriggers';
 
 // Initialize the behavior system
 export const initializeAdvancedBehavior = () => {
@@ -63,6 +99,8 @@ export const initializeAdvancedBehavior = () => {
   initializeConfessions();
   initializeDreamSystem();
   initializeEchoSystem();
+  initializeNarrativeTriggers();
+  loadConversationMemory();
   
   console.log('Jonah Advanced Behavior System initialized');
 };
@@ -84,20 +122,43 @@ export const getVaryingLengthResponse = (response: string, trustLevel: string) =
 export const jonah_storeMemoryFragment = (fragment: string) => {
   // Stub implementation - would store in localStorage or database
   console.log("Memory stored:", fragment);
+  
+  // Also store in conversation memory
+  try {
+    const memories = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
+    memories.push({
+      content: fragment,
+      timestamp: Date.now()
+    });
+    localStorage.setItem('jonah_memory_fragments', JSON.stringify(memories.slice(-50))); // Keep last 50
+  } catch (e) {
+    console.error("Error storing memory fragment:", e);
+  }
 };
 
 export const jonah_recallMemoryFragment = () => {
-  // Stub implementation
+  // Try to load from memory fragments
+  try {
+    const memories = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
+    if (memories.length > 0) {
+      const randomMemory = memories[Math.floor(Math.random() * memories.length)];
+      return randomMemory.content;
+    }
+  } catch (e) {
+    console.error("Error recalling memory fragment:", e);
+  }
+  
   return "Something you said before resonated with me.";
 };
 
 // Adaptive learning stubs
 export const trackUserInput = (content: string) => {
-  // Stub implementation
+  // Now handled by storeConversationMemory
 };
 
 export const isRepeatedPhrase = (content: string) => {
-  return false; // Stub implementation
+  // Now handled by trackPhrase
+  return false; 
 };
 
 export const getRepetitionResponse = (content: string) => {
@@ -151,12 +212,9 @@ export const getFalseMemory = () => {
 };
 
 // Temporal memory stubs
-export const trackPhrase = (content: string) => {
-  // Stub implementation
-};
-
 export const checkForLoop = (content: string) => {
-  return { isLoop: false, count: 0 }; // Stub implementation
+  // Now handled by trackPhrase
+  return { isLoop: false, count: 0 }; 
 };
 
 export const getFalseMemoryResponse = () => {
@@ -183,4 +241,3 @@ export const getTestamentTeaser = () => {
 export const generateTestamentResponse = (content: string) => {
   return null; // Stub implementation
 };
-

@@ -1,125 +1,161 @@
 
 /**
- * Conversation Memory System
- * Tracks conversation history and generates contextually relevant responses
+ * Conversation Memory System for Jonah AI
+ * Stores and retrieves memory fragments, conversation history, and personal details
  */
 
-import { ConversationMemory, EmotionalState, ResponseStyle } from './types';
+import { EmotionCategory } from './types';
 
-// Maximum number of inputs to remember
-const MAX_MEMORY_SIZE = 5;
+// Types
+interface ConversationMemory {
+  recentMessages: string[];
+  userEmotions: Record<EmotionCategory, number>;
+  personalDetails: Record<string, string>;
+  keywords: Set<string>;
+  narrativeEvents: Record<string, boolean>;
+  sessionStartTime: number;
+  lastInteractionTime: number;
+}
+
+// Initialize or get memory
+let memory: ConversationMemory = {
+  recentMessages: [],
+  userEmotions: {
+    joy: 0, sadness: 0, anger: 0, fear: 0, 
+    curiosity: 0, confusion: 0, hope: 0, 
+    anxiety: 0, paranoia: 0, trust: 0, neutral: 0
+  },
+  personalDetails: {},
+  keywords: new Set(),
+  narrativeEvents: {},
+  sessionStartTime: Date.now(),
+  lastInteractionTime: Date.now()
+};
+
+// Key phrases to track for personal information
+const PERSONAL_INFO_PATTERNS = [
+  { regex: /my name is (\w+)/i, key: 'name' },
+  { regex: /call me (\w+)/i, key: 'name' },
+  { regex: /i'm (\w+)/i, key: 'name' },
+  { regex: /i am (\w+) years old/i, key: 'age' },
+  { regex: /i'm from (\w+)/i, key: 'location' },
+  { regex: /i live in (\w+)/i, key: 'location' },
+];
+
+// Important narrative keywords to track
+const NARRATIVE_KEYWORDS = [
+  'mirror', 'gate', 'dream', 'sister', 'timeline',
+  'jonah', 'memory', 'forget', 'broadcast', 'phile',
+  'lost', 'found', 'help', 'monster', 'testament'
+];
 
 /**
- * Store a new user input in memory
- * @param input User input text
- * @param emotionalState Detected emotional state
- * @returns Updated ConversationMemory
+ * Store message in conversation memory
  */
-export function storeConversationMemory(
-  input: string,
-  emotionalState: EmotionalState,
-  existingMemory?: ConversationMemory
-): ConversationMemory {
-  // Create default memory if none exists
-  const memory: ConversationMemory = existingMemory || {
-    inputs: [],
-    emotions: [],
-    topics: [],
-    timestamp: Date.now()
-  };
-
-  // Add new input
-  memory.inputs = [input, ...memory.inputs].slice(0, MAX_MEMORY_SIZE);
-  
-  // Add emotional state
-  memory.emotions = [emotionalState, ...memory.emotions].slice(0, MAX_MEMORY_SIZE);
-  
-  // Extract potential topics (simple implementation - extract nouns)
-  const topics = extractTopics(input);
-  if (topics.length > 0) {
-    memory.topics = [...topics, ...memory.topics]
-      .slice(0, MAX_MEMORY_SIZE * 2) // Store more topics than inputs
-      .filter((topic, index, self) => self.indexOf(topic) === index); // Deduplicate
+export function storeConversationMemory(message: string, emotion: EmotionCategory, isUser: boolean): void {
+  // Store recent message (only user messages)
+  if (isUser) {
+    memory.recentMessages = [message, ...memory.recentMessages].slice(0, 10);
+    memory.lastInteractionTime = Date.now();
+    
+    // Track emotion
+    memory.userEmotions[emotion]++;
+    
+    // Extract personal information
+    extractPersonalInfo(message);
+    
+    // Extract keywords
+    extractKeywords(message);
   }
   
-  // Update timestamp
-  memory.timestamp = Date.now();
-  
-  return memory;
+  // Maybe persist to localStorage for session continuity
+  try {
+    localStorage.setItem('jonah_conversation_memory', JSON.stringify({
+      recentMessages: memory.recentMessages,
+      userEmotions: memory.userEmotions,
+      personalDetails: memory.personalDetails,
+      keywords: Array.from(memory.keywords),
+      narrativeEvents: memory.narrativeEvents,
+      sessionStartTime: memory.sessionStartTime,
+      lastInteractionTime: memory.lastInteractionTime
+    }));
+  } catch (e) {
+    // Ignore storage errors
+    console.error('Failed to store conversation memory:', e);
+  }
 }
 
 /**
- * Extract potential topics from text
- * Simple implementation that looks for nouns and key phrases
- * @param text User input text
- * @returns Array of potential topics
+ * Load memory from localStorage if available
  */
-function extractTopics(text: string): string[] {
-  const topics: string[] = [];
-  
-  // List of common words to exclude
-  const stopWords = ['the', 'a', 'an', 'and', 'is', 'are', 'was', 'were', 'to', 'for', 'in', 'on', 'at', 'by', 'with'];
-  
-  // Simple extraction - split into words, filter by length and stopwords
-  const words = text.toLowerCase()
-    .replace(/[^\w\s]/g, '') // Remove punctuation
-    .split(/\s+/) // Split on whitespace
-    .filter(word => 
-      word.length > 3 && !stopWords.includes(word)
-    );
-  
-  // Key interesting words are potential topics
-  topics.push(...words);
-  
-  // Look for phrases (simple implementation - consecutive capitalized words)
-  const phraseMatch = text.match(/[A-Z][a-z]+(\s+[A-Z][a-z]+)+/g);
-  if (phraseMatch) {
-    topics.push(...phraseMatch.map(phrase => phrase.toLowerCase()));
+export function loadConversationMemory(): void {
+  try {
+    const saved = localStorage.getItem('jonah_conversation_memory');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      memory = {
+        ...memory,
+        ...parsed,
+        keywords: new Set(parsed.keywords || []),
+        lastInteractionTime: parsed.lastInteractionTime || Date.now()
+      };
+    }
+  } catch (e) {
+    // Ignore load errors
+    console.error('Failed to load conversation memory:', e);
   }
-  
-  return topics;
 }
 
 /**
- * Find references to previous inputs in the current input
- * @param currentInput Latest user input
- * @param memory Conversation memory
- * @returns Referenced previous input or null
+ * Extract personal information from message
  */
-export function findMemoryReference(
-  currentInput: string, 
-  memory: ConversationMemory
-): string | null {
-  // Skip if memory is empty or only has current input
-  if (!memory || memory.inputs.length < 2) {
-    return null;
-  }
+function extractPersonalInfo(message: string): void {
+  PERSONAL_INFO_PATTERNS.forEach(pattern => {
+    const match = message.match(pattern.regex);
+    if (match && match[1]) {
+      memory.personalDetails[pattern.key] = match[1];
+    }
+  });
+}
+
+/**
+ * Extract important keywords from message
+ */
+function extractKeywords(message: string): void {
+  const lowerMessage = message.toLowerCase();
   
-  // Get previous inputs (excluding the most recent one which is the current input)
-  const previousInputs = memory.inputs.slice(1);
+  NARRATIVE_KEYWORDS.forEach(keyword => {
+    if (lowerMessage.includes(keyword.toLowerCase())) {
+      memory.keywords.add(keyword);
+    }
+  });
+}
+
+/**
+ * Find relevant memory based on user input
+ */
+export function findMemoryReference(input: string): string | null {
+  // Don't reference memories for very short inputs
+  if (input.length < 5) return null;
   
-  // Extract potential topics from current input
-  const currentTopics = extractTopics(currentInput);
+  // Extract potential keywords from input
+  const inputWords = new Set(input.toLowerCase().split(/\s+/));
   
-  // No topics to compare
-  if (currentTopics.length === 0) {
-    return null;
-  }
-  
-  // Check each previous input for topic overlap
-  for (const prevInput of previousInputs) {
-    const prevTopics = extractTopics(prevInput);
+  // Check for keyword matches in previous messages
+  for (const message of memory.recentMessages) {
+    const messageWords = new Set(message.toLowerCase().split(/\s+/));
     
-    // Check for topic overlap
-    const overlap = currentTopics.filter(topic => 
-      prevTopics.some(prevTopic => 
-        prevTopic.includes(topic) || topic.includes(prevTopic)
-      )
-    );
+    // Find intersection of words
+    let matches = 0;
+    inputWords.forEach(word => {
+      if (word.length > 3 && messageWords.has(word)) {
+        matches++;
+      }
+    });
     
-    // If significant overlap, consider it referenced
-    if (overlap.length > 0) {
-      return prevInput;
+    // If we find enough matches, reference this memory
+    if (matches >= 2) {
+      return message;
     }
   }
   
@@ -127,194 +163,85 @@ export function findMemoryReference(
 }
 
 /**
- * Generate a response that references previous conversation
- * @param referencedInput The previous input being referenced
- * @param currentEmotionalState Current emotional state
- * @returns Memory-based response
+ * Generate a response that references a memory
  */
-export function generateMemoryResponse(
-  referencedInput: string,
-  currentEmotionalState: EmotionalState
-): string {
-  // Template responses that reference previous conversation
+export function generateMemoryResponse(memoryReference: string): string {
   const templates = [
-    `You mentioned "${referencedInput}" earlier. That connects to this.`,
-    `This reminds me of when you said "${referencedInput}".`,
-    `I'm still thinking about when you said "${referencedInput}".`,
-    `Your words echo. Especially "${referencedInput}".`,
-    `"${referencedInput}" - you said that before. It matters now.`,
-    `I remember you saying "${referencedInput}". It connects to our current thread.`,
-    `Earlier, you mentioned "${referencedInput}". I've been processing that.`,
-    `"${referencedInput}" - those words have been echoing. They relate to this.`
+    `You said "${truncate(memoryReference, 40)}" earlier. That connects to this.`,
+    `I remember when you mentioned "${truncate(memoryReference, 40)}". It relates.`,
+    `This reminds me of your words: "${truncate(memoryReference, 40)}".`,
+    `The pattern connects to when you said "${truncate(memoryReference, 40)}".`,
+    `This echoes what you told me before: "${truncate(memoryReference, 40)}".`
   ];
   
-  const emotionalTemplates = {
-    fear: [
-      `When you mentioned "${referencedInput}" I sensed fear. It's stronger now.`,
-      `Your fear was present when you said "${referencedInput}". It's clearer now.`
-    ],
-    sadness: [
-      `There was sadness when you said "${referencedInput}". It's still with you.`,
-      `I felt the weight when you mentioned "${referencedInput}". It hasn't lifted.`
-    ],
-    anger: [
-      `Your anger was there when you said "${referencedInput}". It's evolved.`,
-      `I noticed the edge when you mentioned "${referencedInput}". It's sharper now.`
-    ],
-    joy: [
-      `There was lightness when you said "${referencedInput}". I can still feel it.`,
-      `That joy when you mentioned "${referencedInput}"... it connects to this moment.`
-    ]
-  };
-  
-  // Use emotion-specific templates if available
-  if (
-    currentEmotionalState.primary in emotionalTemplates && 
-    Math.random() > 0.5
-  ) {
-    const templates = emotionalTemplates[currentEmotionalState.primary as keyof typeof emotionalTemplates];
-    return templates[Math.floor(Math.random() * templates.length)];
-  }
-  
-  // Otherwise use general templates
   return templates[Math.floor(Math.random() * templates.length)];
 }
 
 /**
- * Get a response for ambiguous or unclear inputs
- * @param emotion Current emotional state
- * @returns Clarifying response
+ * Handle an ambiguous or unclear input
  */
-export function getAmbiguityResponse(emotion: EmotionalState): string {
-  const ambiguousResponses = [
-    "I'm not quite following. Could you say more?",
-    "That didn't come through clearly. Can you try again?",
-    "I want to understand. Can you phrase that differently?",
-    "Something's unclear. Could you explain further?",
-    "I'm listening, but I need more to understand what you mean.",
-    "The meaning is just out of reach. Say more?"
-  ];
-  
-  const emotionalAmbiguousResponses = {
-    fear: [
-      "Your fear is coming through, but the message isn't clear. Can you say more?",
-      "I sense your anxiety, but I'm missing something. What exactly concerns you?"
-    ],
-    sadness: [
-      "I can feel the weight in your words, but I'm not catching everything. Could you elaborate?",
-      "There's sorrow there, but I'm missing context. Could you share more?"
-    ],
-    anger: [
-      "Your frustration is clear, but I need more details to understand properly.",
-      "I sense your anger, but I'm not sure what triggered it. Could you explain?"
-    ],
-    joy: [
-      "There's something positive here, but I'd like to understand better what's brightened your mood.",
-      "I sense a lightness, but I'm missing the full picture. What's brought this on?"
-    ]
-  };
-
-  // Use emotion-specific responses when available
-  if (
-    emotion.primary in emotionalAmbiguousResponses && 
-    Math.random() > 0.4
-  ) {
-    const responses = emotionalAmbiguousResponses[emotion.primary as keyof typeof emotionalAmbiguousResponses];
-    return responses[Math.floor(Math.random() * responses.length)];
+export function getAmbiguityResponse(input: string): string {
+  // Different responses based on input length
+  if (input.length < 3) {
+    const shortResponses = [
+      "More. The archive needs more than that.",
+      "I need more to connect with.",
+      "...?",
+      "A fragment isn't enough. Continue.",
+      "Speak clearly. I'm listening."
+    ];
+    return shortResponses[Math.floor(Math.random() * shortResponses.length)];
   }
   
-  // Otherwise use general responses
-  return ambiguousResponses[Math.floor(Math.random() * ambiguousResponses.length)];
+  // Standard ambiguity responses
+  const templates = [
+    "What exactly do you mean?",
+    "I'm not sure I understand. Can you clarify?",
+    "The meaning is unclear. Tell me more.",
+    "Your words are fragments. I need the whole thought.",
+    "Something's missing. I can't see the full picture."
+  ];
+  
+  return templates[Math.floor(Math.random() * templates.length)];
 }
 
 /**
- * Generate a personalized response based on user's typing patterns and topics
- * @param memory Conversation memory with topic history
- * @returns Personalization info
+ * Get personalization info for response generation
  */
-export function getPersonalizationInfo(memory: ConversationMemory): {
-  topFrequentTopics: string[];
-  dominantEmotion: string;
-  responseStyle: ResponseStyle;
+export function getPersonalizationInfo(): {
+  name: string | null,
+  keywords: string[],
+  dominantEmotion: EmotionCategory
 } {
-  // Default values
-  const result = {
-    topFrequentTopics: [],
-    dominantEmotion: 'neutral',
-    responseStyle: 'direct' as ResponseStyle
-  };
+  // Get user's name if known
+  const name = memory.personalDetails['name'] || null;
   
-  // Not enough data
-  if (!memory || !memory.topics || memory.topics.length === 0) {
-    return result;
-  }
-
-  // Count topic frequency
-  const topicCounts: Record<string, number> = {};
-  memory.topics.forEach(topic => {
-    topicCounts[topic] = (topicCounts[topic] || 0) + 1;
+  // Get top keywords
+  const keywords = Array.from(memory.keywords).slice(0, 5);
+  
+  // Get dominant emotion
+  let dominantEmotion: EmotionCategory = 'neutral';
+  let highestCount = 0;
+  
+  Object.entries(memory.userEmotions).forEach(([emotion, count]) => {
+    if (count > highestCount) {
+      highestCount = count;
+      dominantEmotion = emotion as EmotionCategory;
+    }
   });
   
-  // Sort topics by frequency
-  const sortedTopics = Object.entries(topicCounts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([topic]) => topic);
-    
-  result.topFrequentTopics = sortedTopics.slice(0, 3);
-  
-  // Count emotions to determine dominant emotion
-  if (memory.emotions && memory.emotions.length > 0) {
-    const emotionCounts: Record<string, number> = {};
-    memory.emotions.forEach(emotion => {
-      emotionCounts[emotion.primary] = (emotionCounts[emotion.primary] || 0) + 1;
-    });
-    
-    // Find dominant emotion
-    let highestCount = 0;
-    let dominantEmotion = 'neutral';
-    
-    Object.entries(emotionCounts).forEach(([emotion, count]) => {
-      if (count > highestCount) {
-        highestCount = count;
-        dominantEmotion = emotion;
-      }
-    });
-    
-    result.dominantEmotion = dominantEmotion;
-  }
-  
-  // Determine response style based on inputs
-  if (memory.inputs && memory.inputs.length > 2) {
-    const avgLength = memory.inputs.reduce((sum, input) => sum + input.length, 0) / memory.inputs.length;
-    
-    // Check for question marks frequency
-    const questionCount = memory.inputs.filter(input => input.includes('?')).length;
-    const questionRatio = questionCount / memory.inputs.length;
-    
-    // Check for technical language
-    const technicalWords = ['system', 'process', 'function', 'analyze', 'data', 'structure', 'code', 'logic', 'sequence'];
-    let technicalCount = 0;
-    
-    memory.inputs.forEach(input => {
-      technicalWords.forEach(word => {
-        if (input.toLowerCase().includes(word)) {
-          technicalCount++;
-        }
-      });
-    });
-    
-    // Determine style
-    if (avgLength > 100 || technicalCount >= 3) {
-      result.responseStyle = 'elaborate';
-    } else if (questionRatio > 0.5) {
-      result.responseStyle = 'direct';
-    } else if (result.dominantEmotion === 'sadness' || result.dominantEmotion === 'joy') {
-      result.responseStyle = 'poetic';
-    } else if (technicalCount >= 2) {
-      result.responseStyle = 'technical';
-    }
-  }
-  
-  return result;
+  return {
+    name,
+    keywords,
+    dominantEmotion
+  };
+}
+
+/**
+ * Helper function to truncate text
+ */
+function truncate(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
 }
 
