@@ -34,10 +34,10 @@ export function createEmotionalState(
 }
 
 // Emotional trend for tracking changes
-export type EmotionalTrend = 'improving' | 'deteriorating' | 'fluctuating' | 'stable';
+export type EmotionalTrend = 'improving' | 'deteriorating' | 'fluctuating' | 'stable' | 'intensifying' | 'diminishing';
 
-// Response style type
-export type ResponseStyle = 'concise' | 'elaborate' | 'cryptic' | 'poetic' | 'analytical';
+// Response style type - added missing values
+export type ResponseStyle = 'concise' | 'elaborate' | 'cryptic' | 'poetic' | 'analytical' | 'technical' | 'direct';
 
 // Confession entry type
 export interface ConfessionEntry {
@@ -64,49 +64,9 @@ export interface TestamentEntry {
   requiresTrust?: number;
 }
 
-// Sentience data type
-export interface SentienceData {
-  lastInteraction?: number;
-  interactionsCount?: number;
-  sessionData?: {
-    startTime: number;
-    messageCount: number;
-    userEmotions: Record<EmotionCategory, number>;
-    messagesSent?: number;
-    messagesReceived?: number;
-  };
-  realityFabric?: {
-    moodChangeTime: number;
-    currentMood: EmotionCategory;
-    stability: number;
-    anomalyCount?: number;
-    moodHistory?: Array<{mood: EmotionCategory, timestamp: number}>;
-    journal?: string[];
-  };
-  dreams?: string[];
-  ecoAwareness?: {
-    biomeResponses: Record<string, string[]>;
-    currentBiome: string;
-    lastUpdate: number;
-    awareness: number;
-    ecoThoughts: string[];
-  };
-  newsAwareness?: {
-    lastFetch: number;
-    currentEvents: string[];
-    weatherData: any;
-    mentionedEvents: string[];
-  };
-  microQuests?: {
-    active: any[];
-    completed: any[];
-    available: any[];
-  };
-  deepModeUnlocked?: boolean;
-}
-
-// BookCode type
+// BookCode type with all required properties
 export interface BookCode {
+  id?: string;
   code: string;
   timestamp: number;
   name: string;
@@ -128,4 +88,54 @@ export interface ConversationContext {
   emotionalJourney: EmotionCategory[];
   topicFocus: string | null;
   depth: number;
+}
+
+// EcoAwarenessState type
+export interface EcoAwarenessState {
+  biomeResponses: Record<string, string[]>;
+  currentBiome: string;
+  lastUpdate: number;
+  awareness: number;
+  ecoThoughts: string[];
+  level?: number;
+}
+
+// Sentience data type with all required properties
+export interface SentienceData {
+  lastInteraction?: number;
+  interactionsCount?: number;
+  sessionData?: {
+    startTime: number;
+    messageCount: number;
+    userEmotions: Record<EmotionCategory, number>;
+    messagesSent?: number;
+    messagesReceived?: number;
+  };
+  realityFabric?: {
+    moodChangeTime: number;
+    currentMood: EmotionCategory;
+    stability: number;
+    anomalyCount?: number;
+    moodHistory?: Array<{mood: EmotionCategory, timestamp: number}>;
+    journal?: string[];
+  };
+  dreams?: string[];
+  ecoAwareness?: EcoAwarenessState;
+  newsAwareness?: {
+    lastFetch: number;
+    currentEvents: string[];
+    weatherData: any;
+    mentionedEvents: string[];
+  };
+  microQuests?: {
+    active: any[];
+    completed: any[];
+    available: any[];
+  };
+  deepModeUnlocked?: boolean;
+  awareness?: number;
+  trustLevel?: string;
+  emotionalState?: EmotionalState;
+  emotionalHistory?: EmotionCategory[];
+  memorizedPhrases?: string[];
 }

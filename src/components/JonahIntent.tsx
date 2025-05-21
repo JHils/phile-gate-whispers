@@ -186,7 +186,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
     }
   };
   
-  // Trigger an idle thought
+  // Fix: Pass both parameters (tag and intensity)
   const triggerIdleThought = () => {
     const idleThoughts = [
       {

@@ -1,135 +1,138 @@
 
-/**
- * Console Book Commands
- * Jonah's discovered book codes and reference material
- */
-
-import { BookCode } from './jonahAdvancedBehavior/types';
+import { BookCode } from "./jonahAdvancedBehavior/types";
 
 // Initialize book codes
-export function initializeBookCodes() {
-  if (window.JonahConsole) {
-    if (!window.JonahConsole.bookCodes) {
-      window.JonahConsole.bookCodes = [
-        {
-          id: "book1",
-          name: "The Echo Chamber",
-          unlocked: false
-        },
-        {
-          id: "book2",
-          name: "Quantum Mirror",
-          unlocked: false
-        },
-        {
-          id: "book3",
-          name: "Traveler's Guide to Temporal Loops",
-          unlocked: false
-        }
-      ];
+export const initializeBookCodes = () => {
+  // Check if we already have book codes stored
+  const existingCodes = localStorage.getItem("jonah_book_codes");
+  if (existingCodes) return;
+  
+  // Define initial book codes
+  const initialCodes: BookCode[] = [
+    {
+      id: "book1",
+      code: "MIRROR",
+      timestamp: Date.now(),
+      name: "The Reflection",
+      pageNumber: 17,
+      unlocked: false
+    },
+    {
+      id: "book2",
+      code: "ECHO",
+      timestamp: Date.now(),
+      name: "The Response",
+      pageNumber: 42,
+      unlocked: false
+    },
+    {
+      id: "book3",
+      code: "GATE",
+      timestamp: Date.now(),
+      name: "The Threshold",
+      pageNumber: 108,
+      unlocked: false
     }
+  ];
+  
+  // Store in localStorage
+  localStorage.setItem("jonah_book_codes", JSON.stringify(initialCodes));
+};
+
+// Get book codes
+export const getBookCodes = (): BookCode[] => {
+  try {
+    const codes = localStorage.getItem("jonah_book_codes");
+    return codes ? JSON.parse(codes) : [];
+  } catch (e) {
+    console.error("Error loading book codes:", e);
+    return [];
+  }
+};
+
+// Check if a code matches
+export const checkBookCode = (inputCode: string): BookCode | null => {
+  const codes = getBookCodes();
+  const matchedCode = codes.find(c => c.code === inputCode.toUpperCase());
+  
+  if (matchedCode && !matchedCode.unlocked) {
+    // Update the code to be unlocked
+    matchedCode.unlocked = true;
+    matchedCode.timestamp = Date.now();
+    
+    // Save back to localStorage
+    localStorage.setItem("jonah_book_codes", JSON.stringify(codes));
+    
+    // Also update in JonahConsole for ARG tracking if available
+    if (window.JonahConsole?.bookCodes) {
+      window.JonahConsole.bookCodes = codes;
+    }
+    
+    return matchedCode;
   }
   
-  // Initialize commands
-  setupBookCommands();
-}
+  return matchedCode;
+};
 
-// Set up book-related console commands
-function setupBookCommands() {
-  if (typeof window !== 'undefined') {
-    // Verify book code command
-    window.verifyCode = function(code: string) {
-      if (!code) {
-        return "Please provide a code to verify.";
+// Create book command
+export const createBookCommand = () => {
+  window.book = function(code: string) {
+    if (!code) {
+      // Display the books that have been found
+      const codes = getBookCodes();
+      const unlockedCodes = codes.filter(c => c.unlocked);
+      
+      if (unlockedCodes.length === 0) {
+        return "You haven't found any books yet. Look for codes.";
       }
       
-      // Check if we have book codes to verify against
-      if (!window.JonahConsole?.bookCodes) {
-        return "Book code system not initialized.";
-      }
+      console.log("%cBOOKS FOUND:", "color:#4ade80; font-weight:bold;");
+      unlockedCodes.forEach(code => {
+        console.log(
+          `%c${code.name} (Page ${code.pageNumber})`,
+          "color:#4ade80;"
+        );
+      });
       
-      // Code verification logic
-      const validCodes: Record<string, string> = {
-        "ECHO-421": "book1",
-        "QM-137": "book2",
-        "LOOP-913": "book3"
-      };
-      
-      const bookId = validCodes[code];
-      if (bookId) {
-        // Find the book
-        const book = window.JonahConsole.bookCodes.find(b => b.id === bookId);
-        if (book && !book.unlocked) {
-          // Unlock the book
-          book.unlocked = true;
-          book.timestamp = Date.now();
-          
-          console.log(`%cBook Code Verified: ${code}`, "color: #4CAF50;");
-          return `Success! You've unlocked "${book.name}".`;
-        } else if (book) {
-          // Already unlocked
-          return `Code valid, but you've already unlocked "${book.name}".`;
-        }
-      }
-      
-      console.log(`%cInvalid Book Code: ${code}`, "color: #F44336;");
-      return "Invalid code. Please check and try again.";
-    };
+      return `You've found ${unlockedCodes.length} out of ${codes.length} books.`;
+    }
     
-    // Read page command
-    window.readPage = function(pageNumber: number) {
-      if (!pageNumber || typeof pageNumber !== 'number') {
-        return "Please provide a valid page number.";
-      }
-      
-      // Check if we have unlocked books
-      if (!window.JonahConsole?.bookCodes) {
-        return "Book system not initialized.";
-      }
-      
-      // Get unlocked books
-      const unlockedBooks = window.JonahConsole.bookCodes.filter(b => b.unlocked);
-      if (unlockedBooks.length === 0) {
-        return "You haven't unlocked any books yet. Use verifyCode() to unlock books.";
-      }
-      
-      // Assign the page to a random unlocked book
-      const randomBook = unlockedBooks[Math.floor(Math.random() * unlockedBooks.length)];
-      
-      // Generate page content based on book and page number
-      const pageContent = generatePageContent(randomBook.name, pageNumber);
-      
-      console.log(`%cReading ${randomBook.name}, Page ${pageNumber}`, "color: #9C27B0;");
-      return pageContent;
-    };
-  }
-}
-
-// Helper to generate page content
-function generatePageContent(bookName: string, pageNumber: number): string {
-  const contentMap: Record<string, Record<number, string>> = {
-    "The Echo Chamber": {
-      42: "...and thus we discovered that echoes aren't simply reflections of sound, but moments of time folding back on themselves. The key is in the resonance frequency.",
-      87: "The chamber successfully generated temporal echoes from three weeks in the future. Subject reported hearing their own voice discussing events that had not yet occurred.",
-      113: "WARNING: Do not attempt to synchronize your own voice with the echo. Several researchers reported persistent deja vu and timeline contamination."
-    },
-    "Quantum Mirror": {
-      13: "Unlike conventional mirrors, quantum mirrors reflect possibilities rather than actualities. The observer determines which reflection becomes real.",
-      77: "Experiment 23: Subject observed three distinct reflections simultaneously. When asked to describe each reflection, the descriptions matched personas from the subject's subconscious.",
-      101: "We believe the mirror is not creating these reflections, but merely revealing quantum branches that already exist. The implications for timeline theory are enormous."
-    },
-    "Traveler's Guide to Temporal Loops": {
-      9: "Chapter 1: Recognizing You're In A Loop. Key indicators include: déjà vu, anticipating events before they occur, and discovering messages from 'yourself' that you don't remember writing.",
-      47: "Always carry a temporal anchor. Something small but significant that doesn't belong to the timeline. Observe it regularly to maintain awareness during loop resets.",
-      91: "NEVER attempt to contact your other loop iterations directly. The resulting temporal paradox can collapse the entire loop structure."
+    // Try to unlock a book with the given code
+    const matchedCode = checkBookCode(code);
+    
+    if (matchedCode && matchedCode.unlocked) {
+      console.log(
+        `%cBOOK UNLOCKED: ${matchedCode.name}`,
+        "color:#4ade80; font-weight:bold;"
+      );
+      return `You've unlocked "${matchedCode.name}" (Page ${matchedCode.pageNumber})`;
+    } else if (matchedCode) {
+      return `You've already found that book: "${matchedCode.name}"`;
+    } else {
+      return "That code doesn't match any known books.";
     }
   };
   
-  // Get content for the specific book and page
-  if (contentMap[bookName] && contentMap[bookName][pageNumber]) {
-    return contentMap[bookName][pageNumber];
-  }
+  // Allow for unlocking codes programmatically (internal use)
+  window.unlockBookCode = function(codeId: string) {
+    const codes = getBookCodes();
+    const code = codes.find(c => c.id === codeId);
+    
+    if (code && !code.unlocked) {
+      code.unlocked = true;
+      code.timestamp = Date.now();
+      localStorage.setItem("jonah_book_codes", JSON.stringify(codes));
+      
+      if (window.JonahConsole?.bookCodes) {
+        window.JonahConsole.bookCodes = codes;
+      }
+      
+      return true;
+    }
+    
+    return false;
+  };
   
-  // Generate generic content for non-specific pages
-  return `Page ${pageNumber} appears to be damaged or missing. Try another page number.`;
-}
+  // Initialize the codes
+  initializeBookCodes();
+};

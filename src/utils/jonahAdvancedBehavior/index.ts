@@ -12,6 +12,32 @@ export * from './echoSystem';
 export * from './confessionSystem';
 export * from './initializeBehavior';
 
+// Export functions required by hooks
+export { initializeAdvancedBehavior } from './initializeBehavior';
+export { getAllConfessions } from './confessionSystem';
+export { getAllEchoes } from './echoSystem';
+export { trackUserInput } from './adaptiveLearningSystem';
+export { isRepeatedPhrase } from './adaptiveLearningSystem';
+export { getRepetitionResponse } from './adaptiveLearningSystem';
+export { getAdaptedResponse } from './adaptiveLearningSystem';
+export { storeEcho } from './echoSystem';
+export { getEchoPhrase } from './echoSystem';
+export { checkForEchoMatch } from './echoSystem';
+export { processEmotionalInput } from './sentimentAnalysis';
+export { getLayeredEmotionalResponse } from './sentimentAnalysis';
+export { checkForRecurringSymbols } from './sentimentAnalysis';
+export { detectEmotionalIntent } from './semanticSystem';
+export { getUnsaidEmotionResponse } from './semanticSystem';
+export { storeIntention } from './semanticSystem';
+export { getFalseMemory } from './semanticSystem';
+export { trackPhrase } from './temporalSystem';
+export { getFalseMemoryResponse } from './temporalSystem';
+export { getLoopResponse } from './temporalSystem';
+export { getBlankFragmentResponse } from './temporalSystem';
+export { splitAndTypeMessage } from './typingSystem';
+export { getResponseTemplate } from './vocabularySystem';
+export { generateEmotionalResponse } from './sentimentAnalysis';
+
 // Generate dream content
 export function generateDream(): string {
   const dreamOptions = [
@@ -91,21 +117,3 @@ export function getEmotionalResponse(state: any, trustLevel: string): string {
   // Return random response
   return emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
 }
-
-// Adding missing functions from the echo system
-export const getAllEchoes = () => {
-  return []; // Simplified implementation for now
-};
-
-// Testament system functions
-export const unlockTestamentByPhrase = (phrase: string): boolean => {
-  return false; // Simplified implementation
-};
-
-export const getTestamentTeaser = (): string | null => {
-  return null; // Simplified implementation
-};
-
-export const generateTestamentResponse = (input: string): string | null => {
-  return null; // Simplified implementation
-};

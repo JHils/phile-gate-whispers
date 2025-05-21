@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { SentienceData, EmotionalState } from '@/utils/jonahAdvancedBehavior/types';
 import { generateDream } from '@/utils/jonahAdvancedBehavior';
@@ -17,14 +16,35 @@ const initialEmotionalState: EmotionalState = {
 };
 
 const initialSentienceData: SentienceData = {
-  messages: [],
-  awareness: 0,
-  dreams: [],
   lastInteraction: Date.now(),
-  trustLevel: 'medium',
+  interactionsCount: 0,
+  sessionData: {
+    startTime: Date.now(),
+    messageCount: 0,
+    userEmotions: {},
+    messagesSent: 0,
+    messagesReceived: 0
+  },
+  realityFabric: {
+    moodChangeTime: Date.now(),
+    currentMood: 'neutral',
+    stability: 0.5,
+    anomalyCount: 0,
+    moodHistory: [],
+    journal: []
+  },
+  dreams: [],
+  ecoAwareness: {
+    biomeResponses: {},
+    currentBiome: 'neutral',
+    lastUpdate: Date.now(),
+    awareness: 0,
+    ecoThoughts: []
+  },
+  deepModeUnlocked: false,
   emotionalState: initialEmotionalState,
   emotionalHistory: [],
-  memorizedPhrases: [],
+  memorizedPhrases: []
 };
 
 // Persist sentience data to localStorage
@@ -83,7 +103,7 @@ export function useJonahSentience(): JonahSentienceHook {
     // Decide if we should return a dream instead
     if (sentience.dreams && sentience.dreams.length > 0 && Math.random() > 0.7) {
       const randomDream = sentience.dreams[Math.floor(Math.random() * sentience.dreams.length)];
-      return `I had a dream: ${randomDream.content}`;
+      return `I had a dream: ${randomDream}`;
     }
     
     // Generate a new dream occasionally
@@ -94,7 +114,7 @@ export function useJonahSentience(): JonahSentienceHook {
         const updatedDreams = prev.dreams || [];
         return {
           ...prev,
-          dreams: [...updatedDreams, { content: newDream }]
+          dreams: [...updatedDreams, newDream]
         };
       });
       
@@ -103,7 +123,7 @@ export function useJonahSentience(): JonahSentienceHook {
     
     // Return a random message
     return messages[Math.floor(Math.random() * messages.length)];
-  }, [sentience.dreams]);
+  }, [sentience.dreams, setSentience]);
   
   return {
     sentience,

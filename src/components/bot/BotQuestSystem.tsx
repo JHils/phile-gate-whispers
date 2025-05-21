@@ -33,7 +33,8 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
       if (!updatedSentience.microQuests) {
         updatedSentience.microQuests = {
           active: [],
-          completed: []
+          completed: [],
+          available: [] // Added missing required property
         };
         
         // Update the sentience data

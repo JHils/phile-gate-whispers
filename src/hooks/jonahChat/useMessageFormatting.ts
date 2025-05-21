@@ -5,7 +5,7 @@ import { EmotionCategory, ResponseStyle } from '@/utils/jonahAdvancedBehavior/ty
 export function useMessageFormatting() {
   // Message formatting
   const [messageWeight, setMessageWeight] = useState<'light' | 'medium' | 'heavy'>('medium');
-  const [responseStyle, setResponseStyle] = useState<ResponseStyle>('direct');
+  const [responseStyle, setResponseStyle] = useState<ResponseStyle>('concise');
   
   // Update message formatting based on content and emotion
   const updateMessageFormatting = useCallback((content: string, mood: EmotionCategory) => {
@@ -22,11 +22,11 @@ export function useMessageFormatting() {
     if (content.length > 100 && (mood === 'joy' || mood === 'hope')) {
       setResponseStyle('poetic');
     } else if (content.includes('?') && (mood === 'confusion' || mood === 'curiosity')) {
-      setResponseStyle('technical');
+      setResponseStyle('technical' as ResponseStyle);
     } else if (content.length > 150 && mood === 'trust') {
-      setResponseStyle('elaborate' as ResponseStyle);
+      setResponseStyle('elaborate');
     } else {
-      setResponseStyle('direct');
+      setResponseStyle('concise');
     }
   }, []);
   

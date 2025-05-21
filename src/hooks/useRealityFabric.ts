@@ -1,97 +1,123 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useJonahSentience } from './useJonahSentience';
 import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
+interface RealityFabricState {
+  moodChangeTime: number;
+  currentMood: EmotionCategory;
+  stability: number;
+  anomalyCount: number;
+  moodHistory: Array<{mood: EmotionCategory, timestamp: number}>;
+  journal: string[];
+}
+
 export function useRealityFabric() {
   const { sentience, updateSentience } = useJonahSentience();
-  const [realityShifted, setRealityShifted] = useState(false);
-  
-  // Initialize reality fabric if it doesn't exist
+  const [realityFabric, setRealityFabric] = useState<RealityFabricState | null>(null);
+
+  // Initialize the reality fabric
   useEffect(() => {
-    if (!sentience.realityFabric) {
-      updateSentience({
-        realityFabric: {
+    if (sentience) {
+      // Check if realityFabric exists
+      if (!sentience.realityFabric) {
+        // Create initial reality fabric state
+        const initialFabric = {
           moodChangeTime: Date.now(),
-          currentMood: 'neutral',
-          stability: 100
-        }
-      });
+          currentMood: 'neutral' as EmotionCategory,
+          stability: 0.5,
+          anomalyCount: 0,
+          moodHistory: [] as Array<{mood: EmotionCategory, timestamp: number}>,
+          journal: []
+        };
+        
+        // Update sentience with initial fabric
+        updateSentience({
+          ...sentience,
+          realityFabric: initialFabric
+        });
+        
+        setRealityFabric(initialFabric);
+      } else {
+        setRealityFabric(sentience.realityFabric);
+      }
     }
-  }, [sentience.realityFabric, updateSentience]);
-  
-  // Get current reality state
-  const getRealityState = useCallback(() => {
-    const realityFabric = sentience.realityFabric || {
-      moodChangeTime: Date.now(),
-      currentMood: 'neutral',
-      stability: 100
-    };
-    
-    return {
-      moodChangeTime: realityFabric.moodChangeTime || Date.now(),
-      currentMood: realityFabric.currentMood || 'neutral',
-      stability: realityFabric.stability || 100,
-      anomalyCount: realityFabric.anomalyCount || 0,
-      moodHistory: realityFabric.moodHistory || [],
-      journal: realityFabric.journal || []
-    };
-  }, [sentience.realityFabric]);
-  
-  // Shift the reality fabric to a new mood/state
-  const shiftRealityFabric = useCallback((newMood: EmotionCategory, stabilityChange: number = 0) => {
-    const currentState = getRealityState();
-    
-    updateSentience({
-      realityFabric: {
-        ...currentState,
-        moodChangeTime: Date.now(),
+  }, [sentience, updateSentience]);
+
+  // Record mood shift in history
+  const recordMoodShift = useCallback((newMood: EmotionCategory) => {
+    if (realityFabric) {
+      // Create mood history entry
+      const moodEntry = {
+        mood: newMood,
+        timestamp: Date.now()
+      };
+      
+      // Get existing history or create empty array
+      const history = realityFabric.moodHistory || [];
+      
+      // Update with new history
+      const updatedFabric = {
+        ...realityFabric,
         currentMood: newMood,
-        stability: Math.max(0, Math.min(100, currentState.stability + stabilityChange)),
-        moodHistory: [...(currentState.moodHistory || []), newMood]
+        moodChangeTime: Date.now(),
+        moodHistory: [...history, moodEntry]
+      };
+      
+      // Update state and sentience
+      setRealityFabric(updatedFabric);
+      
+      if (sentience) {
+        updateSentience({
+          ...sentience,
+          realityFabric: updatedFabric
+        });
       }
-    });
-    
-    setRealityShifted(true);
-    
-    // Reset shifted flag after a while
-    setTimeout(() => {
-      setRealityShifted(false);
-    }, 5000);
-  }, [getRealityState, updateSentience]);
-  
-  // Register an anomaly in the reality fabric
-  const registerAnomaly = useCallback((anomalyType: string, detail: string) => {
-    const currentState = getRealityState();
-    
-    updateSentience({
-      realityFabric: {
-        ...currentState,
-        anomalyCount: (currentState.anomalyCount || 0) + 1,
-        stability: Math.max(0, (currentState.stability || 100) - 5)
+    }
+  }, [realityFabric, sentience, updateSentience]);
+
+  // Add anomaly to the reality fabric
+  const addAnomaly = useCallback(() => {
+    if (realityFabric) {
+      const updatedFabric = {
+        ...realityFabric,
+        anomalyCount: realityFabric.anomalyCount + 1
+      };
+      
+      setRealityFabric(updatedFabric);
+      
+      if (sentience) {
+        updateSentience({
+          ...sentience,
+          realityFabric: updatedFabric
+        });
       }
-    });
-    
-    console.log(`%c[REALITY ANOMALY DETECTED: ${anomalyType}]`, 'color: #ff0000', detail);
-  }, [getRealityState, updateSentience]);
-  
-  // Add an entry to the reality journal
+    }
+  }, [realityFabric, sentience, updateSentience]);
+
+  // Add journal entry to the reality fabric
   const addJournalEntry = useCallback((entry: string) => {
-    const currentState = getRealityState();
-    
-    updateSentience({
-      realityFabric: {
-        ...currentState,
-        journal: [...(currentState.journal || []), entry]
+    if (realityFabric) {
+      const updatedFabric = {
+        ...realityFabric,
+        journal: [...realityFabric.journal, entry]
+      };
+      
+      setRealityFabric(updatedFabric);
+      
+      if (sentience) {
+        updateSentience({
+          ...sentience,
+          realityFabric: updatedFabric
+        });
       }
-    });
-  }, [getRealityState, updateSentience]);
+    }
+  }, [realityFabric, sentience, updateSentience]);
   
   return {
-    realityState: getRealityState(),
-    realityShifted,
-    shiftRealityFabric,
-    registerAnomaly,
+    realityFabric,
+    setRealityFabric,
+    recordMoodShift,
+    addAnomaly,
     addJournalEntry
   };
 }

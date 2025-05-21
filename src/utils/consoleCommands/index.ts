@@ -1,8 +1,10 @@
+
 /**
  * Console Commands - Main Export File
  */
 
 import { UserState } from "@/hooks/useTrackingSystem";
+import { TrackEventFunction, GetUserRankFunction } from "./types";
 
 // Import command modules
 import { statusCommand } from "./statusCommand";
@@ -21,4 +23,13 @@ export const setupConsoleCommands = (
   helperFunctions.setupHelperFunctions(trackEvent, userState);
   
   // Other command sets can be initialized here
+};
+
+// Export the initialize function
+export const initializeConsoleCommands = (
+  trackEvent: TrackEventFunction,
+  getUserRank: GetUserRankFunction,
+  userState: UserState
+) => {
+  setupConsoleCommands(trackEvent, getUserRank, userState);
 };
