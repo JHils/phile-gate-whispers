@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { UserState, UserRank, LeaderboardEntry } from '@/types/tracking';
 import { syncUserStateWithSupabase, getUserRank, getLeaderboard } from '@/services/userTrackingService';
@@ -17,8 +18,14 @@ export const useTrackingSystem = () => {
     try {
       // Load user state and ensure console.rank is initialized
       const loadedState = loadUserState();
-      if (!loadedState.console) {
-        loadedState.console = {
+      
+      // Set default values for potentially missing properties
+      const defaultState: UserState = {
+        visitCount: 0,
+        firstVisit: Date.now(),
+        lastVisit: Date.now(),
+        events: {},
+        console: {
           helpCalled: false,
           whoisCalled: false,
           gateCalled: false,
@@ -28,11 +35,27 @@ export const useTrackingSystem = () => {
           revealCalled: false,
           reincarnateCalled: false,
           rank: 'drifter'
-        };
-      } else if (!loadedState.console.rank) {
-        loadedState.console.rank = localStorage.getItem('phileRank') || 'drifter';
+        },
+        permanentlyCollapsed: false,
+        survivorMode: false,
+        gatekeeperStatus: false,
+        legacyWritten: false,
+        bookCodes: [],
+        layeredClues: [],
+        simba: false
+      };
+      
+      // Merge loaded state with default state
+      const mergedState = {...defaultState, ...loadedState};
+      
+      // Ensure console object exists with rank
+      if (!mergedState.console) {
+        mergedState.console = defaultState.console;
+      } else if (!mergedState.console.rank) {
+        mergedState.console.rank = localStorage.getItem('phileRank') || 'drifter';
       }
-      return loadedState;
+      
+      return mergedState;
     } catch (error) {
       console.error("Error loading user state:", error);
       // Return a minimal valid state if loading fails
@@ -55,7 +78,10 @@ export const useTrackingSystem = () => {
         permanentlyCollapsed: false,
         survivorMode: false,
         gatekeeperStatus: false,
-        legacyWritten: false
+        legacyWritten: false,
+        bookCodes: [],
+        layeredClues: [],
+        simba: false
       };
     }
   });

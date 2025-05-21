@@ -1,4 +1,3 @@
-
 import {
   generateFirstTimeResponse,
   generateReturningResponse,
@@ -27,6 +26,28 @@ import { getEchoPhrase } from '../useEchoSystem';
 import { getDreamReturnResponse } from '../useDreamSystem';
 import { getResponseTemplate, generateEmotionalResponse } from '../useVocabularySystem';
 import { createEmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
+
+// Import new enhanced systems
+import { 
+  analyzeEmotion, 
+  generateFullEmotionalResponse 
+} from '@/utils/jonahAdvancedBehavior/enhancedEmotionalCore';
+
+import {
+  storeInMemory,
+  findRelevantMemories,
+  generateMemoryBasedResponse,
+  createConversationContext,
+  generateTopicPatternResponse
+} from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
+
+import {
+  createErrorRecoveryResponse
+} from '@/utils/jonahAdvancedBehavior/errorRecoverySystem';
+
+// Conversation context storage
+let conversationContext = createConversationContext('medium');
+let previousResponses: string[] = [];
 
 export function useResponseGeneration(
   addBotMessage: (content: string, special?: boolean) => void,
@@ -135,44 +156,55 @@ export function useResponseGeneration(
 
   // Generate response from templates based on context
   const generateResponseFromTemplate = (content: string, trustLevel: string): string => {
-    // Determine which template type to use based on input
-    let templateType = 'reflection'; // Default
+    // Analyze emotion using the enhanced system
+    const emotionalState = analyzeEmotion(content);
     
-    if (content.includes('?')) {
-      templateType = 'questioning';
-    } else if (content.toLowerCase().includes('hello') || content.toLowerCase().includes('hi') || content.toLowerCase().includes('hey')) {
-      templateType = 'returning';
-    }
-    
-    // Get template from vocabulary system
-    const template = getResponseTemplate(templateType);
-    
-    // Map trust level to emotion
-    const emotionMap: Record<string, EmotionCategory> = {
-      'low': 'paranoia',
-      'medium': 'trust',
-      'high': 'hope'
-    };
-    
-    const emotion = emotionMap[trustLevel] || 'neutral';
-    
-    // Generate response from template
-    // Fixed: Pass true for includeQuestion parameter rather than the template string
-    return generateEmotionalResponse(createEmotionalState(emotion), true);
+    // Generate full response with the enhanced system
+    return generateFullEmotionalResponse(emotionalState, trustLevel, true, previousResponses);
   };
 
-  // Main handler for response generation
+  // Main handler for response generation with enhanced systems
   const handleResponseGeneration = (
     content: string,
     sessionMemory: string[],
     timeSinceLastInteraction: number
   ) => {
     let response = "";
-
-    // Check for loop first (highest priority)
-    const loopCheck = checkForLoop(content);
-    if (loopCheck.isLoop && Math.random() < 0.7) {
-      response = getLoopResponse(loopCheck.count);
+    
+    // Check for ambiguity and error recovery first
+    const errorRecoveryResponse = createErrorRecoveryResponse(content, trustLevel, 'neutral');
+    if (errorRecoveryResponse) {
+      response = errorRecoveryResponse;
+      addBotMessage(response);
+      return;
+    }
+    
+    // Analyze emotional content
+    const emotionalState = analyzeEmotion(content);
+    
+    // Update conversation memory
+    conversationContext = storeInMemory(
+      content,
+      emotionalState.primary,
+      true,
+      conversationContext
+    );
+    
+    // Check for memory-based response (higher priority)
+    const relevantMemories = findRelevantMemories(content, conversationContext);
+    if (relevantMemories.length > 0 && Math.random() < 0.6) {
+      response = generateMemoryBasedResponse(relevantMemories[0], trustLevel);
+    }
+    // Check for recurring topic pattern (next priority)
+    else if (Math.random() < 0.3) {
+      const topicResponse = generateTopicPatternResponse(conversationContext);
+      if (topicResponse) {
+        response = topicResponse;
+      }
+    }
+    // Check for loop first (high priority)
+    else if (checkForLoop(content).isLoop && Math.random() < 0.7) {
+      response = getLoopResponse(checkForLoop(content).count);
     }
     // Check for repetition 
     else if (isRepeatedPhrase(content)) {
@@ -261,6 +293,17 @@ export function useResponseGeneration(
 
     // Apply adaptive learning to personalize response
     response = getAdaptedResponse(response);
+    
+    // Store the response to avoid repetition
+    previousResponses = [response, ...previousResponses].slice(0, 5);
+    
+    // Update conversation memory with Jonah's response
+    conversationContext = storeInMemory(
+      response,
+      emotionalState.primary,
+      false,
+      conversationContext
+    );
     
     // Check for blank fragment memory corruption
     const blankFragment = getBlankFragmentResponse(content);

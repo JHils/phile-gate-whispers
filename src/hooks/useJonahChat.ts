@@ -1,110 +1,190 @@
 
-import { useState, useEffect } from 'react';
-import { useBotState } from './useBotState';
+import { useState, useEffect, useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/enhancedEmotionalCore';
+import { 
+  createConversationContext, 
+  storeInMemory,
+  findRelevantMemories,
+  updateDominantEmotion
+} from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
 import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
 
+// Interface for chat messages
+interface ChatMessage {
+  id: string;
+  content: string;
+  isJonah: boolean;
+  timestamp: number;
+}
+
+// Initialize conversation context
+const initialContext = createConversationContext('medium');
+
 export function useJonahChat() {
-  // Use the bot state
-  const {
-    messages,
-    input,
-    setInput,
-    isTyping,
-    handleSendMessage
-  } = useBotState(true);
+  // State for managing chat
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState<string>('');
+  const [isTyping, setIsTyping] = useState<boolean>(false);
   
-  // Jonah version state
-  const [jonahVersion, setJonahVersion] = useState<'PRIME' | 'RESIDUE'>('PRIME');
-  
-  // Conversation metrics
-  const [conversationDepth, setConversationDepth] = useState(0);
-  const [messageWeight, setMessageWeight] = useState<'light' | 'medium' | 'heavy'>('medium');
-  
-  // Emotional state tracking
+  // Enhanced state for Jonah's personality
   const [jonahMood, setJonahMood] = useState<EmotionCategory>('neutral');
+  const [jonahVersion, setJonahVersion] = useState<'PRIME' | 'RESIDUE'>('PRIME');
+  const [messageWeight, setMessageWeight] = useState<'light' | 'medium' | 'heavy'>('medium');
+  const [conversationDepth, setConversationDepth] = useState<number>(0);
   const [emotionalTrend, setEmotionalTrend] = useState<EmotionalTrend>('stable');
   const [responseStyle, setResponseStyle] = useState<ResponseStyle>('direct');
   
-  // Update conversation depth when messages change
-  useEffect(() => {
-    // Calculate conversation depth based on message count
-    setConversationDepth(Math.min(10, Math.floor(messages.length / 2)));
+  // Track conversation context
+  const [context, setContext] = useState(initialContext);
+  const [previousMoods, setPreviousMoods] = useState<EmotionCategory[]>([]);
+  
+  // Process user input
+  const handleSendMessage = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Adjust message weight based on depth
-    if (messages.length > 15) {
-      setMessageWeight('heavy');
-    } else if (messages.length > 7) {
-      setMessageWeight('medium');
-    } else {
-      setMessageWeight('light');
-    }
+    if (!input.trim()) return;
     
-    // Get emotional data from Jonah's system if available
-    if (window.JonahConsole?.sentience?.realityFabric) {
-      const mood = window.JonahConsole.sentience.realityFabric.currentMood || 'neutral';
-      setJonahMood(mood as EmotionCategory);
+    // Add user message to chat
+    const userMessage: ChatMessage = {
+      id: uuidv4(),
+      content: input,
+      isJonah: false,
+      timestamp: Date.now()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Analyze emotional content of user input
+    const emotionalState = analyzeEmotion(input);
+    
+    // Update conversation context with user message
+    const updatedContext = storeInMemory(input, emotionalState.primary, true, context);
+    setContext(updatedContext);
+    
+    // Clear input and show typing indicator
+    setInput('');
+    setIsTyping(true);
+    
+    // Update conversation depth
+    setConversationDepth(prev => prev + 1);
+    
+    // Generate Jonah response
+    setTimeout(() => {
+      // Find relevant memories
+      const relevantMemories = findRelevantMemories(input, updatedContext);
       
-      // Determine emotional trend based on mood history
-      const moodHistory = window.JonahConsole.sentience.realityFabric.moodHistory || [];
-      if (moodHistory.length >= 3) {
-        const recentMoods = moodHistory.slice(-3);
-        // Simple trend analysis
-        const unique = new Set(recentMoods.map(m => m.mood)).size;
+      // Generate response based on input and context
+      import('@/utils/jonahAdvancedBehavior/enhancedEmotionalCore').then(({ generateFullEmotionalResponse }) => {
+        let response = '';
         
-        if (unique === 1) {
-          setEmotionalTrend('stable');
-        } else if (
-          recentMoods[0].mood === 'fear' || 
-          recentMoods[0].mood === 'anxiety' || 
-          recentMoods[0].mood === 'paranoia'
-        ) {
-          setEmotionalTrend('deteriorating');
-        } else if (
-          recentMoods[0].mood === 'hope' || 
-          recentMoods[0].mood === 'joy' || 
-          recentMoods[0].mood === 'trust'
-        ) {
+        // Memory-based response if relevant memories found
+        if (relevantMemories.length > 0 && Math.random() < 0.4) {
+          import('@/utils/jonahAdvancedBehavior/enhancedMemorySystem').then(({ generateMemoryBasedResponse }) => {
+            response = generateMemoryBasedResponse(relevantMemories[0], 'medium');
+            addJonahResponse(response, emotionalState.primary);
+          });
+        } 
+        // Error recovery if needed
+        else if (input.length < 5) {
+          import('@/utils/jonahAdvancedBehavior/errorRecoverySystem').then(({ createErrorRecoveryResponse }) => {
+            response = createErrorRecoveryResponse(input, 'medium', emotionalState.primary);
+            addJonahResponse(response, emotionalState.primary);
+          });
+        }
+        // Standard emotional response
+        else {
+          response = generateFullEmotionalResponse(emotionalState, 'medium', true, []);
+          addJonahResponse(response, emotionalState.primary);
+        }
+      });
+    }, 1000 + Math.floor(Math.random() * 1000)); // Random typing delay
+  }, [input, context]);
+  
+  // Add Jonah's response to chat
+  const addJonahResponse = useCallback((content: string, mood: EmotionCategory) => {
+    // Create message
+    const jonahMessage: ChatMessage = {
+      id: uuidv4(),
+      content,
+      isJonah: true,
+      timestamp: Date.now()
+    };
+    
+    // Add to chat
+    setMessages(prev => [...prev, jonahMessage]);
+    setIsTyping(false);
+    
+    // Update conversation context with Jonah's response
+    setContext(prev => storeInMemory(content, mood, false, prev));
+    
+    // Update Jonah's mood based on user input and pattern
+    setJonahMood(mood);
+    
+    // Update previous moods for trend analysis
+    setPreviousMoods(prev => {
+      const updatedMoods = [mood, ...prev].slice(0, 5);
+      
+      // Calculate trend based on mood changes
+      if (updatedMoods.length >= 3) {
+        const positiveEmotions = ['joy', 'hope', 'trust'];
+        const negativeEmotions = ['fear', 'sadness', 'anger', 'anxiety', 'paranoia'];
+        
+        // Count positive and negative emotions in recent history
+        const positiveCount = updatedMoods.filter(m => positiveEmotions.includes(m)).length;
+        const negativeCount = updatedMoods.filter(m => negativeEmotions.includes(m)).length;
+        
+        if (positiveCount > negativeCount) {
           setEmotionalTrend('improving');
+        } else if (negativeCount > positiveCount) {
+          setEmotionalTrend('deteriorating');
         } else {
-          setEmotionalTrend('fluctuating');
+          setEmotionalTrend('stable');
         }
       }
       
-      // Determine response style based on mood
-      switch(mood) {
-        case 'joy':
-        case 'hope':
-          setResponseStyle('elaborate');
-          break;
-        case 'confusion':
-        case 'paranoia':
-          setResponseStyle('technical');
-          break;
-        case 'sadness':
-          setResponseStyle('poetic');
-          break;
-        default:
-          setResponseStyle('direct');
-      }
+      return updatedMoods;
+    });
+    
+    // Determine message weight based on content length
+    if (content.length < 50) {
+      setMessageWeight('light');
+    } else if (content.length > 200) {
+      setMessageWeight('heavy');
+    } else {
+      setMessageWeight('medium');
     }
-  }, [messages]);
+    
+    // Infer response style preference
+    if (content.includes('?')) {
+      setResponseStyle('direct');
+    } else if (content.includes('\n') && content.length > 100) {
+      setResponseStyle('elaborate');
+    } else if ((mood === 'joy' || mood === 'sadness') && Math.random() < 0.7) {
+      setResponseStyle('poetic');
+    } else {
+      setResponseStyle('natural');
+    }
+  }, []);
   
-  // Toggle between PRIME and RESIDUE versions
-  const toggleVersion = () => {
+  // Toggle between Jonah versions
+  const toggleVersion = useCallback(() => {
     setJonahVersion(prev => prev === 'PRIME' ? 'RESIDUE' : 'PRIME');
-  };
+  }, []);
   
   // Reset conversation
-  const resetConversation = () => {
-    if (window.confirm('Reset the conversation with Jonah?')) {
-      localStorage.removeItem('jonahBehavior');
-      window.location.reload();
-    }
-  };
-
+  const resetConversation = useCallback(() => {
+    setMessages([]);
+    setContext(createConversationContext('medium'));
+    setPreviousMoods([]);
+    setJonahMood('neutral');
+    setConversationDepth(0);
+    setEmotionalTrend('stable');
+  }, []);
+  
   return {
     messages,
-    input, 
+    input,
     setInput,
     isTyping,
     jonahMood,
