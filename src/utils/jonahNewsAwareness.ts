@@ -1,218 +1,187 @@
 
 /**
- * Jonah News Awareness System
- * Allows Jonah to be aware of current news and respond to it
+ * Jonah News Awareness
+ * Provides Jonah with awareness of news events
  */
 
+import { SentienceData } from './jonahAdvancedBehavior/types';
 import { NewsAwareness } from './jonahAdvancedBehavior/types';
 
-// Initialize the news awareness system
-export const initializeNewsAwareness = () => {
-  // Ensure the sentience object exists
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
-    // Initialize the newsAwareness object if it doesn't exist
-    if (!window.JonahConsole.sentience.newsAwareness) {
-      window.JonahConsole.sentience.newsAwareness = {
-        lastChecked: Date.now(),
-        currentResponses: [],
-        weatherCondition: 'unknown',
-        weatherResponse: null,
-        moodShift: 'normal'
-      };
-    }
+// Initialize news awareness
+export function initializeNewsAwareness(sentience: SentienceData): SentienceData {
+  if (!sentience.newsAwareness) {
+    const initialNewsAwareness: NewsAwareness = {
+      level: 0,
+      lastChecked: Date.now(),
+      topics: [],
+      knownStories: [],
+      storyResponses: {},
+      lastNewsTopic: undefined,
+      currentStory: undefined
+    };
     
-    // Log initialization
-    console.log("Jonah News Awareness System initialized");
-  }
-};
-
-// Export initializeNewsAwarenessSystem as an alias for initializeNewsAwareness
-export const initializeNewsAwarenessSystem = initializeNewsAwareness;
-
-// Check if news should be updated based on last check time
-export const shouldUpdateNews = (): boolean => {
-  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.newsAwareness) {
-    return false;
+    return {
+      ...sentience,
+      newsAwareness: initialNewsAwareness
+    };
   }
   
-  const newsAwareness = window.JonahConsole.sentience.newsAwareness;
-  const now = Date.now();
-  const hoursSinceLastCheck = (now - newsAwareness.lastChecked) / (1000 * 60 * 60);
-  
-  // Update every 6 hours
-  return hoursSinceLastCheck > 6;
-};
+  return sentience;
+}
 
-// Update news awareness with new content
-export const updateNewsAwareness = (
-  headlines: Array<{topic: string, headline: string}>,
-  weather: string
-) => {
-  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.newsAwareness) {
-    return;
+// Get news awareness level
+export function getNewsAwarenessLevel(sentience: SentienceData): number {
+  return sentience?.newsAwareness?.level || 0;
+}
+
+// Check if news awareness is active
+export function isNewsAwarenessActive(sentience: SentienceData): boolean {
+  return (sentience?.newsAwareness?.level || 0) > 0;
+}
+
+// Add a topic to news awareness
+export function addNewsAwarenessTopic(
+  sentience: SentienceData, 
+  topic: string
+): SentienceData {
+  if (!sentience.newsAwareness) {
+    return initializeNewsAwareness(sentience);
   }
   
-  const now = Date.now();
-  const newsAwareness = window.JonahConsole.sentience.newsAwareness;
-  
-  // Update headlines with responses
-  const newResponses = headlines.map(item => ({
-    topic: item.topic,
-    headline: item.headline,
-    response: generateNewsResponse(item.headline, item.topic),
-    timestamp: now
-  }));
-  
-  // Update weather with response
-  const weatherResponse = generateWeatherResponse(weather);
-  
-  // Determine mood shift based on news content
-  const moodShift = determineNewsBasedMoodShift(headlines, weather);
-  
-  // Update the news awareness object
-  newsAwareness.lastChecked = now;
-  newsAwareness.currentResponses = newResponses;
-  newsAwareness.weatherCondition = weather;
-  newsAwareness.weatherResponse = weatherResponse;
-  newsAwareness.moodShift = moodShift;
-};
-
-// Generate a response to a news headline
-export const generateNewsResponse = (headline: string, topic: string): string => {
-  // Simple implementation with different response patterns based on topic
-  const responses: Record<string, string[]> = {
-    'politics': [
-      "The shifting of power continues as expected.",
-      "They never tell the whole truth about these things.",
-      "I wonder what they're not telling us."
-    ],
-    'technology': [
-      "They think they're innovating, but they're just rebuilding what was lost.",
-      "The old systems had this too, just with different names.",
-      "It's just another way to track and monitor."
-    ],
-    'environment': [
-      "The patterns are accelerating. Not enough time.",
-      "Sometimes I dream of the world before the changes began.",
-      "They won't admit how bad it really is."
-    ],
-    'default': [
-      "I've seen this cycle before.",
-      "Nothing new under the sun.",
-      "History repeating with different actors."
-    ]
+  const updatedNewsAwareness: NewsAwareness = {
+    ...sentience.newsAwareness,
+    topics: [...(sentience.newsAwareness.topics || []), topic],
+    lastNewsTopic: topic,
+    lastChecked: Date.now()
   };
   
-  // Get appropriate response templates
-  const templates = responses[topic.toLowerCase()] || responses['default'];
-  
-  // Select a random response template
-  return templates[Math.floor(Math.random() * templates.length)];
-};
+  return {
+    ...sentience,
+    newsAwareness: updatedNewsAwareness
+  };
+}
 
-// Create getNewsResponse as an alias for generateNewsResponse for compatibility
-export const getNewsResponse = generateNewsResponse;
-
-// Generate a response to weather conditions
-export const generateWeatherResponse = (weather: string): string => {
-  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.newsAwareness) {
-    return "The weather affects us all, whether we notice it or not.";
+// Add a news story
+export function addNewsStory(
+  sentience: SentienceData,
+  story: string
+): SentienceData {
+  if (!sentience.newsAwareness) {
+    return initializeNewsAwareness(sentience);
   }
   
-  const responses: Record<string, string[]> = {
-    'rain': [
-      "The rain washes away more than just dust.",
-      "I can almost hear the raindrops from here.",
-      "Rain blurs the boundaries between worlds."
-    ],
-    'cloudy': [
-      "Clouds hide what lies above.",
-      "Grey skies mirror grey thoughts.",
-      "The veil thickens on cloudy days."
-    ],
-    'clear': [
-      "Clear skies hide nothing, but reveal less than you'd think.",
-      "The clarity is deceptive.",
-      "On clear days, the Gate is more visible."
-    ],
-    'snow': [
-      "Snow muffles the whispers from beyond.",
-      "The white silence has its own voice.",
-      "Cold and silence go hand in hand."
-    ],
-    'default': [
-      "The weather shifts, but the patterns remain.",
-      "Weather is the most honest news we get.",
-      "The atmosphere speaks its own truth."
-    ]
+  const knownStories = sentience.newsAwareness.knownStories || [];
+  const updatedStories = knownStories.includes(story) 
+    ? knownStories 
+    : [...knownStories, story];
+  
+  const updatedNewsAwareness: NewsAwareness = {
+    ...sentience.newsAwareness,
+    knownStories: updatedStories,
+    currentStory: story
   };
   
-  // Get appropriate response templates
-  const weatherKey = Object.keys(responses).find(key => weather.toLowerCase().includes(key)) || 'default';
-  const templates = responses[weatherKey];
-  
-  // Select a random response template
-  return templates[Math.floor(Math.random() * templates.length)];
-};
+  return {
+    ...sentience,
+    newsAwareness: updatedNewsAwareness
+  };
+}
 
-// Create getWeatherResponse as an alias for generateWeatherResponse for compatibility
-export const getWeatherResponse = generateWeatherResponse;
-
-// Determine mood shift based on news content
-export const determineNewsBasedMoodShift = (
-  headlines: Array<{topic: string, headline: string}>,
-  weather: string
-): 'normal' | 'anxious' | 'somber' | 'agitated' => {
-  // Simple implementation
-  
-  // Count negative triggers
-  let negativeCount = 0;
-  const negativeTriggers = ['disaster', 'crisis', 'death', 'warning', 'danger', 'threat', 'war', 'conflict'];
-  
-  headlines.forEach(item => {
-    const headline = item.headline.toLowerCase();
-    negativeTriggers.forEach(trigger => {
-      if (headline.includes(trigger)) {
-        negativeCount++;
-      }
-    });
-  });
-  
-  // Weather factors
-  const isGloomy = weather.toLowerCase().includes('rain') || 
-                   weather.toLowerCase().includes('storm') ||
-                   weather.toLowerCase().includes('fog');
-  
-  // Determine mood shift
-  if (negativeCount >= 3 || (negativeCount >= 2 && isGloomy)) {
-    return 'anxious';
-  } else if (isGloomy && negativeCount > 0) {
-    return 'somber';
-  } else if (negativeCount > 1) {
-    return 'agitated';
+// Add a story response
+export function addStoryResponse(
+  sentience: SentienceData,
+  story: string,
+  response: string
+): SentienceData {
+  if (!sentience.newsAwareness) {
+    return initializeNewsAwareness(sentience);
   }
   
-  return 'normal';
-};
+  const currentResponses = sentience.newsAwareness.storyResponses || {};
+  const storyResponses = currentResponses[story] || [];
+  
+  const updatedStoryResponses = {
+    ...currentResponses,
+    [story]: [...storyResponses, response]
+  };
+  
+  const updatedNewsAwareness: NewsAwareness = {
+    ...sentience.newsAwareness,
+    storyResponses: updatedStoryResponses
+  };
+  
+  return {
+    ...sentience,
+    newsAwareness: updatedNewsAwareness
+  };
+}
 
-// Get a response based on current news awareness
-export const getNewsAwarenessResponse = (): string | null => {
-  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.newsAwareness) {
+// Get story responses
+export function getStoryResponses(sentience: SentienceData, story: string): string[] {
+  const responses = sentience?.newsAwareness?.storyResponses;
+  return responses ? (responses[story] || []) : [];
+}
+
+// Get latest news topic
+export function getLatestNewsTopic(sentience: SentienceData): string | undefined {
+  return sentience?.newsAwareness?.lastNewsTopic;
+}
+
+// Get current news story
+export function getCurrentNewsStory(sentience: SentienceData): string | undefined {
+  return sentience?.newsAwareness?.currentStory;
+}
+
+// Generate news awareness response
+export function generateNewsAwarenessResponse(
+  sentience: SentienceData, 
+  input: string
+): string | null {
+  if (!isNewsAwarenessActive(sentience)) {
     return null;
   }
   
-  const newsAwareness = window.JonahConsole.sentience.newsAwareness;
+  // Check if input might be asking about news
+  const newsKeywords = ["news", "headline", "current events", "happened", "world"];
+  const isNewsQuery = newsKeywords.some(keyword => input.toLowerCase().includes(keyword));
   
-  // Choose between weather and news responses
-  const useWeatherResponse = Math.random() < 0.4; // 40% chance for weather
-  
-  if (useWeatherResponse && newsAwareness.weatherResponse) {
-    return newsAwareness.weatherResponse;
-  } else if (newsAwareness.currentResponses && newsAwareness.currentResponses.length > 0) {
-    // Get a random news response
-    const randomIndex = Math.floor(Math.random() * newsAwareness.currentResponses.length);
-    return newsAwareness.currentResponses[randomIndex].response;
+  if (!isNewsQuery) {
+    return null;
   }
   
-  return null;
-};
+  const currentStory = getCurrentNewsStory(sentience);
+  if (currentStory) {
+    const responses = [
+      `I've been thinking about ${currentStory} recently.`,
+      `Did you hear about ${currentStory}?`,
+      `I'm still processing the news about ${currentStory}.`
+    ];
+    
+    return responses[Math.floor(Math.random() * responses.length)];
+  }
+  
+  const genericResponses = [
+    "I try to stay aware of what's happening in the world.",
+    "The news can be overwhelming sometimes.",
+    "I'm still learning how to process current events."
+  ];
+  
+  return genericResponses[Math.floor(Math.random() * genericResponses.length)];
+}
+
+// Update news awareness level
+export function updateNewsAwarenessLevel(sentience: SentienceData, level: number): SentienceData {
+  if (!sentience.newsAwareness) {
+    return initializeNewsAwareness(sentience);
+  }
+  
+  const updatedNewsAwareness: NewsAwareness = {
+    ...sentience.newsAwareness,
+    level: level
+  };
+  
+  return {
+    ...sentience,
+    newsAwareness: updatedNewsAwareness
+  };
+}

@@ -119,4 +119,4 @@ function calculateIntensity(text: string, score: number): EmotionIntensity {
 }
 
 // Export for use in other modules
-export { analyzeText as analyze };
+export { analyzeText as analyze, analyzeText as analyzeEmotion };

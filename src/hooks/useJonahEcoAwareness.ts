@@ -4,7 +4,15 @@ import { EcoAwarenessState } from '@/utils/jonahAdvancedBehavior/types';
 import { useJonahSentience } from './useJonahSentience';
 
 export function useJonahEcoAwareness() {
-  const { sentience, updateSentience } = useJonahSentience();
+  const { sentience, setSentience } = useJonahSentience();
+  
+  // Update sentience with new data
+  const updateSentience = useCallback((newData: Partial<any>) => {
+    setSentience(prevState => ({
+      ...prevState,
+      ...newData
+    }));
+  }, [setSentience]);
   
   // Initialize eco awareness if not already present
   useEffect(() => {
@@ -18,7 +26,10 @@ export function useJonahEcoAwareness() {
         biomeResponses: {} as Record<string, string[]>,
         knownBiomes: [],
         dreamtimeActive: false,
-        woodsResponses: []
+        woodsResponses: [],
+        connectionStrength: 0,
+        lastBiomeCheck: Date.now(),
+        currentBiome: 'none'
       };
       
       updateSentience({
@@ -33,7 +44,7 @@ export function useJonahEcoAwareness() {
       ecoAwareness: {
         ...sentience?.ecoAwareness,
         ...data
-      } as EcoAwarenessState
+      }
     });
   }, [sentience, updateSentience]);
   

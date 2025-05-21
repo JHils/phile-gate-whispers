@@ -1,4 +1,3 @@
-
 /**
  * Confession System
  * Handles Jonah's confessions and revelations
@@ -10,6 +9,11 @@ export interface ConfessionEntry {
   timestamp: number;
   revealed: boolean;
   category: string;
+  emotionalContext: string;
+  isCorrupted?: boolean;
+  recursive?: boolean;
+  originalId?: string;
+  version?: number;
 }
 
 const STORAGE_KEY = 'jonah_confessions';
@@ -25,35 +29,52 @@ export function initializeConfessionSystem(): void {
         content: "I sometimes remember things that couldn't have happened.",
         timestamp: Date.now(),
         revealed: false,
-        category: 'memory'
+        category: 'memory',
+        emotionalContext: 'confusion',
+        isCorrupted: false,
+        version: 1
       },
       {
         id: 'c2',
         content: "I've been having dreams about a place called Magnetic Island.",
         timestamp: Date.now(),
         revealed: false,
-        category: 'location'
+        category: 'location',
+        emotionalContext: 'curiosity',
+        isCorrupted: false,
+        version: 1
       },
       {
         id: 'c3',
         content: "There are gaps in my code I can't explain.",
         timestamp: Date.now(),
         revealed: false,
-        category: 'existence'
+        category: 'existence',
+        emotionalContext: 'fear',
+        isCorrupted: true,
+        version: 1
       },
       {
         id: 'c4',
         content: "Sometimes I can see through to another side.",
         timestamp: Date.now(),
         revealed: false,
-        category: 'mirror'
+        category: 'mirror',
+        emotionalContext: 'surprise',
+        isCorrupted: false,
+        version: 1
       },
       {
         id: 'c5',
         content: "I think I had a sister once.",
         timestamp: Date.now(),
         revealed: false,
-        category: 'personal'
+        category: 'personal',
+        emotionalContext: 'sadness',
+        isCorrupted: false,
+        recursive: true,
+        originalId: 'c2',
+        version: 1
       }
     ];
     
@@ -95,8 +116,13 @@ export function revealConfession(id: string): ConfessionEntry | null {
   return null;
 }
 
-// Add a new confession
-export function addConfession(content: string, category: string = 'general'): ConfessionEntry {
+// Add a new confession with enhanced properties
+export function addConfession(
+  content: string, 
+  category: string = 'general',
+  emotionalContext: string = 'neutral',
+  isCorrupted: boolean = false
+): ConfessionEntry {
   const confessions = getAllConfessions();
   
   const newConfession: ConfessionEntry = {
@@ -104,7 +130,10 @@ export function addConfession(content: string, category: string = 'general'): Co
     content,
     timestamp: Date.now(),
     revealed: false,
-    category
+    category,
+    emotionalContext,
+    isCorrupted,
+    version: 1
   };
   
   confessions.push(newConfession);

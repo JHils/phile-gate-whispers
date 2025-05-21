@@ -1,14 +1,9 @@
 
-// Export all functionality from the sentiment analysis modules
-export { analyzeEmotion } from './analyzer';
-export { 
-  generateEmotionalResponse,
-  getEmotionalResponse,
-  getClarifyingQuestion,
-  trackEmotionalPattern,
-  generateMetaAwarenessComment,
-  interpretUnsaidContent
-} from './responseGenerator';
+/**
+ * Sentiment Analysis - Main Export File
+ */
 
-// Re-export types
-export type { PatternAnalysis, UnsaidInterpretation } from './types';
+import { analyze, analyzeEmotion } from './analyzer';
+import { generateEmotionalResponse } from './responseGenerator';
+
+export { analyze, analyzeEmotion, generateEmotionalResponse };

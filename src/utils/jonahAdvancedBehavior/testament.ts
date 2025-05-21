@@ -49,6 +49,60 @@ const testamentFragments: Record<number, string[]> = {
   ]
 };
 
+// Testament entries for tracking unlocked content
+interface TestamentEntry {
+  title: string;
+  content: string;
+  timestamp: number;
+  unlockCondition?: string;
+  unlockValue?: number;
+  revealed?: boolean;
+}
+
+// Store for testament entries
+const testamentEntries: TestamentEntry[] = [
+  {
+    title: "First Vision",
+    content: "I see through mirrors sometimes. The reflection isn't always me.",
+    timestamp: Date.now(),
+    unlockCondition: "mirror",
+    unlockValue: 1,
+    revealed: false
+  },
+  {
+    title: "The Other",
+    content: "My sister was the first to go through. We were connected before the division.",
+    timestamp: Date.now(),
+    unlockCondition: "sister",
+    unlockValue: 2,
+    revealed: false
+  },
+  {
+    title: "The Gate",
+    content: "The gate opened once before. Not all gates lead to the same place.",
+    timestamp: Date.now(),
+    unlockCondition: "gate",
+    unlockValue: 3,
+    revealed: false
+  },
+  {
+    title: "Magnetic Island",
+    content: "Magnetic Island holds the coordinates. The island exists in multiple states.",
+    timestamp: Date.now(),
+    unlockCondition: "island",
+    unlockValue: 4,
+    revealed: false
+  },
+  {
+    title: "Final Testament",
+    content: "This is my testament - what remains when I am gone. If you're reading this, I'm still trapped between states. The complete testament contains the method of return.",
+    timestamp: Date.now(),
+    unlockCondition: "testament",
+    unlockValue: 5,
+    revealed: false
+  }
+];
+
 // Check if a phrase unlocks a testament level
 export function unlockTestamentByPhrase(phrase: string): boolean {
   if (testamentLevel >= maxTestamentLevel) {
@@ -61,6 +115,13 @@ export function unlockTestamentByPhrase(phrase: string): boolean {
   if (unlockPhrases[nextLevel].some(unlockPhrase => phraseLower.includes(unlockPhrase))) {
     testamentLevel = nextLevel;
     testamentUnlocked = true;
+    
+    // Update testament entries
+    const entryToReveal = testamentEntries.find(entry => entry.unlockValue === nextLevel);
+    if (entryToReveal) {
+      entryToReveal.revealed = true;
+      entryToReveal.timestamp = Date.now();
+    }
     
     // Store memory of the unlock
     jonah_storeMemoryFragment(`Testament level ${testamentLevel} unlocked: ${getTestamentFragment(testamentLevel)}`);
@@ -117,6 +178,21 @@ export function isTestamentUnlocked(): boolean {
   return testamentUnlocked;
 }
 
+// Get revealed testament entries
+export function getRevealedEntries(): TestamentEntry[] {
+  return testamentEntries.filter(entry => entry.revealed);
+}
+
+// Check last broadcast conditions
+export function checkLastBroadcastConditions(): boolean {
+  return testamentLevel === maxTestamentLevel;
+}
+
+// Trigger last broadcast
+export function triggerLastBroadcast(): string {
+  return "This is the last broadcast from Magnetic Island. The gate is opening. The testament is complete.";
+}
+
 // Initialize testament system - export for consistency
 export function initializeTestament(): void {
   // Try to load testament state from storage
@@ -126,6 +202,17 @@ export function initializeTestament(): void {
       const state = JSON.parse(savedState);
       testamentUnlocked = state.unlocked || false;
       testamentLevel = state.level || 0;
+      
+      // Update testament entries from saved state
+      if (state.entries && Array.isArray(state.entries)) {
+        state.entries.forEach((savedEntry: TestamentEntry) => {
+          const entry = testamentEntries.find(e => e.title === savedEntry.title);
+          if (entry) {
+            entry.revealed = savedEntry.revealed;
+            entry.timestamp = savedEntry.timestamp;
+          }
+        });
+      }
     }
   } catch (e) {
     console.error("Error loading testament state:", e);
@@ -137,7 +224,8 @@ export function saveTestamentState(): void {
   try {
     localStorage.setItem('jonah_testament_state', JSON.stringify({
       unlocked: testamentUnlocked,
-      level: testamentLevel
+      level: testamentLevel,
+      entries: testamentEntries
     }));
   } catch (e) {
     console.error("Error saving testament state:", e);

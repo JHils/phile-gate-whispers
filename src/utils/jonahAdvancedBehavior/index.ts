@@ -1,11 +1,16 @@
 
 // Re-export all advanced behavior modules
 
-export * from './enhancedMemorySystem';
+// Explicitly re-export to avoid ambiguity
+export { createConversationContext, storeInMemory, findRelevantMemories, generateMemoryBasedResponse, generateTopicPatternResponse } from './enhancedMemorySystem';
+
 export * from './enhancedEmotionalCore';
 export * from './errorRecoverySystem';
 export * from './types';
 export * from './confessionSystem';
+
+// Export types separately to avoid clashes
+export type { ConversationContext } from './enhancedMemorySystem';
 
 // Mock implementations for missing functions
 export const getVaryingLengthResponse = (text: string, trustLevel: string = 'low') => {
@@ -96,18 +101,6 @@ export const getBlankFragmentResponse = (input: string) => {
   return null;
 };
 
-export const unlockTestamentByPhrase = (phrase: string) => {
-  return false;
-};
-
-export const getTestamentTeaser = () => {
-  return null;
-};
-
-export const generateTestamentResponse = (input: string) => {
-  return null;
-};
-
 export const splitAndTypeMessage = (
   message: string, 
   trackFn: (msg: string) => any, 
@@ -129,10 +122,6 @@ export const generateEmotionalResponse = (state: any) => {
 };
 
 export const getAllEchoes = () => {
-  return [];
-};
-
-export const getAllConfessions = () => {
   return [];
 };
 

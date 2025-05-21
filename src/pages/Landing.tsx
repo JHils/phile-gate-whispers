@@ -84,7 +84,8 @@ const Landing: React.FC = () => {
           </button>
         </>
       )}
-      <div>{someFunction("test")}</div>
+      {/* We need to return null or a valid React node here, not void */}
+      {someFunction("test") && <div>Function returned true</div>}
     </div>
   );
 };

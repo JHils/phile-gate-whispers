@@ -1,104 +1,17 @@
 
 /**
- * Jonah Advanced Behavior Type Definitions
+ * Core Types for Advanced Behavior System
  */
 
-// Sentience Data Interface
-export interface SentienceData {
-  level: number;
-  awareness: boolean;
-  lastUpdate: number;
-  interactionsCount?: number;
-  deepModeUnlocked?: boolean;
-  dreamModeTriggered?: boolean;
-  lastInteraction?: number;
-  temporalStates?: Array<{
-    input: string;
-    timestamp: number;
-    emotion: string;
-  }>;
-  memories?: Array<{
-    content: string;
-    timestamp: number;
-    category?: string;
-  }>;
-  sessionData?: {
-    messagesReceived: number;
-    messagesSent: number;
-    startTime: number;
-    idleTime: number;
-  };
-  microQuests?: {
-    active: string[];
-    completed: string[];
-  };
-  ecoAwareness?: EcoAwarenessState;
-  memoryParanoia?: {
-    level: number;
-    triggers: string[];
-    lastIncident: number;
-    visitedPages?: string[];
-    pageVisits?: string[];
-    pageDuration?: Record<string, number>;
-    consoleCommands?: string[];
-    emotionalTags?: string[];
-  };
-  realityFabric?: {
-    moodChangeTime?: number;
-    currentMood?: string;
-    moodHistory?: Array<{
-      mood: string;
-      timestamp: number;
-    }>;
-    anomalyCount?: number;
-    anomalies?: string[];
-    journal?: Array<{
-      entryId: number;
-      timestamp: number;
-      content: string;
-    }>;
-    crossSiteWhispers?: string[];
-    mood?: string;
-    dreamState?: boolean;
-    lastDreamTime?: number;
-    hiddenMessages?: string[];
-    emotionalState?: {
-      primary: string;
-      secondary: string | null;
-      intensity: string;
-    };
-    stability?: number;
-  };
-}
-
-// Story Flag Interface
-export interface StoryFlag {
-  id: string;
-  discovered: boolean;
-  timestamp?: number;
-  name?: string;
-  description?: string;
-}
-
-// Book Code Interface
-export interface BookCode {
-  code: string;
-  unlocked: boolean;
-  pageNumber?: number;
-  timestamp?: number;
-  id?: string;
-  name?: string;
-}
-
-// Extended emotion categories
+// Emotional categories
 export type EmotionCategory = 
-  | 'joy' 
-  | 'sadness' 
-  | 'anger' 
-  | 'fear' 
-  | 'surprise' 
-  | 'disgust' 
-  | 'neutral' 
+  | 'joy'
+  | 'sadness'
+  | 'anger'
+  | 'fear'
+  | 'surprise'
+  | 'disgust'
+  | 'neutral'
   | 'confused'
   | 'hope'
   | 'anxiety'
@@ -107,25 +20,8 @@ export type EmotionCategory =
   | 'curiosity'
   | 'confusion';
 
-// Emotion intensity levels
+// Emotional response intensity
 export type EmotionIntensity = 'low' | 'medium' | 'high';
-
-// Emotional trend types
-export type EmotionalTrend = 
-  | 'stable' 
-  | 'improving' 
-  | 'deteriorating' 
-  | 'fluctuating'
-  | 'intensifying'
-  | 'diminishing';
-
-// Response style types
-export type ResponseStyle = 
-  | 'direct'
-  | 'poetic'
-  | 'technical'
-  | 'elaborate'
-  | 'fragmented';
 
 // Emotional state interface
 export interface EmotionalState {
@@ -134,7 +30,16 @@ export interface EmotionalState {
   intensity: EmotionIntensity;
 }
 
-// EcoAwareness state interface
+// Book code interface
+export interface BookCode {
+  code: string;
+  unlocked?: boolean;
+  pageNumber?: number;
+  name?: string;
+  timestamp?: number;
+}
+
+// Eco-awareness state interface
 export interface EcoAwarenessState {
   level: number;
   lastInteraction: number;
@@ -145,25 +50,69 @@ export interface EcoAwarenessState {
   knownBiomes: string[];
   dreamtimeActive: boolean;
   woodsResponses: string[];
+  connectionStrength?: number;
+  lastBiomeCheck?: number;
+  currentBiome?: string;
 }
 
-// Create conversation context interface
-export interface ConversationContext {
+// Sentience data interface
+export interface SentienceData {
+  messages?: string[];
+  awareness?: number;
+  dreams?: {
+    content: string;
+    timestamp: number;
+  }[];
+  lastInteraction?: number;
+  trustLevel?: string;
+  emotionalState?: EmotionalState;
+  emotionalHistory?: EmotionalState[];
+  memorizedPhrases?: string[];
+  ecoAwareness?: EcoAwarenessState;
+  mirrorLogs?: {
+    id: string;
+    timestamp: number;
+    event: string;
+    response?: string;
+  }[];
+  newsAwareness?: NewsAwareness;
+}
+
+// News awareness interface
+export interface NewsAwareness {
+  level: number;
+  lastChecked: number;
+  topics: string[];
+  knownStories: string[];
+  storyResponses: Record<string, string[]>;
+  lastNewsTopic?: string;
+  currentStory?: string;
+}
+
+// Memory context interface
+export interface MemoryContext {
   recentInputs: string[];
-  recentEmotions: EmotionCategory[];
-  trustLevel: EmotionIntensity;
-  timestamp: number;
+  recentEmotions?: EmotionCategory[];
+  trustLevel: string;
+  lastInteractionTime?: number;
+  userPreferences?: Record<string, any>;
 }
 
-// Helper function to create emotional state
-export function createEmotionalState(
-  primary: EmotionCategory = 'neutral',
-  secondary: EmotionCategory | null = null,
-  intensity: EmotionIntensity = 'medium'
-): EmotionalState {
-  return {
-    primary,
-    secondary,
-    intensity
+// Emotional keywords interface
+export interface EmotionKeywords {
+  [key: string]: string[];
+}
+
+// Emotion responses interface
+export interface EmotionResponses {
+  [key: string]: {
+    low: string[];
+    medium: string[];
+    high: string[];
   };
+}
+
+// Clarifying questions interface
+export interface ClarifyingQuestions {
+  [key: string]: string[];
 }
