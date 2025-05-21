@@ -11,4 +11,3 @@ export {
 
 // Re-export types
 export type { PatternAnalysis, UnsaidInterpretation } from './types';
-

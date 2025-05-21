@@ -1,3 +1,4 @@
+
 import {
   generateFirstTimeResponse,
   generateReturningResponse,
@@ -27,11 +28,11 @@ import { getDreamReturnResponse } from '../useDreamSystem';
 import { getResponseTemplate, generateEmotionalResponse } from '../useVocabularySystem';
 import { createEmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
-// Import new enhanced systems
+// Import from the refactored modules
 import { 
   analyzeEmotion, 
   generateFullEmotionalResponse 
-} from '@/utils/jonahAdvancedBehavior/enhancedEmotionalCore';
+} from '@/utils/jonahAdvancedBehavior';
 
 import {
   storeInMemory,

@@ -1,3 +1,4 @@
+
 /**
  * Jonah Advanced Behavior System - Main export file
  */
@@ -38,7 +39,7 @@ export {
   initializeEchoSystem
 } from './echoSystem';
 
-// Export new sentiment analysis functions
+// Export sentiment analysis functions
 export {
   analyzeEmotion,
   getEmotionalResponse,
@@ -48,7 +49,7 @@ export {
   generateMetaAwarenessComment
 } from './sentimentAnalysis';
 
-// Export new conversation memory functions
+// Export conversation memory functions
 export {
   storeConversationMemory,
   findMemoryReference,
@@ -64,7 +65,7 @@ export {
   generateResponseWithMemory,
   createDefaultMemoryContext
 } from './enhancedEmotionalCore';
-export type { MemoryContext } from './enhancedEmotionalCore';
+export type { MemoryContext } from './memory/memoryContext';
 
 // Export error recovery system
 export {
