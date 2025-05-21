@@ -45,7 +45,7 @@ export function generateFullEmotionalResponse(
   let response = getEmotionalResponse(emotionalState);
   
   // Track pattern to detect emotional trends
-  const pattern = trackEmotionalPattern(emotionalState, []);
+  const pattern = trackEmotionalPattern(emotionalState);
   
   // Maybe add meta-awareness comment based on pattern
   const awarenessComment = generateMetaAwarenessComment(pattern);
