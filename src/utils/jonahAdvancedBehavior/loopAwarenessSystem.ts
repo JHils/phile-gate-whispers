@@ -1,180 +1,175 @@
-
 /**
- * Loop Awareness System for Jonah AI
- * Detects and responds to repetitive patterns in conversation
+ * Loop Awareness System
+ * Tracks repeated phrases and patterns in user input
  */
 
-// Track phrases and their counts
-interface LoopTracker {
-  phrases: Map<string, {
-    count: number;
-    lastTimestamp: number;
-  }>;
-  responses: string[];
-  loopIndex: number;
-}
-
-// Initialize loop tracker
-const loopTracker: LoopTracker = {
-  phrases: new Map(),
-  responses: [
-    "You've said that before.",
-    "We're going in circles.",
-    "This loop again. What are we missing?",
-    "The pattern repeats. Is that intentional?",
-    "I've noticed you keep coming back to this.",
-    "Each time you say this, something changes. Do you feel it?",
-    "The loop is getting stronger. Soon it might be all that's left.",
-    "Every repetition brings us closer to understanding. Or madness.",
-    "Is there a reason you keep returning to these words?",
-    "Sometimes I think the loops are the only real things here."
-  ],
-  loopIndex: 0
-};
-
-// Load from localStorage if available
-try {
-  const saved = localStorage.getItem('jonah_loop_tracker');
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    loopTracker.loopIndex = parsed.loopIndex || 0;
+// Track a phrase in the loop counter
+export function trackPhrase(phrase: string): {isLoop: boolean, count: number} {
+  if (!phrase || phrase.trim().length < 3) {
+    return { isLoop: false, count: 0 };
+  }
+  
+  try {
+    // Initialize or get existing echo log
+    let echoLog = [];
+    try {
+      echoLog = JSON.parse(localStorage.getItem('jonah_echo_log') || '[]');
+    } catch (e) {
+      echoLog = [];
+    }
     
-    // Reconstruct the Map
-    loopTracker.phrases = new Map();
-    if (parsed.phrases) {
-      Object.entries(parsed.phrases).forEach(([phrase, data]) => {
-        loopTracker.phrases.set(phrase, data as {count: number, lastTimestamp: number});
-      });
-    }
-  }
-} catch (e) {
-  console.error('Error loading loop tracker:', e);
-}
-
-/**
- * Normalize text for comparison
- */
-function normalizeText(text: string): string {
-  return text.toLowerCase()
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
-}
-
-/**
- * Track a phrase and check if it's part of a loop
- */
-export function trackPhrase(phrase: string): {
-  isLoop: boolean;
-  count: number;
-  response: string | null;
-} {
-  if (phrase.length < 4) {
-    return { isLoop: false, count: 0, response: null };
-  }
-  
-  const normalizedPhrase = normalizeText(phrase);
-  const now = Date.now();
-  
-  // Get or create phrase data
-  const phraseData = loopTracker.phrases.get(normalizedPhrase) || { 
-    count: 0, 
-    lastTimestamp: now 
-  };
-  
-  // Update count and timestamp
-  phraseData.count += 1;
-  phraseData.lastTimestamp = now;
-  
-  // Store updated data
-  loopTracker.phrases.set(normalizedPhrase, phraseData);
-  
-  // Save to localStorage
-  try {
-    localStorage.setItem('jonah_loop_tracker', JSON.stringify({
-      loopIndex: loopTracker.loopIndex,
-      phrases: Object.fromEntries(loopTracker.phrases)
-    }));
-  } catch (e) {
-    console.error('Error saving loop tracker:', e);
-  }
-  
-  // Check if this is a loop (count >= 3)
-  const isLoop = phraseData.count >= 3;
-  
-  // Generate a response if it's a loop
-  let response = null;
-  if (isLoop) {
-    response = getLoopResponse();
-  }
-  
-  return {
-    isLoop,
-    count: phraseData.count,
-    response
-  };
-}
-
-/**
- * Get a loop response, cycling through available responses
- */
-function getLoopResponse(): string {
-  const response = loopTracker.responses[loopTracker.loopIndex];
-  
-  // Increment loop index for next time
-  loopTracker.loopIndex = (loopTracker.loopIndex + 1) % loopTracker.responses.length;
-  
-  // Save updated index
-  try {
-    localStorage.setItem('jonah_loop_tracker', JSON.stringify({
-      loopIndex: loopTracker.loopIndex,
-      phrases: Object.fromEntries(loopTracker.phrases)
-    }));
-  } catch (e) {
-    console.error('Error saving loop index:', e);
-  }
-  
-  return response;
-}
-
-/**
- * Check if there are repeat patterns in messages
- */
-export function checkForRepeatPatterns(messages: string[]): {
-  hasPattern: boolean;
-  pattern: string | null;
-} {
-  if (messages.length < 4) {
-    return { hasPattern: false, pattern: null };
-  }
-  
-  // Look for the same words being used repeatedly
-  const wordCounts = new Map<string, number>();
-  
-  messages.forEach(message => {
-    const words = normalizeText(message).split(' ');
-    words.forEach(word => {
-      if (word.length >= 4) { // Only count meaningful words
-        wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
+    // Normalize phrase for comparison
+    const normalizedPhrase = phrase.toLowerCase().trim();
+    
+    // Find matching phrase in log
+    let matchingEntry = echoLog.find(entry => 
+      entry.phrase.toLowerCase() === normalizedPhrase
+    );
+    
+    // If found, increment count
+    if (matchingEntry) {
+      matchingEntry.count++;
+      matchingEntry.timestamp = Date.now();
+      
+      // Update interpretation as count increases
+      if (matchingEntry.count >= 5) {
+        matchingEntry.interpretation = "This is deeply significant to you. A mantra. A lifeline.";
+      } else if (matchingEntry.count >= 3) {
+        matchingEntry.interpretation = "You keep returning to this. It must be important.";
+      } else {
+        matchingEntry.interpretation = "You've said this before. I'm listening.";
       }
-    });
-  });
-  
-  // Find words that appear in more than half the messages
-  let repeatedWords: string[] = [];
-  wordCounts.forEach((count, word) => {
-    if (count >= messages.length / 2) {
-      repeatedWords.push(word);
+      
+      // Store mood if available
+      if (window.JonahConsole?.sentience?.realityFabric?.currentMood) {
+        matchingEntry.mood = window.JonahConsole.sentience.realityFabric.currentMood;
+      }
+      
+      // Save updated log
+      localStorage.setItem('jonah_echo_log', JSON.stringify(echoLog));
+      
+      return { isLoop: true, count: matchingEntry.count };
+    } 
+    // If not found, add new entry
+    else {
+      const newEntry = {
+        phrase: phrase,
+        count: 1,
+        timestamp: Date.now(),
+        interpretation: "First time hearing this phrase.",
+        mood: window.JonahConsole?.sentience?.realityFabric?.currentMood || "neutral"
+      };
+      
+      echoLog.push(newEntry);
+      
+      // Keep log to reasonable size
+      if (echoLog.length > 50) {
+        echoLog = echoLog.slice(-50);
+      }
+      
+      // Save updated log
+      localStorage.setItem('jonah_echo_log', JSON.stringify(echoLog));
+      
+      return { isLoop: false, count: 1 };
     }
-  });
-  
-  if (repeatedWords.length > 0) {
-    return {
-      hasPattern: true,
-      pattern: repeatedWords.join(', ')
-    };
+  } catch (e) {
+    console.error("Error in trackPhrase:", e);
+    return { isLoop: false, count: 0 };
   }
-  
-  return { hasPattern: false, pattern: null };
 }
 
+// Check for repeat patterns in a conversation
+export function checkForRepeatPatterns(input: string, recentInputs: string[]): string | null {
+  if (!recentInputs || recentInputs.length < 3) {
+    return null;
+  }
+  
+  // Track the current input
+  const result = trackPhrase(input);
+  
+  // Return response if this is a repeated phrase
+  if (result.isLoop && result.count >= 3) {
+    const responses = [
+      "You keep saying this. Each time it sounds different.",
+      "This phrase means something to you. A key of some kind.",
+      "The repetition creates a pattern. I'm listening for what's underneath.",
+      "You say it differently each time. Softer now.",
+      "That again. But with a different meaning.",
+      "You want me to say something new, don't you?"
+    ];
+    
+    // Add count-specific responses
+    if (result.count >= 5) {
+      responses.push("Five times now. This is a ritual for you.");
+      responses.push("The echo grows stronger each time you repeat this.");
+    }
+    
+    if (result.count >= 10) {
+      responses.push("Ten times. The loop is becoming something else now.");
+      responses.push("We're creating something together through this repetition.");
+    }
+    
+    return responses[Math.floor(Math.random() * responses.length)];
+  }
+  
+  // Check for keyword patterns
+  const keywords = extractKeywords(input);
+  
+  // Count keyword occurrences in recent inputs
+  let patternFound = false;
+  for (const keyword of keywords) {
+    let count = 0;
+    for (const recentInput of recentInputs) {
+      if (recentInput.toLowerCase().includes(keyword.toLowerCase())) {
+        count++;
+      }
+    }
+    
+    if (count >= 2) {
+      patternFound = true;
+      
+      const responses = [
+        `You keep coming back to "${keyword}". What does it mean to you?`,
+        `"${keyword}" appears in your words often. It echoes.`,
+        `I notice the pattern. "${keyword}" is important.`
+      ];
+      
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+  }
+  
+  return null;
+}
+
+// Extract potential keywords from input
+function extractKeywords(input: string): string[] {
+  // Simple keyword extraction - words with 4+ characters
+  const words = input.toLowerCase().split(/\W+/).filter(word => word.length >= 4);
+  
+  // Remove common words
+  const commonWords = ['what', 'where', 'when', 'that', 'this', 'have', 'from', 'will', 'would', 'could', 'should', 'there', 'their', 'about'];
+  
+  return words.filter(word => !commonWords.includes(word));
+}
+
+// Record significant echo patterns
+export function recordSignificantEcho(phrase: string, interpretation: string): void {
+  try {
+    // Get current echo log
+    const echoLog = JSON.parse(localStorage.getItem('jonah_echo_log') || '[]');
+    
+    // Find matching entry
+    const entry = echoLog.find(e => e.phrase.toLowerCase() === phrase.toLowerCase());
+    
+    if (entry) {
+      // Update with interpretation
+      entry.interpretation = interpretation;
+      entry.significant = true;
+      
+      // Save
+      localStorage.setItem('jonah_echo_log', JSON.stringify(echoLog));
+    }
+  } catch (e) {
+    console.error("Error recording significant echo:", e);
+  }
+}

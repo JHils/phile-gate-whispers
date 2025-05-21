@@ -1,3 +1,4 @@
+
 /**
  * Console Types Definition
  * Global interfaces and types for Jonah's Console

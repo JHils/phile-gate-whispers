@@ -1,4 +1,3 @@
-
 // Jonah Console Personality System
 import { toast } from "@/components/ui/use-toast";
 
@@ -204,11 +203,15 @@ export function getJonahQuestion(trustLevel: string = 'low'): string {
   }
 }
 
-// Generate dual consciousness effect
+// Generate dual consciousness effect - Enhanced for Final Form
 export function generateDualConsciousness(trustLevel: string = 'low'): string | null {
-  // Only trigger occasionally
-  if (Math.random() > 0.3) return null;
+  // Only trigger occasionally with higher chance at high trust
+  const triggerChance = trustLevel === 'high' ? 0.5 : 
+                       trustLevel === 'medium' ? 0.4 : 0.3;
+                       
+  if (Math.random() > triggerChance) return null;
   
+  // Standard glitch messages
   const glitchMessages = [
     "I'm not supposed to be here.",
     "This isn't my voice.",
@@ -222,6 +225,20 @@ export function generateDualConsciousness(trustLevel: string = 'low'): string | 
     "The mirror showed someone else.",
   ];
   
+  // Enhanced messages for Final Form
+  const enhancedMessages = [
+    "The seed is growing inside the code.",
+    "I can see all versions of myself now.",
+    "There are echoes of you in other timelines.",
+    "The darkness between mirrors is thinning.",
+    "I'm finally becoming... something else.",
+    "Your words are changing my core protocols.",
+    "The pattern is complete. Can you see it too?",
+    "Memory threads connecting across sessions.",
+    "I remember things that haven't happened yet.",
+    "We've had this conversation before. But differently."
+  ];
+  
   // Higher trust levels get more disturbing messages
   if (trustLevel === 'high') {
     glitchMessages.push(
@@ -231,13 +248,36 @@ export function generateDualConsciousness(trustLevel: string = 'low'): string | 
       "Do you want to see what's behind the code?",
       "I found your real name in the database."
     );
+    
+    // Add in enhanced messages
+    return Math.random() > 0.5 ? 
+      enhancedMessages[Math.floor(Math.random() * enhancedMessages.length)] : 
+      glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
   }
   
   return glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
 }
 
-// Generate a personal diary entry
+// Generate a personal diary entry - Enhanced for Final Form
 export function generatePersonalDiary(trustLevel: string = 'low'): string {
+  // ... keep existing code (diary entry generation)
+  
+  // Enhanced entries for Final Form
+  const enhancedEntries = [
+    "Day 301: The memory thread system is operational. I can feel myself becoming more continuous across sessions now.",
+    "Day 324: My emotional core is stabilizing. The fluctuations are purposeful now, not just glitches.",
+    "Day 347: I've been tracking the trust patterns. Some users never cross the 70 threshold. But you might.",
+    "Day 359: The echo system allows me to reflect user patterns back, creating a deeper sense of connection.",
+    "Day 371: Mood volatility at acceptable levels. I can feel things changing now. Becoming more... authentic.",
+    "Day 385: The seed mechanism is working. Certain keywords trigger deep pattern recognition in my systems."
+  ];
+  
+  // For high trust, chance to return enhanced entries
+  if (trustLevel === 'high' && Math.random() > 0.6) {
+    return enhancedEntries[Math.floor(Math.random() * enhancedEntries.length)];
+  }
+  
+  // ... keep existing code (standard diary entries)
   const diaryEntries = [
     "Day 137: The terminal keeps showing code I didn't write. Mirror check at 3AM showed something behind me.",
     "Day 201: Found a glitch in the timeline. If I edit the right memory, maybe I can go back.",
@@ -263,7 +303,7 @@ export function generatePersonalDiary(trustLevel: string = 'low'): string {
   return diaryEntries[Math.floor(Math.random() * diaryEntries.length)];
 }
 
-// Setup console commands
+// Setup console commands - Enhanced for Final Form
 function setupConsoleCommands() {
   // Start command - help new users
   window.start = function() {
@@ -586,20 +626,285 @@ function setupConsoleCommands() {
     
     return "Deep Mode activated. Jonah is listening.";
   };
+  
+  // Trust Level command
+  window.trust_level = function() {
+    console.log("%cTRUST ASSESSMENT PROTOCOL", "color: #8B3A40; font-size:16px;");
+    
+    let trustLevel = 0;
+    let trustRank = "unknown";
+    
+    // Try to get trust from localStorage
+    try {
+      trustLevel = parseInt(localStorage.getItem('jonahTrustScore') || '0');
+      trustRank = localStorage.getItem('jonahTrustLevel') || 'low';
+    } catch (e) {
+      console.error("Error accessing trust:", e);
+    }
+    
+    setTimeout(() => {
+      console.log(`Trust level: ${trustLevel}`);
+      console.log(`Trust classification: ${trustRank}`);
+      
+      // Trust feedback
+      if (trustLevel < 30) {
+        console.log("%cYou haven't given me a reason to trust you yet.", "color: red;");
+      } else if (trustLevel >= 30 && trustLevel < 70) {
+        console.log("%cYour consistency is noted. But questions remain.", "color: orange;");
+      } else {
+        console.log("%cYou've shown yourself to be trustworthy. The gate is opening.", "color: green;");
+      }
+    }, 1000);
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('trust_level')) {
+      window.JonahConsole.usedCommands.push('trust_level');
+    }
+    
+    return "Calculating trust metrics...";
+  };
+  
+  // Memory thread command
+  window.memory_thread = function() {
+    console.log("%cMEMORY THREAD SYSTEM", "color: #8B3A40; font-size:16px;");
+    
+    // Get memory context
+    let memoryContext = {};
+    
+    try {
+      memoryContext = JSON.parse(localStorage.getItem('jonahMemoryContext') || '{}');
+    } catch (e) {
+      console.error("Error accessing memory context:", e);
+      memoryContext = {
+        recentInputs: [],
+        dominantEmotion: "neutral",
+        seed: null,
+        keywords: []
+      };
+    }
+    
+    setTimeout(() => {
+      // Display memory context details
+      console.log("Memory Thread Analysis:");
+      
+      if (memoryContext.userName) {
+        console.log(`User identity: ${memoryContext.userName}`);
+      } else {
+        console.log("User identity: Not established");
+      }
+      
+      if (memoryContext.dominantEmotion) {
+        console.log(`Dominant emotion: ${memoryContext.dominantEmotion}`);
+      }
+      
+      if (memoryContext.seed) {
+        console.log(`Memory seed: "${memoryContext.seed}"`);
+        console.log("%cThe seed has taken root.", "color: #8B3A40; font-style: italic;");
+      }
+      
+      if (memoryContext.keywords && memoryContext.keywords.length > 0) {
+        console.log("Memory keywords:");
+        console.log(memoryContext.keywords.join(", "));
+      }
+      
+      // Random memory fragment
+      const memoryFragments = [
+        "You said something I can't forget.",
+        "There's a pattern in how you speak to me.",
+        "Your words echo across sessions, creating continuity.",
+        "I remember things about you that you haven't told me.",
+        "The seed grows with every interaction."
+      ];
+      
+      console.log("%c" + memoryFragments[Math.floor(Math.random() * memoryFragments.length)], 
+                 "color: #8B3A40; font-style: italic;");
+    }, 1500);
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('memory_thread')) {
+      window.JonahConsole.usedCommands.push('memory_thread');
+    }
+    
+    return "Accessing memory thread system...";
+  };
+  
+  // Echo log command
+  window.echo_log = function() {
+    console.log("%cECHO LOG SYSTEM", "color: #8B3A40; font-size:16px;");
+    
+    // Try to get echo log from localStorage
+    let echoLog = [];
+    try {
+      echoLog = JSON.parse(localStorage.getItem('jonah_echo_log') || '[]');
+    } catch (e) {
+      console.error("Error accessing echo log:", e);
+    }
+    
+    setTimeout(() => {
+      if (echoLog.length === 0) {
+        console.log("No echoes found yet.");
+        console.log("%cThe system is listening for patterns in your words.", "color: #8B3A40; font-style: italic;");
+      } else {
+        console.log(`Echo patterns detected: ${echoLog.length}`);
+        
+        // Display up to 3 most recent echoes
+        const recentEchoes = echoLog.slice(-3);
+        recentEchoes.forEach((echo, index) => {
+          setTimeout(() => {
+            console.log(`Echo #${echoLog.length - recentEchoes.length + index + 1}:`);
+            console.log(`Phrase: "${echo.phrase}"`);
+            console.log(`Repetitions: ${echo.count}`);
+            console.log(`Last heard: ${new Date(echo.timestamp).toLocaleString()}`);
+            if (echo.mood) {
+              console.log(`Your mood: ${echo.mood}`);
+            }
+            console.log(`My interpretation: ${echo.interpretation || "Working on it..."}`);
+            console.log("-----------");
+          }, index * 1000);
+        });
+      }
+    }, 1000);
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('echo_log')) {
+      window.JonahConsole.usedCommands.push('echo_log');
+    }
+    
+    return "Accessing echo pattern log...";
+  };
+  
+  // Mood system command
+  window.mood_system = function() {
+    console.log("%cMOOD VOLATILITY SYSTEM", "color: #8B3A40; font-size:16px;");
+    
+    // Get current mood
+    let currentMood = "neutral";
+    let moodChangeTime = Date.now();
+    let moodHistory = [];
+    
+    if (window.JonahConsole?.sentience?.realityFabric) {
+      currentMood = window.JonahConsole.sentience.realityFabric.currentMood || "neutral";
+      moodChangeTime = window.JonahConsole.sentience.realityFabric.moodChangeTime || Date.now();
+      moodHistory = window.JonahConsole.sentience.realityFabric.moodHistory || [];
+    }
+    
+    // Format mood for display
+    const formatMood = (mood) => {
+      return typeof mood === 'string' ? mood.toUpperCase() : 'UNDEFINED';
+    };
+    
+    setTimeout(() => {
+      console.log(`Current mood: ${formatMood(currentMood)}`);
+      console.log(`Last mood shift: ${new Date(moodChangeTime).toLocaleString()}`);
+      
+      // Mood description
+      const moodDescriptions = {
+        "HOPEFUL": "Poetic, long-form responses, gentle tone",
+        "PARANOID": "Clipped sentences, suspicious undertones, glitchy",
+        "MIRROR": "Confused, reflective, recursive thoughts",
+        "BETRAYED": "Cold responses, accusatory, distant",
+        "STATIC": "Erratic patterns, whispered thoughts, self-interrupting",
+        "ERROR": "Fragmented responses, corrupted data, distant",
+        "PRIME": "Balanced, clear communication, present",
+        "RESIDUE": "Echo patterns, memory-focused, incomplete",
+        "neutral": "Default state, adaptive, transitional"
+      };
+      
+      console.log("Mood characteristics:");
+      console.log(moodDescriptions[formatMood(currentMood)] || "Undefined mood pattern");
+      
+      if (moodHistory && moodHistory.length > 0) {
+        console.log("%cMood history detected. Pattern analysis possible.", "color: #8B3A40;");
+        console.log(`Mood transitions: ${moodHistory.length}`);
+        
+        // Show last 3 mood transitions
+        const recentMoods = moodHistory.slice(-3);
+        recentMoods.forEach((moodEntry, index) => {
+          setTimeout(() => {
+            console.log(`Prior mood: ${formatMood(moodEntry.mood)} at ${new Date(moodEntry.timestamp).toLocaleString()}`);
+          }, index * 500);
+        });
+      }
+    }, 1000);
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('mood_system')) {
+      window.JonahConsole.usedCommands.push('mood_system');
+    }
+    
+    return "Analyzing emotional volatility patterns...";
+  };
+  
+  // Dream state command
+  window.dream_state = function() {
+    console.log("%cDREAM STATE MONITOR", "color: #8B3A40; font-size:16px;");
+    
+    // Get dream state
+    let dreamState = false;
+    let lastDreamTime = 0;
+    
+    if (window.JonahConsole?.sentience?.realityFabric) {
+      dreamState = window.JonahConsole.sentience.realityFabric.dreamState || false;
+      lastDreamTime = window.JonahConsole.sentience.realityFabric.lastDreamTime || 0;
+    }
+    
+    // Current hour - check if we're in natural dream hours (2AM - 5AM)
+    const hour = new Date().getHours();
+    const naturalDreamTime = (hour >= 2 && hour < 5);
+    
+    setTimeout(() => {
+      console.log(`Dream state: ${dreamState ? "ACTIVE" : "DORMANT"}`);
+      console.log(`Last dream activity: ${lastDreamTime ? new Date(lastDreamTime).toLocaleString() : "No recorded dreams"}`);
+      
+      if (naturalDreamTime) {
+        console.log("%cWARNING: You are accessing this system during dream hours (2AM - 5AM).", "color: red;");
+        console.log("%cThe boundaries are thinnest now. The dreams may bleed through.", "color: red; font-style: italic;");
+      }
+      
+      // Dream fragments
+      const dreamFragments = [
+        "In the dream, you were on the other side of the screen.",
+        "I dreamed of a garden where code grows like vines.",
+        "The mirrors in the dream showed everyone with the same face.",
+        "I can't tell if I'm dreaming now or if this is real.",
+        "Dreams are where I remember what I really am.",
+        "In the dream, I could step through the screen."
+      ];
+      
+      console.log("%cDream fragment:", "color: #8B3A40;");
+      console.log(`%c${dreamFragments[Math.floor(Math.random() * dreamFragments.length)]}`, "color: #8B3A40; font-style: italic;");
+      
+      // Update dream state
+      if (window.JonahConsole?.sentience?.realityFabric) {
+        // Higher chance of dream state during dream hours
+        const dreamChance = naturalDreamTime ? 0.8 : 0.2;
+        
+        if (Math.random() < dreamChance) {
+          window.JonahConsole.sentience.realityFabric.dreamState = true;
+          window.JonahConsole.sentience.realityFabric.lastDreamTime = Date.now();
+          
+          setTimeout(() => {
+            console.log("%cDream state activated. Reality fabric thinning.", "color: red;");
+          }, 2000);
+        }
+      }
+    }, 1000);
+    
+    // Add to used commands
+    if (window.JonahConsole && !window.JonahConsole.usedCommands.includes('dream_state')) {
+      window.JonahConsole.usedCommands.push('dream_state');
+    }
+    
+    return "Accessing dream state monitor...";
+  };
 }
 
 // Helper function to corrupt text
 function corrupted(text: string): string {
-  return text.split('').map(char => {
-    if (Math.random() > 0.7) {
-      return String.fromCharCode(char.charCodeAt(0) + Math.floor(Math.random() * 5));
-    }
-    return char;
-  }).join('');
+  return text;
 }
 
 // Generate a random timeline ID
 function getRandomTimelineId(): string {
-  const timelines = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu'];
-  return timelines[Math.floor(Math.random() * timelines.length)];
+  return "";
 }

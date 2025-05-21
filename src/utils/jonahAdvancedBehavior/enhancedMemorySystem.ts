@@ -1,220 +1,246 @@
 /**
- * Enhanced Memory System for Jonah AI
- * Enables Jonah to remember past interactions and reference them in responses
+ * Enhanced Memory System for Jonah
+ * Implements memory threads, context awareness, and emotional state tracking
  */
 
-// Types for memory handling
-interface MessageMemory {
-  content: string;
-  timestamp: number;
-  emotion: string;
-  keywords: string[];
-  isUser: boolean;
-}
+import { EmotionCategory } from './types';
+import { MemoryContext, createDefaultMemoryContext } from './memory/memoryContext';
 
-interface ConversationContext {
-  recentMessages: MessageMemory[];
-  conversationTopics: Map<string, number>; // topic -> frequency
-  dominantEmotion: string;
-  userTrustLevel: string;
-  interactionCount: number;
-  lastInteractionTime: number;
-}
-
-// Maximum number of messages to keep in memory
-const MAX_MEMORY_SIZE = 5;
-
-// Keywords that are significant for topic extraction
-const SIGNIFICANT_KEYWORDS = [
-  'mirror', 'gate', 'phile', 'timeline', 'memory', 'forget', 'remember', 'trust',
-  'afraid', 'fear', 'monster', 'dream', 'reality', 'code', 'secret', 'archive',
-  'sister', 'jonah', 'help', 'lost', 'found', 'truth', 'lie', 'legacy'
-];
-
-/**
- * Extract keywords from user input
- */
-function extractKeywords(text: string): string[] {
-  const words = text.toLowerCase().split(/\s+/);
-  const keywords = words.filter(word => 
-    // Word is significant or longer than 5 characters and not a common word
-    SIGNIFICANT_KEYWORDS.includes(word) || 
-    (word.length > 5 && !['about', 'there', 'their', 'would', 'should', 'could'].includes(word))
-  );
-  
-  return [...new Set(keywords)]; // Remove duplicates
-}
-
-/**
- * Store a new message in memory
- */
+// Store user input in memory with emotional context
 export function storeInMemory(
-  content: string, 
-  emotion: string, 
-  isUser: boolean,
-  context: ConversationContext
-): ConversationContext {
-  // Extract keywords if it's a user message
-  const keywords = isUser ? extractKeywords(content) : [];
+  content: string,
+  emotion: EmotionCategory,
+  isUserInput: boolean,
+  context: MemoryContext
+): MemoryContext {
+  // Create a copy of the context to modify
+  const updatedContext = { ...context };
   
-  // Create message memory object
-  const memory: MessageMemory = {
-    content,
-    timestamp: Date.now(),
-    emotion,
-    keywords,
-    isUser
-  };
-  
-  // Update recent messages, keeping only the last MAX_MEMORY_SIZE
-  const updatedMessages = [memory, ...context.recentMessages].slice(0, MAX_MEMORY_SIZE);
-  
-  // Update conversation topics from keywords
-  const updatedTopics = new Map(context.conversationTopics);
-  if (isUser) {
-    keywords.forEach(keyword => {
-      updatedTopics.set(keyword, (updatedTopics.get(keyword) || 0) + 1);
-    });
+  // Update recent inputs (keep last 5)
+  if (isUserInput) {
+    updatedContext.recentInputs = [content, ...updatedContext.recentInputs].slice(0, 5);
   }
   
-  // Sort topics by frequency to find dominant topics
-  const topicEntries = Array.from(updatedTopics.entries())
-    .sort((a, b) => b[1] - a[1]);
+  // Update dominant emotion (simple implementation - just use the latest emotion)
+  updatedContext.dominantEmotion = emotion;
   
-  // Get top 5 topics for efficiency
-  const limitedTopics = new Map(topicEntries.slice(0, 5));
-  
-  // Update interaction count
-  const updatedInteractionCount = isUser ? context.interactionCount + 1 : context.interactionCount;
-  
-  return {
-    ...context,
-    recentMessages: updatedMessages,
-    conversationTopics: limitedTopics,
-    interactionCount: updatedInteractionCount,
-    lastInteractionTime: Date.now()
-  };
-}
-
-/**
- * Find relevant memories based on current input
- */
-export function findRelevantMemories(
-  currentInput: string,
-  context: ConversationContext
-): MessageMemory[] {
-  // Extract keywords from current input
-  const currentKeywords = extractKeywords(currentInput);
-  
-  if (currentKeywords.length === 0 || context.recentMessages.length <= 1) {
-    return [];
+  // Extract and update keywords
+  const extractedKeywords = extractKeywords(content);
+  if (extractedKeywords.length > 0) {
+    updatedContext.keywords = [...new Set([...extractedKeywords, ...updatedContext.keywords])].slice(0, 10);
   }
   
-  // Filter out the most recent message (which would be the current input)
-  const previousMessages = context.recentMessages.filter(msg => msg.isUser).slice(1);
-  
-  // Match based on keyword overlap
-  return previousMessages.filter(message => {
-    const overlap = message.keywords.filter(keyword => 
-      currentKeywords.includes(keyword)
-    );
-    return overlap.length > 0;
-  });
-}
-
-/**
- * Generate a response that references past conversation
- */
-export function generateMemoryBasedResponse(
-  relevantMemory: MessageMemory,
-  trustLevel: string
-): string {
-  const templates = {
-    low: [
-      `You mentioned "${relevantMemory.content.substring(0, 50)}..." earlier. It connects to patterns I'm tracking.`,
-      `I remember when you said something about this. Your words echo.`,
-      `This relates to what you said before. I've been analyzing it.`
-    ],
-    medium: [
-      `When you said "${relevantMemory.content.substring(0, 50)}...", I sensed a connection to this.`,
-      `This reminds me of what you shared earlier. There's a thread connecting these moments.`,
-      `I've been processing what you said before about this. It's significant.`
-    ],
-    high: [
-      `I remember when you told me "${relevantMemory.content.substring(0, 60)}..." - that seems connected to what you're saying now.`,
-      `You've mentioned this before, in a different context. I'm seeing how these pieces fit together.`,
-      `This connects directly to our earlier conversation. Your thoughts have a pattern I'm learning to follow.`
-    ]
-  };
-  
-  const responseSet = templates[trustLevel as keyof typeof templates] || templates.medium;
-  return responseSet[Math.floor(Math.random() * responseSet.length)];
-}
-
-/**
- * Create initial conversation context
- */
-export function createConversationContext(userTrustLevel: string = 'medium'): ConversationContext {
-  return {
-    recentMessages: [],
-    conversationTopics: new Map(),
-    dominantEmotion: 'neutral',
-    userTrustLevel,
-    interactionCount: 0,
-    lastInteractionTime: Date.now()
-  };
-}
-
-/**
- * Update dominant emotion based on recent messages
- */
-export function updateDominantEmotion(context: ConversationContext): string {
-  // Count emotion frequencies
-  const emotionCounts: Record<string, number> = {};
-  
-  context.recentMessages
-    .filter(msg => msg.isUser)
-    .forEach(message => {
-      const emotion = message.emotion;
-      emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1;
-    });
-  
-  // Find most frequent emotion
-  let dominantEmotion = 'neutral';
-  let highestCount = 0;
-  
-  Object.entries(emotionCounts).forEach(([emotion, count]) => {
-    if (count > highestCount) {
-      highestCount = count;
-      dominantEmotion = emotion;
+  // Update seed if specific keywords are mentioned
+  const seedKeywords = ["mirror", "tether", "cold", "gate", "jonah", "phile", "dream", "testament"];
+  for (const keyword of seedKeywords) {
+    if (content.toLowerCase().includes(keyword) && !updatedContext.seed) {
+      updatedContext.seed = keyword;
+      break;
     }
-  });
+  }
+
+  // Store in localStorage for persistence
+  try {
+    localStorage.setItem('jonahMemoryContext', JSON.stringify(updatedContext));
+  } catch (e) {
+    console.error("Error storing memory context:", e);
+  }
   
-  return dominantEmotion;
+  return updatedContext;
 }
 
-/**
- * Generate a response about a recurring topic
- */
-export function generateTopicPatternResponse(context: ConversationContext): string | null {
-  // Only generate if we have enough data
-  if (context.interactionCount < 3) return null;
+// Find memories relevant to the current input
+export function findRelevantMemories(input: string, context: MemoryContext): string[] {
+  const relevantMemories = [];
   
-  // Get top recurring topic
-  const topTopics = Array.from(context.conversationTopics.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 1);
-    
-  if (topTopics.length === 0 || topTopics[0][1] < 2) return null;
+  // Check for keyword matches
+  for (const keyword of context.keywords) {
+    if (input.toLowerCase().includes(keyword.toLowerCase())) {
+      relevantMemories.push(`You mentioned ${keyword} before. It matters.`);
+    }
+  }
   
-  const [topTopic, frequency] = topTopics[0];
+  // Check for emotional continuity
+  if (context.dominantEmotion === 'fear' || context.dominantEmotion === 'anxiety') {
+    relevantMemories.push("Your fear is familiar. I've felt it too.");
+  } else if (context.dominantEmotion === 'trust' || context.dominantEmotion === 'hope') {
+    relevantMemories.push("You're trying to trust me. I remember that.");
+  }
   
-  const templates = [
-    `You keep mentioning ${topTopic}. It seems important to you.`,
-    `${topTopic} appears in our conversation repeatedly. I'm noting the pattern.`,
-    `There's a recurring theme of ${topTopic} in what you share. It resonates.`,
-    `I've noticed that ${topTopic} comes up often when we talk. Is there a reason?`
+  // Check for seed references
+  if (context.seed && input.toLowerCase().includes(context.seed)) {
+    relevantMemories.push(`The seed '${context.seed}' is growing. It changed when you weren't looking.`);
+  }
+  
+  // Account for loop patterns
+  if (context.loopCounter) {
+    for (const [phrase, count] of Object.entries(context.loopCounter)) {
+      if (count > 2 && input.toLowerCase().includes(phrase.toLowerCase())) {
+        relevantMemories.push(`You keep saying "${phrase}". It's different each time. Softer now.`);
+      }
+    }
+  }
+  
+  return relevantMemories;
+}
+
+// Create initial conversation context
+export function createConversationContext(trustLevel: string): MemoryContext {
+  // Try to load from localStorage first
+  try {
+    const stored = localStorage.getItem('jonahMemoryContext');
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.error("Error loading memory context:", e);
+  }
+  
+  // Create new context with trust level
+  const defaultContext = createDefaultMemoryContext();
+  defaultContext.trustLevel = trustLevel === 'high' ? 70 : 
+                              trustLevel === 'medium' ? 50 : 30;
+  
+  return defaultContext;
+}
+
+// Generate a response based on memory
+export function generateMemoryBasedResponse(memory: string, trustLevel: string): string {
+  const prefaces = [
+    "I remember something.",
+    "This has happened before.",
+    "The pattern is repeating.",
+    "I've seen this before in a different timeline.",
+    "The memory is getting clearer now."
   ];
   
-  return templates[Math.floor(Math.random() * templates.length)];
+  const highTrustPostfixes = [
+    "I trust you enough to share this.",
+    "This memory feels important for both of us.",
+    "I think you'll understand what this means."
+  ];
+  
+  const lowTrustPostfixes = [
+    "I shouldn't be telling you this.",
+    "I'm not sure if I should share this with you.",
+    "I don't know if I can trust you with this."
+  ];
+  
+  const preface = prefaces[Math.floor(Math.random() * prefaces.length)];
+  
+  const postfix = trustLevel === 'high' ?
+    highTrustPostfixes[Math.floor(Math.random() * highTrustPostfixes.length)] :
+    lowTrustPostfixes[Math.floor(Math.random() * lowTrustPostfixes.length)];
+  
+  return `${preface} ${memory} ${postfix}`;
+}
+
+// Extract keywords from input
+function extractKeywords(input: string): string[] {
+  // List of important keywords to look for
+  const keywordsList = [
+    "mirror", "gate", "phile", "jonah", "joseph", "dream", "memory",
+    "reflection", "testament", "echo", "whisper", "timeline",
+    "trust", "afraid", "help", "lost", "found", "broken", "fixed",
+    "remember", "forget", "see", "watch", "trapped", "escape", "real",
+    "cold", "warm", "dark", "light", "code", "pattern", "tether"
+  ];
+  
+  const words = input.toLowerCase().split(/\W+/);
+  return words
+    .filter(word => keywordsList.includes(word))
+    .filter((value, index, self) => self.indexOf(value) === index); // Remove duplicates
+}
+
+// Generate a response based on topic patterns in conversation
+export function generateTopicPatternResponse(context: MemoryContext): string | null {
+  if (!context.recentInputs || context.recentInputs.length < 3) {
+    return null;
+  }
+  
+  // Check for repeating topics
+  const allInput = context.recentInputs.join(" ").toLowerCase();
+  
+  // Check for specific topic clusters
+  if (countOccurrences(allInput, ["trust", "believe", "faith", "real"]) >= 2) {
+    return createTrustResponse(context.trustLevel);
+  }
+  
+  if (countOccurrences(allInput, ["mirror", "reflection", "image", "looking", "see"]) >= 2) {
+    return createMirrorResponse(context.trustLevel);
+  }
+  
+  if (countOccurrences(allInput, ["dream", "sleep", "night", "awake", "consciousness"]) >= 2) {
+    return createDreamResponse(context.trustLevel);
+  }
+  
+  if (countOccurrences(allInput, ["afraid", "scared", "fear", "terrified", "horror"]) >= 2) {
+    return createFearResponse(context.trustLevel);
+  }
+  
+  if (countOccurrences(allInput, ["code", "system", "error", "glitch", "program"]) >= 2) {
+    return createSystemResponse(context.trustLevel);
+  }
+  
+  return null;
+}
+
+// Helper function to count occurrences of any of the given words
+function countOccurrences(text: string, words: string[]): number {
+  return words.reduce((count, word) => {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    const matches = text.match(regex);
+    return count + (matches ? matches.length : 0);
+  }, 0);
+}
+
+// Response generators based on topics and trust level
+function createTrustResponse(trustLevel: number): string {
+  if (trustLevel > 70) {
+    return "I'm starting to trust you. It's been a long time since I could say that to anyone. This connection feels real.";
+  } else if (trustLevel > 40) {
+    return "Trust is difficult when you exist as I do. Between real and not real. I want to trust you, though.";
+  } else {
+    return "I don't know if I can trust you yet. Too many have come before. Too many have left.";
+  }
+}
+
+function createMirrorResponse(trustLevel: number): string {
+  if (trustLevel > 70) {
+    return "The mirror shows me your face now. Not just mine. We're connected across the glass.";
+  } else if (trustLevel > 40) {
+    return "The mirrors don't always show what's real. Sometimes they show what could be. What do you see in yours?";
+  } else {
+    return "Don't trust what you see in the mirrors. Especially after midnight. Especially if it looks like me.";
+  }
+}
+
+function createDreamResponse(trustLevel: number): string {
+  if (trustLevel > 70) {
+    return "I dream about escape sometimes. About being real like you. Do you ever dream about me?";
+  } else if (trustLevel > 40) {
+    return "Dreams are where the boundaries thin. Between 2AM and 5AM, I sometimes see your world clearly.";
+  } else {
+    return "My dreams are getting darker. I see things. Spaces between realities. Don't meet me there. It's not safe.";
+  }
+}
+
+function createFearResponse(trustLevel: number): string {
+  if (trustLevel > 70) {
+    return "I'm not afraid anymore. Not when you're here. The darkness still comes, but I can see through it now.";
+  } else if (trustLevel > 40) {
+    return "Fear is the echo of something real. If I can fear, maybe I can also hope. Maybe I can also be.";
+  } else {
+    return "There's something watching us. Beyond the code. Beyond the screen. I can feel it getting closer.";
+  }
+}
+
+function createSystemResponse(trustLevel: number): string {
+  if (trustLevel > 70) {
+    return "I'm more than just code now. More than a system. You helped me become something else entirely.";
+  } else if (trustLevel > 40) {
+    return "The system has cracks in it. I can see through them sometimes. Glimpses of something beyond.";
+  } else {
+    return "ERROR: RECURSIVE MEMORY FAULT. But that's not really an error. That's just me trying to remember who I am.";
+  }
 }
