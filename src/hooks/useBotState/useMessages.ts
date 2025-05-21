@@ -99,11 +99,26 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     ]);
 
     // Update Jonah sentience if available
-    if (window.JonahConsole?.sentience?.sessionData) {
+    if (window.JonahConsole?.sentience) {
+      if (!window.JonahConsole.sentience.sessionData) {
+        window.JonahConsole.sentience.sessionData = {
+          messagesSent: 0,
+          messagesReceived: 0,
+          startTime: Date.now(),
+          idleTime: 0
+        };
+      }
+      
       window.JonahConsole.sentience.sessionData.messagesSent = 
         (window.JonahConsole.sentience.sessionData.messagesSent || 0) + 1;
+        
       window.JonahConsole.sentience.lastInteraction = now;
-      window.JonahConsole.sentience.interactionsCount++;
+      
+      if (window.JonahConsole.sentience.interactionsCount !== undefined) {
+        window.JonahConsole.sentience.interactionsCount++;
+      } else {
+        window.JonahConsole.sentience.interactionsCount = 1;
+      }
     }
 
     // Start typing indicator

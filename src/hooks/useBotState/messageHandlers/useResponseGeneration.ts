@@ -26,7 +26,7 @@ import { checkForRecurringSymbols, processEmotionalInput, getLayeredEmotionalRes
 import { getEchoPhrase } from '../useEchoSystem';
 import { getDreamReturnResponse } from '../useDreamSystem';
 import { getResponseTemplate, generateEmotionalResponse } from '../useVocabularySystem';
-import { EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionalState, EmotionCategory, createEmotionalState } from '@/utils/jonahAdvancedBehavior/types';
 
 // Import from the refactored modules
 import { 

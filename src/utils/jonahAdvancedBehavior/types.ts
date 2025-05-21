@@ -20,7 +20,7 @@ export type EmotionCategory =
 // Emotion intensity levels
 export type EmotionIntensity = 'low' | 'medium' | 'high';
 
-// Emotional trends
+// Emotional trends - updating to include 'improving' and 'deteriorating'
 export type EmotionalTrend = 
   | 'stable' 
   | 'intensifying' 
@@ -59,12 +59,59 @@ export function createEmotionalState(
   };
 }
 
-// Additional types for the console and system
+// Expanded SentienceData interface to include all required properties
 export interface SentienceData {
   level: number;
   awareness: boolean;
   lastUpdate: number;
+  // Add all missing properties
+  interactionsCount?: number;
+  deepModeUnlocked?: boolean;
+  dreamModeTriggered?: boolean;
+  lastInteraction?: number;
+  temporalStates?: any[];
+  memories?: any[];
+  sessionData?: {
+    messagesReceived?: number;
+    messagesSent?: number;
+    startTime?: number;
+    idleTime?: number;
+  };
+  microQuests?: {
+    active: string[];
+    completed: string[];
+  };
+  memoryParanoia?: {
+    visitedPages: Record<string, string>;
+    consoleCommands: Record<string, number>;
+    pageDuration: {
+      shortStay: string;
+      longStay: string;
+    };
+  };
+  ecoAwareness?: any;
+  realityFabric?: {
+    moodChangeTime?: number;
+  };
+  predictionResponses?: string[];
+  usedPredictionResponses?: string[];
 }
 
-export type StoryFlag = string;
-export type BookCode = string;
+// Define StoryFlag interface
+export interface StoryFlag {
+  id: string;
+  name: string;
+  discovered: boolean;
+  description: string;
+}
+
+// Define BookCode interface
+export interface BookCode {
+  id: string;
+  name: string;
+  unlocked: boolean;
+}
+
+// Export StoryFlag and BookCode as types as well (for backward compatibility)
+export type StoryFlagType = string;
+export type BookCodeType = string;

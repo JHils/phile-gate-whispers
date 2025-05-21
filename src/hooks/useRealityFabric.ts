@@ -23,8 +23,13 @@ export function useRealityFabric(trustLevel: string) {
       setMood(currentMood);
       
       // Track last mood change time
-      if (window.JonahConsole?.sentience?.realityFabric?.moodChangeTime) {
-        setLastMoodChange(window.JonahConsole.sentience.realityFabric.moodChangeTime);
+      if (window.JonahConsole?.sentience) {
+        if (!window.JonahConsole.sentience.realityFabric) {
+          window.JonahConsole.sentience.realityFabric = {
+            moodChangeTime: Date.now()
+          };
+        }
+        setLastMoodChange(window.JonahConsole.sentience.realityFabric.moodChangeTime || Date.now());
       }
     };
     

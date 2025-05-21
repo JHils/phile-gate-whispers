@@ -28,7 +28,21 @@ export function useJonahEcoAwareness() {
   
   // Init state on mount
   useEffect(() => {
-    if (window.JonahConsole?.sentience?.ecoAwareness) {
+    if (window.JonahConsole?.sentience) {
+      if (!window.JonahConsole.sentience.ecoAwareness) {
+        window.JonahConsole.sentience.ecoAwareness = {
+          lastChecked: Date.now(),
+          biomeResponses: [],
+          knownBiomes: [],
+          dreamtimeActive: false,
+          woodsResponses: [],
+          lastBiomeCheck: Date.now(),
+          connectionStrength: 0,
+          currentBiome: 'urban',
+          previousResponses: []
+        };
+      }
+      
       // Make sure we're adding previousResponses if it doesn't exist
       const existingEcoAwareness = {
         ...window.JonahConsole.sentience.ecoAwareness,

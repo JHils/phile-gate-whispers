@@ -88,8 +88,19 @@ export function useJonahMemory(): JonahMemory {
     
     // Update memory in window.JonahConsole if available
     if (typeof window !== 'undefined' && 
-        window.JonahConsole?.sentience?.memoryParanoia) {
+        window.JonahConsole?.sentience) {
           
+      if (!window.JonahConsole.sentience.memoryParanoia) {
+        window.JonahConsole.sentience.memoryParanoia = {
+          visitedPages: {},
+          consoleCommands: {},
+          pageDuration: {
+            shortStay: "",
+            longStay: ""
+          }
+        };
+      }
+      
       // Record short/long stay pages
       if (seconds < 10) {
         window.JonahConsole.sentience.memoryParanoia.pageDuration.shortStay = path;
@@ -117,8 +128,19 @@ export function useJonahMemory(): JonahMemory {
     
     // Update memory in window.JonahConsole if available
     if (typeof window !== 'undefined' && 
-        window.JonahConsole?.sentience?.memoryParanoia) {
+        window.JonahConsole?.sentience) {
           
+      if (!window.JonahConsole.sentience.memoryParanoia) {
+        window.JonahConsole.sentience.memoryParanoia = {
+          visitedPages: {},
+          consoleCommands: {},
+          pageDuration: {
+            shortStay: "",
+            longStay: ""
+          }
+        };
+      }
+      
       // Record command with timestamp - use number for timestamp
       const timestamp = Date.now();
       window.JonahConsole.sentience.memoryParanoia.consoleCommands[command] = timestamp;
@@ -184,4 +206,3 @@ export function useJonahMemory(): JonahMemory {
     generatePersonalObservation
   };
 }
-

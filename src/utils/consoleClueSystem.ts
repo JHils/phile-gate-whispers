@@ -1,196 +1,109 @@
-import { glitchEffectLog, typewriterLog, speak, delayedLog } from "./consoleEffects";
-import { StoryFlag } from "./jonahAdvancedBehavior/types";
 
-// Import centralized types
-import './types/globalConsoleTypes';
+// Import the StoryFlag interface
+import { StoryFlag } from './jonahAdvancedBehavior/types';
 
-type TrackCommandFunction = (commandName: string) => void;
-
-export const initializeClueSystem = (trackCommandExecution: TrackCommandFunction) => {
-  // Initialize story flags if they don't exist
+// Initialize story flags
+export const initializeStoryFlags = () => {
+  if (!window.JonahConsole) {
+    window.JonahConsole = { storyFlags: [] };
+  }
+  
   if (!window.JonahConsole.storyFlags) {
     window.JonahConsole.storyFlags = [
-      { id: "first_mirror", name: "First Mirror", discovered: false, description: "You found the first mirror." },
-      { id: "mirror_sequence", name: "Mirror Sequence", discovered: false, description: "You understood the mirror sequence." },
-      { id: "shadow_realm", name: "Shadow Realm", discovered: false, description: "You entered the shadow realm." },
-      { id: "keyhole_seen", name: "Keyhole Seen", discovered: false, description: "You spotted the keyhole." },
-      { id: "console_level_2", name: "Console Level 2", discovered: false, description: "You unlocked console level 2." },
-      { id: "testament_found", name: "Testament Found", discovered: false, description: "You discovered the testament." },
-      { id: "whisper_heard", name: "Whisper Heard", discovered: false, description: "You heard the whisper." }
+      { id: 'jonah_origin', name: 'Jonah Origin', discovered: false, description: 'The true origin of Jonah' },
+      { id: 'gate_purpose', name: 'Gate Purpose', discovered: false, description: 'What the Gate really is for' },
+      { id: 'sisters_count', name: 'Sisters Count', discovered: false, description: 'How many lost sisters there are' },
+      { id: 'reflection_path', name: 'Reflection Path', discovered: false, description: 'Where reflections lead' },
+      { id: 'simba_truth', name: 'Simba Truth', discovered: false, description: 'The truth about Simba' },
+      { id: 'keyhole_secret', name: 'Keyhole Secret', discovered: false, description: 'What lies beyond the keyhole' },
+      { id: 'mirror_world', name: 'Mirror World', discovered: false, description: 'The nature of the mirror world' }
     ];
-    
-    // Load discovered flags from localStorage
-    const discoveredFlags = JSON.parse(localStorage.getItem('discoveredStoryFlags') || '[]');
-    if (discoveredFlags.length > 0) {
-      discoveredFlags.forEach((flagId: string) => {
-        const flag = window.JonahConsole.storyFlags.find(f => f.id === flagId);
-        if (flag) flag.discovered = true;
-      });
-    }
   }
-
-  // Initialize book codes if they don't exist
-  if (!window.JonahConsole.bookCodes) {
-    window.JonahConsole.bookCodes = [];
-  }
-
-  // mirrorCheck command - requires at least 3 story flags discovered
-  window.mirrorCheck = function() {
-    const discoveredCount = window.JonahConsole.storyFlags?.filter(f => f.discovered).length || 0;
-    const unlockedBookCodes = window.JonahConsole.bookCodes ? 
-      window.JonahConsole.bookCodes.filter(bc => bc.unlocked).length : 0;
-    
-    if (discoveredCount >= 3 || unlockedBookCodes >= 3) {
-      glitchEffectLog("The mirror reflects a different story.");
-      speak("The mirror reflects a different story");
-      
-      setTimeout(() => {
-        console.log("%cReflecting story fragments...", "color: #475B74; font-size:14px;");
-        
-        // Show discovered story flags
-        setTimeout(() => {
-          if (window.JonahConsole.storyFlags) {
-            window.JonahConsole.storyFlags
-              .filter(f => f.discovered)
-              .forEach((flag, index) => {
-                setTimeout(() => {
-                  console.log(`%c${flag.description}`, "color: #8B3A40; font-size:14px;");
-                }, index * 1000);
-              });
-          }
-          
-          // Add a connecting phrase at the end
-          setTimeout(() => {
-            typewriterLog("These fragments form a pattern. The truth hides in plain sight.");
-            
-            // Reveal a hidden message if enough flags are discovered
-            if (discoveredCount >= 5) {
-              setTimeout(() => {
-                console.log("%cWhen rearranged, they spell: J-O-N-A-S", "color: #475B74; font-size:14px; font-style:italic;");
-              }, 3000);
-            }
-          }, (discoveredCount + 1) * 1000);
-        }, 1000);
-      }, 2000);
-      
-      window.JonahConsole.score += discoveredCount * 5;
-    } else {
-      typewriterLog("The mirror shows only your reflection. Not enough fragments collected.");
-      speak("Not enough fragments collected");
-      
-      setTimeout(() => {
-        console.log("%cDiscover more story flags or unlock more book codes first.", "color: #475B74; font-size:14px; font-style:italic;");
-      }, 2000);
-    }
-    
-    trackCommandExecution('mirrorCheck');
-  };
-
-  // Command to view discovered story flags
-  window.storyFlags = function() {
-    if (!window.JonahConsole.storyFlags) {
-      window.JonahConsole.storyFlags = []; 
-    }
-    
-    const discoveredCount = window.JonahConsole.storyFlags.filter(f => f.discovered).length;
-    const totalCount = window.JonahConsole.storyFlags.length;
-    
-    console.log(`%cStory Flags: ${discoveredCount}/${totalCount} discovered`, "color: #8B3A40; font-size:16px; font-weight:bold;");
-    
-    if (discoveredCount === 0) {
-      console.log("%cYou haven't discovered any story flags yet.", "color: #475B74; font-size:14px;");
-      console.log("%cExplore the site, read between the lines, and listen to the whispers.", "color: #475B74; font-size:14px;");
-    } else {
-      window.JonahConsole.storyFlags.forEach(flag => {
-        if (flag.discovered) {
-          console.log(`%c✓ ${flag.description}`, "color: #4B8E4B; font-size:14px;");
-        } else {
-          console.log(`%c□ [Undiscovered story fragment]`, "color: #475B74; font-size:14px;");
-        }
-      });
-    }
-    
-    // Hint at mirrorCheck if enough flags discovered
-    if (discoveredCount >= 3 && !window.JonahConsole.usedCommands.includes('mirrorCheck')) {
-      setTimeout(() => {
-        console.log("%cTry mirrorCheck() to reflect these fragments.", "color: #475B74; font-size:14px; font-style:italic;");
-      }, 1000);
-    }
-    
-    trackCommandExecution('storyFlags');
-  };
-
-  // Function to discover a story flag (called from various pages)
-  window.discoverStoryFlag = function(flagId: string): boolean {
-    if (!window.JonahConsole.storyFlags) {
-      return false;
-    }
-    
-    const flag = window.JonahConsole.storyFlags.find(f => f.id === flagId);
-    if (flag && !flag.discovered) {
-      flag.discovered = true;
-      
-      // Save to localStorage
-      const discoveredFlags = window.JonahConsole.storyFlags
-        .filter(f => f.discovered)
-        .map(f => f.id);
-      localStorage.setItem('discoveredStoryFlags', JSON.stringify(discoveredFlags));
-      
-      // Award points
-      window.JonahConsole.score += 20;
-      
-      return true;
-    }
-    return false;
-  };
-
-  // Command to find anomalies in text
-  window.findAnomaly = function(text: string) {
-    if (!text) {
-      console.log("%cEnter text to analyze for anomalies. Format: findAnomaly('text')", "color: #475B74; font-size:14px;");
-      return;
-    }
-    
-    const cleanText = String(text).trim().toLowerCase();
-    
-    // List of special phrases that trigger reactions
-    const anomalies = [
-      { phrase: "he wore socks like a codebreaker", flag: "hostel_encounter" },
-      { phrase: "the pedals felt wrong", flag: "boat_haven" },
-      { phrase: "mirror never lies but voice did", flag: "mirror_warning" },
-      { phrase: "three days of spinning", flag: "spinning_coin" },
-      { phrase: "terminus never reached", flag: "cable_car" },
-      { phrase: "magnetic pull of canvas", flag: "magnetic_tent" },
-      { phrase: "the loop never breaks", flag: "bus_loop" }
-    ];
-    
-    // Check for matches
-    const found = anomalies.find(a => cleanText.includes(a.phrase));
-    
-    if (found) {
-      glitchEffectLog("Anomaly detected in text pattern.");
-      speak("Anomaly detected");
-      
-      setTimeout(() => {
-        console.log(`%cThis connects to: ${found.phrase}`, "color: #8B3A40; font-size:14px;");
-        
-        // Discover the story flag - Fix type error by directly checking the boolean return
-        const newDiscovery = window.discoverStoryFlag(found.flag);
-        
-        // We check against true explicitly since this is a boolean return now
-        if (newDiscovery === true) {
-          setTimeout(() => {
-            console.log("%cNew story flag discovered!", "color: #4B8E4B; font-size:14px; font-weight:bold;");
-          }, 1500);
-        }
-      }, 2000);
-    } else {
-      typewriterLog("No anomalies detected in this text.");
-      speak("No anomalies detected");
-    }
-    
-    trackCommandExecution('findAnomaly');
-  };
 };
 
-// No need to redeclare global functions as they are already defined in globalConsoleTypes.ts
+// Check if story flag exists
+export const hasStoryFlag = (flagId: string): boolean => {
+  if (!window.JonahConsole?.storyFlags) return false;
+  
+  const flag = window.JonahConsole.storyFlags.find((f: StoryFlag) => f.id === flagId);
+  return flag ? flag.discovered : false;
+};
+
+// Add a story flag
+export const addStoryFlag = (flagId: string): boolean => {
+  if (!window.JonahConsole?.storyFlags) {
+    initializeStoryFlags();
+  }
+  
+  const flag = window.JonahConsole.storyFlags.find((f: StoryFlag) => f.id === flagId);
+  if (flag && !flag.discovered) {
+    flag.discovered = true;
+    return true;
+  }
+  
+  return false;
+};
+
+// Get all discovered story flags
+export const getDiscoveredStoryFlags = (): StoryFlag[] => {
+  if (!window.JonahConsole?.storyFlags) {
+    initializeStoryFlags();
+  }
+  
+  return window.JonahConsole.storyFlags.filter((f: StoryFlag) => f.discovered);
+};
+
+// Get details of a specific story flag
+export const getStoryFlagDetails = (flagId: string): string => {
+  if (!window.JonahConsole?.storyFlags) {
+    initializeStoryFlags();
+  }
+  
+  const flag = window.JonahConsole.storyFlags.find((f: StoryFlag) => f.id === flagId);
+  if (flag && flag.discovered) {
+    return flag.description;
+  }
+  
+  return "You haven't discovered this story flag yet.";
+};
+
+// Print discovered story flags to console with styling
+export const printDiscoveredStoryFlags = (): void => {
+  if (!window.JonahConsole?.storyFlags) {
+    initializeStoryFlags();
+  }
+  
+  const discoveredFlags = window.JonahConsole.storyFlags.filter((f: StoryFlag) => f.discovered);
+  
+  if (discoveredFlags.length === 0) {
+    console.log('%cNo story flags discovered yet.', 'color: #8B3A40; font-size: 14px;');
+    return;
+  }
+  
+  console.log('%c=== DISCOVERED STORY FLAGS ===', 'color: #8B3A40; font-size: 16px; font-weight: bold;');
+  discoveredFlags.forEach((flag: StoryFlag) => {
+    console.log(`%c${flag.name}: %c${flag.description}`, 'color: #8B3A40; font-size: 14px; font-weight: bold;', 'color: #CCCCCC; font-size: 14px;');
+  });
+};
+
+// Add discoveryStory function to window
+export const setupStoryFunction = () => {
+  window.discoverStoryFlag = function(flagId: string): boolean {
+    if (!window.JonahConsole?.storyFlags) {
+      initializeStoryFlags();
+    }
+    
+    const flag = window.JonahConsole.storyFlags.find((f: StoryFlag) => f.id === flagId);
+    if (flag) {
+      if (!flag.discovered) {
+        flag.discovered = true;
+        console.log(`%cNew story flag discovered: ${flag.id}`, 'color: #8B3A40; font-size: 14px;');
+        return true;
+      } else {
+        console.log(`%cYou've already discovered: ${flag.id}`, 'color: #8B3A40; font-size: 14px;');
+      }
+    }
+    
+    return false;
+  };
+};

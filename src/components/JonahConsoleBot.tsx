@@ -97,7 +97,7 @@ const JonahConsoleBot: React.FC<JonahConsoleBotProps> = ({ insideRouter = false 
       // Increase chance based on conditions
       if (isDreamMode) triggerChance += 0.4;
       if (hasTriggerWord) triggerChance += 0.3;
-      if (sentience?.deepModeUnlocked) triggerChance += 0.2;
+      if (sentience && sentience.deepModeUnlocked) triggerChance += 0.2;
       
       // Maybe trigger a random message
       if (Math.random() < triggerChance) {

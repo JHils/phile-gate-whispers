@@ -1,28 +1,30 @@
 
 import { useState, useCallback } from 'react';
-import { ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionCategory, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useMessageFormatting() {
+  // Message formatting
   const [messageWeight, setMessageWeight] = useState<'light' | 'medium' | 'heavy'>('medium');
   const [responseStyle, setResponseStyle] = useState<ResponseStyle>('direct');
   
-  const updateMessageFormatting = useCallback((content: string, mood: string) => {
-    // Determine message weight based on content length
-    if (content.length < 50) {
-      setMessageWeight('light');
-    } else if (content.length > 200) {
+  // Update message formatting based on content and emotion
+  const updateMessageFormatting = useCallback((content: string, mood: EmotionCategory) => {
+    // Set message weight based on emotional intensity
+    if (mood === 'joy' || mood === 'anger') {
       setMessageWeight('heavy');
+    } else if (mood === 'sadness' || mood === 'fear') {
+      setMessageWeight('light');
     } else {
       setMessageWeight('medium');
     }
     
-    // Infer response style preference
-    if (content.includes('?')) {
-      setResponseStyle('direct');
-    } else if (content.includes('\n') && content.length > 100) {
-      setResponseStyle('elaborate');
-    } else if ((mood === 'joy' || mood === 'sadness') && Math.random() < 0.7) {
+    // Set response style based on content and mood
+    if (content.length > 100 && (mood === 'joy' || mood === 'hope')) {
       setResponseStyle('poetic');
+    } else if (content.includes('?') && (mood === 'confusion' || mood === 'curiosity')) {
+      setResponseStyle('technical');
+    } else if (content.length > 150 && mood === 'trust') {
+      setResponseStyle('elaborate');
     } else {
       setResponseStyle('direct');
     }

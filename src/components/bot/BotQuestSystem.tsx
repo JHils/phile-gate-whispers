@@ -8,6 +8,13 @@ interface BotQuestSystemProps {
   modifyTrust: (amount: number) => void;
 }
 
+interface Quest {
+  id: string;
+  prompt: string;
+  hint: string;
+  reward: number;
+}
+
 const BotQuestSystem: React.FC<BotQuestSystemProps> = ({ 
   isOpen,
   addBotMessage, 
@@ -39,7 +46,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
   }, []);
   
   // Available quests
-  const availableQuests = [
+  const availableQuests: Quest[] = [
     { 
       id: "find_mirror", 
       prompt: "Find where the mirror leads. It's not where you think.",
@@ -115,7 +122,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
     const interval = setInterval(checkForNewQuest, 5 * 60 * 1000);
     
     return () => clearInterval(interval);
-  }, [isOpen, lastQuestTime, addBotMessage]);
+  }, [isOpen, lastQuestTime, addBotMessage, availableQuests]);
   
   // Add console commands to complete quests
   useEffect(() => {
@@ -181,6 +188,3 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
 };
 
 export default BotQuestSystem;
-
-// Global interface has been moved to globalConsoleTypes.ts
-

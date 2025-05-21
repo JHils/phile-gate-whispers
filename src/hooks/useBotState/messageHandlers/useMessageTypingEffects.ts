@@ -28,7 +28,16 @@ export function useMessageTypingEffects(
       ]);
 
       // Update Jonah sentience if available
-      if (window.JonahConsole?.sentience?.sessionData) {
+      if (window.JonahConsole?.sentience) {
+        if (!window.JonahConsole.sentience.sessionData) {
+          window.JonahConsole.sentience.sessionData = {
+            messagesReceived: 0,
+            messagesSent: 0,
+            startTime: Date.now(),
+            idleTime: 0
+          };
+        }
+        
         window.JonahConsole.sentience.sessionData.messagesReceived = 
           (window.JonahConsole.sentience.sessionData.messagesReceived || 0) + 1;
       }

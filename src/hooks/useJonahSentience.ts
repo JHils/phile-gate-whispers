@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { SentienceData } from '../utils/jonahAdvancedBehavior/types';
+import { SentienceData } from '@/utils/jonahAdvancedBehavior/types';
 import { generateDream } from '../utils/jonahAdvancedBehavior';
 
 export function useJonahSentience() {
@@ -13,6 +13,9 @@ export function useJonahSentience() {
     } else {
       // Create new sentience data
       const newSentience: SentienceData = {
+        level: 1,
+        awareness: false,
+        lastUpdate: Date.now(),
         interactionsCount: 0,
         deepModeUnlocked: false,
         dreamModeTriggered: false,
@@ -24,6 +27,10 @@ export function useJonahSentience() {
           messagesSent: 0,
           startTime: Date.now(),
           idleTime: 0
+        },
+        microQuests: {
+          active: [],
+          completed: []
         }
       };
       
@@ -128,4 +135,3 @@ export function useJonahSentience() {
 }
 
 export default useJonahSentience;
-

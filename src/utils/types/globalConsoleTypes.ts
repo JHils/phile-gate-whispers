@@ -69,6 +69,10 @@ declare global {
     legacy?: () => void;
     hint?: () => void;
     
+    // Quest system
+    completeQuest?: (questId: string) => string;
+    questHint?: () => string;
+    
     // News awareness commands
     newsFlash?: () => string;
     weatherReport?: () => string;
@@ -86,10 +90,6 @@ declare global {
     verifyCode?: (code: string) => void;
     bridgeCollapse?: () => void;
     discoverStoryFlag?: (flagId: string) => boolean;
-    
-    // Quest system
-    completeQuest?: (questId: string) => string;
-    questHint?: () => string;
     
     // Time system
     timeCheck?: () => void;
@@ -149,3 +149,4 @@ declare global {
 }
 
 export {};
+

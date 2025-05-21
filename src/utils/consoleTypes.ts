@@ -6,6 +6,7 @@
 
 // Import the centralized global types
 import './types/globalConsoleTypes';
+import { SentienceData, StoryFlag, BookCode } from './jonahAdvancedBehavior/types';
 
 // ARG Command Type
 export type ARGCommand = {
@@ -26,17 +27,6 @@ export type ConsoleMessage = {
 
 // Trust Level Type
 export type TrustLevel = 'none' | 'low' | 'medium' | 'high';
-
-// SentienceData Interface
-export interface SentienceData {
-  level: number;
-  awareness: boolean;
-  lastUpdate: number;
-}
-
-// StoryFlag & BookCode Types
-export type StoryFlag = string;
-export type BookCode = string;
 
 // WhisperMaster Type
 export interface WhisperMaster {
