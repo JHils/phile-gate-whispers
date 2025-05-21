@@ -59,7 +59,7 @@ export function initializeSentience() {
         anomalies: [],
         currentMood: "neutral",
         moodChangeTime: Date.now(),
-        lastDreamTime: 0,
+        dreamState: false,
         crossSiteWhispers: [],
         hiddenMessages: []
       },

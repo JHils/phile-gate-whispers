@@ -131,6 +131,8 @@ export interface SentienceData {
     crossSiteWhispers?: string[];
     mood?: string;
     dreamState?: boolean;
+    lastDreamTime?: number;
+    hiddenMessages?: string[];
   };
   predictionResponses?: string[];
   usedPredictionResponses?: string[];

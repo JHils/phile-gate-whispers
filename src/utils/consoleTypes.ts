@@ -1,4 +1,3 @@
-
 /**
  * Console Types Definition
  * Global interfaces and types for Jonah's Console
@@ -9,7 +8,7 @@ import './types/globalConsoleTypes';
 import { SentienceData, StoryFlag, BookCode } from './jonahAdvancedBehavior/types';
 
 // Export SentienceData for proper importing in jonahSentience.ts
-export { SentienceData } from './jonahAdvancedBehavior/types';
+export type { SentienceData } from './jonahAdvancedBehavior/types';
 
 // ARG Command Type
 export type ARGCommand = {
