@@ -1,117 +1,73 @@
-
 /**
- * Interactive Commands
- * Functions for initializing basic interactive commands
+ * Console Tracking - Interactive Commands
+ * Tracks user interactions with specific console commands
  */
 
-import { typewriterLog } from '../consoleEffects';
-import { addUsedCommand } from './commandTracking';
+import { WhisperWithMetadata } from '@/utils/consoleTypes';
 
-/**
- * Initialize interactive commands
- */
-export function initializeInteractiveCommands(): void {
-  if (typeof window !== 'undefined') {
-    // Define the start command
-    window.start = function() {
-      // Set command as used
-      addUsedCommand('start');
-      
-      typewriterLog(`
-JONAS INTERACTIVE ARCHIVE v3.7.2
-================================
-Welcome to the interactive archive. I've been expecting you.
+// Track testament command usage
+export const trackTestamentInteraction = (entry: TestamentEntry): void => {
+  const formattedDate = new Date(entry.timestamp).toLocaleDateString();
+  console.log(`%c${entry.entryId}: ${entry.content}`, "color:#E3A507;");
+};
 
-What would you like to know?
+// Track whisper command usage
+export const trackWhisperInteraction = (whisper: WhisperWithMetadata): void => {
+  const formattedDate = new Date(whisper.timestamp).toLocaleDateString();
+  console.log(`%cWhisper found on ${whisper.path} at ${formattedDate}: ${whisper.whisper}`, "color:#A020F0;");
+};
 
-Type 'inventory()' to see what you've collected.
-Type 'help()' for basic commands.
-Type 'look_around()' to examine your surroundings.
-`);
-      
-      return "Archive initialized.";
-    };
-    
-    // Define the inventory command
-    window.inventory = function() {
-      // Set command as used
-      addUsedCommand('inventory');
-      
-      // Get user's collected items and progress
-      const storyFlags = window.JonahConsole?.storyFlags?.length || 0;
-      const bookCodes = window.JonahConsole?.bookCodes?.length || 0;
-      const whisperCount = window.JonahConsole?.whispersFound?.length || 0;
-      
-      // Initialize anomalyCount if needed
-      let anomalies = 0;
-      if (window.JonahConsole?.sentience?.realityFabric) {
-        if (window.JonahConsole.sentience.realityFabric.anomalyCount === undefined) {
-          window.JonahConsole.sentience.realityFabric.anomalyCount = 0;
-        }
-        anomalies = window.JonahConsole.sentience.realityFabric.anomalyCount;
-      }
-      
-      typewriterLog(`
-YOUR INVENTORY:
-==============
-Story flags: ${storyFlags}
-Book codes: ${bookCodes}
-Whispers heard: ${whisperCount}
-Anomalies detected: ${anomalies}
-Rank: ${window.JonahConsole?.rank || "drifter"}
-`);
-      
-      return "Inventory checked.";
-    };
-    
-    // Echo command
-    window.echo_me = function(input: string) {
-      addUsedCommand('echo_me');
-      
-      if (!input) {
-        return "Echo requires input. Try echo_me('your message')";
-      }
-      
-      typewriterLog(`
-ECHO SYSTEM:
-===========
-${input}
-${input}
-${input.split('').reverse().join('')}
-`);
-      
-      return "Echo complete.";
-    };
-    
-    // Access journal command
-    window.access_journal = function() {
-      addUsedCommand('access_journal');
-      
-      // Initialize journal if needed
-      if (window.JonahConsole?.sentience?.realityFabric) {
-        if (!window.JonahConsole.sentience.realityFabric.journal) {
-          window.JonahConsole.sentience.realityFabric.journal = [];
-        }
-      } else {
-        return "Journal not found.";
-      }
-      
-      const journal = window.JonahConsole.sentience.realityFabric.journal;
-      let journalOutput = `
-JONAH'S JOURNAL:
-==============
-`;
-      
-      // Show the last 5 entries only
-      const entries = journal.slice(-5);
-      entries.forEach(entry => {
-        const date = new Date(entry.timestamp).toLocaleDateString();
-        journalOutput += `Entry #${entry.entryId} - ${date}\n${entry.content}\n\n`;
-      });
-      
-      typewriterLog(journalOutput);
-      
-      return "Journal accessed.";
-    };
-  }
+// Track dream journal entry
+export const trackDreamJournalEntry = (dream: string, timestamp: number): void => {
+  const formattedDate = new Date(timestamp).toLocaleDateString();
+  console.log(`%cDream logged on ${formattedDate}: ${dream}`, "color:#00FFFF;");
+};
+
+// Track story flag discovery
+export const trackStoryFlagDiscovery = (flagId: string, timestamp: number): void => {
+  const formattedDate = new Date(timestamp).toLocaleDateString();
+  console.log(`%cStory flag discovered on ${formattedDate}: ${flagId}`, "color:#FF4500;");
+};
+
+// Track book code unlock
+export const trackBookCodeUnlock = (code: string, timestamp: number): void => {
+  const formattedDate = new Date(timestamp).toLocaleDateString();
+  console.log(`%cBook code unlocked on ${formattedDate}: ${code}`, "color:#228B22;");
+};
+
+// Track simba interaction
+export const trackSimbaInteraction = (message: string, timestamp: number): void => {
+  const formattedDate = new Date(timestamp).toLocaleDateString();
+  console.log(`%cSimba interaction on ${formattedDate}: ${message}`, "color:#DAA520;");
+};
+
+// Track quest completion
+export const trackQuestCompletion = (questId: string, timestamp: number): void => {
+  const formattedDate = new Date(timestamp).toLocaleDateString();
+  console.log(`%cQuest completed on ${formattedDate}: ${questId}`, "color:#1E90FF;");
+};
+
+// Track news flash display
+export const trackNewsFlashDisplay = (topic: string, timestamp: number): void => {
+  const formattedDate = new Date(timestamp).toLocaleDateString();
+  console.log(`%cNews flash displayed on ${formattedDate}: ${topic}`, "color:#8B008B;");
+};
+
+// Track weather report display
+export const trackWeatherReportDisplay = (condition: string, timestamp: number): void => {
+  const formattedDate = new Date(timestamp).toLocaleDateString();
+  console.log(`%cWeather report displayed on ${formattedDate}: ${condition}`, "color:#4682B4;");
+};
+
+// Track ecological awareness event
+export const trackEcologicalAwarenessEvent = (event: string, timestamp: number): void => {
+  const formattedDate = new Date(timestamp).toLocaleDateString();
+  console.log(`%cEcological awareness event on ${formattedDate}: ${event}`, "color:#32CD32;");
+};
+
+interface TestamentEntry {
+  timestamp: number;
+  entryId: string;
+  content: string;
+  title?: string;
 }

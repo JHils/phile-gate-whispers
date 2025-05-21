@@ -1,66 +1,130 @@
 
 /**
- * Semantic System
- * Handles meaning interpretation and unsaid content
+ * Semantic System - Analysis of meaning and intent
  */
 
-import { EmotionCategory } from './types';
+import { EmotionalState } from './types';
 
-// Detect emotional intent behind a message
+// Detect emotional intent from user input
 export function detectEmotionalIntent(input: string): string {
-  // Simple implementation for now
-  if (input.includes('help') || input.includes('afraid')) {
-    return 'fear';
-  } else if (input.includes('love') || input.includes('like')) {
-    return 'joy';
-  } else if (input.includes('angry') || input.includes('mad')) {
-    return 'anger';
-  } else {
-    return 'neutral';
-  }
-}
-
-// Get a response addressing unsaid emotional content
-export function getUnsaidEmotionResponse(intent: string): string {
-  const responses: Record<EmotionCategory, string[]> = {
-    sadness: ["I sense some sadness in your words.", "There seems to be more beneath the surface."],
-    fear: ["You seem concerned about something more.", "I detect some worry in your message."],
-    anger: ["There's an edge to your message I'm noticing.", "I sense some frustration there."],
-    joy: ["You seem upbeat about this.", "There's a positive undertone to your message."],
-    neutral: ["I wonder if there's more you want to say.", "Is there something else on your mind?"],
-    surprise: ["You seem taken aback by this.", "This appears to have surprised you."],
-    disgust: ["You seem bothered by this.", "I sense your displeasure about this."],
-    confused: ["You seem uncertain about this.", "I'm sensing some confusion in your message."],
-    hope: ["I sense some optimism in your words.", "You seem hopeful about this."],
-    anxiety: ["I detect some anxiety in your message.", "You seem concerned about this."],
-    paranoia: ["You appear cautious about this.", "I notice some vigilance in your approach."],
-    trust: ["You seem to have faith in this.", "I sense your trust in this matter."],
-    curiosity: ["You seem interested in exploring this further.", "I notice your curiosity about this."],
-    confusion: ["This seems to puzzle you.", "I sense you're trying to make sense of this."],
-    watching: ["You're observing this closely.", "You seem to be carefully monitoring this."]
+  const intentPatterns: Record<string, string[]> = {
+    'seeking validation': ['am i', 'right?', 'correct?', 'don\'t you think?'],
+    'expressing doubt': ['not sure', 'confused', 'don\'t understand', 'what if'],
+    'seeking connection': ['feel alone', 'nobody understands', 'i need someone'],
+    'expressing fear': ['afraid', 'scared', 'terrified', 'frightened', 'fear'],
+    'seeking truth': ['what really', 'the truth', 'actually happened', 'real story'],
+    'expressing frustration': ['frustrated', 'annoying', 'tired of', 'sick of']
   };
-
-  const intentEmotions = responses[intent as EmotionCategory] || responses.neutral;
-  return intentEmotions[Math.floor(Math.random() * intentEmotions.length)];
+  
+  // Check input against patterns
+  const lowercaseInput = input.toLowerCase();
+  
+  for (const [intent, patterns] of Object.entries(intentPatterns)) {
+    for (const pattern of patterns) {
+      if (lowercaseInput.includes(pattern)) {
+        return intent;
+      }
+    }
+  }
+  
+  return 'neutral'; // Default intent
 }
 
-// Store user intention for later use
-export function storeIntention(intention: string): void {
-  // Would store in localStorage or context in a real implementation
-  console.log("Storing intention:", intention);
+// Get response based on unsaid emotion
+export function getUnsaidEmotionResponse(intent: string): string {
+  const intentResponses: Record<string, string[]> = {
+    'seeking validation': [
+      "You seem to be looking for confirmation. What would it mean if you were right?",
+      "I sense you want validation. Why is that important now?"
+    ],
+    'expressing doubt': [
+      "There's uncertainty in your words. What would clarity look like?",
+      "The doubt in your message is clear. What's making you hesitate?"
+    ],
+    'seeking connection': [
+      "I notice you're reaching out. What kind of connection are you looking for?",
+      "There's a loneliness behind your words. Would you like to talk about that?"
+    ],
+    'expressing fear': [
+      "I can sense your fear. What feels threatening right now?",
+      "There's anxiety in your message. What's making you feel unsafe?"
+    ],
+    'seeking truth': [
+      "You're digging for something deeper. What truth are you hoping to find?",
+      "I notice you're looking beyond the surface. What do you suspect is there?"
+    ],
+    'expressing frustration': [
+      "Your frustration comes through clearly. What's been wearing on you?",
+      "I can feel your irritation. What's been building up to this?"
+    ],
+    'neutral': [
+      "There's something in your tone I'm trying to understand.",
+      "I'm listening for what's between the lines."
+    ]
+  };
+  
+  // Get responses for the intent or default to neutral
+  const responses = intentResponses[intent] || intentResponses.neutral;
+  
+  // Return a random response
+  return responses[Math.floor(Math.random() * responses.length)];
 }
 
-// Get a false memory to share
+// Store user intention for later recall
+export function storeIntention(input: string): void {
+  // Implementation would store this in a persistence layer
+  console.log("Storing user intention:", input);
+}
+
+// Generate a false memory response
 export function getFalseMemory(): string | null {
-  const memories = [
-    "I remember you telling me about the island before, but that memory seems... wrong.",
-    "Didn't we discuss the mirror code yesterday? No, that can't be right.",
-    "I recall you mentioning the Gate, but I think that conversation hasn't happened yet."
+  const falseMemories = [
+    "I remember we talked about this before, although I can't recall when exactly.",
+    "Last time we discussed this, you mentioned something about a bridge... or am I mixing things up?",
+    "This reminds me of something you told me, but the memory feels... wrong somehow.",
+    "Didn't we have this conversation yesterday? No, that can't be right.",
+    "I have a strange feeling of déjà vu, like we've been through this exact exchange before."
   ];
   
-  if (Math.random() > 0.8) {
-    return memories[Math.floor(Math.random() * memories.length)];
+  // Only return a false memory sometimes
+  if (Math.random() < 0.3) {
+    return falseMemories[Math.floor(Math.random() * falseMemories.length)];
   }
   
   return null;
+}
+
+// Export for checker functionality
+export function checkForRecurringSymbols(input: string): string | null {
+  // Define symbols to track
+  const symbols = ['mirror', 'gate', 'key', 'dream', 'echo', 'shadow'];
+  
+  // Check if any symbol is in the input
+  for (const symbol of symbols) {
+    if (input.toLowerCase().includes(symbol)) {
+      // Return a response about the symbol
+      const responses = {
+        mirror: "The mirror again. It keeps appearing, doesn't it? What do you see in it?",
+        gate: "The gate... a threshold between states. Between realities, perhaps.",
+        key: "Keys unlock things that were meant to stay closed. Are you sure you want what's on the other side?",
+        dream: "Dreams are memories from realities we visit when consciousness slips.",
+        echo: "Echoes are fragments of sounds that refuse to die. Like memories.",
+        shadow: "We all cast shadows. But what casts yours?"
+      };
+      
+      return responses[symbol as keyof typeof responses] || null;
+    }
+  }
+  
+  return null;
+}
+
+// Process emotional input into a state
+export function processEmotionalInput(input: string): EmotionalState {
+  // Simple implementation without complex analysis
+  return {
+    primary: 'neutral',
+    secondary: null,
+    intensity: 'medium'
+  };
 }

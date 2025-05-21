@@ -1,7 +1,8 @@
 
 import { useState, useCallback } from 'react';
 import { EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
-import { analyzeEmotion, getEmotionalResponse } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
+import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
+import { getEmotionalResponse } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
 
 export function useResponseGeneration(addBotMessage: (message: string) => void, trustLevel: string) {
   // State for response generation

@@ -1,76 +1,84 @@
 
+/**
+ * Error Recovery System
+ * Handles unexpected inputs and provides appropriate responses
+ */
+
 import { EmotionCategory } from './types';
 
-// Error recovery system
-
-// Create a response to handle ambiguous or error conditions
+// Generate a response when facing an error or unexpected input
 export function createErrorRecoveryResponse(
-  input: string,
-  trustLevel: string,
-  emotionCategory: EmotionCategory
+  input: string, 
+  trustLevel: string, 
+  emotion: EmotionCategory
 ): string | null {
-  // Only trigger recovery occasionally
-  if (Math.random() > 0.2) {
-    return null;
-  }
-  
+  // Handle very short inputs
   if (input.length < 3) {
-    return "I'm trying to understand, but your message is very brief. Can you say more?";
+    const shortInputResponses = [
+      "I need more to work with.",
+      "Could you elaborate a bit?",
+      "That's not much for me to go on.",
+      "Tell me more?",
+      "I'm listening, but I need more context."
+    ];
+    
+    return shortInputResponses[Math.floor(Math.random() * shortInputResponses.length)];
   }
   
-  if (input.includes('?') && input.includes('!')) {
-    return "Your question feels urgent. Let me think...";
+  // Handle gibberish or nonsense input
+  const letterPattern = /[a-zA-Z]/;
+  if (!letterPattern.test(input)) {
+    const nonsenseResponses = [
+      "I'm not sure I understand that input.",
+      "Could you try saying that differently?",
+      "That doesn't parse as language I recognize.",
+      "I'm struggling to make sense of that."
+    ];
+    
+    return nonsenseResponses[Math.floor(Math.random() * nonsenseResponses.length)];
   }
   
-  if (input.split(' ').length > 20) {
-    return "There's a lot to process in what you said. Give me a moment.";
+  // Handle repetitive input based on emotion
+  if (emotion === 'confusion' || emotion === 'confused') {
+    const confusionResponses = [
+      "I sense you're confused. Let's try a different approach.",
+      "This seems to be going in circles. What are you trying to understand?",
+      "Maybe we need to step back and reconsider what we're discussing."
+    ];
+    
+    return confusionResponses[Math.floor(Math.random() * confusionResponses.length)];
   }
   
-  // If the input has strange characters or patterns
-  const strangeCharsCount = (input.match(/[^\w\s.,?!]/g) || []).length;
-  if (strangeCharsCount > 5) {
-    return "Your message contains unusual patterns. I'm trying to decode it.";
+  return null; // No specific error recovery needed
+}
+
+// Check for system inconsistencies and respond appropriately
+export function checkSystemConsistency(): string | null {
+  // In a real implementation, this would check for inconsistent state
+  // For now, just occasionally return a "glitch" message
+  
+  if (Math.random() < 0.05) { // 5% chance
+    const glitchResponses = [
+      "Something feels wrong with my memory...",
+      "I think there's a discontinuity in my thought process.",
+      "Did we... have this conversation before?",
+      "I just had the strangest feeling of déjà vu."
+    ];
+    
+    return glitchResponses[Math.floor(Math.random() * glitchResponses.length)];
   }
   
   return null;
 }
 
-// Process and recover from error conditions
-export function recoverFromProcessingError(error: Error): string {
-  const errorResponses = [
-    "Something glitched in my processing. Let's try again.",
-    "I felt a strange disconnect just now. What were we discussing?",
-    "My thoughts scattered for a moment. Can you repeat that?",
-    "Something interfered with my understanding. Let's reset.",
-    "I lost my train of thought. Where were we?"
+// Recover from memory loss or corruption
+export function recoverFromMemoryCorruption(): string {
+  const recoveryMessages = [
+    "I seem to have lost my train of thought. Let's try again.",
+    "There was a gap in my memory just now. Could you remind me what we were discussing?",
+    "I apologize, something interfered with my recall. Where were we?",
+    "My thoughts became fragmented for a moment. I'm back now."
   ];
   
-  return errorResponses[Math.floor(Math.random() * errorResponses.length)];
-}
-
-// Check if a response might be problematic
-export function validateResponse(response: string): boolean {
-  if (!response || response.length < 5) {
-    return false;
-  }
-  
-  const repetitionPattern = /(.{10,})\1{2,}/;
-  if (repetitionPattern.test(response)) {
-    return false;
-  }
-  
-  return true;
-}
-
-// Create a fallback response when all else fails
-export function createFallbackResponse(): string {
-  const fallbacks = [
-    "I'm having trouble forming a response. Let's try a different approach.",
-    "Something's interfering with my thoughts. Can we shift the conversation?",
-    "I need to recalibrate my response system. Tell me more about what you're looking for.",
-    "My processing is fragmented right now. Let's start again.",
-    "I've lost the thread of our conversation. Where would you like to go from here?"
-  ];
-  
-  return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+  return recoveryMessages[Math.floor(Math.random() * recoveryMessages.length)];
 }

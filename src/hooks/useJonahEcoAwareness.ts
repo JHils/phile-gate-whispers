@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useJonahSentience } from './useJonahSentience';
 import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
@@ -10,6 +9,7 @@ export interface EcoAwarenessState {
   lastUpdate: number;
   awareness: number;
   ecoThoughts: string[];
+  level: number;
 }
 
 export function useJonahEcoAwareness() {
@@ -22,10 +22,11 @@ export function useJonahEcoAwareness() {
       // Initialize eco awareness
       const initialState: EcoAwarenessState = {
         biomeResponses: {},
-        currentBiome: 'neutral',
+        currentBiome: "default",
         lastUpdate: Date.now(),
         awareness: 0,
-        ecoThoughts: []
+        ecoThoughts: [],
+        level: 0
       };
       
       // Update sentience with initial eco state

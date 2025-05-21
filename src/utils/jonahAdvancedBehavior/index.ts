@@ -21,11 +21,17 @@ export * from './temporalSystem';
 export * from './typingSystem';
 export * from './vocabularySystem';
 export * from './dreamSystem';
+export * from './semanticSystem';
 
 // Re-export all functions from sentiment analysis
 export {
   analyzeEmotion,
-  analyze
+  analyze,
+  generateEmotionalResponse,
+  getEmotionalResponse,
+  getLayeredEmotionalResponse,
+  checkForRecurringSymbols,
+  processEmotionalInput
 } from './sentimentAnalysis';
 
 // Re-export functions from the adaptive learning system
@@ -46,6 +52,14 @@ export {
   splitAndTypeMessage
 } from './typingSystem';
 
+// Re-export functions from semantic system
+export {
+  detectEmotionalIntent,
+  getUnsaidEmotionResponse,
+  storeIntention,
+  getFalseMemory
+} from './semanticSystem';
+
 // Generate dream content
 export function generateDream(): string {
   const dreamOptions = [
@@ -63,3 +77,8 @@ export function generateDream(): string {
 
 // Re-export from dream system
 export { getDreamReturnResponse } from './dreamSystem';
+
+// Export a function to initialize jonah's behavior
+export function jonah_storeMemoryFragment(fragment: string): void {
+  console.log("Storing memory fragment:", fragment);
+}

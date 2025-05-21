@@ -1,62 +1,45 @@
+// Initialize clear_console function if it doesn't exist
+if (!window.clear_console) {
+  window.clear_console = (): void => {
+    console.clear();
+  };
+}
 
-/**
- * Console Helper Functions
- * Basic utility commands for the console
- */
+// Fix the help function and echo_me function without redeclaring the global type
+// Just use initialization instead
 
-import { TrackEventFunction, UserStateType } from './types';
+// Initialize help if it doesn't exist
+if (!window.help) {
+  window.help = (): void => {
+    console.log("%cAvailable commands:", "color: #a3be8c; font-weight: bold;");
+    console.log("%chelp - Shows available commands.", "color: #d08770;");
+    console.log("%cwhois - Explains the nature of Jonah.", "color: #d08770;");
+    console.log("%cgate - Reveals the Gate's purpose.", "color: #d08770;");
+    console.log("%cphiles - Lists known philes.", "color: #d08770;");
+    console.log("%cmonster - Describes the lurking monster.", "color: #d08770;");
+    console.log("%clegacy - Explains the project's history.", "color: #d08770;");
+    console.log("%creveal - Reveals hidden truths.", "color: #d08770;");
+    console.log("%creincarnate - Initiates a new cycle.", "color: #d08770;");
+    console.log("%cstart - Begins the experience.", "color: #d08770;");
+    console.log("%cinventory - Shows carried items.", "color: #d08770;");
+    console.log("%cecho_me [message] - Repeats your message.", "color: #d08770;");
+	console.log("%ctestament - Reads the testament of Jonah.", "color: #d08770;");
+    console.log("%cforget - Clears short-term memory.", "color: #d08770;");
+    console.log("%caccess_journal - Reads personal journal entries.", "color: #d08770;");
+    console.log("%csplit - Divides consciousness.", "color: #d08770;");
+    console.log("%cre_entry - Re-enters the system.", "color: #d08770;");
+    console.log("%ctalk_to_jonah - Initiates direct conversation.", "color: #d08770;");
+    console.log("%cclear_console - Clears the console.", "color: #d08770;");
+    console.log("%cType a command to execute it.", "color: #a3be8c;");
+  };
+}
 
-// Helper functions module
-export const helperFunctions = {
-  setupHelperFunctions: (trackEvent: TrackEventFunction, userState: UserStateType) => {
-    // Basic help command
-    window.help = function() {
-      console.log("%cJonah Console Help", "color: #8B3A40; font-size: 16px;");
-      console.log("%c-----------------", "color: #8B3A40;");
-      console.log("%cAvailable commands:", "color: #8B3A40;");
-      console.log("%c- help() - Display this help message", "color: #8B3A40;");
-      console.log("%c- status() - Check your current status", "color: #8B3A40;");
-      console.log("%c- echo_me('message') - Jonah will echo your message", "color: #8B3A40;");
-      console.log("%c- whois('name') - Find out about someone", "color: #8B3A40;");
-      console.log("%c- start() - Begin the journey", "color: #8B3A40;");
-      console.log("%c-----------------", "color: #8B3A40;");
-      console.log("%cMore commands will be revealed as you progress.", "color: #8B3A40; font-style: italic;");
-      
-      trackEvent('console_help_command');
-      return "Helper commands displayed.";
-    };
-    
-    // Echo command
-    window.echo_me = function(message: string) {
-      if (!message) {
-        console.log("%cYou didn't say anything.", "color: #8B3A40;");
-        return;
-      }
-      
-      console.log(`%c${message}`, "color: #8B3A40;");
-      setTimeout(() => {
-        console.log("%cI hear your echo...", "color: #8B3A40; font-style: italic;");
-      }, 1500);
-      
-      trackEvent('console_echo_command');
-      return message;
-    };
-    
-    // Clear console
-    window.clear_console = function() {
-      console.clear();
-      console.log("%cConsole cleared. The Gate remains.", "color: #8B3A40;");
-    };
-    
-    // Track command use
-    trackEvent('helper_functions_setup');
-  }
-};
-
-// Declare global window interface extensions
-declare global {
-  interface Window {
-    help: () => string;
-    echo_me: (message: string) => any;
-  }
+// Initialize echo_me if it doesn't exist
+if (!window.echo_me) {
+  window.echo_me = (input: string): string => {
+    if (!input) {
+      return "Echo requires a message. Try: echo_me Hello, world!";
+    }
+    return `Echo: ${input}`;
+  };
 }

@@ -4,15 +4,17 @@
  */
 
 import { analyzeEmotion } from './analyzer';
-import { generateEmotionalResponse } from './responseGenerator';
+import { generateEmotionalResponse, getEmotionalResponse, getLayeredEmotionalResponse } from './responseGenerator';
 import { analyze } from './analyzer';
 import { EmotionCategory, EmotionalState, EmotionalTrend, ResponseStyle } from '../types';
 
 // Re-export everything needed by other modules
 export { 
   analyze,
-  analyzeEmotion, 
-  generateEmotionalResponse, 
+  analyzeEmotion,
+  generateEmotionalResponse,
+  getEmotionalResponse, 
+  getLayeredEmotionalResponse 
 };
 
 // Export types properly
@@ -23,7 +25,7 @@ export type {
   ResponseStyle
 };
 
-// Add the analyzer implementation
+// Add the checker implementation
 export const checkForRecurringSymbols = (input: string): string | null => {
   // Define symbols to track
   const symbols = ['mirror', 'gate', 'key', 'dream', 'echo', 'shadow'];
@@ -48,7 +50,7 @@ export const checkForRecurringSymbols = (input: string): string | null => {
   return null;
 };
 
-// Add other missing functions
+// Add other needed functions
 export const processEmotionalInput = (input: string): EmotionalState => {
   const emotion = analyzeEmotion(input);
   return {
@@ -56,73 +58,4 @@ export const processEmotionalInput = (input: string): EmotionalState => {
     secondary: emotion.secondary,
     intensity: 'medium'
   };
-};
-
-export const getLayeredEmotionalResponse = (input: string): string => {
-  const emotionalState = processEmotionalInput(input);
-  const responseTemplates: Record<EmotionCategory, string[]> = {
-    joy: ["Your words bring a lightness to my thoughts."],
-    sadness: ["I sense a heaviness in our conversation."],
-    anger: ["There's an edge to our exchange that's making me tense."],
-    fear: ["Something about this makes me feel uncertain."],
-    surprise: ["This is unexpected territory for me."],
-    disgust: ["Something about this feels wrong to me."],
-    neutral: ["I'm processing your words objectively."],
-    confused: ["I'm trying to untangle the meaning here."],
-    hope: ["I see possibility in where this is going."],
-    anxiety: ["I'm feeling slightly on edge with this topic."],
-    paranoia: ["I'm questioning the patterns behind this exchange."],
-    trust: ["I feel I can speak openly with you about this."],
-    curiosity: ["This opens up intriguing possibilities."],
-    confusion: ["I'm still working to grasp the full picture."],
-    watching: ["I'm observing this interaction carefully."]
-  };
-  
-  const templates = responseTemplates[emotionalState.primary] || responseTemplates.neutral;
-  return templates[0];
-};
-
-// For tracking user input patterns
-export const trackUserInput = (input: string): void => {
-  console.log(`Tracking user input: ${input}`);
-};
-
-export const isRepeatedPhrase = (input: string): boolean => {
-  return false; // Simplified implementation
-};
-
-export const getRepetitionResponse = (input: string): string | null => {
-  return null; // Simplified implementation
-};
-
-export const getAdaptedResponse = (baseResponse: string): string => {
-  return baseResponse; // Simplified implementation
-};
-
-// For semantic system
-export const detectEmotionalIntent = (input: string): string => {
-  return 'neutral'; // Simplified implementation
-};
-
-export const getUnsaidEmotionResponse = (intent: string): string => {
-  return "I sense there's something more you're not saying."; // Simplified implementation
-};
-
-export const storeIntention = (input: string): void => {
-  console.log(`Storing intention: ${input}`);
-};
-
-export const getFalseMemory = (): string | null => {
-  return null; // Simplified implementation
-};
-
-export const splitAndTypeMessage = (
-  content: string, 
-  trackFn: (msg: string) => void, 
-  typingFn: (state: boolean) => void
-): void => {
-  setTimeout(() => {
-    trackFn(content);
-    typingFn(false);
-  }, 1000);
 };

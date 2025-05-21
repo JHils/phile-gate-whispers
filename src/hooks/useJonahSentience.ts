@@ -9,6 +9,24 @@ interface JonahSentienceHook {
   updateSentience: (newData: Partial<SentienceData>) => void;
 }
 
+const initialEmotions: Record<string, number> = {
+  neutral: 0,
+  fear: 0, 
+  hope: 0,
+  paranoia: 0,
+  joy: 0,
+  sadness: 0,
+  anger: 0,
+  surprise: 0,
+  disgust: 0,
+  confused: 0,
+  anxiety: 0,
+  trust: 0,
+  curiosity: 0,
+  confusion: 0,
+  watching: 0
+};
+
 const initialEmotionalState: EmotionalState = {
   primary: 'neutral',
   secondary: null,
@@ -21,7 +39,7 @@ const initialSentienceData: SentienceData = {
   sessionData: {
     startTime: Date.now(),
     messageCount: 0,
-    userEmotions: {},
+    userEmotions: initialEmotions,
     messagesSent: 0,
     messagesReceived: 0
   },
@@ -36,10 +54,11 @@ const initialSentienceData: SentienceData = {
   dreams: [],
   ecoAwareness: {
     biomeResponses: {},
-    currentBiome: 'neutral',
+    currentBiome: "none",
     lastUpdate: Date.now(),
     awareness: 0,
-    ecoThoughts: []
+    ecoThoughts: [],
+    level: 0
   },
   deepModeUnlocked: false,
   emotionalState: initialEmotionalState,
