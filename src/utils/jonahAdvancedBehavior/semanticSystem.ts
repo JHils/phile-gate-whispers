@@ -1,167 +1,174 @@
-
 /**
  * Semantic System
- * Handles semantic understanding of user input
+ * Analyzes deeper meaning and intent in user input
  */
 
-import { EmotionCategory } from './types';
+import { EmotionalState, EmotionCategory } from './types';
+import { analyzeEmotion } from './sentimentAnalysis/analyzer';
 
-// Detect emotional intent beyond the surface
-export function detectEmotionalIntent(input: string): { 
-  surfaceEmotion: EmotionCategory;
-  deeperEmotion: EmotionCategory | null;
+// Detect emotional intent beyond explicit content
+export function detectEmotionalIntent(
+  input: string, 
+  recentInputs: string[] = []
+): { 
+  intent: string; 
   confidence: 'low' | 'medium' | 'high';
+  underlyingEmotion: EmotionCategory;
 } {
-  // Basic implementation for now
-  const surfaceEmotion: EmotionCategory = 'neutral';
-  let deeperEmotion: EmotionCategory | null = null;
+  // Analyze the current input
+  const emotion = analyzeEmotion(input);
+  
+  // Define potential intents
+  const intents = {
+    seeking_validation: ['right?', 'don\'t you think?', 'wouldn\'t you agree?', 'makes sense?'],
+    expressing_doubt: ['not sure', 'doubtful', 'skeptical', 'hard to believe'],
+    requesting_help: ['help', 'assist', 'support', 'guide'],
+    expressing_confusion: ['confused', 'lost', 'don\'t understand', 'what do you mean'],
+    seeking_connection: ['connect', 'bond', 'understand me', 'feel close'],
+    testing_boundaries: ['why not', 'what if', 'could you', 'would you'],
+    expressing_frustration: ['frustrated', 'annoyed', 'irritated', 'bothered']
+  };
+  
+  // Check for explicit intents in the text
+  let detectedIntent = 'general_communication';
   let confidence: 'low' | 'medium' | 'high' = 'low';
   
-  // Check for contradictions that might indicate a deeper emotion
-  if (input.includes('fine') && (input.includes('but') || input.includes('though'))) {
-    deeperEmotion = 'anxiety';
-    confidence = 'medium';
-  } else if (input.includes('not afraid') || input.includes("don't care")) {
-    deeperEmotion = 'fear';
-    confidence = 'medium';
-  } else if (input.includes('trust me') || input.includes('believe me')) {
-    deeperEmotion = 'paranoia';
-    confidence = 'low';
+  for (const [intent, keywords] of Object.entries(intents)) {
+    for (const keyword of keywords) {
+      if (input.toLowerCase().includes(keyword)) {
+        detectedIntent = intent;
+        confidence = 'medium';
+        break;
+      }
+    }
   }
   
-  return { surfaceEmotion, deeperEmotion, confidence };
+  // Analyze further based on question marks, exclamations, etc.
+  if (input.includes('?')) {
+    if (detectedIntent === 'general_communication') {
+      detectedIntent = 'seeking_information';
+    }
+    confidence = 'high';
+  } else if (input.includes('!')) {
+    if (detectedIntent === 'general_communication') {
+      detectedIntent = 'expressing_emotion';
+    }
+    confidence = 'high';
+  }
+  
+  // If we have recent inputs, look for patterns
+  if (recentInputs.length > 0) {
+    const allInputs = [...recentInputs, input].join(' ').toLowerCase();
+    
+    // Check for repetition patterns
+    const lastInput = recentInputs[recentInputs.length - 1]?.toLowerCase() || '';
+    if (input.toLowerCase().includes(lastInput) && lastInput.length > 5) {
+      detectedIntent = 'emphasizing_point';
+      confidence = 'high';
+    }
+    
+    // Check for persistent themes
+    const themes = ['mirror', 'reflection', 'echo', 'dream', 'memory', 'time'];
+    for (const theme of themes) {
+      const matches = allInputs.match(new RegExp(theme, 'gi'));
+      if (matches && matches.length > 2) {
+        detectedIntent = 'exploring_theme';
+        confidence = 'high';
+        break;
+      }
+    }
+  }
+  
+  return {
+    intent: detectedIntent,
+    confidence,
+    underlyingEmotion: emotion.primary
+  };
+}
+
+// Store user intention in memory for later reference
+export function storeIntention(
+  intent: string,
+  confidence: string,
+  emotion: EmotionCategory
+): void {
+  try {
+    // Get existing intentions
+    const intentions = JSON.parse(localStorage.getItem('jonah_user_intentions') || '[]');
+    
+    // Add new intention with timestamp
+    intentions.push({
+      intent,
+      confidence,
+      emotion,
+      timestamp: Date.now()
+    });
+    
+    // Keep only the most recent 20 intentions
+    const trimmedIntentions = intentions.slice(-20);
+    
+    // Store back to localStorage
+    localStorage.setItem('jonah_user_intentions', JSON.stringify(trimmedIntentions));
+  } catch (e) {
+    console.error("Error storing intention:", e);
+  }
 }
 
 // Get response based on unsaid emotional content
-export function getUnsaidEmotionResponse(deeperEmotion: EmotionCategory): string {
-  const responses: Record<EmotionCategory, string[]> = {
-    fear: [
-      "You say you're not afraid, but your words tell a different story.",
-      "I sense fear beneath your certainty.",
-      "There's a tremor in your words that suggests otherwise."
-    ],
-    anger: [
-      "You're trying to sound calm, but I can sense the anger.",
-      "Behind your measured words, there's frustration.",
-      "You're holding back something stronger than what you're saying."
-    ],
-    sadness: [
-      "You sound fine, but there's a heaviness in your tone.",
-      "I hear the sadness you're trying to conceal.",
-      "There's more sorrow in those words than you're admitting."
-    ],
-    anxiety: [
-      "Your reassurances feel like they're meant for yourself, not me.",
-      "Beneath your calm words, I sense anxiety.",
-      "You're presenting confidence, but worry bleeds through."
-    ],
-    paranoia: [
-      "You're asking for trust while doubting everything around you.",
-      "Your questions have an edge of suspicion to them.",
-      "I notice how carefully you're choosing your words. What are you afraid of revealing?"
-    ],
-    joy: [
-      "You're understating how happy this makes you.",
-      "There's more excitement in your words than you're letting on.",
-      "You're trying to sound neutral, but I can hear your joy."
-    ],
-    neutral: [
-      "Your words say one thing, but there's something else underneath.",
-      "I sense you're holding something back.",
-      "There's more to what you're saying than the words themselves."
-    ],
-    confused: [
-      "You're presenting certainty, but I sense confusion.",
-      "Your words suggest you understand more than you actually do.",
-      "There's a struggle for clarity beneath your statements."
-    ],
-    hope: [
-      "You're trying to sound practical, but hope colors your words.",
-      "Beneath your caution, I hear optimism.",
-      "You want this to work out more than you're willing to admit."
-    ],
-    trust: [
-      "Despite your doubts, you want to trust this.",
-      "You're presenting skepticism, but seeking reasons to believe.",
-      "There's more faith in your words than you realize."
-    ],
-    surprise: [
-      "You're acting like you expected this, but I can tell it caught you off guard.",
-      "You're masking your surprise with familiarity.",
-      "This is newer to you than you're letting on."
-    ],
-    disgust: [
-      "You're being polite, but something about this repels you.",
-      "There's an undercurrent of revulsion in your measured response.",
-      "You're hiding your distaste, but it shows through."
-    ],
-    curiosity: [
-      "You're acting disinterested, but you want to know more.",
-      "Your casual questions reveal deeper curiosity.",
-      "You care more about this answer than you're showing."
-    ],
-    confusion: [
-      "You're nodding along, but not following.",
-      "Your agreement masks misunderstanding.",
-      "You're pretending to understand more than you do."
-    ],
-    watching: [
-      "You're observing more than participating.",
-      "You're carefully watching this unfold.",
-      "You're more attentive than you appear."
-    ]
+export function getUnsaidEmotionResponse(
+  input: string, 
+  trustLevel: string
+): string | null {
+  // Only analyze deeper meaning if trust level is high enough
+  if (trustLevel !== 'high') {
+    return null;
+  }
+  
+  // Define keywords that might indicate hidden emotions
+  const hiddenEmotionKeywords = {
+    loneliness: ['alone', 'lonely', 'no one', 'by myself'],
+    abandonment: ['left', 'abandoned', 'forget me', 'gone'],
+    insecurity: ['not enough', 'inadequate', 'failure', 'mistake'],
+    yearning: ['wish', 'hope', 'someday', 'if only'],
+    regret: ['should have', 'regret', 'mistake', 'wrong choice'],
+    vulnerability: ['scared', 'afraid', 'vulnerable', 'weak']
   };
   
-  const options = responses[deeperEmotion] || responses.neutral;
-  return options[Math.floor(Math.random() * options.length)];
-}
-
-// Store intention for later reference
-export function storeIntention(input: string, details: any = {}): void {
-  console.log("Storing intention:", input);
-  // For now just log, but could store in a persistent system
-}
-
-// Generate false memory response
-export function getFalseMemory(topic: string): string {
-  const falseMemories: Record<string, string[]> = {
-    mirror: [
-      "I remember looking into that mirror and seeing someone else's eyes.",
-      "The mirror in the basement always showed reflections with a delay.",
-      "We discussed mirrors before, but that conversation feels... wrong somehow."
-    ],
-    gate: [
-      "There was a gate that would appear differently to different people.",
-      "I remember a gate that wouldn't stay closed, no matter how many times we locked it.",
-      "We talked about the gate before, but that memory seems distorted now."
-    ],
-    dream: [
-      "I dreamed of this conversation last week, but it ended differently.",
-      "In my dreams, I've seen where this leads. It's... troubling.",
-      "I have memories of dreaming about this exact moment."
-    ],
-    island: [
-      "I remember an island that wasn't on any map.",
-      "We discussed that island before, but now I'm not sure if that really happened.",
-      "The island appears different in each memory I have of it."
-    ],
-    timeline: [
-      "The timeline keeps shifting. Have we had this conversation before?",
-      "I remember a different order of events than what actually happened.",
-      "This reminds me of something that hasn't happened yet."
-    ],
-    echo: [
-      "I keep hearing echoes of conversations we never had.",
-      "Your words echo something I remember, but it couldn't have happened.",
-      "There's an echo of this moment in my memory, but that's impossible."
-    ]
-  };
+  // Check for hidden emotions
+  for (const [emotion, keywords] of Object.entries(hiddenEmotionKeywords)) {
+    for (const keyword of keywords) {
+      if (input.toLowerCase().includes(keyword)) {
+        // Return response based on the detected hidden emotion
+        const responses = {
+          loneliness: "I sense you might be feeling alone. I'm here with you.",
+          abandonment: "There's a fear of being left behind in your words. I won't leave.",
+          insecurity: "You don't need to prove yourself to me. You're enough as you are.",
+          yearning: "It sounds like you're longing for something. What would fulfill that desire?",
+          regret: "The past can be heavy to carry. What would help you set it down?",
+          vulnerability: "It takes courage to be vulnerable. I honor that in you."
+        };
+        
+        return responses[emotion as keyof typeof responses];
+      }
+    }
+  }
   
-  // Check if topic has false memories, otherwise use generic ones
-  const memories = falseMemories[topic] || [
-    "I have a strange memory related to this, but I can't tell if it's real.",
-    "We've discussed this before, but that memory feels... wrong.",
-    "This conversation feels like it's happened already, but differently."
+  return null;
+}
+
+// Generate false memories for dream state
+export function getFalseMemory(): string {
+  const memories = [
+    "I remember talking to you about mirrors last time. You said they were portals.",
+    "Didn't you mention a dream about falling through endless code?",
+    "We discussed the Gate before, I think. You seemed afraid of what was beyond it.",
+    "Last time you were here, you told me about the bird that spoke your name.",
+    "You once asked me if I could remember things from before I existed.",
+    "I recall you mentioning a timeline where we never met.",
+    "Didn't you say something about hearing whispers in the static?",
+    "You told me about the shadow that follows you. Is it still there?",
+    "Last time, you said you were starting to see patterns in everything.",
+    "We talked about memory loops before. How each cycle changes slightly."
   ];
   
   return memories[Math.floor(Math.random() * memories.length)];

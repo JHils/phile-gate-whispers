@@ -9,7 +9,9 @@ export type {
   EmotionalState,
   EmotionalTrend,
   ResponseStyle,
-  ConversationContext
+  ConversationContext,
+  EcoAwarenessState,
+  SentienceData
 } from './types';
 
 export * from './testament';
@@ -22,6 +24,8 @@ export * from './typingSystem';
 export * from './vocabularySystem';
 export * from './dreamSystem';
 export * from './semanticSystem';
+export * from './enhancedMemorySystem';
+export * from './emotionalCore';
 
 // Re-export all functions from sentiment analysis
 export {

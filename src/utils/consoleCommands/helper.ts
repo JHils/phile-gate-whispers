@@ -1,4 +1,9 @@
 
+/**
+ * Helper Commands
+ * Basic utility commands for the console
+ */
+
 // Initialize clear_console function if it doesn't exist
 if (!window.clear_console) {
   window.clear_console = (): void => {

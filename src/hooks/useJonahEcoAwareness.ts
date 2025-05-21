@@ -1,17 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useJonahSentience } from './useJonahSentience';
-import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
-
-// Define the EcoAwarenessState type
-export interface EcoAwarenessState {
-  biomeResponses: Record<string, string[]>;
-  currentBiome: string;
-  lastUpdate: number;
-  awareness: number;
-  ecoThoughts: string[];
-  level: number;
-}
+import { EcoAwarenessState } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useJonahEcoAwareness() {
   const { sentience, updateSentience } = useJonahSentience();
