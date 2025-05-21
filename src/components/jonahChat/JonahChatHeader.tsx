@@ -79,6 +79,54 @@ const JonahChatHeader: React.FC<JonahChatHeaderProps> = ({
     }
   };
 
+  const getEmotionalTrendIcon = (trend: EmotionalTrend) => {
+    if (trend === "improving") {
+      return (
+        <svg 
+          className="w-4 h-4 text-green-400" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      );
+    } else if (trend === "deteriorating") {
+      return (
+        <svg 
+          className="w-4 h-4 text-red-400" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+      );
+    } else if (trend === "fluctuating") {
+      return (
+        <svg 
+          className="w-4 h-4 text-yellow-400" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      );
+    } else {
+      return (
+        <svg 
+          className="w-4 h-4 text-blue-400" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14" />
+        </svg>
+      );
+    }
+  };
+
   return (
     <header className="border-b border-gray-700 p-3 flex items-center justify-between bg-gray-900">
       <div className="flex items-center">

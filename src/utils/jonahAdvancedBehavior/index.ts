@@ -8,6 +8,9 @@ export * from './testament';
 export * from './sentimentAnalysis';
 export { ConversationContext } from './enhancedMemorySystem';
 export * from './enhancedEmotionalCore';
+export * from './echoSystem';
+export * from './confessionSystem';
+export * from './initializeBehavior';
 
 // Generate dream content
 export function generateDream(): string {
@@ -88,3 +91,21 @@ export function getEmotionalResponse(state: any, trustLevel: string): string {
   // Return random response
   return emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
 }
+
+// Adding missing functions from the echo system
+export const getAllEchoes = () => {
+  return []; // Simplified implementation for now
+};
+
+// Testament system functions
+export const unlockTestamentByPhrase = (phrase: string): boolean => {
+  return false; // Simplified implementation
+};
+
+export const getTestamentTeaser = (): string | null => {
+  return null; // Simplified implementation
+};
+
+export const generateTestamentResponse = (input: string): string | null => {
+  return null; // Simplified implementation
+};

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useJonahMemory } from '@/hooks/useJonahMemory';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
@@ -219,7 +218,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
     // Get a random thought
     const thought = idleThoughts[Math.floor(Math.random() * idleThoughts.length)];
     
-    // Add the emotional tag - Fix: Pass both parameters 
+    // Fix: Pass both parameters (tag and intensity)
     memory.addEmotionalTag(thought.tag, 'moderate');
     
     // Display the thought
@@ -252,7 +251,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
         // Generate and show a personal observation
         const observation = memory.generatePersonalObservation();
         
-        // Fix: Pass both parameters
+        // Fix: Pass both parameters (tag and intensity)
         memory.addEmotionalTag('observant', 'low');
         
         toast({

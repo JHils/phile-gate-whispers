@@ -1,104 +1,96 @@
 
 import React from 'react';
-import { ConfessionEntry } from '@/utils/jonahAdvancedBehavior/confessionSystem';
+import { ConfessionEntry, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
 interface ConfessionDetailProps {
-  confession: ConfessionEntry | null;
+  confession: ConfessionEntry;
+  onClose: () => void;
 }
 
-export const ConfessionDetail: React.FC<ConfessionDetailProps> = ({ confession }) => {
-  // Format date for display
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString();
+const ConfessionDetail: React.FC<ConfessionDetailProps> = ({ confession, onClose }) => {
+  // Helper function to get emotion color class
+  const getEmotionColor = (emotion: EmotionCategory | string): string => {
+    if (typeof emotion === 'string') {
+      switch (emotion) {
+        case 'fear':
+          return 'bg-purple-900 text-white';
+        case 'anger':
+          return 'bg-red-900 text-white';
+        case 'sadness':
+          return 'bg-blue-900 text-white';
+        case 'joy':
+          return 'bg-yellow-600 text-black';
+        case 'trust':
+          return 'bg-green-800 text-white';
+        case 'curiosity':
+          return 'bg-cyan-800 text-white';
+        default:
+          return 'bg-gray-700 text-white';
+      }
+    }
+    return 'bg-gray-700 text-white';
   };
 
-  if (!confession) {
-    return (
-      <div className="flex items-center justify-center h-full p-8 text-center">
-        <div>
-          <div className="text-xl text-blue-500 mb-2">No confession selected</div>
-          <div className="text-sm text-blue-600">
-            Select a confession from the list to view details
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Helper function to get emotion display name
+  const getEmotionDisplayName = (emotion: EmotionCategory | string): string => {
+    if (typeof emotion === 'string') {
+      return emotion.charAt(0).toUpperCase() + emotion.slice(1);
+    }
+    return 'Unknown';
+  };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="text-xs text-blue-600">
-            {formatDate(confession.timestamp)}
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <span className={`px-3 py-1 rounded-full text-sm ${getEmotionColor(confession.emotionalContext)}`}>
+                {getEmotionDisplayName(confession.emotionalContext)}
+              </span>
+              
+              {confession.isCorrupted && (
+                <span className="ml-2 px-3 py-1 bg-red-800 text-white rounded-full text-sm">
+                  Corrupted
+                </span>
+              )}
+            </div>
+            
+            <button 
+              onClick={onClose}
+              className="text-gray-400 hover:text-white"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <div className="text-xs text-blue-600">
-            Version: {confession.version || 1}
+          
+          <div className="mb-6">
+            <p className="text-lg text-gray-200 whitespace-pre-wrap">{confession.content}</p>
           </div>
-        </div>
-        
-        <div className={`px-2 py-1 text-xs ${
-          confession.isCorrupted 
-            ? 'bg-red-900 bg-opacity-30 text-red-400' 
-            : 'bg-blue-900 bg-opacity-30 text-blue-400'
-        }`}>
-          {confession.isCorrupted ? 'CORRUPTED' : 'INTACT'}
-        </div>
-      </div>
-      
-      <div className={`text-xl mt-8 mb-6 ${
-        confession.isCorrupted ? 'corrupted-text' : ''
-      }`}>
-        {confession.content}
-      </div>
-      
-      {confession.recursive && confession.originalId && (
-        <div className="mt-8 pt-4 border-t border-blue-900">
-          <div className="text-xs text-blue-600 mb-2">
-            RECURSIVE REFERENCE:
+          
+          <div className="text-sm text-gray-400">
+            {new Date(confession.timestamp).toLocaleString()}
           </div>
-          <div className="text-sm">
-            This confession refers to a previous statement.
+          
+          <div className="mt-4 pt-4 border-t border-gray-700">
+            {confession.recursive && (
+              <div className="text-sm text-amber-400">
+                This is a recursive confession, echoing a previous thought.
+              </div>
+            )}
+            
+            {confession.version && (
+              <div className="text-xs text-gray-500 mt-2">
+                Version: {confession.version}
+              </div>
+            )}
           </div>
-        </div>
-      )}
-      
-      <div className="mt-8 pt-4 border-t border-blue-900">
-        <div className="text-xs text-blue-600 mb-2">
-          EMOTIONAL CONTEXT:
-        </div>
-        <div className={`text-sm ${
-          confession.emotionalContext === 'fear' ? 'text-red-400' :
-          confession.emotionalContext === 'anger' ? 'text-orange-400' :
-          confession.emotionalContext === 'sadness' ? 'text-blue-400' :
-          confession.emotionalContext === 'trust' ? 'text-green-400' :
-          'text-gray-400'
-        }`}>
-          {confession.emotionalContext.toUpperCase()}
-        </div>
-      </div>
-      
-      {confession.isCorrupted && (
-        <div className="mt-8 pt-4 border-t border-blue-900">
-          <div className="text-xs text-red-600 mb-2">
-            CORRUPTION ANALYSIS:
-          </div>
-          <div className="text-sm text-red-500">
-            Parts of this confession may have been deliberately altered or obscured.
-            Meaning may be lost or distorted.
-          </div>
-        </div>
-      )}
-      
-      <div className="mt-8 pt-4 border-t border-blue-900">
-        <div className="text-xs text-blue-600 mb-2">
-          ARCHIVE NOTES:
-        </div>
-        <div className="text-sm italic">
-          Jonah offered this confession without prompting. The emotional context
-          suggests his state of mind when making this revelation.
         </div>
       </div>
     </div>
   );
 };
+
+export default ConfessionDetail;

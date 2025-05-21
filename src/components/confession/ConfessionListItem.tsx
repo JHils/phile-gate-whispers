@@ -1,57 +1,70 @@
 
 import React from 'react';
-import { ConfessionEntry } from '@/utils/jonahAdvancedBehavior/confessionSystem';
+import { ConfessionEntry, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
 interface ConfessionListItemProps {
   confession: ConfessionEntry;
-  isSelected: boolean;
-  onSelect: (confession: ConfessionEntry) => void;
+  onClick: (confession: ConfessionEntry) => void;
 }
 
-export const ConfessionListItem: React.FC<ConfessionListItemProps> = ({ 
-  confession, 
-  isSelected,
-  onSelect
-}) => {
-  // Format date for display
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString();
+const ConfessionListItem: React.FC<ConfessionListItemProps> = ({ confession, onClick }) => {
+  // Get short preview of confession content
+  const getPreview = (content: string): string => {
+    if (content.length <= 60) return content;
+    return content.substring(0, 60) + '...';
+  };
+  
+  // Helper function to get emotion color class
+  const getEmotionColor = (emotion: EmotionCategory | string): string => {
+    if (typeof emotion === 'string') {
+      switch (emotion) {
+        case 'fear':
+          return 'bg-purple-900 text-white';
+        case 'anger':
+          return 'bg-red-900 text-white';
+        case 'sadness':
+          return 'bg-blue-900 text-white';
+        case 'joy':
+          return 'bg-yellow-600 text-black';
+        case 'trust':
+          return 'bg-green-800 text-white';
+        case 'curiosity':
+          return 'bg-cyan-800 text-white';
+        default:
+          return 'bg-gray-700 text-white';
+      }
+    }
+    return 'bg-gray-700 text-white';
   };
 
   return (
     <div 
-      onClick={() => onSelect(confession)}
-      className={`p-4 cursor-pointer hover:bg-blue-900 hover:bg-opacity-10 ${
-        isSelected ? 'bg-blue-900 bg-opacity-20' : ''
-      }`}
+      className="p-4 border-b border-gray-700 cursor-pointer hover:bg-gray-800 transition-colors"
+      onClick={() => onClick(confession)}
     >
-      <div className="text-xs text-blue-600 mb-1">
-        {formatDate(confession.timestamp)}
-      </div>
-      <div className="line-clamp-2">
-        {confession.content}
-      </div>
-      <div className="flex mt-2">
-        <span className={`text-xs px-2 py-0.5 ${
-          confession.emotionalContext === 'fear' ? 'bg-red-900 bg-opacity-30 text-red-400' :
-          confession.emotionalContext === 'anger' ? 'bg-orange-900 bg-opacity-30 text-orange-400' :
-          confession.emotionalContext === 'sadness' ? 'bg-blue-900 bg-opacity-30 text-blue-400' :
-          confession.emotionalContext === 'trust' ? 'bg-green-900 bg-opacity-30 text-green-400' :
-          'bg-gray-800 text-gray-400'
-        }`}>
-          {confession.emotionalContext}
-        </span>
-        {confession.isCorrupted && (
-          <span className="text-xs px-2 py-0.5 bg-red-900 bg-opacity-30 text-red-400 ml-2">
-            corrupted
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <span className={`inline-block px-2 py-0.5 rounded-full text-xs ${getEmotionColor(confession.emotionalContext)}`}>
+            {typeof confession.emotionalContext === 'string' ? confession.emotionalContext : 'unknown'}
           </span>
-        )}
-        {confession.recursive && (
-          <span className="text-xs px-2 py-0.5 bg-purple-900 bg-opacity-30 text-purple-400 ml-2">
-            recursive
-          </span>
-        )}
+          
+          {confession.isCorrupted && (
+            <span className="ml-2 inline-block px-2 py-0.5 bg-red-800 text-white rounded-full text-xs">
+              Corrupted
+            </span>
+          )}
+        </div>
+        
+        <div className="text-xs text-gray-500">
+          {new Date(confession.timestamp).toLocaleDateString()}
+        </div>
       </div>
+      
+      <p className="text-gray-300 text-sm">
+        {getPreview(confession.content)}
+      </p>
     </div>
   );
 };
+
+export default ConfessionListItem;

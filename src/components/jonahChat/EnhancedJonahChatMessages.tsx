@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
 
@@ -96,6 +95,66 @@ const EnhancedJonahChatMessages: React.FC<EnhancedJonahChatMessagesProps> = ({
     }
     
     return content;
+  };
+
+  const getEmotionalTrendDisplay = () => {
+    if (emotionalTrend === "improving") {
+      return (
+        <div className="text-xs text-green-400 flex items-center mt-1">
+          <svg 
+            className="w-3 h-3 mr-1" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+          Emotional connection strengthening
+        </div>
+      );
+    } else if (emotionalTrend === "deteriorating") {
+      return (
+        <div className="text-xs text-red-400 flex items-center mt-1">
+          <svg 
+            className="w-3 h-3 mr-1" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+          Emotional connection weakening
+        </div>
+      );
+    } else if (emotionalTrend === "fluctuating") {
+      return (
+        <div className="text-xs text-yellow-400 flex items-center mt-1">
+          <svg 
+            className="w-3 h-3 mr-1" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+          Emotional connection unstable
+        </div>
+      );
+    } else {
+      return (
+        <div className="text-xs text-blue-400 flex items-center mt-1">
+          <svg 
+            className="w-3 h-3 mr-1" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14" />
+          </svg>
+          Emotional connection stable
+        </div>
+      );
+    }
   };
 
   return (
