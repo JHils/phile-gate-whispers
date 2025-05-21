@@ -2,7 +2,7 @@
 import { toast } from "@/components/ui/use-toast";
 
 // Import SentienceData from the advanced behavior types
-import { SentienceData } from './jonahAdvancedBehavior/types';
+import { SentienceData } from './consoleTypes';
 
 // Initialize sentience system
 export function initializeSentience() {
