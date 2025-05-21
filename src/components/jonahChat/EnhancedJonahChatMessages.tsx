@@ -144,7 +144,8 @@ const EnhancedJonahChatMessages: React.FC<EnhancedJonahChatMessagesProps> = ({
       
       <div ref={messagesEndRef} />
 
-      <style jsx>{`
+      <style>
+        {`
         .typing-indicator {
           display: flex;
           align-items: center;
@@ -180,7 +181,8 @@ const EnhancedJonahChatMessages: React.FC<EnhancedJonahChatMessagesProps> = ({
             transform: translateY(-5px);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

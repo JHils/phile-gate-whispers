@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import JonahChatHeader from './JonahChatHeader';
 import EnhancedJonahChatMessages from './EnhancedJonahChatMessages';
 import EnhancedJonahChatInput from './EnhancedJonahChatInput';
-import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionCategory, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
 
 type JonahChatInterfaceProps = {
   messages: any[];
@@ -14,7 +14,7 @@ type JonahChatInterfaceProps = {
   jonahVersion: 'PRIME' | 'RESIDUE';
   messageWeight: 'light' | 'medium' | 'heavy';
   conversationDepth: number;
-  emotionalTrend: EmotionalTrend;
+  emotionalTrend: 'improving' | 'stable' | 'deteriorating';
   responseStyle: ResponseStyle;
   handleSendMessage: (e: React.FormEvent) => void;
   toggleVersion: () => void;

@@ -150,8 +150,8 @@ export interface ConversationMemory {
 // Define response style
 export type ResponseStyle = 'direct' | 'elaborate' | 'poetic' | 'technical';
 
-// Define emotional trend
-export type EmotionalTrend = 'improving' | 'deteriorating' | 'fluctuating' | 'stable';
+// Define emotional trend - Removed 'fluctuating' to match the components
+export type EmotionalTrend = 'improving' | 'deteriorating' | 'stable';
 
 // Create a utility function to convert string to EmotionalState
 export function createEmotionalState(emotion: EmotionCategory): EmotionalState {
