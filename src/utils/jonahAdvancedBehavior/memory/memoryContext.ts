@@ -1,75 +1,33 @@
+
 /**
  * Memory Context System
- * Provides memory context structure and utilities
+ * Manages the context and state of Jonah's memory
  */
 
+import { EmotionCategory } from '../types';
+
+// Memory Context interface
 export interface MemoryContext {
-  memoryLevel: 'low' | 'medium' | 'high';
-  lastInteractions: Array<{
-    content: string;
-    isUser: boolean;
-    mood?: string;
-    timestamp: number;
-  }>;
-  personalInfo: Record<string, string>;
-  keywords: string[];
-  seeds: string[];
-  trustScore: number;
-  // Adding additional properties required by enhancedMemorySystem.ts
-  recentInputs?: string[];
-  dominantEmotion?: string;
-  seed?: string;
-  loopCounter?: Record<string, number>;
-  trustLevel?: number;
-  loopIndex?: number;
+  userName: string | null;
+  interactionCount: number;
+  recentInputs: string[];
+  recentEmotions: EmotionCategory[];
+  trustLevel: 'low' | 'medium' | 'high';
+  dominantEmotion: EmotionCategory;
+  memorizedPhrases: string[];
+  lastInteractionTime: number;
 }
 
-/**
- * Create default memory context
- */
-export function createDefaultMemoryContext(memoryLevel: 'low' | 'medium' | 'high' = 'medium'): MemoryContext {
+// Create default memory context
+export function createDefaultMemoryContext(): MemoryContext {
   return {
-    memoryLevel,
-    lastInteractions: [],
-    personalInfo: {},
-    keywords: [],
-    seeds: [],
-    trustScore: 50,
+    userName: null,
+    interactionCount: 0,
     recentInputs: [],
-    dominantEmotion: "neutral",
-    seed: "",
-    loopCounter: {},
-    trustLevel: 50,
-    loopIndex: 0
-  };
-}
-
-/**
- * Create memory context from existing data
- */
-export function createMemoryContextFromData(
-  memoryLevel: 'low' | 'medium' | 'high',
-  interactions: Array<{content: string; isUser: boolean; mood?: string}>,
-  personalInfo: Record<string, string>,
-  keywords: string[],
-  seeds: string[],
-  trustScore: number
-): MemoryContext {
-  return {
-    memoryLevel,
-    lastInteractions: interactions.map(interaction => ({
-      ...interaction,
-      timestamp: Date.now()
-    })),
-    personalInfo,
-    keywords,
-    seeds,
-    trustScore,
-    recentInputs: [],
-    dominantEmotion: "neutral",
-    seed: "",
-    loopCounter: {},
-    trustLevel: 50,
-    loopIndex: 0
+    recentEmotions: [],
+    trustLevel: 'low',
+    dominantEmotion: 'neutral',
+    memorizedPhrases: [],
+    lastInteractionTime: Date.now()
   };
 }

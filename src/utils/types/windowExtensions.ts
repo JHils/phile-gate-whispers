@@ -4,9 +4,11 @@
  * Extends the Window interface with Jonah-specific functionality
  */
 
+import { EmotionCategory, EmotionalState } from '../jonahAdvancedBehavior/types';
+
 declare global {
   interface Window {
-    // Jonah memory and emotional systems - match types from globalConsoleTypes.ts
+    // Jonah memory and emotional systems
     trust_level: () => number;
     memory_thread: () => {
       userName: string;

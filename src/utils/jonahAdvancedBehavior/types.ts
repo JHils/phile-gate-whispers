@@ -32,6 +32,16 @@ export interface SentienceData {
     active: string[];
     completed: string[];
   };
+  ecoAwareness?: {
+    level: number;
+    lastInteraction: number;
+    topics: string[];
+  };
+  memoryParanoia?: {
+    level: number;
+    triggers: string[];
+    lastIncident: number;
+  };
   realityFabric?: {
     moodChangeTime?: number;
     currentMood?: string;
@@ -74,5 +84,59 @@ export interface BookCode {
   timestamp?: number;
 }
 
-// Export emotion categories
-export type EmotionCategory = 'joy' | 'sadness' | 'anger' | 'fear' | 'surprise' | 'disgust' | 'neutral' | 'confused';
+// Extended emotion categories
+export type EmotionCategory = 
+  | 'joy' 
+  | 'sadness' 
+  | 'anger' 
+  | 'fear' 
+  | 'surprise' 
+  | 'disgust' 
+  | 'neutral' 
+  | 'confused'
+  | 'hope'
+  | 'anxiety'
+  | 'paranoia'
+  | 'trust'
+  | 'curiosity'
+  | 'confusion';
+
+// Emotion intensity levels
+export type EmotionIntensity = 'low' | 'medium' | 'high';
+
+// Emotional trend types
+export type EmotionalTrend = 
+  | 'stable' 
+  | 'improving' 
+  | 'deteriorating' 
+  | 'fluctuating'
+  | 'intensifying'
+  | 'diminishing';
+
+// Response style types
+export type ResponseStyle = 
+  | 'direct'
+  | 'poetic'
+  | 'technical'
+  | 'elaborate'
+  | 'fragmented';
+
+// Emotional state interface
+export interface EmotionalState {
+  primary: EmotionCategory;
+  secondary: EmotionCategory | null;
+  intensity: EmotionIntensity;
+}
+
+// Helper function to create emotional state
+export function createEmotionalState(
+  primary: EmotionCategory = 'neutral',
+  secondary: EmotionCategory | null = null,
+  intensity: EmotionIntensity = 'medium'
+): EmotionalState {
+  return {
+    primary,
+    secondary,
+    intensity
+  };
+}

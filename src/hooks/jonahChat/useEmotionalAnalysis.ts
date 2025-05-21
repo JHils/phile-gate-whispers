@@ -6,48 +6,46 @@ export function useEmotionalAnalysis() {
   // Jonah's emotional state
   const [jonahMood, setJonahMood] = useState<EmotionCategory>('neutral');
   const [emotionalTrend, setEmotionalTrend] = useState<EmotionalTrend>('stable');
-  const [moodHistory, setMoodHistory] = useState<EmotionCategory[]>([]);
-
-  // Update mood and trend based on user input and pattern
+  const [emotionHistory, setEmotionHistory] = useState<EmotionCategory[]>([]);
+  
+  // Update Jonah's mood and emotional trend
   const updateMoodAndTrend = useCallback((newMood: EmotionCategory) => {
-    // Update mood history
-    setMoodHistory(prev => {
-      const updated = [newMood, ...prev].slice(0, 5);
+    // Set new mood
+    setJonahMood(newMood);
+    
+    // Update emotion history
+    setEmotionHistory(prev => {
+      const updated = [...prev, newMood].slice(-5); // Keep last 5 emotions
       return updated;
     });
     
-    // Set current mood
-    setJonahMood(newMood);
-    
-    // Determine emotional trend based on history
-    if (moodHistory.length >= 3) {
-      const positiveEmotions = ['joy', 'hope', 'trust', 'curiosity'];
-      const negativeEmotions = ['fear', 'sadness', 'anger', 'anxiety', 'paranoia'];
+    // Analyze trend based on history
+    if (emotionHistory.length >= 3) {
+      // Simple trend analysis based on emotional valence
+      const positiveEmotions: EmotionCategory[] = ['joy', 'trust', 'hope'];
+      const negativeEmotions: EmotionCategory[] = ['fear', 'sadness', 'anger', 'anxiety', 'paranoia'];
       
-      // Count positive and negative emotions in history
-      const positiveCount = moodHistory.filter(mood => positiveEmotions.includes(mood)).length;
-      const negativeCount = moodHistory.filter(mood => negativeEmotions.includes(mood)).length;
+      // Count recent emotions
+      const recentEmotions = emotionHistory.slice(-3);
+      const positiveCount = recentEmotions.filter(e => positiveEmotions.includes(e)).length;
+      const negativeCount = recentEmotions.filter(e => negativeEmotions.includes(e)).length;
       
       // Determine trend
-      if (positiveCount > negativeCount && positiveCount >= 2) {
+      if (positiveCount >= 2 && positiveEmotions.includes(newMood)) {
         setEmotionalTrend('improving');
-      } else if (negativeCount > positiveCount && negativeCount >= 2) {
+      } else if (negativeCount >= 2 && negativeEmotions.includes(newMood)) {
         setEmotionalTrend('deteriorating');
-      } else if (moodHistory[0] === moodHistory[1] && moodHistory[1] === moodHistory[2]) {
-        setEmotionalTrend('fixated');
-      } else if (positiveEmotions.includes(moodHistory[0]) && negativeEmotions.includes(moodHistory[1]) ||
-                 negativeEmotions.includes(moodHistory[0]) && positiveEmotions.includes(moodHistory[1])) {
-        setEmotionalTrend('volatile');
-      } else {
+      } else if (recentEmotions[0] === recentEmotions[1] && recentEmotions[1] === recentEmotions[2]) {
         setEmotionalTrend('stable');
+      } else {
+        setEmotionalTrend('fluctuating');
       }
     }
-  }, [moodHistory]);
+  }, [emotionHistory]);
   
   return {
     jonahMood,
     emotionalTrend,
-    moodHistory,
     updateMoodAndTrend
   };
 }
