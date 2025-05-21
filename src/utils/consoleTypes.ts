@@ -8,6 +8,9 @@
 import './types/globalConsoleTypes';
 import { SentienceData, StoryFlag, BookCode } from './jonahAdvancedBehavior/types';
 
+// Export SentienceData for proper importing in jonahSentience.ts
+export { SentienceData } from './jonahAdvancedBehavior/types';
+
 // ARG Command Type
 export type ARGCommand = {
   name: string;

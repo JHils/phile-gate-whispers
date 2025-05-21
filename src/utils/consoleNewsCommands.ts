@@ -5,7 +5,7 @@
  */
 
 import { trackCommand } from './consoleTracking/commandTracking';
-import { getNewsResponse, getWeatherResponse } from './jonahNewsAwareness';
+import { generateNewsResponse, generateWeatherResponse } from './jonahNewsAwareness';
 import { typewriterLog } from './consoleEffects';
 
 // Import centralized types
@@ -21,8 +21,8 @@ export function initializeNewsCommands(trackCommandExecution: TrackCommandFuncti
       // Track the command execution
       trackCommandExecution('newsFlash');
       
-      // Get a news response
-      const newsResponse = getNewsResponse();
+      // Get a news response - provide default topic and headline
+      const newsResponse = generateNewsResponse("General News", "Latest Updates");
       
       if (newsResponse) {
         typewriterLog(`
@@ -41,8 +41,8 @@ ${newsResponse}
       // Track the command execution
       trackCommandExecution('weatherReport');
       
-      // Get a weather response
-      const weatherResponse = getWeatherResponse();
+      // Get a weather response - provide a default weather condition
+      const weatherResponse = generateWeatherResponse("clear");
       
       if (weatherResponse) {
         typewriterLog(`

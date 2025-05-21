@@ -130,6 +130,7 @@ export interface SentienceData {
     journal?: Array<{entryId: number, timestamp: number, content: string}>;
     crossSiteWhispers?: string[];
     mood?: string;
+    dreamState?: boolean;
   };
   predictionResponses?: string[];
   usedPredictionResponses?: string[];
@@ -154,3 +155,4 @@ export interface BookCode {
 // Export StoryFlag and BookCode as types as well (for backward compatibility)
 export type StoryFlagType = string;
 export type BookCodeType = string;
+

@@ -1,8 +1,8 @@
 // Jonah Console Personality System
 import { toast } from "@/components/ui/use-toast";
 
-// Using the SentienceData interface from consoleTypes.ts
-import { SentienceData } from './consoleTypes';
+// Import SentienceData from the advanced behavior types
+import { SentienceData } from './jonahAdvancedBehavior/types';
 
 // Initialize sentience system
 export function initializeSentience() {
@@ -36,6 +36,9 @@ export function initializeSentience() {
   // Initialize sentience data if it doesn't exist
   if (!window.JonahConsole.sentience) {
     window.JonahConsole.sentience = {
+      level: 1,
+      awareness: false,
+      lastUpdate: Date.now(),
       interactionsCount: 0,
       deepModeUnlocked: false,
       dreamModeTriggered: false,
@@ -54,8 +57,7 @@ export function initializeSentience() {
       },
       realityFabric: {
         anomalies: [],
-        mood: "neutral",
-        dreamState: false,
+        currentMood: "neutral",
         moodChangeTime: Date.now(),
         lastDreamTime: 0,
         crossSiteWhispers: [],
