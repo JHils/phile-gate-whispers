@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { UserState, UserRank, LeaderboardEntry } from '@/types/tracking';
 import { syncUserStateWithSupabase, getUserRank, getLeaderboard } from '@/services/userTrackingService';
@@ -40,19 +39,44 @@ export const useTrackingSystem = () => {
         survivorMode: false,
         gatekeeperStatus: false,
         legacyWritten: false,
-        bookCodes: [],
-        layeredClues: [],
-        simba: false
+        bookCodes: {
+          unlockedCodes: [],
+          totalCodesUnlocked: 0
+        },
+        layeredClues: {
+          discoveredClues: [],
+          mirrorChecks: 0,
+          anomaliesFound: 0
+        },
+        simba: {
+          traced: false,
+          encounters: 0
+        }
       };
       
-      // Merge loaded state with default state
+      // Merge loaded state with default state, ensuring proper structure
       const mergedState = {...defaultState, ...loadedState};
       
-      // Ensure console object exists with rank
+      // Ensure all nested objects have proper structure
       if (!mergedState.console) {
         mergedState.console = defaultState.console;
       } else if (!mergedState.console.rank) {
         mergedState.console.rank = localStorage.getItem('phileRank') || 'drifter';
+      }
+      
+      // Ensure bookCodes has proper structure
+      if (!mergedState.bookCodes || Array.isArray(mergedState.bookCodes)) {
+        mergedState.bookCodes = defaultState.bookCodes;
+      }
+      
+      // Ensure layeredClues has proper structure
+      if (!mergedState.layeredClues || Array.isArray(mergedState.layeredClues)) {
+        mergedState.layeredClues = defaultState.layeredClues;
+      }
+      
+      // Ensure simba has proper structure
+      if (typeof mergedState.simba === 'boolean' || !mergedState.simba) {
+        mergedState.simba = defaultState.simba;
       }
       
       return mergedState;
@@ -79,9 +103,19 @@ export const useTrackingSystem = () => {
         survivorMode: false,
         gatekeeperStatus: false,
         legacyWritten: false,
-        bookCodes: [],
-        layeredClues: [],
-        simba: false
+        bookCodes: {
+          unlockedCodes: [],
+          totalCodesUnlocked: 0
+        },
+        layeredClues: {
+          discoveredClues: [],
+          mirrorChecks: 0,
+          anomaliesFound: 0
+        },
+        simba: {
+          traced: false,
+          encounters: 0
+        }
       };
     }
   });

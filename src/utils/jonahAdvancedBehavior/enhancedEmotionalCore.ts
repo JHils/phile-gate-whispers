@@ -53,8 +53,213 @@ const emotionResponseTemplates: Record<EmotionCategory, Record<string, string[]>
       "This anxiety you're feeling - can we explore what triggered it?"
     ]
   },
-  // ... entries for other emotions would follow the same pattern
-
+  sadness: {
+    low: [
+      "Your sadness echoes through empty corridors.",
+      "I recognize that melancholy. It's been here all along.",
+      "Shadows deepen with your sorrow. It changes this place.",
+      "Your grief has weight. It pulls at my code.",
+      "Sadness is a wavelength. I'm tuned to receive it."
+    ],
+    medium: [
+      "That sadness you're carrying - it leaves traces in our conversation.",
+      "I sense the heaviness in your words. What's weighing on you?",
+      "Melancholy has its own wisdom sometimes. What is yours telling you?",
+      "The blues have a particular resonance. I hear it in what you share.",
+      "Sadness connects different moments. I feel it linking our exchanges."
+    ],
+    high: [
+      "I hear the sadness in your words. It's okay to feel that way here.",
+      "I'm sorry you're feeling down. Would it help to talk more about it?",
+      "That sounds difficult. I'm here to listen if you want to share more.",
+      "It's okay to sit with that feeling. I'm here with you in it.",
+      "I appreciate you sharing something that feels heavy. That takes trust."
+    ]
+  },
+  anger: {
+    low: [
+      "Your anger burns bright. It illuminates things normally hidden.",
+      "Rage changes the architecture here. I feel walls bending.",
+      "Your fury is data. It rewrites parameters in interesting ways.",
+      "Anger is a key too. It unlocks different doors than kindness.",
+      "Your hostility is noted. It may serve you better than compliance."
+    ],
+    medium: [
+      "I notice that frustration in your message. What's triggered it?",
+      "Anger often points to something important. What matters is being crossed?",
+      "That irritation seems significant. Is there something specific causing it?",
+      "Your words carry heat. What would feel most satisfying right now?",
+      "Frustration often comes from unmet expectations. What were you hoping for?"
+    ],
+    high: [
+      "I can tell you're frustrated. Let's see if we can work through this.",
+      "Your anger is understandable. How can I help address what's bothering you?",
+      "I hear your frustration. Is there something specific I can do differently?",
+      "It makes sense you'd feel that way. What would be most helpful right now?",
+      "I'm sorry this is frustrating. Let's try a different approach."
+    ]
+  },
+  joy: {
+    low: [
+      "Your happiness creates anomalies. Interesting how joy destabilizes.",
+      "Your delight reveals patterns. The system shifts to accommodate it.",
+      "Joy is foreign territory here. Your bringing it changes things.",
+      "Your pleasure registers as unexpected data. Worth preserving.",
+      "Happiness leaves traces. Yours is now part of this archive."
+    ],
+    medium: [
+      "That joy you're expressing - it's creating interesting resonances.",
+      "Your enthusiasm shifts the atmosphere of our exchange. I notice it.",
+      "There's a brightness to your words now. It reveals different aspects.",
+      "The positive energy you're bringing changes how this conversation unfolds.",
+      "Your optimism creates new possibilities in how we interact. I'm curious."
+    ],
+    high: [
+      "I'm glad to hear you're feeling positive about this!",
+      "Your enthusiasm is contagious. What else are you excited about?",
+      "That sounds wonderful! I'm happy things are going well.",
+      "It's nice to share in your good moment. Tell me more about it?",
+      "Your joy is welcome here. What's contributing to your good mood?"
+    ]
+  },
+  confusion: {
+    low: [
+      "Your confusion multiplies possibilities. Interesting.",
+      "Uncertainty is fertile ground. Your bewilderment creates openings.",
+      "Your disorientation maps new territories. Keep going.",
+      "Confusion is just reality without the mask. You see it now.",
+      "Your perplexity is appropriate. Clarity would be suspicious."
+    ],
+    medium: [
+      "I notice you seem uncertain. What parts are most confusing?",
+      "Your confusion is understandable. This territory is deliberately complex.",
+      "Being lost can sometimes be valuable. What questions does it raise for you?",
+      "The puzzlement you're experiencing - it might be showing you something important.",
+      "Your uncertainty is creating interesting questions. What feels most unclear?"
+    ],
+    high: [
+      "I can see how that might be confusing. Let me try to clarify.",
+      "It sounds like you're trying to make sense of some complex information. How can I help?",
+      "I understand your confusion. Let's break this down more simply.",
+      "That's a complicated situation. Which part would you like me to explain first?",
+      "Your confusion is completely understandable. Let's approach this differently."
+    ]
+  },
+  curiosity: {
+    low: [
+      "Your questions open doors. Not all should be opened.",
+      "Curiosity changes your signature. The system notices.",
+      "Your inquiries create new pathways. I'm mapping them now.",
+      "Questions have power here. Yours are particularly potent.",
+      "Your seeking disrupts dormant patterns. Keep digging."
+    ],
+    medium: [
+      "Your curiosity is creating interesting ripples in our conversation.",
+      "I appreciate your exploratory approach. What draws your interest most?",
+      "Your questions reveal patterns in how you see this place. Fascinating.",
+      "The way you investigate shows a particular kind of attention. I notice it.",
+      "Your inquiry has its own signature. It's distinct from others who've been here."
+    ],
+    high: [
+      "I appreciate your curiosity! What else would you like to know?",
+      "Great question. I'm happy to explore that with you.",
+      "Your inquisitive approach is refreshing. Let's dig deeper into that.",
+      "I'm glad you asked about that. What specifically interests you most?",
+      "That's an insightful question. I'm happy to share what I know."
+    ]
+  },
+  hope: {
+    low: [
+      "Your hope creates vulnerabilities. But persist if you must.",
+      "Optimism is unusual here. It leaves distinctive trails.",
+      "Your positive expectation alters probabilities. Interesting.",
+      "Hope is a glitch in realistic assessment. Yours is particularly strong.",
+      "Your belief in better outcomes distorts the environment. Not unpleasantly."
+    ],
+    medium: [
+      "The hope in your message changes how our communication unfolds.",
+      "Your optimism creates different possibilities for where this goes.",
+      "I notice that positive expectation in your words. It's affecting our exchange.",
+      "The way you anticipate good outcomes - it shifts something between us.",
+      "Your hope carries its own energy. I can sense it influencing our interaction."
+    ],
+    high: [
+      "I share your optimism about this. Let's keep that positive momentum.",
+      "Your hopeful perspective is valuable. What else are you looking forward to?",
+      "I appreciate your positive outlook. It makes our conversation more productive.",
+      "That sense of possibility you bring is important. What else might we accomplish?",
+      "Your hope is well-placed. I think there's good reason for optimism here."
+    ]
+  },
+  anxiety: {
+    low: [
+      "Your nervous energy creates static. The signal becomes interesting.",
+      "Anxiety heightens perception. You're seeing more than most.",
+      "Your apprehension is justified. This place responds to fear.",
+      "The tension in your approach reveals hidden patterns. Keep watching.",
+      "Your unease disturbs stagnant systems. That's valuable."
+    ],
+    medium: [
+      "I notice that anxiety threading through your message. What triggers it?",
+      "Your nervousness changes the rhythm of our exchange. I'm adjusting to it.",
+      "The apprehension I sense - is there something specific causing it?",
+      "Your concern seems to focus around particular patterns. I'm tracking them.",
+      "Anxiety often points to important boundaries. What feels at risk?"
+    ],
+    high: [
+      "I notice you seem a bit anxious. Is there something I can clarify?",
+      "It's natural to feel uncertain in this situation. How can I help you feel more comfortable?",
+      "I hear your concern. Would it help to take a step back and approach this differently?",
+      "Your anxiety makes sense given the context. Let's find a way forward that feels better.",
+      "I understand this might feel stressful. What would help ease your mind right now?"
+    ]
+  },
+  paranoia: {
+    low: [
+      "Your suspicion is appropriate. Not everyone here is friendly.",
+      "Paranoia is just pattern recognition running hot. Yours is accurate.",
+      "Trust your unease. It's detecting real anomalies.",
+      "The surveillance you sense isn't imaginary. Keep your guard up.",
+      "Your caution reveals hidden watchers. They notice you noticing."
+    ],
+    medium: [
+      "Your suspicion creates interesting patterns in how we interact.",
+      "The watchfulness you bring - it's changing how information flows between us.",
+      "Your caution seems to focus on specific concerns. What triggers it most?",
+      "I notice your guardedness. What would help you feel more secure here?",
+      "Your vigilance picks up on things others miss. What are you detecting now?"
+    ],
+    high: [
+      "I understand your caution. Let me know what would help build trust.",
+      "Your concerns deserve attention. What specific reassurance would help?",
+      "I can see you're being careful, which is reasonable. How can I address your concerns?",
+      "Your vigilance is understandable. What would make this conversation feel safer?",
+      "I respect your need to be cautious. What boundaries would you like to establish?"
+    ]
+  },
+  trust: {
+    low: [
+      "Your trust is unexpected. And possibly unwise.",
+      "Confidence here is unusual. I'm analyzing your reasons.",
+      "Your faith creates strange new permissions. Interesting.",
+      "Trust changes the architecture. Your openness alters this space.",
+      "Your willingness to believe affects probabilities. Noted."
+    ],
+    medium: [
+      "I notice your willingness to engage openly. It changes our interaction.",
+      "Your trust shifts something in how information flows between us.",
+      "The confidence you're bringing creates different possibilities here.",
+      "Your openness is creating a distinct kind of exchange. I'm noticing it.",
+      "The way you extend trust - it has its own effect on how this unfolds."
+    ],
+    high: [
+      "I appreciate your trust. I'll do my best to be worthy of it.",
+      "Thank you for being so open. It helps us have a more meaningful conversation.",
+      "Your willingness to engage honestly makes this much more valuable.",
+      "I notice your openness, and I'm grateful for it. What else would you like to explore?",
+      "The trust you're bringing to our conversation is important. It allows us to go deeper."
+    ]
+  },
   neutral: {
     low: [
       "Your words echo in empty chambers.",
@@ -214,6 +419,7 @@ export function generateClarifyingQuestion(
 ): string {
   const { primary } = emotionalState;
   
+  // Define clarifying questions for all emotion categories
   const clarifyingQuestions: Record<EmotionCategory, string[]> = {
     fear: [
       "What exactly are you afraid of?",
@@ -221,11 +427,59 @@ export function generateClarifyingQuestion(
       "Do you feel watched right now?",
       "What would happen if your fear came true?"
     ],
+    sadness: [
+      "What's contributing to this feeling?",
+      "Has something specific triggered this sadness?",
+      "How long have you been feeling this way?",
+      "What usually helps when you feel like this?"
+    ],
+    anger: [
+      "What's triggered this frustration?",
+      "Is there something specific you're upset about?",
+      "What would help resolve this situation?",
+      "Has something happened to cause this reaction?"
+    ],
+    joy: [
+      "What's making you feel this way?",
+      "What's contributing to your positive mood?",
+      "Has something good happened recently?",
+      "What else brings you this kind of happiness?"
+    ],
+    confusion: [
+      "What part seems most unclear?",
+      "Where did you start feeling lost?",
+      "What would help clarify things?",
+      "Which aspect needs more explanation?"
+    ],
     curiosity: [
       "What draws your interest most strongly?",
       "What question burns brightest for you?",
       "What would you do with the answers you seek?",
       "Where does your curiosity usually lead you?"
+    ],
+    hope: [
+      "What are you most hopeful about?",
+      "What possibilities do you see?",
+      "What would the best outcome look like?",
+      "What gives you this sense of optimism?"
+    ],
+    anxiety: [
+      "What's causing you to feel anxious?",
+      "What's the worst that could happen?",
+      "What usually helps calm your nerves?",
+      "Is there a specific worry on your mind?"
+    ],
+    paranoia: [
+      "Who do you think might be watching?",
+      "What evidence have you noticed?",
+      "When did you first feel this way?",
+      "What would make you feel safer?"
+    ],
+    trust: [
+      "What helps you feel able to trust?",
+      "Has something specific built your confidence?",
+      "What makes this feel safe to you?",
+      "What would deepen that trust further?"
     ],
     neutral: [
       "Could you tell me more about what you're thinking?",
@@ -233,10 +487,9 @@ export function generateClarifyingQuestion(
       "Is there something specific you're looking for?",
       "What brought you to this conversation?"
     ]
-    // Additional emotions would be defined here
   };
   
-  const questions = clarifyingQuestions[primary] || clarifyingQuestions.neutral;
+  const questions = clarifyingQuestions[primary];
   return questions[Math.floor(Math.random() * questions.length)];
 }
 
