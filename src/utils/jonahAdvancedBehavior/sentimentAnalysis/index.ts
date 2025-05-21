@@ -1,17 +1,15 @@
-
 /**
  * Sentiment Analysis - Main Export File
  */
 
-import { analyzeEmotion as analyzeEmo } from './analyzer';
+import { analyzeEmotion } from './analyzer';
 import { EmotionCategory, EmotionalState, EmotionalTrend, ResponseStyle } from '../types';
-import { generateEmotionalResponse as genEmotionalResponse } from './responseGenerator';
-import { analyze as analyzeInput } from './analyzer';
+import { generateEmotionalResponse } from './responseGenerator';
 
-// Re-export everything needed by other modules
-export const analyzeEmotion = analyzeEmo;
-export const analyze = analyzeInput;
-export const generateEmotionalResponse = genEmotionalResponse;
+// Re-export functions with explicit naming
+export const analyze = analyzeEmotion;
+export { analyzeEmotion };
+export { generateEmotionalResponse };
 
 // Implement and export getEmotionalResponse function
 export function getEmotionalResponse(
@@ -158,7 +156,7 @@ export function getLayeredEmotionalResponse(
 }
 
 // Export the checker implementation
-export const checkForRecurringSymbols = (input: string): string | null => {
+export function checkForRecurringSymbols(input: string): string | null {
   // Define symbols to track
   const symbols = ['mirror', 'gate', 'key', 'dream', 'echo', 'shadow'];
   
@@ -180,17 +178,17 @@ export const checkForRecurringSymbols = (input: string): string | null => {
   }
   
   return null;
-};
+}
 
 // Add other needed functions
-export const processEmotionalInput = (input: string): EmotionalState => {
+export function processEmotionalInput(input: string): EmotionalState {
   const emotion = analyzeEmotion(input);
   return {
     primary: emotion.primary,
     secondary: emotion.secondary,
     intensity: 'medium'
   };
-};
+}
 
 // Export types properly
 export type { 
