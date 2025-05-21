@@ -13,8 +13,11 @@ const TalkToJonah: React.FC = () => {
     jonahMood,
     emotionalTrend,
     responseStyle,
-    sendMessage,
+    handleSendMessage,
     messageWeight,
+    jonahVersion,
+    conversationDepth,
+    toggleVersion,
     resetConversation
   } = useJonahChat();
   
@@ -26,10 +29,13 @@ const TalkToJonah: React.FC = () => {
         setInput={setInput}
         isTyping={isTyping}
         jonahMood={jonahMood}
+        jonahVersion={jonahVersion}
+        messageWeight={messageWeight}
+        conversationDepth={conversationDepth}
         emotionalTrend={emotionalTrend}
         responseStyle={responseStyle}
-        sendMessage={sendMessage}
-        messageWeight={messageWeight}
+        handleSendMessage={handleSendMessage}
+        toggleVersion={toggleVersion}
         resetConversation={resetConversation}
       />
     </JonahChatContainer>

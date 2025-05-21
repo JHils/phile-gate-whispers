@@ -2,9 +2,9 @@
 // Export all functionality from the sentiment analysis modules
 export { analyzeEmotion } from './analyzer';
 export { 
+  generateEmotionalResponse,
   getEmotionalResponse,
   getClarifyingQuestion,
-  generateEmotionalResponse,
   trackEmotionalPattern,
   generateMetaAwarenessComment,
   interpretUnsaidContent

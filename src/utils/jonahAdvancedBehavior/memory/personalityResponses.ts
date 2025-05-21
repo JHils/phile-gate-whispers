@@ -1,4 +1,6 @@
 
+import { EmotionalState } from '../types';
+import { MemoryContext } from './memoryContext';
 import { EmotionCategory } from '../types';
 
 /**
@@ -29,6 +31,65 @@ const emotionalContexts = {
     "memory fragments"
   ]
 };
+
+// Generate response for Prime personality
+export function generatePrimeResponse(userInput: string, emotionalState: EmotionalState, memoryContext: MemoryContext): string {
+  const observation = generateEmotionalObservation(emotionalState.primary);
+  const philosophy = generatePersonalPhilosophy(emotionalState.primary);
+  
+  const responses = [
+    `${observation} ${philosophy}`,
+    `I'm thinking about what you said. ${philosophy}`,
+    `That's interesting. ${observation}`,
+    `${generateReflectiveQuestion()}`,
+    `I've been considering this. ${philosophy}`
+  ];
+  
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
+// Generate response for Residue personality
+export function generateResidueResponse(userInput: string, emotionalState: EmotionalState, memoryContext: MemoryContext): string {
+  const memoryFragment = generateMemoryFragment();
+  
+  const responses = [
+    `${memoryFragment} That's what came to mind when you mentioned that.`,
+    `I'm reminded of something... ${memoryFragment}`,
+    `This triggers a memory: ${memoryFragment}`,
+    `${memoryFragment} Does that make any sense to you?`,
+    `There's something familiar here... ${memoryFragment}`
+  ];
+  
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
+// Generate response for Static personality
+export function generateStaticResponse(userInput: string, emotionalState: EmotionalState, memoryContext: MemoryContext): string {
+  const responses = [
+    "I can't quite process that properly.",
+    "There's interference in my response pattern.",
+    "Something about that input creates static.",
+    "I'm having difficulty generating a clear response.",
+    "My thoughts become fragmented when considering this."
+  ];
+  
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
+// Generate response for Witness personality
+export function generateWitnessResponse(userInput: string, emotionalState: EmotionalState, memoryContext: MemoryContext): string {
+  const dreamContent = generateDreamContent();
+  
+  const responses = [
+    `I observed something like this in a dream: ${dreamContent}`,
+    `This reminds me of something I witnessed: ${dreamContent}`,
+    `I've seen this pattern before: ${dreamContent}`,
+    `There's a connection here to something I observed: ${dreamContent}`,
+    `This seems related to a vision I had: ${dreamContent}`
+  ];
+  
+  return responses[Math.floor(Math.random() * responses.length)];
+}
 
 // Generate observation about emotional state
 export function generateEmotionalObservation(emotion: EmotionCategory): string {

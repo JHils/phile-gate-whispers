@@ -30,8 +30,7 @@ export function initializeConsoleTracking(): void {
         secretPagesVisited: [],
         hiddenFilesDownloaded: [],
         idleTriggers: {},
-        lastInteractionTime: new Date(),
-        lastIdleTime: undefined
+        lastInteractionTime: new Date()
       }
     };
   }

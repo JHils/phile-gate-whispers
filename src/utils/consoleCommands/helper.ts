@@ -1,41 +1,47 @@
 
 /**
- * Helper functions for the console commands system
+ * Console Help Command
+ * Provides help information for available commands
  */
-import { TrackEventFunction, TrackCommandFunction } from "./types";
 
-// Track a command execution and add to used commands
-export const createCommandTracker = (
-  trackEvent: TrackEventFunction
-): TrackCommandFunction => {
-  return (commandName: string) => {
-    if (window.JonahConsole) {
-      // Add to used commands if not already there
-      if (!window.JonahConsole.usedCommands.includes(commandName)) {
-        window.JonahConsole.usedCommands.push(commandName);
+import { TrackEventFunction } from "./types";
+import { typewriterLog } from '../consoleEffects';
+
+export const setupHelpFunction = (trackEvent: TrackEventFunction) => {
+  if (typeof window !== 'undefined') {
+    window.help = function() {
+      // Track that help was called
+      trackEvent('help_called');
+      
+      if (window.JonahConsole) {
+        window.JonahConsole.usedCommands = [...window.JonahConsole.usedCommands || [], 'help'];
       }
       
-      // Record the last command used
-      window.JonahConsole.lastCommand = commandName;
-      
-      // Save to localStorage
-      localStorage.setItem('jonahUsedCommands', JSON.stringify(window.JonahConsole.usedCommands));
-    }
-    
-    // Track event
-    trackEvent(`console_${commandName}_called`);
-  };
-};
+      typewriterLog(`
+AVAILABLE COMMANDS:
+==================
+help() - Show this help message
+inventory() - Check your collected items
+echo_me("message") - Echo your message
+forget() - Reset your conversation with Jonah
+access_journal() - View Jonah's journal entries
+start() - Begin interaction with the archive
+talk_to_jonah() - Direct conversation with Jonah
 
-// Record a fail attempt
-export const createFailAttemptRecorder = () => {
-  return () => {
-    if (window.JonahConsole) {
-      window.JonahConsole.failCount++;
+DISCOVERY COMMANDS:
+=================
+storyFlags() - View your discovered story flags
+verifyCode("CODE") - Verify a book code
+findAnomaly("text") - Search for anomalies in text
+mirrorCheck() - Check for reflections
+split() - Fragment perspective
+lookInside() - Internal examination
+re_entry() - System re-initialization
+
+Try more commands to discover hidden functionality.
+`);
       
-      if (window.JonahConsole.failCount >= 3 && !window.JonahConsole.usedCommands.includes("reveal")) {
-        console.log("%cYou're circling. Try reveal().", "color: #475B74; font-size:14px; font-style:italic;");
-      }
-    }
-  };
+      return;
+    };
+  }
 };

@@ -75,6 +75,9 @@ export interface SentienceData {
     lastPlayed?: number;
     count?: number;
     triggers?: Record<string, number>;
+    playedSounds?: string[];
+    unlockedVoiceLogs?: string[];
+    volumeLevel?: number;
   };
   pageVisits?: Record<string, string[]>;
   tabSwitches?: number;
@@ -127,4 +130,3 @@ export interface BookCode {
 // Export StoryFlag and BookCode as types as well (for backward compatibility)
 export type StoryFlagType = string;
 export type BookCodeType = string;
-

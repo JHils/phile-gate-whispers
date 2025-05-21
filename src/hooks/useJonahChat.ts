@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
 import { useMessageHandling } from './jonahChat/useMessageHandling';
@@ -119,6 +120,31 @@ export function useJonahChat() {
     updateMoodAndTrend('neutral');
   }, [resetMessages, resetContext, updateMoodAndTrend]);
   
+  // Simplified sendMessage function for external components
+  const sendMessage = useCallback((content: string) => {
+    if (!content.trim()) return;
+    
+    // Add user message to chat
+    addUserMessage(content);
+    
+    // Analyze emotional content of user input
+    const emotionalState = analyzeEmotion(content);
+    
+    // Update conversation context with user message
+    updateContext(content, emotionalState.primary, true);
+    
+    // Show typing indicator
+    setTyping(true);
+    
+    // Generate Jonah response with a delay
+    setTimeout(() => {
+      import('@/utils/jonahAdvancedBehavior/enhancedEmotionalCore').then(({ generateFullEmotionalResponse }) => {
+        const response = generateFullEmotionalResponse(emotionalState, 'medium', true, []);
+        processJonahResponse(response, emotionalState.primary);
+      });
+    }, 1200);
+  }, [addUserMessage, updateContext, setTyping, processJonahResponse]);
+  
   return {
     messages,
     input,
@@ -132,6 +158,7 @@ export function useJonahChat() {
     responseStyle,
     handleSendMessage,
     toggleVersion,
-    resetConversation
+    resetConversation,
+    sendMessage
   };
 }

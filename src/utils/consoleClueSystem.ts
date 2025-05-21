@@ -14,7 +14,20 @@ export const initializeStoryFlags = () => {
       whispersFound: [],
       jokesDisplayed: [],
       storyFlags: [],
-      bookCodes: []
+      bookCodes: [],
+      simba: {
+        encountered: false
+      },
+      argData: {
+        keyholeClicks: 0,
+        consoleCluesTouched: [],
+        qrScans: [],
+        memoryFragments: [],
+        secretPagesVisited: [],
+        hiddenFilesDownloaded: [],
+        idleTriggers: {},
+        lastInteractionTime: new Date()
+      }
     };
   }
   
