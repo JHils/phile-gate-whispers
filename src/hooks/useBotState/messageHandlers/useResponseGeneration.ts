@@ -1,4 +1,3 @@
-
 import {
   generateFirstTimeResponse,
   generateReturningResponse,
@@ -20,7 +19,7 @@ import {
   getAdaptedResponse 
 } from '../useAdaptiveLearning';
 
-import { generateTestamentResponse, getTestamentTeaser } from '../useTestamentSystem';
+import { generateTestamentResponse, getTestamentTeaser } from '@/utils/jonahAdvancedBehavior/testament';
 
 // Mock implementations for missing functions with correct signatures
 const getVaryingLengthResponse = (response: string, trustLevel: string = 'low') => response;
@@ -38,7 +37,7 @@ import {
   EmotionalState,
   EmotionCategory,
   createEmotionalState
-} from '@/utils/jonahAdvancedBehavior';
+} from '@/utils/jonahAdvancedBehavior/types';
 
 // Define missing types if needed
 interface MemoryContext {

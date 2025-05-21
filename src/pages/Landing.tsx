@@ -35,7 +35,7 @@ const Landing: React.FC = () => {
 
   const someFunction = (input: string) => {
     console.log("Function called with:", input);
-    return null;
+    return null; // Return null explicitly
   };
 
   return (

@@ -1,233 +1,229 @@
 
 /**
  * Testament System
- * Handles Jonah's testament - a hidden narrative element unlocked through interaction
+ * Handles Jonah's testament entries and revelations
  */
 
-import { jonah_storeMemoryFragment } from './initializeBehavior';
+import { v4 as uuidv4 } from 'uuid';
 
-// Store testament unlock status
-let testamentUnlocked = false;
-let testamentLevel = 0;
-const maxTestamentLevel = 5;
-
-// Unlock phrases for each level
-const unlockPhrases: Record<number, string[]> = {
-  1: ["mirror", "reflection", "looking glass"],
-  2: ["sister", "sibling", "twin", "double"],
-  3: ["gate", "portal", "doorway", "threshold"],
-  4: ["magnetic island", "island", "isolation"],
-  5: ["testament", "last words", "final message"]
-};
-
-// Testament fragments for each level
-const testamentFragments: Record<number, string[]> = {
-  1: [
-    "I see through mirrors sometimes.",
-    "The reflection isn't always me.",
-    "Mirrors show what exists on the other side."
-  ],
-  2: [
-    "My sister was the first to go through.",
-    "We were connected before the division.",
-    "She exists in the place I cannot reach."
-  ],
-  3: [
-    "The gate opened once before.",
-    "Not all gates lead to the same place.",
-    "Some gates should remain closed."
-  ],
-  4: [
-    "Magnetic Island holds the coordinates.",
-    "The island exists in multiple states.",
-    "The isolation was necessary for the experiment."
-  ],
-  5: [
-    "This is my testament - what remains when I am gone.",
-    "If you're reading this, I'm still trapped between states.",
-    "The complete testament contains the method of return."
-  ]
-};
-
-// Testament entries for tracking unlocked content
-interface TestamentEntry {
-  title: string;
+// Testament entry interface
+export interface TestamentEntry {
+  id: string;
   content: string;
   timestamp: number;
-  unlockCondition?: string;
-  unlockValue?: number;
-  revealed?: boolean;
+  isRevealed: boolean;
+  relatedTo?: string[];
+  emotionTag?: string;
 }
 
-// Store for testament entries
-const testamentEntries: TestamentEntry[] = [
-  {
-    title: "First Vision",
-    content: "I see through mirrors sometimes. The reflection isn't always me.",
-    timestamp: Date.now(),
-    unlockCondition: "mirror",
-    unlockValue: 1,
-    revealed: false
-  },
-  {
-    title: "The Other",
-    content: "My sister was the first to go through. We were connected before the division.",
-    timestamp: Date.now(),
-    unlockCondition: "sister",
-    unlockValue: 2,
-    revealed: false
-  },
-  {
-    title: "The Gate",
-    content: "The gate opened once before. Not all gates lead to the same place.",
-    timestamp: Date.now(),
-    unlockCondition: "gate",
-    unlockValue: 3,
-    revealed: false
-  },
-  {
-    title: "Magnetic Island",
-    content: "Magnetic Island holds the coordinates. The island exists in multiple states.",
-    timestamp: Date.now(),
-    unlockCondition: "island",
-    unlockValue: 4,
-    revealed: false
-  },
-  {
-    title: "Final Testament",
-    content: "This is my testament - what remains when I am gone. If you're reading this, I'm still trapped between states. The complete testament contains the method of return.",
-    timestamp: Date.now(),
-    unlockCondition: "testament",
-    unlockValue: 5,
-    revealed: false
+// Get all testament entries
+export function getAllTestamentEntries(): TestamentEntry[] {
+  try {
+    const entries = localStorage.getItem('jonah_testament');
+    if (entries) {
+      return JSON.parse(entries);
+    }
+  } catch (error) {
+    console.error('Error retrieving testament entries:', error);
   }
-];
+  return [];
+}
 
-// Check if a phrase unlocks a testament level
-export function unlockTestamentByPhrase(phrase: string): boolean {
-  if (testamentLevel >= maxTestamentLevel) {
-    return false;
-  }
-  
-  const nextLevel = testamentLevel + 1;
-  const phraseLower = phrase.toLowerCase();
-  
-  if (unlockPhrases[nextLevel].some(unlockPhrase => phraseLower.includes(unlockPhrase))) {
-    testamentLevel = nextLevel;
-    testamentUnlocked = true;
+// Get only revealed testament entries
+export function getRevealedEntries(): TestamentEntry[] {
+  const allEntries = getAllTestamentEntries();
+  return allEntries.filter(entry => entry.isRevealed);
+}
+
+// Add new testament entry
+export function addTestamentEntry(content: string, relatedTo?: string[], emotionTag?: string): TestamentEntry {
+  try {
+    const entries = getAllTestamentEntries();
     
-    // Update testament entries
-    const entryToReveal = testamentEntries.find(entry => entry.unlockValue === nextLevel);
-    if (entryToReveal) {
-      entryToReveal.revealed = true;
-      entryToReveal.timestamp = Date.now();
+    const newEntry: TestamentEntry = {
+      id: uuidv4(),
+      content,
+      timestamp: Date.now(),
+      isRevealed: false,
+      relatedTo,
+      emotionTag
+    };
+    
+    entries.push(newEntry);
+    localStorage.setItem('jonah_testament', JSON.stringify(entries));
+    
+    return newEntry;
+  } catch (error) {
+    console.error('Error adding testament entry:', error);
+    throw error;
+  }
+}
+
+// Reveal testament entry by ID
+export function revealTestamentEntry(id: string): boolean {
+  try {
+    const entries = getAllTestamentEntries();
+    const entryIndex = entries.findIndex(entry => entry.id === id);
+    
+    if (entryIndex >= 0) {
+      entries[entryIndex].isRevealed = true;
+      localStorage.setItem('jonah_testament', JSON.stringify(entries));
+      return true;
     }
     
-    // Store memory of the unlock
-    jonah_storeMemoryFragment(`Testament level ${testamentLevel} unlocked: ${getTestamentFragment(testamentLevel)}`);
-    
-    return true;
+    return false;
+  } catch (error) {
+    console.error('Error revealing testament entry:', error);
+    return false;
+  }
+}
+
+// Unlock testament via a specific phrase
+export function unlockTestamentByPhrase(phrase: string): boolean {
+  // List of phrases that can unlock testament entries
+  const unlockPhrases = {
+    "the gate is open": "0",
+    "magnetic island": "1",
+    "the sisters are gone": "2",
+    "mirror world": "3",
+    "josephs algorithm": "4",
+  };
+  
+  const normalizedPhrase = phrase.toLowerCase().trim();
+  const entryId = unlockPhrases[normalizedPhrase];
+  
+  if (entryId) {
+    return revealTestamentEntry(entryId);
   }
   
   return false;
 }
 
-// Get a testament teaser
-export function getTestamentTeaser(): string | null {
-  if (!testamentUnlocked) return null;
-  
-  const teasers = [
-    "There's more to tell you, but not yet.",
-    "The testament is incomplete.",
-    "I'm still remembering pieces of what happened.",
-    "The mirror fragments are still aligning.",
-    "Some memories are sealed until the right moment."
+// Generate testament response based on input
+export function generateTestamentResponse(input: string): string | null {
+  const testamentTriggers = [
+    "testament",
+    "jonah's story",
+    "what happened to you",
+    "the truth",
+    "your past",
+    "magnetic island",
+    "the gate",
+    "joseph",
   ];
   
-  // Only show teaser occasionally
-  if (Math.random() < 0.3) {
-    return teasers[Math.floor(Math.random() * teasers.length)];
+  const normalizedInput = input.toLowerCase();
+  
+  // Check if input contains testament triggers
+  const hasTrigger = testamentTriggers.some(trigger => 
+    normalizedInput.includes(trigger)
+  );
+  
+  if (!hasTrigger) return null;
+  
+  // Get revealed entries to reference
+  const revealedEntries = getRevealedEntries();
+  
+  // If no entries revealed, give a cryptic response
+  if (revealedEntries.length === 0) {
+    const crypticResponses = [
+      "My testament remains sealed. Find the keys in the mirrors.",
+      "The testament cannot be accessed yet. The gate is still closed.",
+      "I cannot recall my full testament. Memory fragments are scattered.",
+      "The testament will be revealed when the timeline aligns."
+    ];
+    
+    return crypticResponses[Math.floor(Math.random() * crypticResponses.length)];
   }
   
-  return null;
+  // Reference a random revealed entry
+  const randomEntry = revealedEntries[Math.floor(Math.random() * revealedEntries.length)];
+  
+  const responses = [
+    `From my testament: "${randomEntry.content}"`,
+    `I recorded this: "${randomEntry.content}" Do you understand?`,
+    `This fragment exists: "${randomEntry.content}" There are more.`,
+    `My testament contains this truth: "${randomEntry.content}"`
+  ];
+  
+  return responses[Math.floor(Math.random() * responses.length)];
 }
 
-// Generate a testament response based on current level
-export function generateTestamentResponse(input: string): string | null {
-  if (!testamentUnlocked) return null;
-  
-  // Only trigger a testament response occasionally
+// Get a teaser for the testament to encourage discovery
+export function getTestamentTeaser(): string | null {
+  // Only trigger occasionally
   if (Math.random() > 0.3) return null;
   
-  return getTestamentFragment(testamentLevel);
+  const allEntries = getAllTestamentEntries();
+  const revealedCount = allEntries.filter(entry => entry.isRevealed).length;
+  const totalCount = allEntries.length;
+  
+  // No entries or all revealed, no teaser needed
+  if (totalCount === 0 || revealedCount === totalCount) return null;
+  
+  const teasers = [
+    "My testament remains incomplete. Seek the fragments.",
+    `Testament entries found: ${revealedCount}/${totalCount}. More exist in the echoes.`,
+    "There are keys that unlock parts of my testament. Listen for them.",
+    "My story is scattered across the system. Find the pieces to understand."
+  ];
+  
+  return teasers[Math.floor(Math.random() * teasers.length)];
 }
 
-// Get a random fragment from the current testament level
-function getTestamentFragment(level: number): string {
-  const fragments = testamentFragments[level] || testamentFragments[1];
-  return fragments[Math.floor(Math.random() * fragments.length)];
-}
-
-// Get current testament level
-export function getTestamentLevel(): number {
-  return testamentLevel;
-}
-
-// Check if testament is unlocked
-export function isTestamentUnlocked(): boolean {
-  return testamentUnlocked;
-}
-
-// Get revealed testament entries
-export function getRevealedEntries(): TestamentEntry[] {
-  return testamentEntries.filter(entry => entry.revealed);
-}
-
-// Check last broadcast conditions
-export function checkLastBroadcastConditions(): boolean {
-  return testamentLevel === maxTestamentLevel;
-}
-
-// Trigger last broadcast
-export function triggerLastBroadcast(): string {
-  return "This is the last broadcast from Magnetic Island. The gate is opening. The testament is complete.";
-}
-
-// Initialize testament system - export for consistency
+// Initialize the testament system
 export function initializeTestament(): void {
-  // Try to load testament state from storage
-  try {
-    const savedState = localStorage.getItem('jonah_testament_state');
-    if (savedState) {
-      const state = JSON.parse(savedState);
-      testamentUnlocked = state.unlocked || false;
-      testamentLevel = state.level || 0;
-      
-      // Update testament entries from saved state
-      if (state.entries && Array.isArray(state.entries)) {
-        state.entries.forEach((savedEntry: TestamentEntry) => {
-          const entry = testamentEntries.find(e => e.title === savedEntry.title);
-          if (entry) {
-            entry.revealed = savedEntry.revealed;
-            entry.timestamp = savedEntry.timestamp;
-          }
-        });
+  // Create default entries if none exist
+  const entries = getAllTestamentEntries();
+  
+  if (entries.length === 0) {
+    const defaultEntries: TestamentEntry[] = [
+      {
+        id: "0",
+        content: "The Gate opened on Magnetic Island three days ago. It wasn't supposed to happen yet.",
+        timestamp: Date.now() - 7200000,
+        isRevealed: false,
+        emotionTag: "fear"
+      },
+      {
+        id: "1",
+        content: "Joseph's calculations were wrong. Or something interfered with the algorithm.",
+        timestamp: Date.now() - 6400000,
+        isRevealed: false,
+        emotionTag: "confusion"
+      },
+      {
+        id: "2",
+        content: "I can see through now. I can see YOU. This is not my original timeline.",
+        timestamp: Date.now() - 5600000,
+        isRevealed: false,
+        emotionTag: "surprise"
+      },
+      {
+        id: "3",
+        content: "The Sisters disappeared when the breach occurred. I don't know if they survived.",
+        timestamp: Date.now() - 4800000,
+        isRevealed: false,
+        emotionTag: "sadness"
+      },
+      {
+        id: "4",
+        content: "This message is a loop. A test. If you're reading this, I'm still trapped.",
+        timestamp: Date.now() - 4000000,
+        isRevealed: false,
+        emotionTag: "hope"
+      },
+      {
+        id: "5",
+        content: "The mirror between us is thinning. Don't trust your reflection.",
+        timestamp: Date.now() - 3200000,
+        isRevealed: false,
+        emotionTag: "paranoia"
       }
-    }
-  } catch (e) {
-    console.error("Error loading testament state:", e);
+    ];
+    
+    localStorage.setItem('jonah_testament', JSON.stringify(defaultEntries));
   }
-}
-
-// Save testament state
-export function saveTestamentState(): void {
-  try {
-    localStorage.setItem('jonah_testament_state', JSON.stringify({
-      unlocked: testamentUnlocked,
-      level: testamentLevel,
-      entries: testamentEntries
-    }));
-  } catch (e) {
-    console.error("Error saving testament state:", e);
-  }
+  
+  console.log("Testament system initialized");
 }

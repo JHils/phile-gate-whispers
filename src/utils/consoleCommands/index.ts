@@ -7,7 +7,17 @@
 import { UserState } from "@/hooks/useTrackingSystem";
 import { statusCommand } from "./statusCommand";
 import { helperFunctions } from "./helper";
-import { initializeBookCodes } from "../consoleBookCommands";
+
+// Create a simple book codes initializer function
+function initializeBookCodes() {
+  // Check if book codes already exist in localStorage
+  const existingCodes = localStorage.getItem('bookCodes');
+  if (!existingCodes) {
+    // Initialize with empty array if none exist
+    localStorage.setItem('bookCodes', JSON.stringify([]));
+  }
+  console.log("Book codes initialized");
+}
 
 // Define type for getRank function to ensure proper typing
 type GetUserRankFunction = () => Promise<{ 

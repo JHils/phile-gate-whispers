@@ -1,9 +1,66 @@
+/**
+ * Testament System Hook
+ * Manages access to Jonah's testament entries
+ */
 
-import { unlockTestamentByPhrase as originalUnlockByPhrase,
-         getTestamentTeaser as originalGetTeaser,
-         generateTestamentResponse as originalGenerateResponse } from '@/utils/jonahAdvancedBehavior';
+import { 
+  unlockTestamentByPhrase,
+  getTestamentTeaser,
+  generateTestamentResponse
+} from '@/utils/jonahAdvancedBehavior/testament';
 
-// Re-export functions to maintain API compatibility
-export const unlockTestamentByPhrase = originalUnlockByPhrase;
-export const getTestamentTeaser = originalGetTeaser;
-export const generateTestamentResponse = originalGenerateResponse;
+/**
+ * Checks if content contains a phrase that could unlock a testament entry
+ * @param content The user input to check
+ * @returns true if a testament entry was unlocked
+ */
+export function checkForTestamentUnlock(content: string): boolean {
+  if (!content || typeof content !== 'string') return false;
+  
+  // Try to unlock a testament entry with the phrase
+  return unlockTestamentByPhrase(content);
+}
+
+/**
+ * Generates a testament response based on user input
+ * @param content The user input to check
+ * @returns A testament-related response or null
+ */
+export function generateTestamentResponse(content: string): string | null {
+  if (!content || typeof content !== 'string') return null;
+  
+  // Keep track of testament-related questions
+  const testamentKeywords = ['testament', 'truth', 'story', 'what happened'];
+  const isTestamentQuery = testamentKeywords.some(keyword => 
+    content.toLowerCase().includes(keyword)
+  );
+  
+  if (isTestamentQuery) {
+    // Import this separately to avoid naming conflict
+    return import('@/utils/jonahAdvancedBehavior/testament')
+      .then(({ generateTestamentResponse }) => {
+        return generateTestamentResponse(content);
+      })
+      .catch(() => null);
+  }
+  
+  return null;
+}
+
+/**
+ * Gets a testament teaser to inject occasionally into responses
+ * @returns A testament teaser or null
+ */
+export function getTestamentTeaser(): string | null {
+  // Only show a teaser rarely
+  if (Math.random() > 0.2) {
+    return null;
+  }
+  
+  // Import this separately to avoid issues
+  return import('@/utils/jonahAdvancedBehavior/testament')
+    .then(({ getTestamentTeaser }) => {
+      return getTestamentTeaser();
+    })
+    .catch(() => null);
+}

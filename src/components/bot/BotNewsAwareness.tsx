@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { initializeNewsAwarenessSystem } from '@/utils/jonahNewsAwareness';
+import { initializeNewsAwareness } from '@/utils/jonahNewsAwareness';
 
 interface BotNewsAwarenessProps {
   trustLevel: string;
@@ -13,7 +13,7 @@ const BotNewsAwareness: React.FC<BotNewsAwarenessProps> = ({
 }) => {
   // Initialize news awareness system
   useEffect(() => {
-    initializeNewsAwarenessSystem();
+    initializeNewsAwareness();
   }, []);
   
   // Set up occasional time-based news comments

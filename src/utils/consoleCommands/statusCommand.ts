@@ -1,50 +1,75 @@
 
 /**
- * Console Status Command
- * Provides status information about the user's rank and progress
+ * Status Command for Console
  */
 
-import { GetUserRankFunction, TrackEventFunction } from "./types";
-import { typewriterLog } from '../consoleEffects';
+import { UserState } from "@/hooks/useTrackingSystem";
 
-export const setupStatusCommand = (getUserRank: GetUserRankFunction, trackEvent: TrackEventFunction) => {
-  if (typeof window !== 'undefined') {
-    window.showStatus = async function() {
-      // Track that status was checked
-      trackEvent('status_checked');
-      
-      if (window.JonahConsole) {
-        window.JonahConsole.usedCommands = [...window.JonahConsole.usedCommands || [], 'status'];
-      }
+// Define types
+type GetUserRankFunction = () => Promise<{ 
+  rank: string; 
+  score: number; 
+  position: number;
+  userHash: string;
+}>;
+
+type TrackEventFunction = (eventName: string) => void;
+
+// Export the status command object
+export const statusCommand = {
+  setupStatusCommand: (
+    trackEvent: TrackEventFunction,
+    getUserRank: GetUserRankFunction,
+    userState: UserState
+  ) => {
+    // Define the status command on the window object
+    window.status = async function() {
+      // Track command execution
+      trackEvent('console_command_status');
       
       try {
-        // Get user rank data
-        const { rank, score, position, userHash } = await getUserRank();
+        // Get rank data from API
+        const rankData = await getUserRank();
         
-        // Get story flags and book codes count
-        const storyFlags = window.JonahConsole?.storyFlags?.filter((f: any) => f.discovered).length || 0;
-        const bookCodes = window.JonahConsole?.bookCodes?.length || 0;
-        const anomalyCount = window.JonahConsole?.sentience?.realityFabric?.anomalyCount || 0;
+        // Check if we have JonahConsole available
+        const realityFabric = window.JonahConsole?.sentience?.realityFabric || { moodChangeTime: Date.now() };
         
-        typewriterLog(`
-USER STATUS:
-===========
-Rank: ${rank}
-Score: ${score}
-Global Position: ${position}
-ID: ${userHash.substring(0, 8)}...
+        // Format time since last mood change
+        const lastMoodChange = realityFabric.moodChangeTime || Date.now();
+        const timeSince = Math.floor((Date.now() - lastMoodChange) / 1000);
+        
+        // Build status message
+        let statusMessage = `
+=== USER STATUS ===
+Rank: ${rankData.rank}
+Score: ${rankData.score}
+Position: ${rankData.position}
+User ID: ${rankData.userHash.substring(0, 8)}...
+Pages Visited: ${userState.pagesVisited || 0}
+Console Commands: ${userState.commandsUsed || 0}
 
-DISCOVERIES:
-===========
-Story Flags: ${storyFlags}
-Book Codes: ${bookCodes}
-Anomalies: ${anomalyCount}
+=== SYSTEM STATUS ===
+Time Since Last Shift: ${timeSince}s
+Trust Score: ${userState.trustScore || 0}
+Trust Level: ${userState.trustLevel || "low"}
+Archive Access: ${(userState.trustScore || 0) > 50 ? "PARTIAL" : "MINIMAL"}
+`;
 
-Use 'inventory()' for more details.
-`);
+        // Add any additional info for high-trust users
+        if ((userState.trustScore || 0) > 100) {
+          statusMessage += `
+=== ADVANCED DATA ===
+System Integrity: ${Math.floor(80 + Math.random() * 15)}%
+Memory Access: ${Math.floor(70 + Math.random() * 20)}%
+Timeline Variance: ${(Math.random() * 0.1).toFixed(4)}
+`;
+        }
+        
+        console.log(statusMessage);
+        return statusMessage;
       } catch (error) {
-        console.error('Error fetching status:', error);
-        typewriterLog('Error retrieving status information.');
+        console.error('Error in status command:', error);
+        return "Error retrieving status data. Network anomaly detected.";
       }
     };
   }

@@ -1,47 +1,75 @@
 
 /**
- * Console Help Command
- * Provides help information for available commands
+ * Helper Functions for Console Commands
  */
 
-import { TrackEventFunction } from "./types";
-import { typewriterLog } from '../consoleEffects';
+import { UserState } from "@/hooks/useTrackingSystem";
 
-export const setupHelpFunction = (trackEvent: TrackEventFunction) => {
-  if (typeof window !== 'undefined') {
+type TrackEventFunction = (eventName: string) => void;
+
+// Export the helper functions object
+export const helperFunctions = {
+  setupHelperFunctions: (
+    trackEvent: TrackEventFunction,
+    userState: UserState
+  ) => {
+    // Help command
     window.help = function() {
-      // Track that help was called
-      trackEvent('help_called');
+      trackEvent('console_command_help');
       
-      if (window.JonahConsole) {
-        window.JonahConsole.usedCommands = [...window.JonahConsole.usedCommands || [], 'help'];
+      let helpText = `
+=== JONAH CONSOLE HELP ===
+Available commands:
+
+Basic Commands:
+- help() - Show this help message
+- status() - Show your current status and rank
+- clear() - Clear the console
+
+Exploration Commands:
+- echo_me("text") - Echo a message back
+- check_timeline() - Check current timeline status
+- memory_scan() - Scan for memory fragments
+`;
+
+      // Show advanced commands for users with higher trust
+      if ((userState.trustScore || 0) > 30) {
+        helpText += `
+Advanced Commands:
+- newsFlash() - Check for news updates
+- weatherReport() - Get a weather observation
+- dream_sequence() - Access dream sequence protocol
+- questHint() - Get a hint for active quests
+`;
+      }
+
+      // Show developer commands for high trust users
+      if ((userState.trustScore || 0) > 70) {
+        helpText += `
+Developer Commands:
+- decode("string") - Attempt to decode a string
+- inspect_object(obj) - Inspect object properties
+- completeQuest("id") - Complete a specific quest
+`;
       }
       
-      typewriterLog(`
-AVAILABLE COMMANDS:
-==================
-help() - Show this help message
-inventory() - Check your collected items
-echo_me("message") - Echo your message
-forget() - Reset your conversation with Jonah
-access_journal() - View Jonah's journal entries
-start() - Begin interaction with the archive
-talk_to_jonah() - Direct conversation with Jonah
-
-DISCOVERY COMMANDS:
-=================
-storyFlags() - View your discovered story flags
-verifyCode("CODE") - Verify a book code
-findAnomaly("text") - Search for anomalies in text
-mirrorCheck() - Check for reflections
-split() - Fragment perspective
-lookInside() - Internal examination
-re_entry() - System re-initialization
-
-Try more commands to discover hidden functionality.
-`);
-      
-      return;
+      console.log(helpText);
+      return helpText;
     };
+    
+    // Clear command
+    window.clear = function() {
+      trackEvent('console_command_clear');
+      console.clear();
+      return "Console cleared. Some things can't be forgotten.";
+    };
+    
+    // Echo command
+    window.echo_me = function(text) {
+      trackEvent('console_command_echo');
+      return `Echo: ${text || "...silence..."}`;
+    };
+    
+    // Add other helper functions as needed
   }
 };

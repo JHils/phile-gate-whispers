@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -68,8 +69,8 @@ import {
 
 // Import additional systems not covered by initializeAllSystems
 import { initializeEcoAwareness } from './utils/jonahEcoAwareness';
+import { initializeNewsAwareness } from './utils/jonahNewsAwareness';
 import { initializeFuzzyStoryMatching } from './utils/fuzzyStoryMatching';
-import { initializeNewsAwarenessSystem } from './utils/jonahNewsAwareness';
 
 // Import JonahEnhancements at the top of App.tsx
 import JonahEnhancements from './components/JonahEnhancements';
@@ -85,8 +86,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     
     // Initialize additional systems
     initializeEcoAwareness();
+    initializeNewsAwareness();
     initializeFuzzyStoryMatching();
-    initializeNewsAwarenessSystem();
   }, []);
 
   return (

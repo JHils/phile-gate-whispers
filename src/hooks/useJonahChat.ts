@@ -6,7 +6,8 @@ import { useEmotionalAnalysis } from './jonahChat/useEmotionalAnalysis';
 import { useMessageFormatting } from './jonahChat/useMessageFormatting';
 import { useConversationContext } from './jonahChat/useConversationContext';
 import { findRelevantMemories, generateMemoryBasedResponse } from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
-import { EmotionCategory, EmotionalState, createEmotionalState } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionCategory, EmotionalState } from '@/utils/jonahAdvancedBehavior/types';
+import { createEmotionalState } from '@/utils/jonahAdvancedBehavior/types';
 import { createErrorRecoveryResponse } from '@/utils/jonahAdvancedBehavior/errorRecoverySystem';
 
 export function useJonahChat() {

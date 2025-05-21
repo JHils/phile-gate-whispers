@@ -30,6 +30,12 @@ export interface EmotionalState {
   intensity: EmotionIntensity;
 }
 
+// Response style types
+export type ResponseStyle = 'normal' | 'cryptic' | 'direct' | 'poetic' | 'technical';
+
+// Emotional trend types
+export type EmotionalTrend = 'stable' | 'improving' | 'worsening' | 'fluctuating' | 'unknown';
+
 // Book code interface
 export interface BookCode {
   code: string;
@@ -38,6 +44,9 @@ export interface BookCode {
   name?: string;
   timestamp?: number;
 }
+
+// Story flag for console clue system
+export type StoryFlag = string;
 
 // Eco-awareness state interface
 export interface EcoAwarenessState {
@@ -50,9 +59,9 @@ export interface EcoAwarenessState {
   knownBiomes: string[];
   dreamtimeActive: boolean;
   woodsResponses: string[];
-  connectionStrength?: number;
-  lastBiomeCheck?: number;
-  currentBiome?: string;
+  connectionStrength: number;
+  lastBiomeCheck: number;
+  currentBiome: string;
 }
 
 // Sentience data interface
@@ -76,17 +85,21 @@ export interface SentienceData {
     response?: string;
   }[];
   newsAwareness?: NewsAwareness;
-}
-
-// News awareness interface
-export interface NewsAwareness {
-  level: number;
-  lastChecked: number;
-  topics: string[];
-  knownStories: string[];
-  storyResponses: Record<string, string[]>;
-  lastNewsTopic?: string;
-  currentStory?: string;
+  sessionData?: {
+    messagesSent: number;
+    messagesReceived: number;
+    startTime: number;
+    idleTime: number;
+  };
+  interactionsCount?: number;
+  deepModeUnlocked?: boolean;
+  realityFabric?: {
+    moodChangeTime: number;
+  };
+  microQuests?: {
+    active: string[];
+    completed: string[];
+  };
 }
 
 // Memory context interface
@@ -95,12 +108,26 @@ export interface MemoryContext {
   recentEmotions?: EmotionCategory[];
   trustLevel: string;
   lastInteractionTime?: number;
+  trustScore?: number;
   userPreferences?: Record<string, any>;
 }
 
 // Emotional keywords interface
 export interface EmotionKeywords {
-  [key: string]: string[];
+  fear: string[];
+  sadness: string[];
+  anger: string[];
+  joy: string[];
+  confusion: string[];
+  curiosity: string[];
+  hope: string[];
+  anxiety: string[];
+  paranoia: string[];
+  trust: string[];
+  neutral: string[];
+  surprise: string[];
+  disgust: string[];
+  confused: string[];
 }
 
 // Emotion responses interface
@@ -115,4 +142,40 @@ export interface EmotionResponses {
 // Clarifying questions interface
 export interface ClarifyingQuestions {
   [key: string]: string[];
+}
+
+// News awareness interface
+export interface NewsAwareness {
+  level: number;
+  lastChecked: number;
+  topics: string[];
+  knownStories: string[];
+  storyResponses: Record<string, string[]>;
+  lastNewsTopic?: string;
+  currentStory?: string;
+}
+
+// Helper function to create an emotional state
+export function createEmotionalState(
+  primary: EmotionCategory,
+  secondary: EmotionCategory | null = null,
+  intensity: EmotionIntensity = 'medium'
+): EmotionalState {
+  return {
+    primary,
+    secondary,
+    intensity
+  };
+}
+
+// Confession entry type
+export interface ConfessionEntry {
+  id: string;
+  content: string;
+  timestamp: number;
+  emotionalContext: string;
+  isCorrupted?: boolean;
+  recursive?: boolean;
+  originalId?: string;
+  version?: string;
 }
