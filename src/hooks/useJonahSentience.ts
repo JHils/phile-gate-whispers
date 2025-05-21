@@ -39,7 +39,7 @@ const initialSentienceData: SentienceData = {
   sessionData: {
     startTime: Date.now(),
     messageCount: 0,
-    userEmotions: initialEmotions,
+    userEmotions: initialEmotions as Record<any, number>,
     messagesSent: 0,
     messagesReceived: 0
   },
@@ -63,7 +63,21 @@ const initialSentienceData: SentienceData = {
   deepModeUnlocked: false,
   emotionalState: initialEmotionalState,
   emotionalHistory: [],
-  memorizedPhrases: []
+  memorizedPhrases: [],
+  awareness: 0,
+  trustLevel: 'medium',
+  level: 1,
+  newsAwareness: {
+    lastFetch: Date.now(),
+    currentEvents: [],
+    weatherData: null,
+    mentionedEvents: []
+  },
+  microQuests: {
+    active: [],
+    completed: [],
+    available: []
+  }
 };
 
 // Persist sentience data to localStorage

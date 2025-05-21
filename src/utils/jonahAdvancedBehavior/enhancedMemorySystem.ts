@@ -1,10 +1,10 @@
-
 /**
  * Enhanced Memory System
  * Advanced memory functionality for Jonah
  */
 
 import { ConversationContext } from './types';
+import { EmotionCategory } from './types';
 
 // Find memories relevant to current input
 export function findRelevantMemories(input: string, context: ConversationContext): string[] {
@@ -56,4 +56,55 @@ export function trackSignificantTopic(topic: string): void {
       conversationTopics.significant.push(topic);
     }
   }
+}
+
+// Create a new conversation context
+export function createConversationContext(trustLevel: string): ConversationContext {
+  return {
+    recentMessages: [],
+    emotionalJourney: [],
+    topicFocus: null,
+    depth: 0
+  };
+}
+
+// Store user or Jonah input in memory
+export function storeInMemory(
+  input: string,
+  mood: EmotionCategory,
+  isUser: boolean,
+  context: ConversationContext
+): ConversationContext {
+  // Clone the context to avoid mutation
+  const updatedContext = { ...context };
+  
+  // Add to recent messages (keep last 5 only)
+  updatedContext.recentMessages = [
+    ...updatedContext.recentMessages,
+    input
+  ].slice(-5);
+  
+  // Record emotional journey
+  updatedContext.emotionalJourney = [
+    ...updatedContext.emotionalJourney,
+    mood
+  ].slice(-10);
+  
+  // Detect topic focus based on content
+  if (input.length > 20) {
+    const topics = ["mirror", "gate", "echo", "dream", "memory", "loop", "time"];
+    for (const topic of topics) {
+      if (input.toLowerCase().includes(topic)) {
+        updatedContext.topicFocus = topic;
+        break;
+      }
+    }
+  }
+  
+  // Increase depth counter for more complex conversations
+  if (isUser) {
+    updatedContext.depth = updatedContext.depth + 1;
+  }
+  
+  return updatedContext;
 }

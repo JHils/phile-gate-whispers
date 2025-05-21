@@ -1,22 +1,72 @@
-
 /**
- * Response Generator for Sentiment Analysis System
+ * Response Generator for Sentiment Analysis
  */
 
 import { EmotionCategory, EmotionalState, ResponseStyle } from '../types';
 
-// Simple response generator based on emotional state
+// Generate emotional response based on state
 export function generateEmotionalResponse(
-  emotionalState: EmotionalState, 
-  trustLevel: string = 'medium', 
-  showDeep: boolean = false
+  emotionalState: EmotionalState,
+  trustLevel: string = 'medium',
+  showDeep: boolean = false,
+  memories: string[] = []
 ): string {
-  // Use the getEmotionalResponse function from types
-  return getEmotionalResponse(emotionalState, trustLevel);
+  // Get base response
+  const response = getEmotionalResponse(emotionalState, trustLevel);
+  
+  // Add memory reference if available and trust is high enough
+  if (memories.length > 0 && (trustLevel === 'high' || Math.random() > 0.7)) {
+    return `${response} ${memories[0]}`;
+  }
+  
+  return response;
 }
 
-// Get emotional response based on state and trust level
+// Get layered emotional response - more complex
+export function getLayeredEmotionalResponse(
+  emotionalState: EmotionalState,
+  responseStyle: ResponseStyle = 'direct',
+  trustLevel: string = 'medium'
+): string {
+  // Base response
+  const baseResponse = getEmotionalResponse(emotionalState, trustLevel);
+  
+  // Add style-specific modifications
+  let response = baseResponse;
+  
+  switch (responseStyle) {
+    case 'cryptic':
+      response = `${response} There's more to this than I can say directly.`;
+      break;
+    case 'poetic':
+      response = `${response} Like shadows on water, meanings shift with perspective.`;
+      break;
+    case 'concise':
+      response = response.split(' ').slice(0, 10).join(' ');
+      break;
+    case 'elaborate':
+      response = `${response} Let me expand on that. When I consider the full context and implications...`;
+      break;
+    case 'technical':
+      response = `${response} Analyzing further: semantic pattern recognition shows correlation with previous inputs.`;
+      break;
+    case 'analytical':
+      response = `${response} This appears consistent with observed patterns in our interactions.`;
+      break;
+    case 'direct':
+    default:
+      // Keep as is
+      break;
+  }
+  
+  return response;
+}
+
+// Get basic emotional response based on state and trust
 export function getEmotionalResponse(emotionalState: EmotionalState, trustLevel: string = 'medium'): string {
+  const { primary, intensity } = emotionalState;
+  
+  // Define responses by emotion and intensity
   const responses: Record<EmotionCategory, Record<string, string[]>> = {
     joy: {
       low: ["This brings a bit of light.", "That's somewhat positive."],
@@ -96,35 +146,12 @@ export function getEmotionalResponse(emotionalState: EmotionalState, trustLevel:
   };
   
   // Default to neutral if emotion not found
-  const emotion = emotionalState.primary in responses ? emotionalState.primary : 'neutral';
-  const intensity = emotionalState.intensity || 'medium';
+  const emotion = primary in responses ? primary : 'neutral';
+  const level = intensity || 'medium';
   
   // Get responses for this emotion and intensity
-  const emotionResponses = responses[emotion][intensity] || responses.neutral.medium;
+  const emotionResponses = responses[emotion][level] || responses.neutral.medium;
   
   // Return random response
   return emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
-}
-
-// Generate a layered emotional response with more context
-export function getLayeredEmotionalResponse(input: string): string {
-  const emotionResponses: Record<string, string[]> = {
-    joy: ["Your words bring a lightness to my thoughts."],
-    sadness: ["I sense a heaviness in our conversation."],
-    anger: ["There's an edge to our exchange that's making me tense."],
-    fear: ["Something about this makes me feel uncertain."],
-    neutral: ["I'm processing your words objectively."],
-    confused: ["I'm trying to untangle the meaning here."],
-    hope: ["I see possibility in where this is going."],
-    anxiety: ["I'm feeling slightly on edge with this topic."],
-    paranoia: ["I'm questioning the patterns behind this exchange."],
-    trust: ["I feel I can speak openly with you about this."],
-    curiosity: ["This opens up intriguing possibilities."],
-    watching: ["I'm observing this interaction carefully."]
-  };
-  
-  // Return a random response
-  const emotions = Object.keys(emotionResponses);
-  const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-  return emotionResponses[randomEmotion][0];
 }

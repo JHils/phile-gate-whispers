@@ -1,35 +1,43 @@
 
 /**
- * Console Commands - Main Export File
+ * Console Commands - Main File
+ * This file exports all console commands
  */
 
 import { UserState } from "@/hooks/useTrackingSystem";
-import { TrackEventFunction, GetUserRankFunction } from "./types";
-
-// Import command modules
 import { statusCommand } from "./statusCommand";
 import { helperFunctions } from "./helper";
 
-// Export the functions for console command setup
-export const setupConsoleCommands = (
-  trackEvent: (eventName: string) => void,
-  getUserRank: () => Promise<any>,
-  userState: UserState
-) => {
-  // Set up the status command
-  statusCommand.setupStatusCommand(trackEvent, getUserRank, userState);
-  
-  // Set up basic helper commands
-  helperFunctions.setupHelperFunctions(trackEvent, userState);
-  
-  // Other command sets can be initialized here
-};
+// Type for getRank function
+type GetUserRankFunction = () => Promise<{ 
+  rank: string; 
+  score: number; 
+  position: number;
+  userHash: string;
+}>;
 
-// Export the initialize function
+// Type for trackEvent function
+type TrackEventFunction = (eventName: string) => void;
+
+// Initialize console commands
 export const initializeConsoleCommands = (
   trackEvent: TrackEventFunction,
   getUserRank: GetUserRankFunction,
   userState: UserState
 ) => {
-  setupConsoleCommands(trackEvent, getUserRank, userState);
+  // Setup helper commands
+  if (!window.help) {
+    window.help = helperFunctions.help;
+  }
+  
+  if (!window.echo_me) {
+    window.echo_me = helperFunctions.echo_me;
+  }
+  
+  // Setup status command
+  if (!window.showStatus) {
+    window.showStatus = statusCommand.showStatus;
+  }
+  
+  console.log("Console commands initialized");
 };

@@ -1,10 +1,28 @@
-
 /**
- * Conversation Memory System for Jonah AI
- * Stores and retrieves memory fragments, conversation history, and personal details
+ * Conversation Memory
+ * Tracks and persists conversation memory
  */
 
 import { EmotionCategory } from './types';
+
+// Initial state for tracking emotions
+const initialEmotionState: Record<EmotionCategory, number> = {
+  joy: 0,
+  sadness: 0,
+  anger: 0,
+  fear: 0,
+  surprise: 0,
+  disgust: 0,
+  neutral: 0,
+  confused: 0,
+  curiosity: 0,
+  confusion: 0,
+  hope: 0,
+  anxiety: 0,
+  paranoia: 0,
+  trust: 0,
+  watching: 0
+};
 
 // Types
 interface ConversationMemory {
@@ -245,4 +263,3 @@ function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + "...";
 }
-

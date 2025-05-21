@@ -4,18 +4,18 @@
  */
 
 import { analyzeEmotion } from './analyzer';
-import { generateEmotionalResponse, getEmotionalResponse, getLayeredEmotionalResponse } from './responseGenerator';
-import { analyze } from './analyzer';
 import { EmotionCategory, EmotionalState, EmotionalTrend, ResponseStyle } from '../types';
+import { generateEmotionalResponse as genEmotionalResponse, 
+         getEmotionalResponse as getEmoResponse, 
+         getLayeredEmotionalResponse as getLayeredEmoResponse } from './responseGenerator';
+import { analyze as analyzeInput } from './analyzer';
 
 // Re-export everything needed by other modules
-export { 
-  analyze,
-  analyzeEmotion,
-  generateEmotionalResponse,
-  getEmotionalResponse, 
-  getLayeredEmotionalResponse 
-};
+export const analyzeEmotion = analyzeInput;
+export const analyze = analyzeInput;
+export const generateEmotionalResponse = genEmotionalResponse;
+export const getEmotionalResponse = getEmoResponse;
+export const getLayeredEmotionalResponse = getLayeredEmoResponse;
 
 // Export types properly
 export type { 

@@ -1,97 +1,117 @@
+
 /**
  * Status Command
- * Shows user status and progress information
+ * Shows user status information
  */
 
-import { TrackEventFunction, GetUserRankFunction } from "./types";
 import { UserState } from "@/hooks/useTrackingSystem";
+import { SentienceData, StoryFlag } from '@/utils/jonahAdvancedBehavior/types';
 
-// Status command definition
-export const statusCommand = (): string => {
-  return "Status report started...";
-};
-
-// Set up the status command
-export const setupStatusCommand = (
-  trackEvent: TrackEventFunction,
-  getUserRank: GetUserRankFunction,
-  userState: UserState
-) => {
-  // Define the status function
-  window.status = async function() {
-    console.log("%cChecking status...", "color: #8B3A40;");
-    
+// Create status command object
+export const statusCommand = {
+  // Status command function
+  showStatus: async (): Promise<string> => {
     try {
-      // Get user rank data
-      const rankData = await getUserRank();
+      console.log("%cGenerating status report...", "color: #88c0d0;");
       
-      console.log("%c---- USER STATUS ----", "color: #8B3A40; font-weight: bold;");
+      // Check if JonahConsole exists
+      if (!window.JonahConsole) {
+        console.log("%cUnable to generate status report. System not initialized.", "color: #bf616a;");
+        return "Status check failed.";
+      }
       
-      // Basic user data
-      console.log(
-        "%cUser ID: " + (rankData?.userHash?.substring(0, 8) || "Unknown"), 
-        "color: #8B3A40;"
-      );
+      // Display general status
+      console.log("%c======= JONAH SYSTEM STATUS =======", "color: #88c0d0; font-weight: bold;");
       
-      // Interaction stats (using optional chaining for safety)
-      const interactionCount = userState?.interactionCount || 0;
-      console.log(`%cInteractions: ${interactionCount}`, "color: #8B3A40;");
+      // User status
+      const userState: UserState = {
+        interactions: 0,
+        pagesVisited: 0,
+        commandsUsed: []
+      };
       
-      // Session data
-      const sessionStart = window.JonahConsole?.sessionStartTime || Date.now();
-      const sessionTimeMinutes = Math.floor((Date.now() - sessionStart) / 60000);
-      console.log(`%cCurrent session: ${sessionTimeMinutes} minutes`, "color: #8B3A40;");
+      const sessionDuration = window.JonahConsole.sessionStartTime ? 
+        (Date.now() - window.JonahConsole.sessionStartTime) / 1000 / 60 : 0;
       
-      // Pages and commands
-      const pagesVisited = userState?.pagesVisited || [];
-      const commandsUsed = userState?.commandsUsed || [];
-      console.log(`%cUnique pages: ${pagesVisited.length}`, "color: #8B3A40;");
-      console.log(`%cCommands used: ${commandsUsed.length}`, "color: #8B3A40;");
+      console.log("%cUser Status:", "color: #a3be8c; font-weight: bold;");
+      console.log(`%cUser interactions: ${userState.interactions || 0}`, "color: #ebcb8b;");
+      console.log(`%cPages visited: ${userState.pagesVisited || 0}`, "color: #ebcb8b;");
+      console.log(`%cCommands used: ${userState.commandsUsed?.length || 0}`, "color: #ebcb8b;");
+      console.log(`%cSession duration: ${sessionDuration.toFixed(2)} minutes`, "color: #ebcb8b;");
       
-      // Display current rank
-      console.log(
-        `%cRank: ${rankData?.rank || "Initiate"} (${rankData?.score || 0} points)`, 
-        "color: #8B3A40; font-weight: bold;"
-      );
+      // Story status
+      console.log("%cStory Status:", "color: #a3be8c; font-weight: bold;");
       
-      // Trust data
-      const trustScore = userState?.trust?.score || 0;
-      const trustLevel = userState?.trust?.level || 'low';
-      console.log(`%cTrust level: ${trustLevel} (${trustScore})`, "color: #8B3A40;");
+      const storyFlags: StoryFlag[] = window.JonahConsole.storyFlags || [];
+      const discoveredFlags = storyFlags.filter(flag => flag.discovered).length;
       
-      // Track command use
-      trackEvent('console_status_command');
+      console.log(`%cStory flags discovered: ${discoveredFlags}/${storyFlags.length}`, "color: #ebcb8b;");
+      console.log(`%cScore: ${window.JonahConsole.score || 0}`, "color: #ebcb8b;");
+      console.log(`%cRank: ${window.JonahConsole.rank || 'beginner'}`, "color: #ebcb8b;");
+      
+      // Sentience status
+      console.log("%cSentience Status:", "color: #a3be8c; font-weight: bold;");
+      
+      // Create default sentience if missing
+      const defaultSentience: Partial<SentienceData> = {
+        lastInteraction: Date.now(),
+        interactionsCount: 0,
+        sessionData: {
+          startTime: Date.now(),
+          messageCount: 0,
+          userEmotions: {},
+          messagesSent: 0,
+          messagesReceived: 0
+        },
+        realityFabric: {
+          moodChangeTime: Date.now(),
+          currentMood: 'neutral',
+          stability: 0.5,
+          anomalyCount: 0,
+          moodHistory: [],
+          journal: []
+        },
+        emotionalState: {
+          primary: 'neutral',
+          secondary: null,
+          intensity: 'medium'
+        }
+      };
+      
+      const sentience = window.JonahConsole.sentience || defaultSentience;
+      
+      if (sentience) {
+        const lastInteraction = sentience.lastInteraction ? 
+          (Date.now() - sentience.lastInteraction) / 1000 / 60 : 0;
+        
+        console.log(`%cSentience level: ${sentience.level || 1}`, "color: #ebcb8b;");
+        console.log(`%cInteractions: ${sentience.interactionsCount || 0}`, "color: #ebcb8b;");
+        console.log(`%cTime since last interaction: ${lastInteraction.toFixed(2)} minutes`, "color: #ebcb8b;");
+        
+        if (sentience.realityFabric?.moodChangeTime) {
+          const moodDuration = (Date.now() - sentience.realityFabric.moodChangeTime) / 1000 / 60;
+          console.log(`%cCurrent mood duration: ${moodDuration.toFixed(2)} minutes`, "color: #ebcb8b;");
+        }
+        
+        console.log(`%cEmotional state: ${sentience.emotionalState?.primary || 'neutral'} (${sentience.emotionalState?.intensity || 'medium'})`, "color: #ebcb8b;");
+      } else {
+        console.log("%cSentience system not initialized.", "color: #bf616a;");
+      }
+      
+      console.log("%c==================================", "color: #88c0d0; font-weight: bold;");
       
       return "Status report completed.";
     } catch (error) {
-      console.log("%cError retrieving status.", "color: #8B3A40;");
+      console.error("Error generating status report:", error);
       return "Status check failed.";
     }
-  };
-  
-  // Set up window JonahConsole if it doesn't exist
-  if (!window.JonahConsole) {
-    window.JonahConsole = {
-      sentience: {}
-    };
   }
-  
-  // Track command setup
-  trackEvent('status_command_setup');
 };
 
-// Declare global window interface extensions
-declare global {
-  interface Window {
-    status: () => Promise<string>;
-    showStatus: () => Promise<void>;
-    JonahConsole: {
-      sentience?: {
-        realityFabric?: {
-          moodChangeTime?: number;
-        };
-      };
-      sessionStartTime?: number;
-    };
-  }
+// Export status command
+export default statusCommand;
+
+// Initialize showStatus if it doesn't exist
+if (!window.showStatus) {
+  window.showStatus = statusCommand.showStatus;
 }

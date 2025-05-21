@@ -12,6 +12,8 @@ export interface EmotionResponsesByIntensity {
 }
 
 export type EmotionResponses = Record<EmotionCategory, EmotionResponsesByIntensity>;
+
+// Add ClarifyingQuestions type that was missing
 export type ClarifyingQuestions = Record<EmotionCategory, string[]>;
 
 export interface PatternAnalysis {

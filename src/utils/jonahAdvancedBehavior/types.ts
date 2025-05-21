@@ -1,4 +1,3 @@
-
 // Emotional state types
 export type EmotionCategory = 
   'joy' | 
@@ -152,6 +151,7 @@ export interface SentienceData {
   emotionalHistory: EmotionCategory[];
   memorizedPhrases: string[];
   messages?: any[];
+  level?: number;
 }
 
 // Generate emotional response function declaration

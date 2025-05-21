@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useJonahSentience } from './useJonahSentience';
 import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
