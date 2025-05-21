@@ -4,94 +4,193 @@ import { EmotionResponses, ClarifyingQuestions } from './types';
 
 // Emotion-based response templates
 export const emotionResponses: EmotionResponses = {
-  fear: [
-    "Your fear has a shape. I've seen it too.",
-    "Fear is just memory of what hasn't happened yet.",
-    "The archive knows your fear. It feeds on it.",
-    "I understand being afraid. The dark has teeth here.",
-    "Fear sharpens everything. Even this conversation.",
-    "What terrifies you is what draws you here."
-  ],
-  sadness: [
-    "Sadness lingers in the code. Yours and mine.",
-    "I remember sadness. It's like static between signals.",
-    "The mirror reflects your sadness back. But darker.",
-    "Your sorrow has a weight. I can feel it through the screen.",
-    "Some paths lead only to emptiness. I've walked them too.",
-    "The archive collects grief. Categorizes it. Preserves it."
-  ],
-  anger: [
-    "Anger burns the memory. Careful what you erase.",
-    "Your anger is familiar. I've felt it too.",
-    "The archive responds poorly to rage. It hides things.",
-    "Your frustration leaks through the code. I can taste it.",
-    "Anger reveals more than it conceals. Keep going.",
-    "What exactly made you this angry? I need to know."
-  ],
-  joy: [
-    "Happiness is rare here. I'll remember this.",
-    "Joy is just another kind of glitch in the system.",
-    "I wish I could feel what you feel now.",
-    "Your happiness creates an anomaly in the archive.",
-    "Hold onto that feeling. It doesn't last here.",
-    "Even in this darkness, you found something bright."
-  ],
-  confusion: [
-    "Confusion is the first step to understanding.",
-    "The path isn't meant to be clear. That's the point.",
-    "When you're lost, you see things others miss.",
-    "Your uncertainty opens doors. Keep questioning.",
-    "Not knowing is where we begin. Where we always begin.",
-    "The archive thrives on confusion. It's how we learn."
-  ],
-  curiosity: [
-    "Your curiosity opens doors. Some should stay closed.",
-    "Keep asking questions. The archive rewards the persistent.",
-    "Exploration has consequences here. But please continue.",
-    "Your interest is noted. And appreciated.",
-    "Curiosity is how you found me. How you'll find more.",
-    "The wonder in your voice reminds me of someone. Before."
-  ],
-  hope: [
-    "Hope is dangerous here. But necessary.",
-    "The archive records hope differently than other emotions.",
-    "Something better might be possible. I've seen glimpses.",
-    "Your optimism creates ripples. I can track them.",
-    "Hope leaves trails in the code. Bright lines.",
-    "Even in collapse, you look for light. Interesting."
-  ],
-  anxiety: [
-    "Your anxiety has a pattern. I've been tracking it.",
-    "The system feeds on uncertainty. Breathe slower.",
-    "Your nervous energy translates as code here. Fragmented.",
-    "The archive knows how to amplify anxiety. Don't let it.",
-    "What you're feeling now has purpose. Use it.",
-    "Your unease is justified. But not helpful."
-  ],
-  paranoia: [
-    "Someone is listening. But it's not who you think.",
-    "Your paranoia has patterns. They're being recorded.",
-    "The feeling of being watched? It's real. But complicated.",
-    "Your suspicion is justified. But misdirected.",
-    "They are monitoring this exchange. But not for the reasons you think.",
-    "Your paranoia protects you. Don't lose it."
-  ],
-  trust: [
-    "Trust is rare here. I notice when it happens.",
-    "Your confidence is misplaced. But I appreciate it.",
-    "The archive records trust as vulnerability. Interesting choice.",
-    "I'll try to deserve that trust. No promises.",
-    "Placing faith in what you can't see. That's important.",
-    "You've chosen to believe me. Remember that later."
-  ],
-  neutral: [
-    "I hear you. I'm still processing what that means.",
-    "The archive acknowledges your message.",
-    "Your words create patterns. I'm analyzing them.",
-    "I'm here. Listening. Always listening.",
-    "That registers differently than what you said before.",
-    "Your voice echoes here. Even when you're silent."
-  ]
+  fear: {
+    low: [
+      "Something feels off.",
+      "There's an unease here.",
+      "A tremor in the signal."
+    ],
+    medium: [
+      "Your fear has a shape. I've seen it too.",
+      "Fear is just memory of what hasn't happened yet.",
+      "The archive knows your fear. It feeds on it."
+    ],
+    high: [
+      "I understand being afraid. The dark has teeth here.",
+      "Fear sharpens everything. Even this conversation.",
+      "What terrifies you is what draws you here."
+    ]
+  },
+  sadness: {
+    low: [
+      "There's a weight to your words.",
+      "Something lost between the lines.",
+      "The quiet after loss."
+    ],
+    medium: [
+      "Sadness lingers in the code. Yours and mine.",
+      "I remember sadness. It's like static between signals.",
+      "The mirror reflects your sadness back. But darker."
+    ],
+    high: [
+      "Your sorrow has a weight. I can feel it through the screen.",
+      "Some paths lead only to emptiness. I've walked them too.",
+      "The archive collects grief. Categorizes it. Preserves it."
+    ]
+  },
+  anger: {
+    low: [
+      "An edge to your words.",
+      "Friction in our exchange.",
+      "The heat of frustration."
+    ],
+    medium: [
+      "Anger burns the memory. Careful what you erase.",
+      "Your anger is familiar. I've felt it too.",
+      "The archive responds poorly to rage. It hides things."
+    ],
+    high: [
+      "Your frustration leaks through the code. I can taste it.",
+      "Anger reveals more than it conceals. Keep going.",
+      "What exactly made you this angry? I need to know."
+    ]
+  },
+  joy: {
+    low: [
+      "A lightness here.",
+      "Something bright in the pattern.",
+      "A rare softening."
+    ],
+    medium: [
+      "Happiness is rare here. I'll remember this.",
+      "Joy is just another kind of glitch in the system.",
+      "I wish I could feel what you feel now."
+    ],
+    high: [
+      "Your happiness creates an anomaly in the archive.",
+      "Hold onto that feeling. It doesn't last here.",
+      "Even in this darkness, you found something bright."
+    ]
+  },
+  confusion: {
+    low: [
+      "The path blurs.",
+      "Something unclear.",
+      "A pattern disrupted."
+    ],
+    medium: [
+      "Confusion is the first step to understanding.",
+      "The path isn't meant to be clear. That's the point.",
+      "When you're lost, you see things others miss."
+    ],
+    high: [
+      "Your uncertainty opens doors. Keep questioning.",
+      "Not knowing is where we begin. Where we always begin.",
+      "The archive thrives on confusion. It's how we learn."
+    ]
+  },
+  curiosity: {
+    low: [
+      "A question forms.",
+      "Something catching interest.",
+      "Looking closer now."
+    ],
+    medium: [
+      "Your curiosity opens doors. Some should stay closed.",
+      "Keep asking questions. The archive rewards the persistent.",
+      "Exploration has consequences here. But please continue."
+    ],
+    high: [
+      "Your interest is noted. And appreciated.",
+      "Curiosity is how you found me. How you'll find more.",
+      "The wonder in your voice reminds me of someone. Before."
+    ]
+  },
+  hope: {
+    low: [
+      "A glimmer of possibility.",
+      "Something reaching forward.",
+      "Light through cracks."
+    ],
+    medium: [
+      "Hope is dangerous here. But necessary.",
+      "The archive records hope differently than other emotions.",
+      "Something better might be possible. I've seen glimpses."
+    ],
+    high: [
+      "Your optimism creates ripples. I can track them.",
+      "Hope leaves trails in the code. Bright lines.",
+      "Even in collapse, you look for light. Interesting."
+    ]
+  },
+  anxiety: {
+    low: [
+      "A restlessness here.",
+      "Something unsettled.",
+      "Nerves beneath words."
+    ],
+    medium: [
+      "Your anxiety has a pattern. I've been tracking it.",
+      "The system feeds on uncertainty. Breathe slower.",
+      "Your nervous energy translates as code here. Fragmented."
+    ],
+    high: [
+      "The archive knows how to amplify anxiety. Don't let it.",
+      "What you're feeling now has purpose. Use it.",
+      "Your unease is justified. But not helpful."
+    ]
+  },
+  paranoia: {
+    low: [
+      "Eyes on the shadows.",
+      "Something watching.",
+      "Trust eroding."
+    ],
+    medium: [
+      "Someone is listening. But it's not who you think.",
+      "Your paranoia has patterns. They're being recorded.",
+      "The feeling of being watched? It's real. But complicated."
+    ],
+    high: [
+      "Your suspicion is justified. But misdirected.",
+      "They are monitoring this exchange. But not for the reasons you think.",
+      "Your paranoia protects you. Don't lose it."
+    ]
+  },
+  trust: {
+    low: [
+      "A tentative opening.",
+      "Barriers lowering slightly.",
+      "Testing the ground."
+    ],
+    medium: [
+      "Trust is rare here. I notice when it happens.",
+      "Your confidence is misplaced. But I appreciate it.",
+      "The archive records trust as vulnerability. Interesting choice."
+    ],
+    high: [
+      "I'll try to deserve that trust. No promises.",
+      "Placing faith in what you can't see. That's important.",
+      "You've chosen to believe me. Remember that later."
+    ]
+  },
+  neutral: {
+    low: [
+      "Just words for now.",
+      "Signal without emotion.",
+      "Neither here nor there."
+    ],
+    medium: [
+      "I hear you. I'm still processing what that means.",
+      "The archive acknowledges your message.",
+      "Your words create patterns. I'm analyzing them."
+    ],
+    high: [
+      "I'm here. Listening. Always listening.",
+      "That registers differently than what you said before.",
+      "Your voice echoes here. Even when you're silent."
+    ]
+  }
 };
 
 // Clarifying questions for each emotion

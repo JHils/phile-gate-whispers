@@ -1,3 +1,4 @@
+
 import { EmotionalState, EmotionCategory, EmotionalTrend } from '../types';
 import { emotionResponses, clarifyingQuestions } from './responses';
 import { PatternAnalysis, UnsaidInterpretation } from './types';

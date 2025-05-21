@@ -3,16 +3,26 @@ import { EmotionCategory, EmotionIntensity, EmotionalState, EmotionalTrend } fro
 
 // Export specific types for sentiment analysis
 export type EmotionKeywords = Record<EmotionCategory, string[]>;
-export type EmotionResponses = Record<EmotionCategory, string[]>;
+
+// Structure for emotion responses with intensity levels
+export interface EmotionResponsesByIntensity {
+  low: string[];
+  medium: string[];
+  high: string[];
+}
+
+export type EmotionResponses = Record<EmotionCategory, EmotionResponsesByIntensity>;
 export type ClarifyingQuestions = Record<EmotionCategory, string[]>;
 
 export interface PatternAnalysis {
   trend: EmotionalTrend;
   dominantEmotion: EmotionCategory;
+  oscillation?: boolean;
+  emotionHistory?: EmotionCategory[];
 }
 
 export interface UnsaidInterpretation {
-  originalInput: string;
-  interpretedEmotion: string;
-  timestamp: number;
+  interpretation: string;
+  confidenceLevel: 'low' | 'medium' | 'high';
+  emotion: EmotionCategory;
 }

@@ -6,8 +6,9 @@ export {
   getClarifyingQuestion,
   generateEmotionalResponse,
   trackEmotionalPattern,
-  generateMetaAwarenessComment
+  generateMetaAwarenessComment,
+  interpretUnsaidContent
 } from './responseGenerator';
 
 // Re-export types
-export type { PatternAnalysis, UnsaidInterpretation } from './types';
+export type { PatternAnalysis, UnsaidInterpretation, EmotionResponses } from './types';

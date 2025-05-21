@@ -5,7 +5,7 @@
 
 import { EmotionalState } from '../types';
 import { MemoryContext } from './memoryContext';
-import { generateFullEmotionalResponse } from './emotionalResponseGenerator';
+import { getEmotionalResponse } from '../sentimentAnalysis';
 
 /**
  * Generate response in PRIME personality - poetic, warm, careful
@@ -16,7 +16,7 @@ export function generatePrimeResponse(
   memoryContext: MemoryContext
 ): string {
   // Base emotional response
-  let response = generateFullEmotionalResponse(emotionalState, memoryContext.trustLevel.toString());
+  let response = getEmotionalResponse(emotionalState);
   
   // Maybe reference a past message
   if (memoryContext.recentInputs.length > 0 && Math.random() > 0.7) {
@@ -175,6 +175,3 @@ function addGlitchEffects(text: string): string {
   
   return result;
 }
-
-// Import from sentiment analysis
-import { getEmotionalResponse } from '../sentimentAnalysis';
