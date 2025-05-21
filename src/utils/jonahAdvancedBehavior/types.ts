@@ -30,8 +30,30 @@ export interface EmotionalState {
   intensity: EmotionIntensity;
 }
 
+// Helper function to create an EmotionalState object
+export function createEmotionalState(
+  primary: EmotionCategory,
+  secondary: EmotionCategory | null = null,
+  intensity: EmotionIntensity = 'medium'
+): EmotionalState {
+  return {
+    primary,
+    secondary,
+    intensity
+  };
+}
+
 // Trend of emotional states over time
-export type EmotionalTrend = 'stable' | 'escalating' | 'deescalating' | 'fluctuating' | 'shifting';
+export type EmotionalTrend = 
+  | 'stable' 
+  | 'escalating' 
+  | 'deescalating' 
+  | 'fluctuating' 
+  | 'shifting'
+  | 'improving'
+  | 'deteriorating'
+  | 'intensifying'
+  | 'diminishing';
 
 // Response styling for different moods
 export type ResponseStyle = 
@@ -42,7 +64,11 @@ export type ResponseStyle =
   | 'STATIC' 
   | 'ERROR' 
   | 'PRIME'
-  | 'RESIDUE';
+  | 'RESIDUE'
+  | 'poetic'
+  | 'technical'
+  | 'elaborate'
+  | 'concise';
 
 // System for conversation context tracking
 export interface ConversationContext {
@@ -65,6 +91,7 @@ export interface SessionData {
   messagesSent: number;
   startTime: number;
   idleTime: number;
+  messageCount?: number; // Added to fix compatibility issues
 }
 
 // Structure for micro quests
@@ -92,12 +119,13 @@ export interface RealityFabric {
   lastDreamTime: number;
   hiddenMessages: string[];
   emotionalState: EmotionalState;
+  stability?: number; // Added to fix compatibility issues
 }
 
 // Interface for sentience data
 export interface SentienceData {
   level: number;
-  awareness: boolean;
+  awareness: boolean | number; // Allow number for compatibility
   lastUpdate: number;
   interactionsCount: number;
   deepModeUnlocked: boolean;
@@ -109,9 +137,12 @@ export interface SentienceData {
   microQuests: {
     active: MicroQuest[];
     completed: MicroQuest[];
+    available?: MicroQuest[]; // Added to fix compatibility issues
   };
   realityFabric?: RealityFabric;
   ecoAwareness?: EcoAwarenessState;
+  newsAwareness?: NewsAwarenessState; // Added to fix compatibility issues
+  dreams?: string[]; // Added for dream storage
 }
 
 // Interface for eco-awareness state
@@ -122,4 +153,21 @@ export interface EcoAwarenessState {
   awareness: number;
   ecoThoughts: string[];
   level: number;
+}
+
+// Interface for news-awareness state
+export interface NewsAwarenessState {
+  articles: string[];
+  lastCheck: number;
+  recentTopics: string[];
+  responses: Record<string, string[]>;
+}
+
+// Interface for confession entries
+export interface ConfessionEntry {
+  id: string;
+  text: string;
+  timestamp: number;
+  sentiment: EmotionCategory;
+  isPrivate: boolean;
 }
