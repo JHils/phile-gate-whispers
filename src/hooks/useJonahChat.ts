@@ -163,8 +163,8 @@ export function useJonahChat() {
     } else if ((mood === 'joy' || mood === 'sadness') && Math.random() < 0.7) {
       setResponseStyle('poetic');
     } else {
-      // Fix the issue - 'natural' is not in ResponseStyle type
-      setResponseStyle('direct'); // Changed from 'natural' to 'direct'
+      // Fix: Use a valid ResponseStyle value
+      setResponseStyle('direct');
     }
   }, []);
   

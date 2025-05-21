@@ -1,4 +1,3 @@
-
 /**
  * Enhanced Emotional Core for Jonah AI
  * Implements improved sentiment analysis and emotional response generation

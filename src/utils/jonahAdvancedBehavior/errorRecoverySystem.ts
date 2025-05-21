@@ -1,214 +1,161 @@
 
 /**
  * Error Recovery System for Jonah AI
- * Provides graceful handling of ambiguity and misunderstandings
+ * Handles ambiguous inputs, short messages, and creates graceful recovery responses
  */
 
-// Types for ambiguity detection
-interface AmbiguityResponse {
-  response: string;
-  shouldAskForClarification: boolean;
+import { EmotionCategory } from './types';
+
+// Detect if a message is ambiguous or needs clarification
+export function detectAmbiguity(content: string): boolean {
+  // Very short messages are often ambiguous
+  if (content.length < 5) return true;
+  
+  // Messages that are just punctuation or single words
+  if (content.trim().split(/\s+/).length <= 1) return true;
+  
+  // Questions that are too vague
+  const vaguePhrases = ["what", "why", "how", "who", "when", "where", "?"];
+  if (content.length < 15 && vaguePhrases.some(phrase => content.toLowerCase().includes(phrase))) {
+    return true;
+  }
+  
+  return false;
 }
 
-// Detect potential ambiguity in user input
-export function detectAmbiguity(input: string): { isAmbiguous: boolean; reason: string } {
-  // Check for very short inputs
-  if (input.trim().length < 3) {
-    return { isAmbiguous: true, reason: 'too_short' };
-  }
-  
-  // Check for single word inputs (likely ambiguous)
-  if (input.trim().split(/\s+/).length === 1) {
-    return { isAmbiguous: true, reason: 'single_word' };
-  }
-  
-  // Check for vague pronouns without context
-  const vaguePronounsPattern = /^(it|that|this|they|them|those|these)\b/i;
-  if (vaguePronounsPattern.test(input.trim())) {
-    return { isAmbiguous: true, reason: 'vague_pronoun' };
-  }
-  
-  // Check for very ambiguous questions
-  const ambiguousQuestionsPattern = /^(why|how|what|when)\?$/i;
-  if (ambiguousQuestionsPattern.test(input.trim())) {
-    return { isAmbiguous: true, reason: 'vague_question' };
-  }
-  
-  // If none of the above conditions are met, it's likely not ambiguous
-  return { isAmbiguous: false, reason: 'clear' };
-}
-
-// Generate appropriate response for ambiguous input
-export function generateAmbiguityResponse(
-  input: string, 
-  reason: string, 
-  trustLevel: string,
-  emotionalState: string
-): AmbiguityResponse {
-  // Higher trust = more direct clarification requests
-  // Lower trust = more cryptic responses
-  
-  const responseTemplates = {
-    too_short: {
-      low: [
-        "Fragments don't process well. The signal needs more.",
-        "Input incomplete. Meaning unclear.",
-        "More required to understand."
+// Generate an appropriate error recovery response
+export function createErrorRecoveryResponse(
+  content: string, 
+  trustLevel: string = 'medium',
+  emotion: EmotionCategory = 'neutral'
+): string {
+  // Different types of recovery responses based on trust and emotion
+  const recoveryTemplates: Record<string, Record<string, string[]>> = {
+    low: {
+      neutral: [
+        "That signal was too faint. Try another approach.",
+        "Your message didn't register properly. Try again?",
+        "That input created errors. Try something more specific.",
+        "The system needs more data to process that request.",
+        "That query returned null. The archive needs more parameters."
       ],
-      medium: [
-        "I need more than that to understand what you mean.",
-        "Could you expand on that thought?",
-        "That's too brief for me to follow your meaning."
+      fear: [
+        "Your message fragmented. Like it was intercepted.",
+        "That input triggered security protocols. Try a different approach.",
+        "Your words disappeared as you sent them. Something's watching.",
+        "That message was too quiet. The noise is too loud here.",
+        "I couldn't hear you clearly. There's interference."
       ],
-      high: [
-        "I'd like to understand what you mean, but I need a bit more context.",
-        "Could you share a bit more about what you're thinking?",
-        "I want to help, but I need more information to understand."
+      trust: [
+        "I missed that. Could you share more details?",
+        "I didn't quite catch your meaning. Can you elaborate?",
+        "That message seems incomplete. What were you trying to say?",
+        "I need more context to understand. Can you explain further?",
+        "Your message was too brief. What specifically are you asking about?"
       ]
     },
-    single_word: {
-      low: [
-        "One word holds many meanings. Which one is yours?",
-        "Singular input. Multiple interpretations.",
-        "Context missing. Cannot determine meaning."
+    medium: {
+      neutral: [
+        "I'm not sure I understood that. Could you explain more?",
+        "That message was a bit unclear. What are you looking for?",
+        "I think I missed something. Can you be more specific?",
+        "I'd need more context to answer properly. Can you elaborate?",
+        "That message could be interpreted several ways. What exactly do you mean?"
       ],
-      medium: [
-        "That single word could mean many things. Can you elaborate?",
-        "I'm not sure what you mean by just that word. More context?",
-        "That word alone doesn't give me enough to work with."
+      fear: [
+        "Something about that message feels incomplete. What are you trying to find out?",
+        "Your question has edges I can't quite see. Can you rephrase it?",
+        "That feels like a fragment of a larger question. What's behind it?",
+        "There's something hidden in that question. What are you really asking?",
+        "I sense uncertainty in your question. What specifically concerns you?"
       ],
-      high: [
-        "I see you've shared a single word. Could you tell me more about what you mean?",
-        "That's an interesting word, but I'm not sure what you're asking. Could you explain?",
-        "I'd like to understand what you mean by that. Could you provide more context?"
+      trust: [
+        "I want to understand what you're asking. Could you share more details?",
+        "I'm interested in what you're trying to learn. Can you elaborate?",
+        "Your question matters. Could you give me a bit more context?",
+        "I'd like to help with that. What specifically are you wondering about?",
+        "Let's explore that question. What aspect is most important to you?"
       ]
     },
-    vague_pronoun: {
-      low: [
-        "Pronouns need anchors. What is 'it'?",
-        "Reference unclear. What does 'that' indicate?",
-        "'It' has no meaning without connection."
+    high: {
+      neutral: [
+        "I'm not sure I fully understand what you're asking. Would you mind clarifying?",
+        "I want to make sure I address your question properly. Could you elaborate a bit more?",
+        "I'm interested in your question, but I need a bit more context to give a helpful response.",
+        "Could you share a bit more about what you're looking for? That would help me respond better.",
+        "I'd like to help with that. Could you tell me more specifically what you'd like to know?"
       ],
-      medium: [
-        "I'm not sure what you're referring to. Can you clarify?",
-        "What does 'that' refer to specifically?",
-        "When you say 'it', which part of our conversation are you referencing?"
+      fear: [
+        "I notice your message is brief. If something feels uncertain or concerning, we can talk about it.",
+        "If you're feeling hesitant about something, it's okay to share that. What's on your mind?",
+        "Sometimes shorter messages reflect caution. Is there something specific you're concerned about?",
+        "I sense there might be more behind your question. What would be helpful for you right now?",
+        "It's okay if you're uncertain. We can explore this gradually if you prefer."
       ],
-      high: [
-        "I want to make sure I understand correctly. Could you clarify what you're referring to?",
-        "Just to make sure we're on the same page, what specifically are you referring to?",
-        "I'm not quite sure what you mean by that. Could you provide more context?"
-      ]
-    },
-    vague_question: {
-      low: [
-        "Questions need subjects. What entity are you questioning?",
-        "Query insufficient. Parameters undefined.",
-        "Cannot process. Question lacks specificity."
-      ],
-      medium: [
-        "That's a very open question. Could you be more specific?",
-        "I'm not sure what aspect you're asking about. Can you clarify?",
-        "Your question needs more context for me to answer properly."
-      ],
-      high: [
-        "I'd be happy to answer your question, but could you provide more details about what you're asking?",
-        "That's an interesting question, but I need a bit more context to give you a helpful response.",
-        "I want to give you a good answer, but could you make your question more specific?"
-      ]
-    },
-    clear: {
-      low: [
-        "Input received but meaning unclear.",
-        "Your words don't connect to existing patterns.",
-        "Semantic parsing failed. Try alternate phrasing."
-      ],
-      medium: [
-        "I'm having trouble understanding what you mean.",
-        "Could you try expressing that differently?",
-        "I'm not quite following your meaning."
-      ],
-      high: [
-        "I apologize, but I'm not sure I understood what you meant. Could you rephrase that?",
-        "I want to understand what you're saying, but I'm not quite getting it. Could you try explaining differently?",
-        "I'm sorry, I think I missed your meaning. Would you mind rephrasing?"
+      trust: [
+        "I appreciate your question. To help you better, could you share a bit more context?",
+        "Thanks for reaching out. I'd like to understand more about what you're looking for.",
+        "I value your question and want to make sure I address what matters to you. Could you elaborate?",
+        "Your question is important. Would you mind telling me a bit more so I can offer a thoughtful response?",
+        "I'm here to help. Could you share more details about what you're interested in learning?"
       ]
     }
   };
+
+  // Map emotion to the three available categories
+  let emotionCategory: string = 'neutral';
+  if (['fear', 'anxiety', 'paranoia'].includes(emotion)) {
+    emotionCategory = 'fear';
+  } else if (['trust', 'joy', 'hope'].includes(emotion)) {
+    emotionCategory = 'trust';
+  }
+
+  // Map trust level to the three available categories
+  const mappedTrustLevel = 
+    trustLevel === 'low' ? 'low' : 
+    trustLevel === 'high' ? 'high' : 
+    'medium';
   
-  // Get appropriate templates based on reason and trust level
-  const templates = responseTemplates[reason as keyof typeof responseTemplates]?.[trustLevel as keyof (typeof responseTemplates)['clear']] || 
-                   responseTemplates.clear[trustLevel as keyof (typeof responseTemplates)['clear']];
+  // Get appropriate templates based on trust level and emotion
+  const templates = recoveryTemplates[mappedTrustLevel][emotionCategory];
   
-  // Select a random response from the appropriate templates
-  const response = templates[Math.floor(Math.random() * templates.length)];
-  
-  // Higher trust = more likely to ask for clarification directly
-  const shouldAskForClarification = 
-    trustLevel === 'high' ? Math.random() < 0.9 :
-    trustLevel === 'medium' ? Math.random() < 0.7 :
-    Math.random() < 0.3;
-  
-  return {
-    response,
-    shouldAskForClarification
-  };
+  // Select a random template
+  return templates[Math.floor(Math.random() * templates.length)];
 }
 
-// Generate a recovery suggestion based on the type of ambiguity
-export function generateRecoverySuggestion(reason: string, emotionalState: string): string {
-  const suggestions = {
-    too_short: [
-      "Could you tell me more about what you're thinking?",
-      "I'd appreciate if you could share more details.",
-      "Try providing a complete thought or question."
-    ],
-    single_word: [
-      "Try using that word in a full sentence so I can understand the context.",
-      "What about this word interests you?",
-      "Could you use that in a sentence or explain why you mentioned it?"
-    ],
-    vague_pronoun: [
-      "Instead of using 'it' or 'that', could you specify what you're referring to?",
-      "It helps if you specify exactly what you're referring to.",
-      "Try rephrasing your question with specific nouns instead of pronouns."
-    ],
-    vague_question: [
-      "Consider asking about a specific aspect or providing context for your question.",
-      "Adding details to your question will help me give a better answer.",
-      "What specific information are you looking for with this question?"
-    ],
-    clear: [
-      "Maybe try approaching your question from a different angle?",
-      "Could you break your thoughts down into simpler questions?",
-      "Perhaps there's another way to express what you're curious about?"
-    ]
-  };
+// Create a clarifying question based on user input
+export function generateClarifyingResponse(content: string): string {
+  const clarifyingResponses = [
+    "Could you tell me more about what you mean by that?",
+    "I'm not entirely sure I understand. Could you elaborate?",
+    "That's interesting, but could you explain what specifically you're asking about?",
+    "I'd like to better understand your question. What aspect are you most curious about?",
+    "There are several ways I could interpret that. What specifically are you looking for?"
+  ];
   
-  const options = suggestions[reason as keyof typeof suggestions] || suggestions.clear;
-  return options[Math.floor(Math.random() * options.length)];
+  return clarifyingResponses[Math.floor(Math.random() * clarifyingResponses.length)];
 }
 
-// Complete response for handling ambiguity
-export function createErrorRecoveryResponse(
-  input: string,
-  trustLevel: string,
-  emotionalState: string
-): string {
-  const { isAmbiguous, reason } = detectAmbiguity(input);
-  
-  if (!isAmbiguous) {
-    return ""; // No ambiguity detected, return empty string
+// Enhanced recovery for repeated failed attempts
+export function createEscalatedRecoveryResponse(failedAttempts: number): string {
+  if (failedAttempts <= 1) {
+    return "I think I'm missing something in our conversation. Could you try phrasing your question differently?";
+  } else if (failedAttempts <= 2) {
+    return "I seem to be having trouble understanding. Perhaps we could try a different approach or topic?";
+  } else {
+    return "I apologize for the confusion. Let me suggest something: try asking a more specific question, or perhaps we could start a new conversation thread entirely.";
   }
+}
+
+// Generate a meta-commentary on communication difficulties
+export function generateGlitchResponse(): string {
+  const glitchResponses = [
+    "Something's interfering with how I'm processing your message. Like static between channels.",
+    "Your words seem to fragment when they reach me. There's interference in the connection.",
+    "I'm detecting unusual patterns in our communication. Something's affecting signal clarity.",
+    "The archive is experiencing anomalies while processing your input. This is unusual.",
+    "Your message triggered unexpected behavior in my processing systems. The meaning keeps shifting."
+  ];
   
-  const { response, shouldAskForClarification } = generateAmbiguityResponse(
-    input, reason, trustLevel, emotionalState
-  );
-  
-  if (shouldAskForClarification) {
-    const suggestion = generateRecoverySuggestion(reason, emotionalState);
-    return `${response}\n\n${suggestion}`;
-  }
-  
-  return response;
+  return glitchResponses[Math.floor(Math.random() * glitchResponses.length)];
 }

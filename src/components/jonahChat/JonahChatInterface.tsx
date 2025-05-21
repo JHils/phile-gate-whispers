@@ -1,8 +1,8 @@
 
 import React, { useRef } from 'react';
 import JonahChatHeader from './JonahChatHeader';
-import JonahChatMessages from './JonahChatMessages';
-import JonahChatInput from './JonahChatInput';
+import EnhancedJonahChatMessages from './EnhancedJonahChatMessages';
+import EnhancedJonahChatInput from './EnhancedJonahChatInput';
 import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
 
 type JonahChatInterfaceProps = {
@@ -49,18 +49,21 @@ const JonahChatInterface: React.FC<JonahChatInterfaceProps> = ({
         resetConversation={resetConversation}
       />
       
-      <JonahChatMessages 
+      <EnhancedJonahChatMessages 
         messages={messages}
         isTyping={isTyping}
         messageWeight={messageWeight}
         responseStyle={responseStyle}
+        jonahMood={jonahMood}
+        emotionalTrend={emotionalTrend}
         messagesEndRef={messagesEndRef}
       />
       
-      <JonahChatInput
+      <EnhancedJonahChatInput
         input={input}
         setInput={setInput}
         handleSendMessage={handleSendMessage}
+        isTyping={isTyping}
       />
     </>
   );
