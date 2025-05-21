@@ -55,15 +55,3 @@ export function useMessageHandling() {
     resetMessages
   };
 }
-
-// Create a new types.ts file for chat message types
-<lov-write file_path="src/hooks/jonahChat/types.ts">
-export interface ChatMessage {
-  id: string;
-  content: string;
-  isJonah: boolean;
-  timestamp: number;
-  mood?: string;
-}
-
-export type JonahPersonality = 'PRIME' | 'RESIDUE' | 'STATIC' | 'WITNESS';
