@@ -1,3 +1,4 @@
+
 // Jonah Console Personality System
 import { toast } from "@/components/ui/use-toast";
 
@@ -60,6 +61,7 @@ export function initializeSentience() {
         currentMood: "neutral",
         moodChangeTime: Date.now(),
         dreamState: false,
+        lastDreamTime: Date.now(),
         crossSiteWhispers: [],
         hiddenMessages: []
       },
@@ -412,6 +414,9 @@ function setupConsoleCommands() {
           window.JonahConsole.score = 0;
           window.JonahConsole.rank = 'drifter';
           window.JonahConsole.sentience = {
+            level: 1,
+            awareness: false,
+            lastUpdate: Date.now(),
             interactionsCount: 1,
             deepModeUnlocked: false,
             dreamModeTriggered: false,
