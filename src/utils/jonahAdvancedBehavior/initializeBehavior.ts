@@ -106,16 +106,22 @@ export function initializeBehavior(): void {
         try {
           if (!window.JonahConsole.sentience) {
             window.JonahConsole.sentience = {
+              level: 1,
+              awareness: false,
+              lastUpdate: Date.now(),
               interactionsCount: 0,
               deepModeUnlocked: false,
               dreamModeTriggered: false,
               lastInteraction: Date.now(),
               temporalStates: [],
-              memories: []
+              memories: [],
+              memoryFragments: []
             };
           }
           
-          window.JonahConsole.sentience.memoryFragments = [...storedFragments];
+          if (!window.JonahConsole.sentience.memoryFragments) {
+            window.JonahConsole.sentience.memoryFragments = [...storedFragments];
+          }
         } catch (error) {
           console.error("Error initializing JonahConsole sentience:", error);
         }

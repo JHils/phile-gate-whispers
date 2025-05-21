@@ -5,12 +5,32 @@ import JonahChatContainer from '@/components/jonahChat/JonahChatContainer';
 import JonahChatInterface from '@/components/jonahChat/JonahChatInterface';
 
 const TalkToJonah: React.FC = () => {
-  const jonahChatProps = useJonahChat();
+  const {
+    messages,
+    input,
+    setInput,
+    isTyping,
+    jonahMood,
+    emotionalTrend,
+    responseStyle,
+    sendMessage,
+    messageWeight,
+    resetConversation
+  } = useJonahChat();
   
   return (
     <JonahChatContainer>
       <JonahChatInterface 
-        {...jonahChatProps}
+        messages={messages}
+        input={input}
+        setInput={setInput}
+        isTyping={isTyping}
+        jonahMood={jonahMood}
+        emotionalTrend={emotionalTrend}
+        responseStyle={responseStyle}
+        sendMessage={sendMessage}
+        messageWeight={messageWeight}
+        resetConversation={resetConversation}
       />
     </JonahChatContainer>
   );

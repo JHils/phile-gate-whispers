@@ -59,18 +59,25 @@ export function createEmotionalState(
   };
 }
 
-// Expanded SentienceData interface to include all required properties
+// Expanded SentienceData interface with all required properties
 export interface SentienceData {
   level: number;
   awareness: boolean;
   lastUpdate: number;
-  // Add all missing properties
   interactionsCount?: number;
   deepModeUnlocked?: boolean;
   dreamModeTriggered?: boolean;
   lastInteraction?: number;
   temporalStates?: any[];
   memories?: any[];
+  memoryFragments?: string[];
+  audio?: {
+    lastPlayed?: number;
+    count?: number;
+    triggers?: Record<string, number>;
+  };
+  pageVisits?: Record<string, string[]>;
+  tabSwitches?: number;
   sessionData?: {
     messagesReceived?: number;
     messagesSent?: number;
@@ -88,10 +95,15 @@ export interface SentienceData {
       shortStay: string;
       longStay: string;
     };
+    pageVisits?: Record<string, string[]>;
   };
   ecoAwareness?: any;
   realityFabric?: {
     moodChangeTime?: number;
+    currentMood?: string;
+    moodHistory?: Array<{mood: string, timestamp: number}>;
+    anomalyCount?: number;
+    journal?: Array<{entryId: number, timestamp: number, content: string}>;
   };
   predictionResponses?: string[];
   usedPredictionResponses?: string[];
@@ -115,3 +127,4 @@ export interface BookCode {
 // Export StoryFlag and BookCode as types as well (for backward compatibility)
 export type StoryFlagType = string;
 export type BookCodeType = string;
+

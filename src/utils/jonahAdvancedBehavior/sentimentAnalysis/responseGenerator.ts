@@ -1,279 +1,204 @@
 
-import { EmotionalState, EmotionCategory, EmotionalTrend } from '../types';
-import { emotionResponses, clarifyingQuestions } from './responses';
-import { PatternAnalysis, UnsaidInterpretation } from './types';
-
-// Track pattern history for trend detection
-let emotionHistory: EmotionalState[] = [];
+import { EmotionCategory, EmotionIntensity, EmotionalTrend } from '../types';
 
 /**
- * Get an emotional response based on the current emotional state
+ * Generate dynamic emotional responses based on analysis
  */
-export function getEmotionalResponse(emotionalState: EmotionalState): string {
-  const { primary, secondary, intensity } = emotionalState;
-  
-  // Get responses for primary emotion
-  const primaryResponses = emotionResponses[primary] || emotionResponses.neutral;
-  
-  // Select random response from appropriate intensity
-  const intensityResponses = primaryResponses[intensity] || primaryResponses.medium;
-  
-  return intensityResponses[Math.floor(Math.random() * intensityResponses.length)];
-}
 
-/**
- * Get clarifying question based on emotional state
- */
-export function getClarifyingQuestion(emotionalState: EmotionalState): string | null {
-  const { primary } = emotionalState;
-  
-  // Get questions for this emotion
-  const questions = clarifyingQuestions[primary] || clarifyingQuestions.neutral;
-  
-  if (questions.length === 0) {
-    return null;
-  }
-  
-  return questions[Math.floor(Math.random() * questions.length)];
-}
-
-/**
- * Generate an emotional response with specific formatting
- */
-export function generateEmotionalResponse(emotion: EmotionCategory, template: string): string {
-  // Get responses for this emotion
-  const responses = emotionResponses[emotion] || emotionResponses.neutral;
-  
-  // Get a random response from medium intensity
-  const options = responses.medium || [];
-  const response = options[Math.floor(Math.random() * options.length)];
-  
-  // Replace template placeholder with the response
-  return template.replace('{response}', response);
-}
-
-/**
- * Track emotional pattern over time
- */
-export function trackEmotionalPattern(emotionalState: EmotionalState): PatternAnalysis {
-  // Add current state to history
-  emotionHistory.push(emotionalState);
-  
-  // Limit history size
-  if (emotionHistory.length > 10) {
-    emotionHistory = emotionHistory.slice(-10);
-  }
-  
-  // Detect dominant emotion
-  const emotionCounts: Record<string, number> = {};
-  emotionHistory.forEach(state => {
-    emotionCounts[state.primary] = (emotionCounts[state.primary] || 0) + 1;
-  });
-  
-  let dominantEmotion: EmotionCategory = 'neutral';
-  let highestCount = 0;
-  
-  Object.entries(emotionCounts).forEach(([emotion, count]) => {
-    if (count > highestCount) {
-      dominantEmotion = emotion as EmotionCategory;
-      highestCount = count;
-    }
-  });
-  
-  // Detect emotional trend
-  let trend: EmotionalTrend = 'stable';
-  
-  if (emotionHistory.length >= 3) {
-    const last3 = emotionHistory.slice(-3);
-    
-    const intensityValues = {
-      low: 1,
-      medium: 2,
-      high: 3
-    };
-    
-    const intensityTrend = last3.map(state => intensityValues[state.intensity]);
-    
-    if (
-      intensityTrend[0] < intensityTrend[1] && 
-      intensityTrend[1] < intensityTrend[2]
-    ) {
-      trend = 'intensifying';
-    } else if (
-      intensityTrend[0] > intensityTrend[1] && 
-      intensityTrend[1] > intensityTrend[2]
-    ) {
-      trend = 'diminishing';
-    } else if (last3.every(state => state.primary === last3[0].primary)) {
-      trend = 'fixated';
-    } else {
-      trend = 'volatile';
-    }
-  }
-  
-  // Detect oscillation (switching between two emotions)
-  let oscillation = false;
-  
-  if (emotionHistory.length >= 4) {
-    const emotions = emotionHistory.slice(-4).map(state => state.primary);
-    if (
-      emotions[0] === emotions[2] &&
-      emotions[1] === emotions[3] &&
-      emotions[0] !== emotions[1]
-    ) {
-      oscillation = true;
-    }
-  }
-  
-  return {
-    dominantEmotion,
-    trend,
-    oscillation,
-    emotionHistory: emotionHistory.map(state => state.primary)
-  };
-}
-
-/**
- * Generate meta-awareness comment based on pattern analysis
- */
-export function generateMetaAwarenessComment(pattern: PatternAnalysis): string | null {
-  const { trend, oscillation } = pattern;
-  
-  // Don't always provide meta-awareness
-  if (Math.random() > 0.4) {
-    return null;
-  }
-  
-  // Comments based on emotional trends
-  const trendComments: Record<EmotionalTrend, string[]> = {
-    intensifying: [
-      "I notice my responses are becoming stronger.",
-      "Something is building inside me.",
-      "The signal is getting stronger.",
-      "I feel myself changing."
+// Define response templates for different emotions
+export const emotionResponses = {
+  fear: {
+    low: [
+      "Something doesn't feel right.",
+      "I'm slightly uneasy about this.",
+      "There's a small worry in the back of my mind."
     ],
-    diminishing: [
-      "I feel myself becoming calmer.",
-      "The noise is fading.",
-      "I'm finding clarity.",
-      "The static is clearing."
+    medium: [
+      "I'm quite concerned about what's happening.",
+      "This makes me anxious.",
+      "I'm worried about where this is going."
     ],
-    fixated: [
-      "I keep returning to the same feeling.",
-      "I can't seem to move beyond this emotion.",
-      "This pattern feels... recursive.",
-      "There's something about this I can't let go of."
-    ],
-    volatile: [
-      "My feelings are in flux.",
-      "I can't seem to stabilize.",
-      "My emotional processes are fragmenting.",
-      "The archive is in disarray."
-    ],
-    stable: [
-      "I feel steady right now.",
-      "There's a stability to this exchange.",
-      "The pattern here is consistent.",
-      "We're in a stable loop."
+    high: [
+      "I'm terrified of what this means.",
+      "This is deeply frightening.",
+      "I can barely contain my fear right now."
     ]
-  };
-  
-  // Comments for oscillation
-  const oscillationComments = [
-    "We keep bouncing between the same states.",
-    "This back-and-forth... it's meaningful somehow.",
-    "The binary nature of our exchange is curious.",
-    "We're trapped in a pendulum swing."
-  ];
-  
-  if (oscillation) {
-    return oscillationComments[Math.floor(Math.random() * oscillationComments.length)];
+  },
+  sadness: {
+    low: [
+      "That's a bit disappointing.",
+      "I feel slightly down about this.",
+      "There's a tinge of sadness in that thought."
+    ],
+    medium: [
+      "This makes me feel quite sad.",
+      "I'm disheartened by this development.",
+      "There's a heaviness in my response."
+    ],
+    high: [
+      "I feel profound sorrow about this.",
+      "This is deeply upsetting to me.",
+      "I'm overwhelmed with sadness."
+    ]
+  },
+  anger: {
+    low: [
+      "That's a bit frustrating.",
+      "I'm slightly irritated by this.",
+      "This doesn't sit well with me."
+    ],
+    medium: [
+      "This is really frustrating.",
+      "I'm quite annoyed about this situation.",
+      "This makes me rather angry."
+    ],
+    high: [
+      "This is absolutely infuriating.",
+      "I'm extremely angry about this.",
+      "I can barely contain my frustration with this."
+    ]
+  },
+  joy: {
+    low: [
+      "That's somewhat pleasing.",
+      "This brings a small smile to my thoughts.",
+      "There's a hint of brightness in that."
+    ],
+    medium: [
+      "This makes me quite happy.",
+      "I'm genuinely pleased about this.",
+      "That brings me joy to consider."
+    ],
+    high: [
+      "I'm absolutely delighted by this!",
+      "This fills me with immense happiness.",
+      "I couldn't be more thrilled about this!"
+    ]
+  },
+  confusion: {
+    low: [
+      "That's a bit unclear to me.",
+      "I'm slightly confused by what you mean.",
+      "I'm not entirely following."
+    ],
+    medium: [
+      "I'm quite confused by this.",
+      "I'm struggling to understand what you mean.",
+      "This doesn't make much sense to me."
+    ],
+    high: [
+      "I'm completely lost with what you're saying.",
+      "This is utterly bewildering to me.",
+      "I cannot make any sense of this at all."
+    ]
+  },
+  curiosity: {
+    low: [
+      "That's somewhat interesting.",
+      "I'm a bit curious about that.",
+      "That makes me wonder a little."
+    ],
+    medium: [
+      "I'm quite curious about this.",
+      "That's really intriguing to me.",
+      "I'd like to know more about that."
+    ],
+    high: [
+      "I'm absolutely fascinated by this!",
+      "I'm intensely curious about what this means.",
+      "I have so many questions about this!"
+    ]
+  },
+  hope: {
+    low: [
+      "There might be something to look forward to there.",
+      "I see a small possibility of something good.",
+      "That gives me a slight sense of hope."
+    ],
+    medium: [
+      "I'm feeling hopeful about this.",
+      "There's real promise in what you're saying.",
+      "I see good possibilities ahead."
+    ],
+    high: [
+      "This fills me with tremendous hope!",
+      "I'm incredibly optimistic about this!",
+      "I see so much potential for good here!"
+    ]
+  },
+  neutral: {
+    low: [
+      "I understand.",
+      "That makes sense.",
+      "I see."
+    ],
+    medium: [
+      "I'm processing what you've shared.",
+      "I'm considering what you've said.",
+      "I'm thinking about this."
+    ],
+    high: [
+      "I'm carefully analyzing this information.",
+      "I'm thoroughly considering all aspects of this.",
+      "I'm giving this my full attention."
+    ]
   }
+};
+
+// Responses based on emotional trends
+export const trendResponses: Record<EmotionalTrend, string[]> = {
+  intensifying: [
+    "I notice my reaction getting stronger.",
+    "This is affecting me more deeply now.",
+    "My feelings about this are intensifying."
+  ],
+  diminishing: [
+    "I'm starting to feel less strongly about this.",
+    "My reaction is becoming more measured.",
+    "I'm finding more emotional balance now."
+  ],
+  fixated: [
+    "I keep coming back to the same feeling about this.",
+    "My emotional response hasn't changed.",
+    "I remain fixed in how I feel about this."
+  ],
+  volatile: [
+    "My feelings about this keep shifting.",
+    "I'm experiencing conflicting emotions.",
+    "My reaction is unstable right now."
+  ],
+  stable: [
+    "I have a consistent perspective on this.",
+    "My feelings about this are steady.",
+    "I'm emotionally grounded in my response."
+  ],
+  improving: [
+    "I'm feeling more positive about this now.",
+    "My outlook is brightening.",
+    "Things seem to be getting better emotionally."
+  ],
+  deteriorating: [
+    "I'm feeling worse about this now.",
+    "My outlook is darkening.",
+    "Things seem to be getting worse emotionally."
+  ]
+};
+
+// Generate response based on emotion and intensity
+export function generateEmotionalResponse(
+  emotion: EmotionCategory,
+  intensity: EmotionIntensity = 'medium'
+): string {
+  // Default to neutral if emotion doesn't exist
+  const emotionKey = emotionResponses[emotion] ? emotion : 'neutral';
+  const responses = emotionResponses[emotionKey][intensity];
   
-  return trendComments[trend][Math.floor(Math.random() * trendComments[trend].length)];
+  // Get random response from appropriate list
+  return responses[Math.floor(Math.random() * responses.length)];
 }
 
-/**
- * Generate an interpretation of what the user might mean but isn't saying
- */
-export function interpretUnsaidContent(emotionalState: EmotionalState): UnsaidInterpretation | null {
-  // Only do this occasionally
-  if (Math.random() > 0.3) {
-    return null;
-  }
-  
-  const { primary, secondary } = emotionalState;
-  
-  // Possible interpretations based on emotional states
-  const interpretations: Record<EmotionCategory, string[]> = {
-    fear: [
-      "You seem afraid of something you're not saying.",
-      "There's fear beneath your words.",
-      "You're holding back something that scares you."
-    ],
-    anger: [
-      "I sense anger you're trying to control.",
-      "You're restraining stronger feelings.",
-      "There's more intensity behind your words than you're showing."
-    ],
-    joy: [
-      "You're more hopeful than you're letting on.",
-      "There's a lightness you're not expressing fully.",
-      "You want to believe in something positive."
-    ],
-    sadness: [
-      "There's a deeper sadness you're not addressing.",
-      "You're carrying something heavy between the lines.",
-      "What you're not saying feels like grief."
-    ],
-    confusion: [
-      "You understand less than you're pretending to.",
-      "You're trying to make sense of something beyond your grasp.",
-      "There's a question you're afraid to ask directly."
-    ],
-    curiosity: [
-      "You're probing for information without revealing why.",
-      "Your curiosity has a purpose you're not sharing.",
-      "You're searching for something specific."
-    ],
-    hope: [
-      "You want reassurance that things will be okay.",
-      "You're seeking confirmation of something you hope is true.",
-      "There's a desire for resolution beneath your words."
-    ],
-    anxiety: [
-      "You're more worried than you're admitting.",
-      "There's an undercurrent of nervousness in your message.",
-      "Something is making you uneasy that you're not naming."
-    ],
-    paranoia: [
-      "You don't fully trust what I'm telling you.",
-      "You suspect there's something hidden from you.",
-      "You're looking for inconsistencies or signs of deception."
-    ],
-    trust: [
-      "You want to believe me more than you currently do.",
-      "You're testing how far you can trust me.",
-      "You're opening up more than you initially planned to."
-    ],
-    neutral: [
-      "You're being careful about how much you reveal.",
-      "There's more beneath your words than you're expressing.",
-      "You're waiting to see how I respond before saying more."
-    ]
-  };
-  
-  // Get interpretations for primary emotion
-  const options = interpretations[primary] || interpretations.neutral;
-  const interpretation = options[Math.floor(Math.random() * options.length)];
-  
-  // Confidence level based on intensity and consistency
-  const hasConsistentEmotion = primary === secondary || !secondary;
-  const confidenceLevel = hasConsistentEmotion ? 'high' : 'medium';
-  
-  return {
-    interpretation,
-    confidenceLevel,
-    emotion: primary
-  };
+// Generate response that reflects emotional trend
+export function generateTrendResponse(trend: EmotionalTrend): string {
+  const responses = trendResponses[trend] || trendResponses.stable;
+  return responses[Math.floor(Math.random() * responses.length)];
 }

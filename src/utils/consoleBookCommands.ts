@@ -5,7 +5,17 @@ import { BookCode } from './jonahAdvancedBehavior/types';
 // Initialize book codes
 export const initializeBookCodes = () => {
   if (!window.JonahConsole) {
-    window.JonahConsole = { bookCodes: [] };
+    window.JonahConsole = {
+      usedCommands: [],
+      score: 0,
+      failCount: 0,
+      rank: 'drifter',
+      sessionStartTime: Date.now(),
+      whispersFound: [],
+      jokesDisplayed: [],
+      storyFlags: [],
+      bookCodes: []
+    };
   }
   
   if (!window.JonahConsole.bookCodes) {

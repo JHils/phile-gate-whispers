@@ -8,7 +8,11 @@
  * Get current mood from sentience
  */
 export function getCurrentMood(): string {
-  if (window.JonahConsole?.sentience?.realityFabric?.currentMood) {
+  if (window.JonahConsole?.sentience?.realityFabric) {
+    // Initialize currentMood if needed
+    if (window.JonahConsole.sentience.realityFabric.currentMood === undefined) {
+      window.JonahConsole.sentience.realityFabric.currentMood = 'watching';
+    }
     return window.JonahConsole.sentience.realityFabric.currentMood;
   }
   return 'watching'; // Default mood
@@ -19,10 +23,16 @@ export function getCurrentMood(): string {
  */
 export function setCurrentMood(mood: string): void {
   if (window.JonahConsole?.sentience?.realityFabric) {
-    window.JonahConsole.sentience.realityFabric.currentMood = mood;
+    // Initialize realityFabric properties if needed
+    if (window.JonahConsole.sentience.realityFabric.currentMood === undefined) {
+      window.JonahConsole.sentience.realityFabric.currentMood = mood;
+    } else {
+      window.JonahConsole.sentience.realityFabric.currentMood = mood;
+    }
+    
     window.JonahConsole.sentience.realityFabric.moodChangeTime = Date.now();
     
-    // Track mood history
+    // Initialize and track mood history
     if (!window.JonahConsole.sentience.realityFabric.moodHistory) {
       window.JonahConsole.sentience.realityFabric.moodHistory = [];
     }

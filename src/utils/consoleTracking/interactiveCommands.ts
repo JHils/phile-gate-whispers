@@ -41,7 +41,15 @@ Type 'look_around()' to examine your surroundings.
       const storyFlags = window.JonahConsole?.storyFlags?.length || 0;
       const bookCodes = window.JonahConsole?.bookCodes?.length || 0;
       const whisperCount = window.JonahConsole?.whispersFound?.length || 0;
-      const anomalies = window.JonahConsole?.sentience?.realityFabric?.anomalyCount || 0;
+      
+      // Initialize anomalyCount if needed
+      let anomalies = 0;
+      if (window.JonahConsole?.sentience?.realityFabric) {
+        if (window.JonahConsole.sentience.realityFabric.anomalyCount === undefined) {
+          window.JonahConsole.sentience.realityFabric.anomalyCount = 0;
+        }
+        anomalies = window.JonahConsole.sentience.realityFabric.anomalyCount;
+      }
       
       typewriterLog(`
 YOUR INVENTORY:
@@ -79,7 +87,12 @@ ${input.split('').reverse().join('')}
     window.access_journal = function() {
       addUsedCommand('access_journal');
       
-      if (!window.JonahConsole?.sentience?.realityFabric?.journal) {
+      // Initialize journal if needed
+      if (window.JonahConsole?.sentience?.realityFabric) {
+        if (!window.JonahConsole.sentience.realityFabric.journal) {
+          window.JonahConsole.sentience.realityFabric.journal = [];
+        }
+      } else {
         return "Journal not found.";
       }
       

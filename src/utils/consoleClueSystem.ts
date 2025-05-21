@@ -5,7 +5,17 @@ import { StoryFlag } from './jonahAdvancedBehavior/types';
 // Initialize story flags
 export const initializeStoryFlags = () => {
   if (!window.JonahConsole) {
-    window.JonahConsole = { storyFlags: [] };
+    window.JonahConsole = { 
+      usedCommands: [],
+      score: 0,
+      failCount: 0,
+      rank: 'drifter',
+      sessionStartTime: Date.now(),
+      whispersFound: [],
+      jokesDisplayed: [],
+      storyFlags: [],
+      bookCodes: []
+    };
   }
   
   if (!window.JonahConsole.storyFlags) {
@@ -106,4 +116,10 @@ export const setupStoryFunction = () => {
     
     return false;
   };
+};
+
+// Export for initialization
+export const initializeClueSystem = () => {
+  initializeStoryFlags();
+  setupStoryFunction();
 };

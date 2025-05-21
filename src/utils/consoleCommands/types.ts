@@ -20,4 +20,3 @@ export type TrackCommandFunction = (commandName: string) => void;
 // Define type for user state
 import { UserState } from "@/hooks/useTrackingSystem";
 export type UserStateType = UserState;
-
