@@ -1,30 +1,57 @@
 
 /**
- * Memory Context Type Definitions
+ * Memory Context System
+ * Provides memory context structure and utilities
  */
 
-import { EmotionCategory } from '../types';
-
-// Memory context type
 export interface MemoryContext {
-  userName?: string;
-  recentInputs: string[];
-  dominantEmotion: EmotionCategory;
-  seed?: string;
-  trustLevel: number;
-  personality: 'PRIME' | 'RESIDUE' | 'STATIC' | 'WITNESS';
+  memoryLevel: 'low' | 'medium' | 'high';
+  lastInteractions: Array<{
+    content: string;
+    isUser: boolean;
+    mood?: string;
+    timestamp: number;
+  }>;
+  personalInfo: Record<string, string>;
   keywords: string[];
-  visitedPages: string[];
-  loopCounter?: Record<string, number>; // Track repetitive behaviors
+  seeds: string[];
+  trustScore: number;
 }
 
-// Default memory context
-export const createDefaultMemoryContext = (): MemoryContext => ({
-  recentInputs: [],
-  dominantEmotion: 'neutral',
-  trustLevel: 10,
-  personality: 'PRIME',
-  keywords: [],
-  visitedPages: [],
-  loopCounter: {}
-});
+/**
+ * Create default memory context
+ */
+export function createDefaultMemoryContext(memoryLevel: 'low' | 'medium' | 'high' = 'medium'): MemoryContext {
+  return {
+    memoryLevel,
+    lastInteractions: [],
+    personalInfo: {},
+    keywords: [],
+    seeds: [],
+    trustScore: 50
+  };
+}
+
+/**
+ * Create memory context from existing data
+ */
+export function createMemoryContextFromData(
+  memoryLevel: 'low' | 'medium' | 'high',
+  interactions: Array<{content: string; isUser: boolean; mood?: string}>,
+  personalInfo: Record<string, string>,
+  keywords: string[],
+  seeds: string[],
+  trustScore: number
+): MemoryContext {
+  return {
+    memoryLevel,
+    lastInteractions: interactions.map(interaction => ({
+      ...interaction,
+      timestamp: Date.now()
+    })),
+    personalInfo,
+    keywords,
+    seeds,
+    trustScore
+  };
+}

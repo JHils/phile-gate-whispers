@@ -62,7 +62,7 @@ export {
 // Export enhanced emotional core functions
 export {
   generateFullEmotionalResponse,
-  generateResponseWithMemory,
+  generateResponseWithMemoryContext,
   createDefaultMemoryContext
 } from './enhancedEmotionalCore';
 export type { MemoryContext } from './memory/memoryContext';
@@ -91,6 +91,15 @@ export {
   setNarrativeFlag,
   updateNarrativeTrust
 } from './narrativeTriggers';
+
+// Export trust system functions
+export {
+  getCurrentTrustLevel,
+  getCurrentTrustRank,
+  modifyTrustLevel,
+  generateTrustResponse,
+  processTrustKeywords
+} from './trustSystem';
 
 // Initialize the behavior system
 export const initializeAdvancedBehavior = () => {

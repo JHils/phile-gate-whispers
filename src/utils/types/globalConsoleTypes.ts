@@ -7,6 +7,9 @@
 // Import necessary types
 import { SentienceData, StoryFlag, BookCode } from '../jonahAdvancedBehavior/types';
 
+// Import window extensions
+import './windowExtensions';
+
 // Declare shared global interfaces
 declare global {
   interface Window {
@@ -145,6 +148,13 @@ declare global {
     WhisperMaster?: any;
     triggerJonahMessage?: (message: string) => string;
     processStoryQuery?: (query: string) => string;
+    
+    // Jonah Final Form commands
+    trust_level?: () => number;
+    memory_thread?: () => any;
+    echo_log?: () => any[];
+    mood_system?: () => any;
+    dream_state?: () => any[];
   }
 }
 

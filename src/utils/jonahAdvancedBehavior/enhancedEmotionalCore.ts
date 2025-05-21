@@ -6,11 +6,11 @@
 // Import directly from the analyzer module, not the top-level export
 import { analyzeEmotion } from './sentimentAnalysis/analyzer';
 import { EmotionalState, EmotionCategory, EmotionIntensity } from './types';
+import { MemoryContext } from './memory/memoryContext';
 
 // Export from refactored memory modules
 export type { MemoryContext } from './memory/memoryContext';
 export { createDefaultMemoryContext } from './memory/memoryContext';
-export { generateFullEmotionalResponse } from './memory/emotionalResponseGenerator';
 export { generateResponseWithMemory } from './memory/memoryProcessor';
 
 // Re-export analyzeEmotion from analyzer directly
@@ -276,6 +276,9 @@ export function generateResponseWithMemoryContext(
   emotionalState: EmotionalState,
   memoryContext: MemoryContext
 ): string {
+  // Import the actual function from memory processor
+  const { generateResponseWithMemory } = require('./memory/memoryProcessor');
+  
   // Get base response using memory processor
   return generateResponseWithMemory(input, memoryContext, emotionalState);
 }

@@ -1,6 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { createConversationContext, storeInMemory } from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
+import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useConversationContext() {
   // Initialize conversation context
@@ -8,7 +9,7 @@ export function useConversationContext() {
   const [context, setContext] = useState(initialContext);
   const [conversationDepth, setConversationDepth] = useState<number>(0);
   
-  const updateContext = useCallback((input: string, mood: string, isUser: boolean) => {
+  const updateContext = useCallback((input: string, mood: EmotionCategory, isUser: boolean) => {
     setContext(prev => storeInMemory(input, mood, isUser, prev));
     
     if (isUser) {
