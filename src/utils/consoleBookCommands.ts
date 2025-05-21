@@ -1,135 +1,130 @@
+import { BookCode } from '@/utils/jonahAdvancedBehavior/types';
 
-// Import the BookCode interface
-import { BookCode } from './jonahAdvancedBehavior/types';
-
-// Initialize book codes
-export const initializeBookCodes = () => {
-  if (!window.JonahConsole) {
-    window.JonahConsole = {
-      usedCommands: [],
-      score: 0,
-      failCount: 0,
-      rank: 'drifter',
-      sessionStartTime: Date.now(),
-      whispersFound: [],
-      jokesDisplayed: [],
-      storyFlags: [],
-      bookCodes: [],
-      simba: {
-        encountered: false
-      },
-      argData: {
-        keyholeClicks: 0,
-        consoleCluesTouched: [],
-        qrScans: [],
-        memoryFragments: [],
-        secretPagesVisited: [],
-        hiddenFilesDownloaded: [],
-        idleTriggers: {},
-        lastInteractionTime: new Date()
+// Basic implementation of console book commands
+export function addConsoleBookCommands(console: any) {
+  console.addCommand({
+    name: 'unlockBookCode',
+    help: 'Unlock a book code',
+    args: [
+      { name: 'code', type: 'string', help: 'The code to unlock' }
+    ],
+    func: (args: any) => {
+      const code = args.code;
+      
+      if (!code) {
+        console.log("Please provide a code to unlock.");
+        return;
       }
-    };
-  }
-  
-  if (!window.JonahConsole.bookCodes) {
-    window.JonahConsole.bookCodes = [];
-  }
-};
-
-// Add a book code
-export const addBookCode = (codeId: string, codeName: string): boolean => {
-  if (!window.JonahConsole?.bookCodes) {
-    initializeBookCodes();
-  }
-  
-  // Check if code already exists
-  const existingCode = window.JonahConsole.bookCodes.find((c: BookCode) => c.id === codeId);
-  if (existingCode) {
-    return false;
-  }
-  
-  // Add new code
-  const newCode: BookCode = {
-    id: codeId,
-    name: codeName,
-    unlocked: true
-  };
-  
-  window.JonahConsole.bookCodes.push(newCode);
-  
-  // Update user state if available
-  if (window.JonahConsole?.rank) {
-    const newRank = getUpdatedRank(window.JonahConsole.bookCodes.length);
-    window.JonahConsole.rank = newRank;
-  }
-  
-  return true;
-};
-
-// Get updated rank based on codes found
-const getUpdatedRank = (codeCount: number): string => {
-  if (codeCount >= 5) return 'archivist';
-  if (codeCount >= 3) return 'scholar';
-  if (codeCount >= 1) return 'reader';
-  return 'drifter';
-};
-
-// Verify a book code
-export const verifyBookCode = (code: string): { success: boolean; message: string } => {
-  if (!window.JonahConsole) return { success: false, message: 'Console not initialized.' };
-  
-  // List of valid codes
-  const validCodes = [
-    { id: 'ECHOMIKE', name: 'Echo Mike Protocol' },
-    { id: 'PARALLAX', name: 'Parallax Theorem' },
-    { id: 'LOOKAWAY', name: 'Look-Away Technique' },
-    { id: 'DARKHALF', name: 'Dark Half Theory' },
-    { id: 'WOODWICK', name: 'Wood Wick Passage' },
-    { id: 'FRACTURE', name: 'Fracture Pattern' },
-    { id: 'OBSIDIAN', name: 'Obsidian Mirror' }
-  ];
-  
-  // Normalize input
-  const normalizedCode = code.trim().toUpperCase();
-  
-  // Find matching code
-  const matchingCode = validCodes.find(c => c.id === normalizedCode);
-  
-  if (matchingCode) {
-    // Check if already unlocked
-    const alreadyUnlocked = window.JonahConsole.bookCodes.some((c: BookCode) => c.id === matchingCode.id);
-    
-    if (alreadyUnlocked) {
-      return {
-        success: false,
-        message: `Book code ${matchingCode.name} already unlocked.`
-      };
+      
+      try {
+        // Get existing codes
+        const codes = JSON.parse(localStorage.getItem('jonahBookCodes') || '[]');
+        
+        // Check if code already exists
+        const existingCode = codes.find((c: BookCode) => c.code === code);
+        
+        if (existingCode) {
+          console.log(`Code "${code}" already exists.`);
+          return;
+        }
+        
+        // Add new code
+        codes.push({
+          code: code,
+          unlocked: true,
+          timestamp: Date.now()
+        });
+        
+        // Store back to localStorage
+        localStorage.setItem('jonahBookCodes', JSON.stringify(codes));
+        
+        console.log(`Code "${code}" unlocked.`);
+      } catch (e) {
+        console.error("Error unlocking code:", e);
+      }
     }
-    
-    // Add new code
-    addBookCode(matchingCode.id, matchingCode.name);
-    
-    return {
-      success: true,
-      message: `Book code confirmed: ${matchingCode.name}`
-    };
-  }
+  });
   
-  return {
-    success: false,
-    message: 'Invalid book code.'
-  };
-};
-
-// Setup the window function
-export const setupBookCodeFunction = () => {
-  window.verifyCode = function(code: string) {
-    const result = verifyBookCode(code);
-    console.log(`%c${result.message}`, 'color: #8B3A40; font-size: 14px;');
-    return result.message;
-  };
-};
-
-// Initialize on import
-initializeBookCodes();
-setupBookCodeFunction();
+  console.addCommand({
+    name: 'getAllBookCodes',
+    help: 'Get all book codes',
+    func: () => {
+      try {
+        // Get existing codes
+        const codes = JSON.parse(localStorage.getItem('jonahBookCodes') || '[]');
+        
+        if (codes.length === 0) {
+          console.log("No book codes found.");
+          return;
+        }
+        
+        console.log("Book Codes:");
+        codes.forEach((code: BookCode) => {
+          console.log(`- ${code.code}: ${code.unlocked ? 'Unlocked' : 'Locked'}`);
+        });
+      } catch (e) {
+        console.error("Error getting book codes:", e);
+      }
+    }
+  });
+  
+  console.addCommand({
+    name: 'resetBookCodes',
+    help: 'Reset all book codes',
+    func: () => {
+      try {
+        // Reset codes
+        localStorage.setItem('jonahBookCodes', JSON.stringify([]));
+        console.log("Book codes reset.");
+      } catch (e) {
+        console.error("Error resetting book codes:", e);
+      }
+    }
+  });
+  
+  console.addCommand({
+    name: 'addStarterBookCodes',
+    help: 'Add starter book codes',
+    func: () => {
+      try {
+        // Get existing codes
+        let codes = JSON.parse(localStorage.getItem('jonahBookCodes') || '[]');
+        
+        // Check if codes already exist
+        if (codes.length > 0) {
+          console.log("Starter book codes already exist.");
+          return;
+        }
+        
+        // Add starter codes
+        codes = [
+          {
+            id: "fragment-alpha",
+            code: "alpha-001",
+            name: "The Beginning",
+            unlocked: true
+          },
+          {
+            id: "fragment-beta",
+            code: "beta-002",
+            name: "The Journey",
+            unlocked: false
+          },
+          {
+            id: "fragment-gamma",
+            code: "gamma-003",
+            name: "The End",
+            unlocked: false
+          }
+        ];
+        
+        // Store back to localStorage
+        localStorage.setItem('jonahBookCodes', JSON.stringify(codes));
+        
+        console.log("Starter book codes added.");
+      } catch (e) {
+        console.error("Error adding starter book codes:", e);
+      }
+    }
+  });
+}

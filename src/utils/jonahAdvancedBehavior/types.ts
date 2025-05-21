@@ -32,22 +32,13 @@ export interface SentienceData {
     active: string[];
     completed: string[];
   };
-  ecoAwareness?: {
-    level: number;
-    lastInteraction: number;
-    topics: string[];
-    lastChecked?: number;
-    previousResponses?: string[];
-    biomeResponses?: Record<string, string[]>;
-    knownBiomes?: string[];
-    dreamtimeActive?: boolean;
-    woodsResponses?: string[];
-  };
+  ecoAwareness?: EcoAwarenessState;
   memoryParanoia?: {
     level: number;
     triggers: string[];
     lastIncident: number;
     visitedPages?: string[];
+    pageVisits?: string[];
     pageDuration?: Record<string, number>;
     consoleCommands?: string[];
   };

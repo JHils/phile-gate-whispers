@@ -1,56 +1,44 @@
 
-import { useEffect, useState } from 'react';
-
-export interface EcoAwarenessState {
-  lastChecked: number;
-  biomeResponses: any[];
-  knownBiomes: string[];
-  dreamtimeActive: boolean;
-  woodsResponses: string[];
-  lastBiomeCheck?: number;
-  connectionStrength?: number;
-  currentBiome?: string;
-  previousResponses: string[]; // Adding this property to fix the type error
-}
+import { useState, useCallback, useEffect } from 'react';
+import { EcoAwarenessState } from '@/utils/jonahAdvancedBehavior/types';
+import { useJonahSentience } from './useJonahSentience';
 
 export function useJonahEcoAwareness() {
-  const [ecoAwareness, setEcoAwareness] = useState<EcoAwarenessState>({
-    lastChecked: Date.now(),
-    biomeResponses: [],
-    knownBiomes: [],
-    dreamtimeActive: false,
-    woodsResponses: [],
-    lastBiomeCheck: Date.now(),
-    connectionStrength: 0,
-    currentBiome: 'urban',
-    previousResponses: [] // Initialize the property
-  });
+  const { sentience, updateSentience } = useJonahSentience();
   
-  // Init state on mount
+  // Initialize eco awareness if not already present
   useEffect(() => {
-    if (window.JonahConsole?.sentience) {
-      if (!window.JonahConsole.sentience.ecoAwareness) {
-        window.JonahConsole.sentience.ecoAwareness = {
-          lastChecked: Date.now(),
-          biomeResponses: [],
-          knownBiomes: [],
-          dreamtimeActive: false,
-          woodsResponses: [],
-          lastBiomeCheck: Date.now(),
-          connectionStrength: 0,
-          currentBiome: 'urban',
-          previousResponses: []
-        };
-      }
-      
-      // Make sure we're adding previousResponses if it doesn't exist
-      const existingEcoAwareness = {
-        ...window.JonahConsole.sentience.ecoAwareness,
-        previousResponses: window.JonahConsole.sentience.ecoAwareness.previousResponses || []
+    if (!sentience?.ecoAwareness) {
+      const initialEcoAwareness: EcoAwarenessState = {
+        level: 0,
+        lastInteraction: Date.now(),
+        topics: [],
+        lastChecked: Date.now(),
+        previousResponses: [],
+        biomeResponses: {},
+        knownBiomes: [],
+        dreamtimeActive: false,
+        woodsResponses: []
       };
-      setEcoAwareness(existingEcoAwareness as EcoAwarenessState);
+      
+      updateSentience({
+        ecoAwareness: initialEcoAwareness
+      });
     }
-  }, []);
+  }, [sentience, updateSentience]);
   
-  return { ecoAwareness };
+  // Update eco awareness data
+  const updateEcoAwareness = useCallback((data: Partial<EcoAwarenessState>) => {
+    updateSentience({
+      ecoAwareness: {
+        ...sentience?.ecoAwareness,
+        ...data
+      } as EcoAwarenessState
+    });
+  }, [sentience, updateSentience]);
+  
+  return {
+    ecoAwareness: sentience?.ecoAwareness as EcoAwarenessState,
+    updateEcoAwareness
+  };
 }

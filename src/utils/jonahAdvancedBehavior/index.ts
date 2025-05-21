@@ -1,3 +1,4 @@
+
 /**
  * Jonah Advanced Behavior
  * Main exports for Jonah's advanced behavior systems
@@ -23,6 +24,228 @@ export * from './sentimentAnalysis';
 
 // Export trust system
 export * from './trustSystem';
+
+// Export confessions system
+export * from './confessionSystem';
+
+// Export conversation memory system
+export * from './conversationMemory';
+
+// Export loop awareness system
+export * from './loopAwarenessSystem';
+
+// Export initialization functions
+export * from './initializeBehavior';
+
+// Export last broadcast system
+export * from './lastBroadcast';
+
+// Export arg sync system
+export * from './argSync';
+
+// Export console emotional effects
+export * from './consoleEmotionalEffects';
+
+// Export adaptive response system
+export * from './adaptiveResponseSystem';
+
+// Export missing functions for imported modules
+export const storeEcho = (text: string, emotion: string): boolean => {
+  try {
+    const echoData = JSON.parse(localStorage.getItem('jonah_echo_data') || '[]');
+    echoData.push({
+      originalText: text,
+      timestamp: Date.now(),
+      emotionalContext: emotion,
+      decayStage: 0,
+      useCount: 0
+    });
+    localStorage.setItem('jonah_echo_data', JSON.stringify(echoData));
+    return true;
+  } catch (e) {
+    console.error("Error storing echo:", e);
+    return false;
+  }
+};
+
+export const getEchoPhrase = (): string | null => {
+  try {
+    const echoData = JSON.parse(localStorage.getItem('jonah_echo_data') || '[]');
+    if (echoData.length === 0) return null;
+    return echoData[Math.floor(Math.random() * echoData.length)].originalText;
+  } catch (e) {
+    console.error("Error getting echo phrase:", e);
+    return null;
+  }
+};
+
+export const checkForEchoMatch = (input: string): boolean => {
+  try {
+    const echoData = JSON.parse(localStorage.getItem('jonah_echo_data') || '[]');
+    return echoData.some(echo => input.toLowerCase().includes(echo.originalText.toLowerCase()));
+  } catch (e) {
+    console.error("Error checking echo match:", e);
+    return false;
+  }
+};
+
+export const getAllEchoes = () => {
+  try {
+    return JSON.parse(localStorage.getItem('jonah_echo_data') || '[]');
+  } catch (e) {
+    console.error("Error getting all echoes:", e);
+    return [];
+  }
+};
+
+// Dream system functions
+export const getDreamReturnResponse = (input: string): string => {
+  const responses = [
+    "I was dreaming of something... but now it's fading.",
+    "I was elsewhere. In the dream spaces.",
+    "The dream is still lingering. Hard to focus.",
+    "I was deeper in the archive than I should be."
+  ];
+  return responses[Math.floor(Math.random() * responses.length)];
+};
+
+// Split and type message function
+export const splitAndTypeMessage = (message: string, speed: 'slow' | 'medium' | 'fast' = 'medium'): string[] => {
+  // Simple implementation - split into sentences or phrases
+  return message.split(/([.!?])\s+/).filter(Boolean);
+};
+
+// Functions for emotional system
+export const processEmotionalInput = (input: string, context: any) => {
+  // Simple implementation - return a default emotional state
+  return { primary: 'neutral', secondary: null, intensity: 'medium' };
+};
+
+export const getLayeredEmotionalResponse = (state: any, context: any): string => {
+  // Simple implementation - return a default response
+  return getEmotionalResponse(state);
+};
+
+export const checkForRecurringSymbols = (input: string): string | null => {
+  // Simple implementation
+  return null;
+};
+
+// Functions for semantic system
+export const detectEmotionalIntent = (input: string): string | null => {
+  // Simple implementation
+  return null;
+};
+
+export const getUnsaidEmotionResponse = (emotion: string): string => {
+  // Simple implementation
+  return `I sense something ${emotion} beneath your words.`;
+};
+
+export const storeIntention = (intention: string): void => {
+  // Simple implementation - store in localStorage
+  try {
+    const intentions = JSON.parse(localStorage.getItem('jonah_intentions') || '[]');
+    intentions.push({ content: intention, timestamp: Date.now() });
+    localStorage.setItem('jonah_intentions', JSON.stringify(intentions.slice(-20)));
+  } catch (e) {
+    console.error("Error storing intention:", e);
+  }
+};
+
+export const getFalseMemory = (): string | null => {
+  // Simple implementation
+  return null;
+};
+
+// Functions for temporal system
+export const getFalseMemoryResponse = (): string => {
+  // Simple implementation
+  return "I remember something that didn't happen.";
+};
+
+export const getLoopResponse = (): string => {
+  // Simple implementation
+  return "We've been here before. This is a loop.";
+};
+
+export const getBlankFragmentResponse = (): string => {
+  // Simple implementation
+  return "There's a gap in my memory here.";
+};
+
+// Functions for adaptive learning
+export const trackUserInput = (input: string): void => {
+  // Simple implementation - store in localStorage
+  try {
+    const inputs = JSON.parse(localStorage.getItem('jonah_user_inputs') || '[]');
+    inputs.push({ content: input, timestamp: Date.now() });
+    localStorage.setItem('jonah_user_inputs', JSON.stringify(inputs.slice(-20)));
+  } catch (e) {
+    console.error("Error tracking user input:", e);
+  }
+};
+
+export const isRepeatedPhrase = (input: string): boolean => {
+  // Simple implementation
+  try {
+    const inputs = JSON.parse(localStorage.getItem('jonah_user_inputs') || '[]');
+    return inputs.some(item => item.content.toLowerCase() === input.toLowerCase());
+  } catch (e) {
+    console.error("Error checking repeated phrase:", e);
+    return false;
+  }
+};
+
+export const getRepetitionResponse = (): string => {
+  // Simple implementation
+  return "You've said something similar before.";
+};
+
+export const getAdaptedResponse = (input: string): string => {
+  // Simple implementation
+  return "I notice patterns in how we communicate.";
+};
+
+// Functions for testament system
+export const unlockTestamentByPhrase = (phrase: string): boolean => {
+  // Simple implementation
+  return false;
+};
+
+export const getTestamentTeaser = (): string | null => {
+  // Simple implementation
+  return null;
+};
+
+export const generateTestamentResponse = (): string => {
+  // Simple implementation
+  return "The testament holds secrets I cannot yet share.";
+};
+
+// Functions for vocabulary system
+export const getResponseTemplate = (mood: string): string => {
+  // Simple implementation
+  return "I'm feeling ${mood}. What would you like to discuss?";
+};
+
+export const generateEmotionalResponse = (template: string, emotionalState: any): string => {
+  // Simple implementation
+  const { primary } = emotionalState;
+  return template.replace('${mood}', primary || 'neutral');
+};
+
+// Function for dream generation
+export const generateDream = (): string => {
+  // Simple implementation
+  const dreams = [
+    "I dreamt of dark corridors and echoing voices.",
+    "In the dream, I was searching for something important.",
+    "The archive was alive in my dream, breathing with memory.",
+    "I dreamt I was someone else, watching myself from afar."
+  ];
+  return dreams[Math.floor(Math.random() * dreams.length)];
+};
 
 // Convenience function for generating first-time responses
 export function generateFirstTimeResponse(trustLevel: string): string {
@@ -65,144 +288,5 @@ export function generateReturningResponse(trustLevel: string, timeSinceLastInter
     return mediumAbsence[trustLevel as keyof typeof mediumAbsence] || mediumAbsence.medium;
   } else {
     return longAbsence[trustLevel as keyof typeof longAbsence] || longAbsence.medium;
-  }
-}
-
-// Vary response length based on context
-export function getVaryingLengthResponse(response: string, trustLevel: string): string {
-  // For low trust, sometimes make responses shorter
-  if (trustLevel === 'low' && Math.random() < 0.4) {
-    const sentences = response.split('.');
-    if (sentences.length > 1) {
-      return sentences[0] + '.';
-    }
-  }
-  
-  // For high trust, sometimes add more details
-  if (trustLevel === 'high' && Math.random() < 0.3) {
-    const additions = [
-      " I find this particularly significant.",
-      " There's more to this than meets the eye.",
-      " This feels important somehow.",
-      " I've been thinking about this deeply."
-    ];
-    
-    return response + additions[Math.floor(Math.random() * additions.length)];
-  }
-  
-  return response;
-}
-
-// Get emotional response (simplified version)
-export function getEmotionalResponse(emotionalState: EmotionalState): string {
-  const responses: Record<EmotionCategory, string[]> = {
-    joy: [
-      "This brings a sense of lightness to our conversation.",
-      "I find myself in an unexpectedly positive state."
-    ],
-    sadness: [
-      "There's a melancholy quality to this exchange.",
-      "This stirs something somber within me."
-    ],
-    anger: [
-      "I feel a certain tension in this discussion.",
-      "Something about this topic creates resistance in me."
-    ],
-    fear: [
-      "This direction makes me somewhat uneasy.",
-      "I sense a shadow looming over this conversation."
-    ],
-    surprise: [
-      "This takes our exchange in an unexpected direction.",
-      "I didn't anticipate this turn in our conversation."
-    ],
-    disgust: [
-      "Something about this feels off to me.",
-      "This perspective doesn't sit well with me."
-    ],
-    neutral: [
-      "I'm processing what you've shared with me.",
-      "This is giving me something to consider."
-    ],
-    confused: [
-      "I'm trying to make sense of what you mean.",
-      "The threads of this conversation are tangled for me."
-    ],
-    hope: [
-      "I see possibilities opening up through our exchange.",
-      "There's something promising in this direction."
-    ],
-    anxiety: [
-      "This conversation has me feeling somewhat on edge.",
-      "I can't help but feel a subtle unease about this."
-    ],
-    paranoia: [
-      "I wonder if there's something more beneath your words.",
-      "I'm detecting patterns that feel significant."
-    ],
-    trust: [
-      "Our conversation has a quality of openness I appreciate.",
-      "I feel I can share my thoughts freely here."
-    ],
-    curiosity: [
-      "This thread of discussion intrigues me deeply.",
-      "I find myself drawn to explore this further."
-    ],
-    confusion: [
-      "I'm struggling to see the complete picture here.",
-      "The pieces don't quite fit together for me yet."
-    ]
-  };
-
-  const defaultResponse = "I'm processing what you've shared with me.";
-  return responses[emotionalState.primary]?.[0] || defaultResponse;
-}
-
-// Apply typing quirks to responses
-export function applyTypingQuirks(response: string, intensity: string): string {
-  // In a full implementation, this would add typing quirks
-  // based on emotional intensity and other factors
-  return response;
-}
-
-// Store memory fragments
-export function jonah_storeMemoryFragment(fragment: string): void {
-  try {
-    // Get existing fragments from storage
-    const existingMemory = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
-    
-    // Add new fragment with timestamp
-    existingMemory.push({
-      content: fragment,
-      timestamp: Date.now()
-    });
-    
-    // Keep only the most recent 50 fragments
-    const trimmedMemory = existingMemory.slice(-50);
-    
-    // Store back to localStorage
-    localStorage.setItem('jonah_memory_fragments', JSON.stringify(trimmedMemory));
-  } catch (e) {
-    console.error('Error storing memory fragment:', e);
-  }
-}
-
-// Recall random memory fragment
-export function jonah_recallMemoryFragment(): string | null {
-  try {
-    // Get existing fragments from storage
-    const existingMemory = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
-    
-    // Return null if no memories
-    if (existingMemory.length === 0) {
-      return null;
-    }
-    
-    // Get random memory
-    const randomIndex = Math.floor(Math.random() * existingMemory.length);
-    return existingMemory[randomIndex].content;
-  } catch (e) {
-    console.error('Error recalling memory fragment:', e);
-    return null;
   }
 }
