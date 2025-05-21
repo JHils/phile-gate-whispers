@@ -6,6 +6,7 @@ import { useEmotionalAnalysis } from './jonahChat/useEmotionalAnalysis';
 import { useMessageFormatting } from './jonahChat/useMessageFormatting';
 import { useConversationContext } from './jonahChat/useConversationContext';
 import { findRelevantMemories } from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
+import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useJonahChat() {
   // Import modular hooks
@@ -93,7 +94,7 @@ export function useJonahChat() {
   }, [input, context, addUserMessage, setTyping, updateContext]);
   
   // Process and add Jonah's response
-  const processJonahResponse = useCallback((content: string, mood: string) => {
+  const processJonahResponse = useCallback((content: string, mood: EmotionCategory) => {
     // Add response to messages
     addJonahResponse(content);
     
