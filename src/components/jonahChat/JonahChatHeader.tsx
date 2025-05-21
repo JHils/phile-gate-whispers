@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { EmotionCategory, EmotionalTrend } from '@/utils/jonahAdvancedBehavior/types';
 
@@ -71,15 +70,12 @@ const JonahChatHeader: React.FC<JonahChatHeaderProps> = ({
   
   // Get trend indicator
   const getTrendIndicator = () => {
-    switch (emotionalTrend) {
-      case 'improving':
-      case 'intensifying':
-        return '↗';
-      case 'deteriorating':
-      case 'diminishing':
-        return '↘';
-      default:
-        return '→';
+    if (emotionalTrend === 'improving' || emotionalTrend === 'intensifying') {
+      return '↗';
+    } else if (emotionalTrend === 'deteriorating' || emotionalTrend === 'diminishing') {
+      return '↘';
+    } else {
+      return '→';
     }
   };
 

@@ -219,8 +219,8 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
     // Get a random thought
     const thought = idleThoughts[Math.floor(Math.random() * idleThoughts.length)];
     
-    // Add the emotional tag
-    memory.addEmotionalTag(thought.tag);
+    // Add the emotional tag - Fix: Pass both parameters 
+    memory.addEmotionalTag(thought.tag, 'moderate');
     
     // Display the thought
     toast({
@@ -234,7 +234,12 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
   // Occasionally show personal observations
   useEffect(() => {
     // Skip if component is unmounting or if there's not enough data yet
-    if (typeof window === 'undefined' || memory.pagesVisited.length < 2) return;
+    if (typeof window === 'undefined') return;
+    
+    // Fix: Check for array before accessing length property
+    const pagesVisitedCount = Array.isArray(memory.pagesVisited) ? memory.pagesVisited.length : 0;
+    
+    if (pagesVisitedCount < 2) return;
     
     const observationInterval = setInterval(() => {
       const trustLevel = userState?.trust?.level || 'low';
@@ -246,6 +251,9 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
       if (Math.random() < observationChance) {
         // Generate and show a personal observation
         const observation = memory.generatePersonalObservation();
+        
+        // Fix: Pass both parameters
+        memory.addEmotionalTag('observant', 'low');
         
         toast({
           title: "Jonah remembers:",

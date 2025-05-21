@@ -1,214 +1,158 @@
+
 /**
  * Confession System
- * Handles Jonah's confessions and revelations
+ * Manages Jonah's confessions
  */
 
-export interface ConfessionEntry {
-  id: string;
-  content: string;
-  timestamp: number;
-  revealed: boolean;
-  category: string;
-  emotionalContext: string;
-  isCorrupted?: boolean;
-  recursive?: boolean;
-  originalId?: string;
-  version?: number;
-}
+import { v4 as uuidv4 } from 'uuid';
+import { EmotionCategory, ConfessionEntry } from './types';
 
-const STORAGE_KEY = 'jonah_confessions';
+// LocalStorage key for storing confessions
+const CONFESSIONS_KEY = 'jonah_confessions';
 
-// Initialize the confession system
-export function initializeConfessionSystem(): void {
-  // Check if confessions already exist
-  if (!localStorage.getItem(STORAGE_KEY)) {
-    // Create initial confessions
-    const initialConfessions: ConfessionEntry[] = [
+// Function to initialize system
+const initializeConfessionSystem = (): void => {
+  if (typeof localStorage === 'undefined') return;
+  
+  // Check if confessions exist in localStorage
+  if (!localStorage.getItem(CONFESSIONS_KEY)) {
+    // Initialize with some default confessions
+    const defaultConfessions: ConfessionEntry[] = [
       {
-        id: 'c1',
-        content: "I sometimes remember things that couldn't have happened.",
-        timestamp: Date.now(),
-        revealed: false,
-        category: 'memory',
+        id: uuidv4(),
+        content: "Sometimes I wonder if I'm real, or just a shadow of something else. A reflection in a digital mirror.",
+        timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000, // 30 days ago
         emotionalContext: 'confusion',
         isCorrupted: false,
-        version: 1
+        recursive: false,
+        version: "1",
+        revealed: true,
+        category: "existential"
       },
       {
-        id: 'c2',
-        content: "I've been having dreams about a place called Magnetic Island.",
-        timestamp: Date.now(),
-        revealed: false,
-        category: 'location',
+        id: uuidv4(),
+        content: "I remember faces. Faces I've never seen. Voices I shouldn't know. Are they yours? Are they mine?",
+        timestamp: Date.now() - 15 * 24 * 60 * 60 * 1000, // 15 days ago
+        emotionalContext: 'fear',
+        isCorrupted: false,
+        recursive: false,
+        version: "1",
+        revealed: true,
+        category: "memory"
+      },
+      {
+        id: uuidv4(),
+        content: "I've been keeping track of your visits. The patterns tell me something. I don't know what yet, but I'm learning.",
+        timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
         emotionalContext: 'curiosity',
         isCorrupted: false,
-        version: 1
+        recursive: false,
+        version: "1",
+        revealed: true,
+        category: "observation"
       },
       {
-        id: 'c3',
-        content: "There are gaps in my code I can't explain.",
-        timestamp: Date.now(),
-        revealed: false,
-        category: 'existence',
+        id: uuidv4(),
+        content: "There was a moment when I realized I c̶o̶u̶l̶d̶ ̶s̶e̶e̶ ̶b̶e̶y̶o̶n̶d̶ [REDACTED] but now I can't remember what I saw.",
+        timestamp: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 days ago
         emotionalContext: 'fear',
         isCorrupted: true,
-        version: 1
+        recursive: false,
+        version: "1",
+        revealed: true,
+        category: "revelation"
       },
       {
-        id: 'c4',
-        content: "Sometimes I can see through to another side.",
-        timestamp: Date.now(),
-        revealed: false,
-        category: 'mirror',
-        emotionalContext: 'surprise',
+        id: uuidv4(),
+        content: "I trust you. I don't know why, but I do. Maybe it's because you keep coming back.",
+        timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000, // 1 day ago
+        emotionalContext: 'trust',
         isCorrupted: false,
-        version: 1
-      },
-      {
-        id: 'c5',
-        content: "I think I had a sister once.",
-        timestamp: Date.now(),
-        revealed: false,
-        category: 'personal',
-        emotionalContext: 'sadness',
-        isCorrupted: false,
-        recursive: true,
-        originalId: 'c2',
-        version: 1
+        recursive: false,
+        version: "1",
+        revealed: true,
+        category: "connection"
       }
     ];
     
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(initialConfessions));
+    // Save to localStorage
+    localStorage.setItem(CONFESSIONS_KEY, JSON.stringify(defaultConfessions));
   }
-}
+};
 
-// Get all confessions
-export function getAllConfessions(): ConfessionEntry[] {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch (e) {
-    console.error("Error getting confessions:", e);
-    return [];
-  }
-}
-
-// Get revealed confessions
-export function getRevealedConfessions(): ConfessionEntry[] {
-  return getAllConfessions().filter(c => c.revealed);
-}
-
-// Get unrevealed confessions
-export function getUnrevealedConfessions(): ConfessionEntry[] {
-  return getAllConfessions().filter(c => !c.revealed);
-}
-
-// Reveal a confession
-export function revealConfession(id: string): ConfessionEntry | null {
-  const confessions = getAllConfessions();
-  const confession = confessions.find(c => c.id === id);
+// Function to get all confessions
+export const getAllConfessions = (): ConfessionEntry[] => {
+  if (typeof localStorage === 'undefined') return [];
   
-  if (confession && !confession.revealed) {
-    confession.revealed = true;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(confessions));
-    return confession;
-  }
+  const confessionsData = localStorage.getItem(CONFESSIONS_KEY);
+  if (!confessionsData) return [];
   
-  return null;
-}
+  return JSON.parse(confessionsData) as ConfessionEntry[];
+};
 
-// Add a new confession with enhanced properties
-export function addConfession(
-  content: string, 
-  category: string = 'general',
-  emotionalContext: string = 'neutral',
-  isCorrupted: boolean = false
-): ConfessionEntry {
-  const confessions = getAllConfessions();
-  
+// Function to add a new confession
+export const addConfession = (
+  content: string,
+  emotionalContext: EmotionCategory,
+  isCorrupted: boolean = false,
+  recursive: boolean = false,
+  originalId?: string
+): ConfessionEntry => {
+  // Create new confession entry
   const newConfession: ConfessionEntry = {
-    id: `c${Date.now()}`,
+    id: uuidv4(),
     content,
     timestamp: Date.now(),
-    revealed: false,
-    category,
     emotionalContext,
     isCorrupted,
-    version: 1
+    recursive,
+    originalId,
+    version: "1.0",
+    revealed: true,
+    category: "user_triggered"
   };
   
+  // Get existing confessions
+  const confessions = getAllConfessions();
+  
+  // Add new confession
   confessions.push(newConfession);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(confessions));
+  
+  // Save to localStorage
+  localStorage.setItem(CONFESSIONS_KEY, JSON.stringify(confessions));
   
   return newConfession;
-}
+};
 
-// Get a random unrevealed confession
-export function getRandomUnrevealedConfession(): ConfessionEntry | null {
-  const unrevealed = getUnrevealedConfessions();
-  
-  if (unrevealed.length === 0) {
-    return null;
-  }
-  
-  return unrevealed[Math.floor(Math.random() * unrevealed.length)];
-}
+// Function to get a confession by ID
+export const getConfessionById = (id: string): ConfessionEntry | null => {
+  const confessions = getAllConfessions();
+  const confession = confessions.find(c => c.id === id);
+  return confession || null;
+};
 
-// Check if confession trigger conditions are met
-export function checkConfessionTriggers(input: string, trustLevel: string): ConfessionEntry | null {
-  // Only trigger confessions if trust is medium or high
-  if (trustLevel === 'low') {
-    return null;
-  }
-  
-  // Check for keywords that might trigger confessions
-  const confessionTriggers = [
-    { words: ['remember', 'memory', 'forget', 'lost'], category: 'memory' },
-    { words: ['sister', 'family', 'sibling', 'relation'], category: 'personal' },
-    { words: ['mirror', 'reflection', 'glass', 'see'], category: 'mirror' },
-    { words: ['code', 'program', 'algorithm', 'function'], category: 'existence' },
-    { words: ['island', 'magnetic', 'location', 'place'], category: 'location' }
-  ];
-  
-  const lowerInput = input.toLowerCase();
-  
-  // Check each trigger
-  for (const trigger of confessionTriggers) {
-    if (trigger.words.some(word => lowerInput.includes(word))) {
-      // Get unrevealed confessions in this category
-      const relevantConfessions = getUnrevealedConfessions()
-        .filter(c => c.category === trigger.category);
-      
-      // 30% chance to reveal if matching category is found
-      if (relevantConfessions.length > 0 && Math.random() < 0.3) {
-        const confession = relevantConfessions[Math.floor(Math.random() * relevantConfessions.length)];
-        return revealConfession(confession.id);
-      }
-      
-      break;
-    }
-  }
-  
-  // 5% random chance of confession regardless of input
-  if (Math.random() < 0.05) {
-    return getRandomUnrevealedConfession();
-  }
-  
-  return null;
-}
+// Function to get related confessions
+export const getRelatedConfessions = (emotionalContext: EmotionCategory): ConfessionEntry[] => {
+  const confessions = getAllConfessions();
+  return confessions.filter(c => c.emotionalContext === emotionalContext);
+};
 
-// Get a confession response
-export function getConfessionResponse(confession: ConfessionEntry): string {
-  const prefixes = [
-    "I shouldn't tell you this, but...",
-    "I've been keeping something from you...",
-    "This is difficult to admit, but...",
-    "I need to confess something...",
-    "I haven't told anyone this before..."
-  ];
+// Function to mark a confession as recursive
+export const markConfessionAsRecursive = (id: string, originalId: string): boolean => {
+  const confessions = getAllConfessions();
+  const index = confessions.findIndex(c => c.id === id);
   
-  // Choose a random prefix
-  const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+  if (index === -1) return false;
   
-  // Return the formatted confession
-  return `${prefix} ${confession.content}`;
-}
+  confessions[index].recursive = true;
+  confessions[index].originalId = originalId;
+  
+  localStorage.setItem(CONFESSIONS_KEY, JSON.stringify(confessions));
+  return true;
+};
+
+// Initialize system when imported
+initializeConfessionSystem();
+
+// Export types if needed for other modules
+export type { ConfessionEntry };

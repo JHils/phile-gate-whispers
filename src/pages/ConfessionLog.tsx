@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { getAllConfessions, ConfessionEntry } from '@/utils/jonahAdvancedBehavior';
+import { getAllConfessions } from '@/utils/jonahAdvancedBehavior';
 import { ConfessionDetail } from '@/components/confession/ConfessionDetail';
 import { ConfessionListItem } from '@/components/confession/ConfessionListItem';
+import { ConfessionEntry } from '@/utils/jonahAdvancedBehavior/types';
 
 const ConfessionLog: React.FC = () => {
   const [confessions, setConfessions] = useState<ConfessionEntry[]>([]);
@@ -12,7 +13,17 @@ const ConfessionLog: React.FC = () => {
   useEffect(() => {
     // Get all confessions
     const allConfessions = getAllConfessions();
-    setConfessions(allConfessions);
+    
+    // Convert to the correct type if needed
+    const typedConfessions = allConfessions.map((confession: any): ConfessionEntry => ({
+      ...confession,
+      // Ensure all fields match the expected ConfessionEntry type
+      version: confession.version?.toString() || "1",
+      revealed: confession.revealed || false,
+      category: confession.category || "general"
+    }));
+    
+    setConfessions(typedConfessions);
   }, []);
   
   // Get filtered confessions

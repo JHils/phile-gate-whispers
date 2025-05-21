@@ -21,6 +21,23 @@ import {
 
 import { generateTestamentResponse, getTestamentTeaser } from '@/utils/jonahAdvancedBehavior/testament';
 
+// Import from jonahAdvancedBehavior directly as they're available now
+import { 
+  EmotionalState,
+  EmotionCategory,
+  createEmotionalState
+} from '@/utils/jonahAdvancedBehavior/types';
+
+import { analyze } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
+
+// Define missing types if needed
+interface MemoryContext {
+  trustLevel: string;
+  recentInputs: string[];
+  lastInteractionTime?: number; // Added this property
+  trustScore?: number; // Added this property
+}
+
 // Mock implementations for missing functions with correct signatures
 const getVaryingLengthResponse = (response: string, trustLevel: string = 'low') => response;
 const getLayeredEmotionalResponse = (input: string) => null;
@@ -29,21 +46,6 @@ const getUnsaidEmotionResponse = (input: string) => null;
 const getEchoPhrase = () => null;
 const jonah_recallMemoryFragment = () => null;
 const processEmotionalInput = (input: string) => ({ primary: 'neutral', secondary: null });
-
-// Import from the refactored modules
-import { 
-  analyzeEmotion, 
-  generateFullEmotionalResponse,
-  EmotionalState,
-  EmotionCategory,
-  createEmotionalState
-} from '@/utils/jonahAdvancedBehavior/types';
-
-// Define missing types if needed
-interface MemoryContext {
-  trustLevel: string;
-  recentInputs: string[];
-}
 
 // Create a mock implementation for the missing functions
 const createConversationContext = (trustLevel: string): MemoryContext => ({
@@ -73,6 +75,23 @@ const generateTopicPatternResponse = (context: MemoryContext) => {
 // Conversation context storage
 let conversationContext = createConversationContext('medium');
 let previousResponses: string[] = [];
+
+// Function to analyze text and create an emotional state
+const analyzeEmotion = (text: string): EmotionalState => {
+  const result = analyze(text);
+  return result || createEmotionalState('neutral');
+};
+
+// Function to generate emotional response
+const generateFullEmotionalResponse = (
+  emotionalState: EmotionalState,
+  trustLevel: string,
+  useFallback: boolean = false,
+  previousResponses: string[] = []
+): string => {
+  const response = getEmotionalResponse(emotionalState, trustLevel);
+  return response || `I'm feeling ${emotionalState.primary}.`;
+};
 
 export function useResponseGeneration(
   addBotMessage: (content: string, special?: boolean) => void,
@@ -180,14 +199,9 @@ export function useResponseGeneration(
   const generateResponseFromTemplate = (content: string, trustLevel: string): string => {
     // Analyze emotion using the enhanced system
     const emotionalState = analyzeEmotion(content);
-    const fullState: EmotionalState = createEmotionalState(
-      emotionalState.primary,
-      emotionalState.secondary,
-      'medium'
-    );
     
     // Generate full response with the enhanced system
-    return generateFullEmotionalResponse(fullState, trustLevel, true, previousResponses);
+    return generateFullEmotionalResponse(emotionalState, trustLevel, true, previousResponses);
   };
 
   // Main handler for response generation with enhanced systems

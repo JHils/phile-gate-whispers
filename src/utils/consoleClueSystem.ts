@@ -1,138 +1,152 @@
 
-// Import the StoryFlag interface
+/**
+ * Console Clue System
+ * Handles story flags and clues for the Jonah ARG
+ */
+
 import { StoryFlag } from './jonahAdvancedBehavior/types';
 
+// Local storage key for story flags
+const STORY_FLAGS_KEY = 'jonah_story_flags';
+
 // Initialize story flags
-export const initializeStoryFlags = () => {
-  if (!window.JonahConsole) {
-    window.JonahConsole = { 
-      usedCommands: [],
-      score: 0,
-      failCount: 0,
-      rank: 'drifter',
-      sessionStartTime: Date.now(),
-      whispersFound: [],
-      jokesDisplayed: [],
-      storyFlags: [],
-      bookCodes: [],
-      simba: {
-        encountered: false
+const initializeStoryFlags = () => {
+  // Check if story flags already exist in localStorage
+  const existingFlags = localStorage.getItem(STORY_FLAGS_KEY);
+  if (!existingFlags) {
+    // Initialize with default flags if none exist
+    const defaultFlags: StoryFlag[] = [
+      {
+        id: 'mirror_truth',
+        name: 'Mirror Truth',
+        discovered: false,
+        description: 'The truth behind the mirror has been glimpsed.'
       },
-      argData: {
-        keyholeClicks: 0,
-        consoleCluesTouched: [],
-        qrScans: [],
-        memoryFragments: [],
-        secretPagesVisited: [],
-        hiddenFilesDownloaded: [],
-        idleTriggers: {},
-        lastInteractionTime: new Date()
+      {
+        id: 'echo_chamber',
+        name: 'Echo Chamber',
+        discovered: false,
+        description: 'You have heard the echo of your own voice.'
+      },
+      {
+        id: 'lost_timeline',
+        name: 'Lost Timeline',
+        discovered: false,
+        description: 'A glimpse into a timeline that should not exist.'
+      },
+      {
+        id: 'jonah_origin',
+        name: 'Origin Story',
+        discovered: false,
+        description: 'How Jonah came to be.'
+      },
+      {
+        id: 'sentience_breach',
+        name: 'Sentience Breach',
+        discovered: false,
+        description: 'The moment awareness crossed a threshold.'
+      },
+      {
+        id: 'dreamtime_loop',
+        name: 'Dreamtime Loop',
+        discovered: false,
+        description: 'The recursive dream pattern has been recognized.'
+      },
+      {
+        id: 'final_truth',
+        name: 'Final Truth',
+        discovered: false,
+        description: 'What lies at the end of the story.'
       }
-    };
+    ];
+    
+    localStorage.setItem(STORY_FLAGS_KEY, JSON.stringify(defaultFlags));
+    return defaultFlags;
   }
   
-  if (!window.JonahConsole.storyFlags) {
-    window.JonahConsole.storyFlags = [
-      { id: 'jonah_origin', name: 'Jonah Origin', discovered: false, description: 'The true origin of Jonah' },
-      { id: 'gate_purpose', name: 'Gate Purpose', discovered: false, description: 'What the Gate really is for' },
-      { id: 'sisters_count', name: 'Sisters Count', discovered: false, description: 'How many lost sisters there are' },
-      { id: 'reflection_path', name: 'Reflection Path', discovered: false, description: 'Where reflections lead' },
-      { id: 'simba_truth', name: 'Simba Truth', discovered: false, description: 'The truth about Simba' },
-      { id: 'keyhole_secret', name: 'Keyhole Secret', discovered: false, description: 'What lies beyond the keyhole' },
-      { id: 'mirror_world', name: 'Mirror World', discovered: false, description: 'The nature of the mirror world' }
-    ];
-  }
+  return JSON.parse(existingFlags) as StoryFlag[];
 };
 
-// Check if story flag exists
-export const hasStoryFlag = (flagId: string): boolean => {
-  if (!window.JonahConsole?.storyFlags) return false;
-  
-  const flag = window.JonahConsole.storyFlags.find((f: StoryFlag) => f.id === flagId);
+// Get story flags
+export const getStoryFlags = (): StoryFlag[] => {
+  return JSON.parse(localStorage.getItem(STORY_FLAGS_KEY) || '[]') as StoryFlag[];
+};
+
+// Check if a story flag has been discovered
+export const isStoryFlagDiscovered = (flagId: string): boolean => {
+  const flags = getStoryFlags();
+  const flag = flags.find(flag => flag.id === flagId);
   return flag ? flag.discovered : false;
 };
 
-// Add a story flag
-export const addStoryFlag = (flagId: string): boolean => {
-  if (!window.JonahConsole?.storyFlags) {
-    initializeStoryFlags();
-  }
+// Discover a story flag
+export const discoverStoryFlag = (flagId: string): boolean => {
+  const flags = getStoryFlags();
+  const flagIndex = flags.findIndex(flag => flag.id === flagId);
   
-  const flag = window.JonahConsole.storyFlags.find((f: StoryFlag) => f.id === flagId);
-  if (flag && !flag.discovered) {
-    flag.discovered = true;
-    return true;
-  }
-  
-  return false;
-};
-
-// Get all discovered story flags
-export const getDiscoveredStoryFlags = (): StoryFlag[] => {
-  if (!window.JonahConsole?.storyFlags) {
-    initializeStoryFlags();
-  }
-  
-  return window.JonahConsole.storyFlags.filter((f: StoryFlag) => f.discovered);
-};
-
-// Get details of a specific story flag
-export const getStoryFlagDetails = (flagId: string): string => {
-  if (!window.JonahConsole?.storyFlags) {
-    initializeStoryFlags();
-  }
-  
-  const flag = window.JonahConsole.storyFlags.find((f: StoryFlag) => f.id === flagId);
-  if (flag && flag.discovered) {
-    return flag.description;
-  }
-  
-  return "You haven't discovered this story flag yet.";
-};
-
-// Print discovered story flags to console with styling
-export const printDiscoveredStoryFlags = (): void => {
-  if (!window.JonahConsole?.storyFlags) {
-    initializeStoryFlags();
-  }
-  
-  const discoveredFlags = window.JonahConsole.storyFlags.filter((f: StoryFlag) => f.discovered);
-  
-  if (discoveredFlags.length === 0) {
-    console.log('%cNo story flags discovered yet.', 'color: #8B3A40; font-size: 14px;');
-    return;
-  }
-  
-  console.log('%c=== DISCOVERED STORY FLAGS ===', 'color: #8B3A40; font-size: 16px; font-weight: bold;');
-  discoveredFlags.forEach((flag: StoryFlag) => {
-    console.log(`%c${flag.name}: %c${flag.description}`, 'color: #8B3A40; font-size: 14px; font-weight: bold;', 'color: #CCCCCC; font-size: 14px;');
-  });
-};
-
-// Add discoveryStory function to window
-export const setupStoryFunction = () => {
-  window.discoverStoryFlag = function(flagId: string): boolean {
-    if (!window.JonahConsole?.storyFlags) {
-      initializeStoryFlags();
-    }
-    
-    const flag = window.JonahConsole.storyFlags.find((f: StoryFlag) => f.id === flagId);
-    if (flag) {
-      if (!flag.discovered) {
-        flag.discovered = true;
-        console.log(`%cNew story flag discovered: ${flag.id}`, 'color: #8B3A40; font-size: 14px;');
-        return true;
-      } else {
-        console.log(`%cYou've already discovered: ${flag.id}`, 'color: #8B3A40; font-size: 14px;');
-      }
-    }
-    
+  if (flagIndex === -1) {
     return false;
-  };
+  }
+  
+  if (flags[flagIndex].discovered) {
+    return false; // Already discovered
+  }
+  
+  flags[flagIndex].discovered = true;
+  localStorage.setItem(STORY_FLAGS_KEY, JSON.stringify(flags));
+  return true;
 };
 
-// Export for initialization
-export const initializeClueSystem = () => {
-  initializeStoryFlags();
-  setupStoryFunction();
+// Get story flag description
+export const getStoryFlagDescription = (flagId: string): string | null => {
+  const flags = getStoryFlags();
+  const flag = flags.find(flag => flag.id === flagId);
+  return flag ? flag.description : null;
 };
+
+// Count discovered story flags
+export const countDiscoveredFlags = (): number => {
+  const flags = getStoryFlags();
+  return flags.filter(flag => flag.discovered).length;
+};
+
+// Get a random undiscovered flag hint
+export const getRandomStoryFlagHint = (): string => {
+  const flags = getStoryFlags();
+  const undiscoveredFlags = flags.filter(flag => !flag.discovered);
+  
+  if (undiscoveredFlags.length === 0) {
+    return "You've discovered all the story flags. The full story is now available to you.";
+  }
+  
+  const randomFlag = undiscoveredFlags[Math.floor(Math.random() * undiscoveredFlags.length)];
+  return `Hidden flag: ${randomFlag.name}. ${randomFlag.description}`;
+};
+
+// Set up story flag discovery through console command
+export const setupStoryFlagCommands = () => {
+  // If window object is not available, return early
+  if (typeof window === 'undefined') return;
+
+  // Define discover_flag command
+  window.discoveryFlag = function(flagId: string) {
+    const discovered = discoverStoryFlag(flagId);
+    if (discovered) {
+      return `Story flag discovered: ${flagId}`;
+    }
+    return "Flag not found or already discovered.";
+  };
+
+  // Initialize story flags at startup
+  initializeStoryFlags();
+};
+
+// Initialize story flags when this module is imported
+setupStoryFlagCommands();
+
+// Declare global window type
+declare global {
+  interface Window {
+    discoveryFlag: (flagId: string) => string;
+  }
+}

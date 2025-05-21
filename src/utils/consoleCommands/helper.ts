@@ -7,6 +7,15 @@ import { UserState } from "@/hooks/useTrackingSystem";
 
 type TrackEventFunction = (eventName: string) => void;
 
+// Augment the Window interface to include the console commands
+declare global {
+  interface Window {
+    help: () => string;
+    clear: () => string;
+    echo_me: (text: string) => string;
+  }
+}
+
 // Export the helper functions object
 export const helperFunctions = {
   setupHelperFunctions: (
@@ -33,7 +42,7 @@ Exploration Commands:
 `;
 
       // Show advanced commands for users with higher trust
-      if ((userState.trustScore || 0) > 30) {
+      if (userState.trust?.score > 30) {
         helpText += `
 Advanced Commands:
 - newsFlash() - Check for news updates
@@ -44,7 +53,7 @@ Advanced Commands:
       }
 
       // Show developer commands for high trust users
-      if ((userState.trustScore || 0) > 70) {
+      if (userState.trust?.score > 70) {
         helpText += `
 Developer Commands:
 - decode("string") - Attempt to decode a string

@@ -1,17 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
-import { getRevealedEntries } from '@/utils/jonahAdvancedBehavior/testament';
-import { getCurrentTrustLevel } from '@/utils/jonahAdvancedBehavior/trustSystem';
-
-// Create a TypeScript interface for testament entries
-interface TestamentEntry {
-  title: string;
-  content: string;
-  timestamp: number;
-  unlockCondition?: string;
-  unlockValue?: number;
-  revealed?: boolean;
-}
+import { getRevealedEntries, getCurrentTrustLevel } from '@/utils/jonahAdvancedBehavior/testament';
+import { TestamentEntry } from '@/utils/jonahAdvancedBehavior/types';
 
 const TestamentPage: React.FC = () => {
   const [entries, setEntries] = useState<TestamentEntry[]>([]);
@@ -24,7 +14,9 @@ const TestamentPage: React.FC = () => {
       try {
         // Get revealed testament entries
         const revealedEntries = getRevealedEntries();
-        setEntries(revealedEntries);
+        
+        // Set entries with the correct type
+        setEntries(revealedEntries as TestamentEntry[]);
         
         // Check if finale entry is unlocked
         const hasFinaleEntry = revealedEntries.some(entry => 

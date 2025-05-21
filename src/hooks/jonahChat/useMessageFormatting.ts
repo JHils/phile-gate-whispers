@@ -24,7 +24,7 @@ export function useMessageFormatting() {
     } else if (content.includes('?') && (mood === 'confusion' || mood === 'curiosity')) {
       setResponseStyle('technical');
     } else if (content.length > 150 && mood === 'trust') {
-      setResponseStyle('elaborate');
+      setResponseStyle('elaborate' as ResponseStyle);
     } else {
       setResponseStyle('direct');
     }

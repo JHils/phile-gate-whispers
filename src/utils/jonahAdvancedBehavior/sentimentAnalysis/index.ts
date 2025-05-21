@@ -5,8 +5,8 @@
 
 import { analyze } from './analyzer';
 import { generateEmotionalResponse } from './responseGenerator';
+import { analyzeEmotion } from '../types';
 
 // Re-export analyze as analyzeEmotion for backward compatibility
-export const analyzeEmotion = analyze;
+export { analyze, generateEmotionalResponse, analyzeEmotion };
 
-export { analyze, generateEmotionalResponse };

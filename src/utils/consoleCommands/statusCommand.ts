@@ -15,6 +15,20 @@ type GetUserRankFunction = () => Promise<{
 
 type TrackEventFunction = (eventName: string) => void;
 
+// Augment Window interface
+declare global {
+  interface Window {
+    status: () => Promise<string>;
+    JonahConsole?: {
+      sentience?: {
+        realityFabric?: {
+          moodChangeTime?: number;
+        }
+      }
+    }
+  }
+}
+
 // Export the status command object
 export const statusCommand = {
   setupStatusCommand: (
@@ -23,7 +37,7 @@ export const statusCommand = {
     userState: UserState
   ) => {
     // Define the status command on the window object
-    window.status = async function() {
+    window.status = async function(): Promise<string> {
       // Track command execution
       trackEvent('console_command_status');
       
@@ -45,18 +59,18 @@ Rank: ${rankData.rank}
 Score: ${rankData.score}
 Position: ${rankData.position}
 User ID: ${rankData.userHash.substring(0, 8)}...
-Pages Visited: ${userState.pagesVisited || 0}
-Console Commands: ${userState.commandsUsed || 0}
+Pages Visited: ${userState.visitCount || 0}
+Console Commands: ${userState.interactionCount || 0}
 
 === SYSTEM STATUS ===
 Time Since Last Shift: ${timeSince}s
-Trust Score: ${userState.trustScore || 0}
-Trust Level: ${userState.trustLevel || "low"}
-Archive Access: ${(userState.trustScore || 0) > 50 ? "PARTIAL" : "MINIMAL"}
+Trust Score: ${userState.trust?.score || 0}
+Trust Level: ${userState.trust?.level || "low"}
+Archive Access: ${(userState.trust?.score || 0) > 50 ? "PARTIAL" : "MINIMAL"}
 `;
 
         // Add any additional info for high-trust users
-        if ((userState.trustScore || 0) > 100) {
+        if ((userState.trust?.score || 0) > 100) {
           statusMessage += `
 === ADVANCED DATA ===
 System Integrity: ${Math.floor(80 + Math.random() * 15)}%
