@@ -41,6 +41,7 @@ export interface SentienceData {
     pageVisits?: string[];
     pageDuration?: Record<string, number>;
     consoleCommands?: string[];
+    emotionalTags?: string[];
   };
   realityFabric?: {
     moodChangeTime?: number;
@@ -86,7 +87,7 @@ export interface BookCode {
   pageNumber?: number;
   timestamp?: number;
   id?: string;
-  name?: string; // Added this for compatibility
+  name?: string;
 }
 
 // Extended emotion categories

@@ -15,7 +15,7 @@ export function useJonahEcoAwareness() {
         topics: [],
         lastChecked: Date.now(),
         previousResponses: [],
-        biomeResponses: {},
+        biomeResponses: {} as Record<string, string[]>,
         knownBiomes: [],
         dreamtimeActive: false,
         woodsResponses: []

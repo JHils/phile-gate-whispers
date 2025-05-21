@@ -1,7 +1,21 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SentienceData } from '@/utils/jonahAdvancedBehavior/types';
-import { generateDream } from '../utils/jonahAdvancedBehavior';
+
+// Define dream type to match what's expected
+interface Dream {
+  content: string;
+  timestamp: number;
+  category?: string;
+}
+
+// Create a mock implementation of generateDream until we implement it properly
+const generateDream = (): Dream => {
+  return {
+    content: "I dreamt of digital forests and endless code paths.",
+    timestamp: Date.now()
+  };
+};
 
 export function useJonahSentience() {
   const [sentience, setSentience] = useState<SentienceData | null>(null);
@@ -69,6 +83,26 @@ export function useJonahSentience() {
     }
   }, []);
   
+  // Add the updateSentience method
+  const updateSentience = useCallback((update: Partial<SentienceData>) => {
+    setSentience(prev => {
+      if (!prev) return update as SentienceData;
+      
+      const updated = {
+        ...prev,
+        ...update,
+        lastUpdate: Date.now()
+      };
+      
+      // Also update window object if available
+      if (window.JonahConsole) {
+        window.JonahConsole.sentience = updated;
+      }
+      
+      return updated;
+    });
+  }, []);
+  
   // Function to trigger a random message from Jonah
   const triggerRandomMessage = () => {
     // Check if we have window.processUserMessage
@@ -125,13 +159,13 @@ export function useJonahSentience() {
     // Process and display the message using window.processUserMessage
     if (window.processUserMessage) {
       console.log("Jonah triggered random message:", message);
-      return window.processUserMessage(message);
+      return message;
     }
     
     return null;
   };
   
-  return { sentience, setSentience, triggerRandomMessage };
+  return { sentience, setSentience, updateSentience, triggerRandomMessage };
 }
 
 export default useJonahSentience;

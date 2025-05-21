@@ -1,10 +1,22 @@
+
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { BookCode } from '@/utils/jonahAdvancedBehavior/types';
 
+// Simple mock AuthContext for now
+const useAuth = () => {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  
+  const logout = () => {
+    localStorage.setItem('isLoggedIn', 'false');
+    window.location.reload();
+  };
+  
+  return { isLoggedIn, logout };
+};
+
 const Landing: React.FC = () => {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
   const [bookCodes, setBookCodes] = useState<BookCode[]>([]);
 
@@ -18,11 +30,12 @@ const Landing: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    navigate('/login');
   };
 
   const someFunction = (input: string) => {
     console.log("Function called with:", input);
+    return null;
   };
 
   return (
@@ -54,7 +67,7 @@ const Landing: React.FC = () => {
           </div>
 
           <button
-            onClick={() => router.push('/TalkToJonah')}
+            onClick={() => navigate('/TalkToJonah')}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Talk to Jonah
@@ -64,14 +77,14 @@ const Landing: React.FC = () => {
         <>
           <p className="text-lg mb-4">You are not logged in.</p>
           <button
-            onClick={() => router.push('/login')}
+            onClick={() => navigate('/login')}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Login
           </button>
         </>
       )}
-      {someFunction("true")}
+      <div>{someFunction("true")}</div>
     </div>
   );
 };

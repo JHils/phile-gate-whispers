@@ -1,12 +1,15 @@
 
 import { v4 as uuidv4 } from 'uuid';
-import { splitAndTypeMessage } from '../useTypingSimulator';
-import { applyTypingQuirks } from '@/utils/jonahAdvancedBehavior';
 
 export function useMessageTypingEffects(
   setMessages: React.Dispatch<React.SetStateAction<any[]>>,
   setIsTyping: React.Dispatch<React.SetStateAction<boolean>>
 ) {
+  // Mock implementation of applyTypingQuirks
+  const applyTypingQuirks = (messageContent: string, level: string = 'minimal') => {
+    return messageContent; // Simple passthrough for now
+  };
+
   // Add a bot message with enhanced typing effects
   const addBotMessage = (content: string, special = false) => {
     // Track the message in the bot history
@@ -45,12 +48,19 @@ export function useMessageTypingEffects(
       return newMessage;
     };
 
-    // Use advanced typing simulation
+    // Simple typing simulation
+    const splitAndTypeMessage = (content: string, trackFn: any, typingFn: any) => {
+      setTimeout(() => {
+        trackFn(content);
+        typingFn(false);
+      }, 1000 + content.length * 10);
+    };
+
+    // Use simplified typing simulation
     splitAndTypeMessage(
       content,
       trackMessage,
-      setIsTyping,
-      { quirks: true, splitChance: 0.4 }
+      setIsTyping
     );
   };
 

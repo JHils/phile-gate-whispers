@@ -1,3 +1,4 @@
+
 // Basic implementation of memory paranoia console commands
 export interface MemoryParanoiaState {
   level: number;

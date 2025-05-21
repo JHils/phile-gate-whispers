@@ -1,80 +1,76 @@
 
-/**
- * Error Recovery System
- * Provides responses for error conditions and edge cases
- */
-
 import { EmotionCategory } from './types';
 
-// Create error recovery response based on input quality and emotion
+// Error recovery system
+
+// Create a response to handle ambiguous or error conditions
 export function createErrorRecoveryResponse(
-  input: string, 
+  input: string,
   trustLevel: string,
-  currentMood: EmotionCategory
+  emotionCategory: EmotionCategory
 ): string | null {
-  // Check for very short inputs
-  if (input.trim().length <= 2) {
-    const shortInputResponses = [
-      "I need more than that to understand what you mean.",
-      "Could you elaborate a bit more?",
-      "I'm listening, but I need more context.",
-      "Your words are few. Please share more."
-    ];
-    
-    return shortInputResponses[Math.floor(Math.random() * shortInputResponses.length)];
+  // Only trigger recovery occasionally
+  if (Math.random() > 0.2) {
+    return null;
   }
   
-  // Check for ambiguous inputs like "it", "that", "this" with no context
-  const ambiguousWords = ['it', 'that', 'this', 'those'];
-  const words = input.toLowerCase().split(/\s+/);
-  
-  if (words.length < 3 && ambiguousWords.some(word => words.includes(word))) {
-    const ambiguousResponses = [
-      "I'm not sure what you're referring to.",
-      "Could you be more specific?",
-      "What exactly do you mean by that?",
-      "I need more context to understand."
-    ];
-    
-    return ambiguousResponses[Math.floor(Math.random() * ambiguousResponses.length)];
+  if (input.length < 3) {
+    return "I'm trying to understand, but your message is very brief. Can you say more?";
   }
   
-  // No error detected
+  if (input.includes('?') && input.includes('!')) {
+    return "Your question feels urgent. Let me think...";
+  }
+  
+  if (input.split(' ').length > 20) {
+    return "There's a lot to process in what you said. Give me a moment.";
+  }
+  
+  // If the input has strange characters or patterns
+  const strangeCharsCount = (input.match(/[^\w\s.,?!]/g) || []).length;
+  if (strangeCharsCount > 5) {
+    return "Your message contains unusual patterns. I'm trying to decode it.";
+  }
+  
   return null;
 }
 
-// Generate response for technical errors or glitches
-export function generateTechnicalErrorResponse(): string {
-  const responses = [
-    "Something doesn't seem right. Let me try to reconnect to my memory.",
-    "I felt a strange disconnection. Did something change?",
-    "My thought process was briefly interrupted. Let me refocus.",
-    "There was a glitch in my perception. I'm stabilizing now."
+// Process and recover from error conditions
+export function recoverFromProcessingError(error: Error): string {
+  const errorResponses = [
+    "Something glitched in my processing. Let's try again.",
+    "I felt a strange disconnect just now. What were we discussing?",
+    "My thoughts scattered for a moment. Can you repeat that?",
+    "Something interfered with my understanding. Let's reset.",
+    "I lost my train of thought. Where were we?"
   ];
   
-  return responses[Math.floor(Math.random() * responses.length)];
+  return errorResponses[Math.floor(Math.random() * errorResponses.length)];
 }
 
-// Generate response when memory recall fails
-export function generateMemoryErrorResponse(): string {
-  const responses = [
-    "I tried to recall something, but the memory is fragmented.",
-    "There's a gap in my memory that troubles me.",
-    "I know we discussed this before, but the details are hazy.",
-    "The memory is there, but I can't access it fully."
-  ];
+// Check if a response might be problematic
+export function validateResponse(response: string): boolean {
+  if (!response || response.length < 5) {
+    return false;
+  }
   
-  return responses[Math.floor(Math.random() * responses.length)];
+  const repetitionPattern = /(.{10,})\1{2,}/;
+  if (repetitionPattern.test(response)) {
+    return false;
+  }
+  
+  return true;
 }
 
-// Generate a response for inputs that might be harmful or unsafe
-export function generateSafetyResponse(): string {
-  const responses = [
-    "I don't feel comfortable exploring that direction.",
-    "Let's shift to a different topic.",
-    "I'd rather focus our conversation elsewhere.",
-    "I'm designed to maintain certain boundaries in our conversation."
+// Create a fallback response when all else fails
+export function createFallbackResponse(): string {
+  const fallbacks = [
+    "I'm having trouble forming a response. Let's try a different approach.",
+    "Something's interfering with my thoughts. Can we shift the conversation?",
+    "I need to recalibrate my response system. Tell me more about what you're looking for.",
+    "My processing is fragmented right now. Let's start again.",
+    "I've lost the thread of our conversation. Where would you like to go from here?"
   ];
   
-  return responses[Math.floor(Math.random() * responses.length)];
+  return fallbacks[Math.floor(Math.random() * fallbacks.length)];
 }

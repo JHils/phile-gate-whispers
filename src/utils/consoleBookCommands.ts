@@ -1,4 +1,45 @@
+
 import { BookCode } from '@/utils/jonahAdvancedBehavior/types';
+
+// Initialize book codes function
+export function initializeBookCodes() {
+  try {
+    // Check if codes already exist
+    let codes = JSON.parse(localStorage.getItem('jonahBookCodes') || '[]');
+    
+    if (codes.length === 0) {
+      // Add starter codes
+      codes = [
+        {
+          id: "fragment-alpha",
+          code: "alpha-001",
+          name: "The Beginning",
+          unlocked: true
+        },
+        {
+          id: "fragment-beta",
+          code: "beta-002",
+          name: "The Journey",
+          unlocked: false
+        },
+        {
+          id: "fragment-gamma",
+          code: "gamma-003",
+          name: "The End",
+          unlocked: false
+        }
+      ];
+      
+      // Store back to localStorage
+      localStorage.setItem('jonahBookCodes', JSON.stringify(codes));
+    }
+    
+    return codes;
+  } catch (e) {
+    console.error("Error initializing book codes:", e);
+    return [];
+  }
+}
 
 // Basic implementation of console book commands
 export function addConsoleBookCommands(console: any) {
@@ -30,6 +71,7 @@ export function addConsoleBookCommands(console: any) {
         
         // Add new code
         codes.push({
+          id: `code-${Date.now()}`,
           code: code,
           unlocked: true,
           timestamp: Date.now()
@@ -86,45 +128,8 @@ export function addConsoleBookCommands(console: any) {
     name: 'addStarterBookCodes',
     help: 'Add starter book codes',
     func: () => {
-      try {
-        // Get existing codes
-        let codes = JSON.parse(localStorage.getItem('jonahBookCodes') || '[]');
-        
-        // Check if codes already exist
-        if (codes.length > 0) {
-          console.log("Starter book codes already exist.");
-          return;
-        }
-        
-        // Add starter codes
-        codes = [
-          {
-            id: "fragment-alpha",
-            code: "alpha-001",
-            name: "The Beginning",
-            unlocked: true
-          },
-          {
-            id: "fragment-beta",
-            code: "beta-002",
-            name: "The Journey",
-            unlocked: false
-          },
-          {
-            id: "fragment-gamma",
-            code: "gamma-003",
-            name: "The End",
-            unlocked: false
-          }
-        ];
-        
-        // Store back to localStorage
-        localStorage.setItem('jonahBookCodes', JSON.stringify(codes));
-        
-        console.log("Starter book codes added.");
-      } catch (e) {
-        console.error("Error adding starter book codes:", e);
-      }
+      const codes = initializeBookCodes();
+      console.log("Starter book codes added.");
     }
   });
 }

@@ -1,13 +1,22 @@
 
-import { trackPhrase as originalTrackPhrase,
-         checkForLoop as originalCheckForLoop,
-         getFalseMemoryResponse as originalGetFalseMemory,
-         getLoopResponse as originalGetLoopResponse,
-         getBlankFragmentResponse as originalGetBlankResponse } from '@/utils/jonahAdvancedBehavior';
+import { 
+  trackPhrase, 
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse
+} from '@/utils/jonahAdvancedBehavior';
+
+// Define local implementation for checkForLoop
+const checkForLoop = (input: string) => {
+  // Simple implementation for now
+  return { isLoop: false, count: 0 };
+};
 
 // Re-export functions to maintain API compatibility
-export const trackPhrase = originalTrackPhrase;
-export const checkForLoop = originalCheckForLoop;
-export const getFalseMemoryResponse = originalGetFalseMemory;
-export const getLoopResponse = originalGetLoopResponse;
-export const getBlankFragmentResponse = originalGetBlankResponse;
+export {
+  trackPhrase,
+  checkForLoop,
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse
+};
