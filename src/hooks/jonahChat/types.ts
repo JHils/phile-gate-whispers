@@ -1,5 +1,5 @@
 
-import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionCategory, EmotionalTrend } from '@/utils/jonahAdvancedBehavior/types';
 
 export interface ChatMessage {
   id: string;

@@ -26,7 +26,7 @@ import { checkForRecurringSymbols, processEmotionalInput, getLayeredEmotionalRes
 import { getEchoPhrase } from '../useEchoSystem';
 import { getDreamReturnResponse } from '../useDreamSystem';
 import { getResponseTemplate, generateEmotionalResponse } from '../useVocabularySystem';
-import { createEmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
 // Import from the refactored modules
 import { 
@@ -248,7 +248,7 @@ export function useResponseGeneration(
     }
     // Check for basic emotional response as fallback
     else if (Math.random() < 0.4) {
-      const basicEmotionalResponse = getEmotionalResponse(createEmotionalState('neutral'));
+      const basicEmotionalResponse = getEmotionalResponse(emotionalState);
       if (basicEmotionalResponse) {
         response = basicEmotionalResponse;
       }

@@ -65,8 +65,10 @@ const JonahChatHeader: React.FC<JonahChatHeaderProps> = ({
   const getTrendIndicator = () => {
     switch (emotionalTrend) {
       case 'improving':
+      case 'intensifying':
         return '↗';
       case 'deteriorating':
+      case 'diminishing':
         return '↘';
       default:
         return '→';

@@ -11,4 +11,4 @@ export {
 } from './responseGenerator';
 
 // Re-export types
-export type { PatternAnalysis, UnsaidInterpretation, EmotionResponses } from './types';
+export type { PatternAnalysis, UnsaidInterpretation } from './types';

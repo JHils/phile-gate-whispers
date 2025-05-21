@@ -1,6 +1,6 @@
 
 import React, { useRef, useEffect } from 'react';
-import { EmotionCategory, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
 
 interface Message {
   id: string;
@@ -15,7 +15,7 @@ interface EnhancedJonahChatMessagesProps {
   messageWeight: 'light' | 'medium' | 'heavy';
   responseStyle: ResponseStyle;
   jonahMood: EmotionCategory;
-  emotionalTrend: 'improving' | 'stable' | 'deteriorating';
+  emotionalTrend: EmotionalTrend;
   messagesEndRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -75,12 +75,12 @@ const EnhancedJonahChatMessages: React.FC<EnhancedJonahChatMessagesProps> = ({
   };
 
   // Apply text effects based on emotion and trend
-  const applyTextEffects = (content: string, mood: EmotionCategory, trend: 'improving' | 'stable' | 'deteriorating'): React.ReactNode => {
+  const applyTextEffects = (content: string, mood: EmotionCategory, trend: EmotionalTrend): React.ReactNode => {
     // Simple processing for now - in a full implementation, this would be more advanced
     if (mood === 'paranoia' || mood === 'fear') {
       return content.split('\n').map((line, i) => (
         <React.Fragment key={i}>
-          <span className={trend === 'deteriorating' ? 'animate-pulse' : ''}>{line}</span>
+          <span className={trend === 'deteriorating' || trend === 'intensifying' ? 'animate-pulse' : ''}>{line}</span>
           {i < content.split('\n').length - 1 && <br />}
         </React.Fragment>
       ));
