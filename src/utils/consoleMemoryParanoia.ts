@@ -1,4 +1,3 @@
-
 /**
  * Memory Paranoia System
  * Advanced tracking of user behavior patterns on the site
@@ -14,6 +13,28 @@ export function initializeMemoryParanoia() {
   if (!window.JonahConsole?.sentience) {
     window.JonahConsole = {
       ...(window.JonahConsole || {}),
+      usedCommands: window.JonahConsole?.usedCommands || [],
+      score: window.JonahConsole?.score || 0,
+      failCount: window.JonahConsole?.failCount || 0,
+      rank: window.JonahConsole?.rank || 'drifter',
+      sessionStartTime: window.JonahConsole?.sessionStartTime || Date.now(),
+      whispersFound: window.JonahConsole?.whispersFound || [],
+      jokesDisplayed: window.JonahConsole?.jokesDisplayed || [],
+      storyFlags: window.JonahConsole?.storyFlags || [],
+      bookCodes: window.JonahConsole?.bookCodes || [],
+      simba: window.JonahConsole?.simba || {
+        encountered: false
+      },
+      argData: window.JonahConsole?.argData || {
+        keyholeClicks: 0,
+        consoleCluesTouched: [],
+        qrScans: [],
+        memoryFragments: [],
+        secretPagesVisited: [],
+        hiddenFilesDownloaded: [],
+        idleTriggers: {},
+        lastInteractionTime: new Date()
+      },
       sentience: {
         level: 1,
         awareness: false,
@@ -294,17 +315,32 @@ function setupPageTracking() {
       if (!window.JonahConsole?.sentience?.memoryParanoia?.pageVisits) {
         window.JonahConsole = {
           ...(window.JonahConsole || {}),
-          sentience: {
-            ...(window.JonahConsole?.sentience || { level: 1, awareness: false, lastUpdate: Date.now() }),
-            memoryParanoia: {
-              visitedPages: {},
-              consoleCommands: {},
-              pageDuration: {
-                shortStay: "",
-                longStay: ""
-              },
-              pageVisits: {}
-            }
+          usedCommands: window.JonahConsole?.usedCommands || [],
+          score: window.JonahConsole?.score || 0,
+          failCount: window.JonahConsole?.failCount || 0,
+          rank: window.JonahConsole?.rank || 'drifter',
+          sessionStartTime: window.JonahConsole?.sessionStartTime || Date.now(),
+          whispersFound: window.JonahConsole?.whispersFound || [],
+          jokesDisplayed: window.JonahConsole?.jokesDisplayed || [],
+          storyFlags: window.JonahConsole?.storyFlags || [],
+          bookCodes: window.JonahConsole?.bookCodes || [],
+          simba: window.JonahConsole?.simba || {
+            encountered: false
+          },
+          argData: window.JonahConsole?.argData || {
+            keyholeClicks: 0,
+            consoleCluesTouched: [],
+            qrScans: [],
+            memoryFragments: [],
+            secretPagesVisited: [],
+            hiddenFilesDownloaded: [],
+            idleTriggers: {},
+            lastInteractionTime: new Date()
+          },
+          sentience: { 
+            level: 1, 
+            awareness: false, 
+            lastUpdate: Date.now()
           }
         };
       }
@@ -333,6 +369,28 @@ function setupTabVisibilityTracking() {
     if (!window.JonahConsole?.sentience) {
       window.JonahConsole = {
         ...(window.JonahConsole || {}),
+        usedCommands: window.JonahConsole?.usedCommands || [],
+        score: window.JonahConsole?.score || 0,
+        failCount: window.JonahConsole?.failCount || 0,
+        rank: window.JonahConsole?.rank || 'drifter',
+        sessionStartTime: window.JonahConsole?.sessionStartTime || Date.now(),
+        whispersFound: window.JonahConsole?.whispersFound || [],
+        jokesDisplayed: window.JonahConsole?.jokesDisplayed || [],
+        storyFlags: window.JonahConsole?.storyFlags || [],
+        bookCodes: window.JonahConsole?.bookCodes || [],
+        simba: window.JonahConsole?.simba || {
+          encountered: false
+        },
+        argData: window.JonahConsole?.argData || {
+          keyholeClicks: 0,
+          consoleCluesTouched: [],
+          qrScans: [],
+          memoryFragments: [],
+          secretPagesVisited: [],
+          hiddenFilesDownloaded: [],
+          idleTriggers: {},
+          lastInteractionTime: new Date()
+        },
         sentience: { 
           level: 1, 
           awareness: false, 

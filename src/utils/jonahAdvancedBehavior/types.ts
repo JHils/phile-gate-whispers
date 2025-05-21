@@ -59,6 +59,20 @@ export function createEmotionalState(
   };
 }
 
+// NewsAwareness interface
+export interface NewsAwareness {
+  lastChecked: number;
+  currentResponses: Array<{
+    topic: string;
+    headline: string;
+    response: string;
+    timestamp: number;
+  }>;
+  weatherCondition: string;
+  weatherResponse: string | null;
+  moodShift: 'normal' | 'anxious' | 'somber' | 'agitated';
+}
+
 // Expanded SentienceData interface with all required properties
 export interface SentienceData {
   level: number;
@@ -106,10 +120,13 @@ export interface SentienceData {
     currentMood?: string;
     moodHistory?: Array<{mood: string, timestamp: number}>;
     anomalyCount?: number;
+    anomalies?: string[];
     journal?: Array<{entryId: number, timestamp: number, content: string}>;
+    crossSiteWhispers?: string[];
   };
   predictionResponses?: string[];
   usedPredictionResponses?: string[];
+  newsAwareness?: NewsAwareness;
 }
 
 // Define StoryFlag interface

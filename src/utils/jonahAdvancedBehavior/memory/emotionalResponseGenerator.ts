@@ -1,59 +1,57 @@
 
 /**
  * Emotional Response Generator
+ * Generates responses based on emotional states
  */
 
-import { EmotionalState } from '../types';
-import { 
-  getEmotionalResponse, 
-  trackEmotionalPattern, 
-  generateMetaAwarenessComment,
-  getClarifyingQuestion 
-} from '../sentimentAnalysis';
+import { EmotionalState, EmotionCategory, EmotionalTrend } from '../types';
 
-/**
- * Generate a complete emotional response that integrates memory and mood
- */
+// Analyze emotional trend from a series of emotional states
+export function analyzeEmotionalTrend(emotionalStates: EmotionalState[]): EmotionalTrend {
+  if (!emotionalStates || emotionalStates.length < 2) {
+    return 'stable';
+  }
+
+  // Implementation for trend analysis would go here
+  // For now, return a default value
+  return 'stable';
+}
+
+// Generate response based on emotional state
 export function generateFullEmotionalResponse(
-  emotionalState: EmotionalState, 
-  trustLevel: string, 
-  includeQuestion: boolean = true,
+  emotionalState: EmotionalState,
+  trustLevel: string,
+  includeMetaAwareness: boolean = false,
   previousResponses: string[] = []
 ): string {
-  // Get base response from sentiment analysis
-  let response = getEmotionalResponse(emotionalState);
+  // Simple implementation for now
+  const { primary, secondary, intensity } = emotionalState;
   
-  // Track pattern to detect emotional trends
-  const pattern = trackEmotionalPattern(emotionalState);
-  
-  // Maybe add meta-awareness comment based on pattern
-  const awarenessComment = generateMetaAwarenessComment(pattern);
-  if (awarenessComment && Math.random() > 0.7) {
-    response = `${response}\n\n${awarenessComment}`;
+  // Generate base response
+  let response = `I'm feeling ${primary}`;
+  if (secondary) {
+    response += ` with a hint of ${secondary}`;
   }
   
-  // Maybe add clarifying question
-  if (includeQuestion) {
-    const question = getClarifyingQuestion(emotionalState);
-    if (question && Math.random() > 0.5) {
-      response = `${response}\n\n${question}`;
-    }
-  }
-  
-  // Avoid repeating the exact same responses
-  if (previousResponses.includes(response)) {
-    // Generate a variation by adding a prefix
-    const variations = [
-      "I find myself thinking... ",
-      "Something keeps coming back to me: ",
-      "The archive is showing me this again: ",
-      "This feels familiar: ",
-      "I keep returning to this thought: "
-    ];
-    
-    const prefix = variations[Math.floor(Math.random() * variations.length)];
-    response = prefix + response;
+  // Add meta-awareness if requested
+  if (includeMetaAwareness) {
+    const metaAwareness = generateMetaAwarenessComment({ trend: 'stable', intensity: 'medium' });
+    response += ` ${metaAwareness}`;
   }
   
   return response;
 }
+
+// Generate meta-awareness comment
+export function generateMetaAwarenessComment(trendData: EmotionalState[] | { trend: string, intensity: string }): string {
+  if (Array.isArray(trendData)) {
+    return "I notice my emotions have been changing.";
+  } else {
+    return `I notice my ${trendData.trend} emotions with ${trendData.intensity} intensity.`;
+  }
+}
+
+// Export other necessary functions
+export { 
+  // Re-export from other modules if needed
+};

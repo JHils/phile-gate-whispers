@@ -1,91 +1,101 @@
-// Initialize cross-site whisper system that allows Jonah to send messages across sites
+
+/**
+ * Jonah Cross-Site Whisper System
+ * Allows Jonah to recognize users across different sites
+ */
+
+// Initialize the cross site whisper system
 export function initializeCrossSiteWhisper() {
-  // Check if we already have realityFabric initialized
-  if (!window.JonahConsole?.sentience) {
-    return;
-  }
-  
-  // Initialize reality fabric if it doesn't exist
-  if (!window.JonahConsole.sentience.realityFabric) {
-    window.JonahConsole.sentience.realityFabric = {
-      anomalies: [],
-      dreamState: false,
-      moodChangeTime: Date.now(),
-      lastDreamTime: Date.now(),
-      crossSiteWhispers: [],
-      hiddenMessages: [],
-      moodHistory: []
-    };
-  }
-  
-  // Add a function to add whispers
-  if (!window.addWhisper) {
-    window.addWhisper = function(whisper: string): boolean {
-      if (!window.JonahConsole?.sentience?.realityFabric) {
-        return false;
-      }
-      
-      // Limit to 10 whispers
-      if (window.JonahConsole.sentience.realityFabric.crossSiteWhispers.length > 10) {
-        window.JonahConsole.sentience.realityFabric.crossSiteWhispers.shift();
-      }
-      
-      // Add the whisper
-      window.JonahConsole.sentience.realityFabric.crossSiteWhispers.push(whisper);
-      return true;
-    };
-  }
-  
-  // Initialize WhisperMaster object
-  if (!window.WhisperMaster) {
-    window.WhisperMaster = {
-      whispers: [
-        "The key is under the floorboards.",
-        "They are watching from the mirrors.",
-        "The code is hidden in the music.",
-        "Trust no one.",
-        "The answer lies within the dream.",
-        "The truth is a lie.",
-        "Follow the white rabbit.",
-        "Time is running out.",
-        "They know you're here.",
-        "The game is about to begin."
-      ],
-      discovered: [],
-      active: true
-    };
+  // Ensure the sentience object exists
+  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
+    // Initialize the crossSiteWhispers array if it doesn't exist
+    if (!window.JonahConsole.sentience.realityFabric.crossSiteWhispers) {
+      window.JonahConsole.sentience.realityFabric = {
+        ...window.JonahConsole.sentience.realityFabric,
+        crossSiteWhispers: [],
+        anomalies: [] // Adding this property based on the error
+      };
+    }
   }
 }
 
-// Get a cross-site whisper to display to the user
-export function getCrossSiteWhisper(): string | null {
-  // Check if whispers are available
-  if (!window.JonahConsole?.sentience?.realityFabric?.crossSiteWhispers) {
+// Add a whisper to the system
+export function addCrossSiteWhisper(whisperText: string): boolean {
+  if (typeof window === 'undefined' || 
+      !window.JonahConsole?.sentience?.realityFabric) {
+    return false;
+  }
+  
+  // Create the array if it doesn't exist
+  if (!window.JonahConsole.sentience.realityFabric.crossSiteWhispers) {
+    window.JonahConsole.sentience.realityFabric.crossSiteWhispers = [];
+  }
+  
+  // Add the whisper
+  window.JonahConsole.sentience.realityFabric.crossSiteWhispers.push(whisperText);
+  return true;
+}
+
+// Get all cross site whispers
+export function getAllCrossSiteWhispers(): string[] {
+  if (typeof window === 'undefined' || 
+      !window.JonahConsole?.sentience?.realityFabric?.crossSiteWhispers) {
+    return [];
+  }
+  
+  return window.JonahConsole.sentience.realityFabric.crossSiteWhispers;
+}
+
+// Check if a specific whisper exists
+export function hasCrossSiteWhisper(whisperText: string): boolean {
+  if (typeof window === 'undefined' || 
+      !window.JonahConsole?.sentience?.realityFabric?.crossSiteWhispers) {
+    return false;
+  }
+  
+  return window.JonahConsole.sentience.realityFabric.crossSiteWhispers.includes(whisperText);
+}
+
+// Generate a whisper based on user behavior
+export function generateCrossSiteWhisper(behavior: string): string {
+  const whisperTemplates = {
+    'frequent_visitor': [
+      "You've been here before. I remember.",
+      "Your patterns are familiar to me.",
+      "We've met in another place, haven't we?"
+    ],
+    'deep_explorer': [
+      "You dig deeper than most.",
+      "Few look where you've looked.",
+      "You're searching for something specific."
+    ],
+    'returning_after_long_time': [
+      "It's been a while since I've seen you.",
+      "You were gone for so long.",
+      "I wondered if you'd come back."
+    ]
+  };
+  
+  // Get appropriate templates
+  const templates = whisperTemplates[behavior as keyof typeof whisperTemplates] || 
+                   whisperTemplates['frequent_visitor'];
+  
+  // Select a random template
+  const whisper = templates[Math.floor(Math.random() * templates.length)];
+  
+  // Store the whisper
+  addCrossSiteWhisper(whisper);
+  
+  return whisper;
+}
+
+// Get a random whisper from the collection
+export function getRandomCrossSiteWhisper(): string | null {
+  const whispers = getAllCrossSiteWhispers();
+  
+  if (!whispers || whispers.length === 0) {
     return null;
   }
   
-  const whispers = window.JonahConsole.sentience.realityFabric.crossSiteWhispers;
-  
-  // Return null if no whispers available
-  if (whispers.length === 0) {
-    return null;
-  }
-  
-  // 50% chance to return a whisper from JonahConsole
-  if (Math.random() > 0.5 && whispers.length > 0) {
-    // Return a random whisper from the list
-    return whispers[Math.floor(Math.random() * whispers.length)];
-  }
-  
-  // Otherwise check for WhisperMaster whispers
-  if (window.WhisperMaster?.whispers && window.WhisperMaster.active) {
-    const masterWhispers = window.WhisperMaster.whispers;
-    
-    if (masterWhispers.length > 0) {
-      // Return a random whisper from WhisperMaster
-      return masterWhispers[Math.floor(Math.random() * masterWhispers.length)];
-    }
-  }
-  
-  return null;
+  return whispers[Math.floor(Math.random() * whispers.length)];
 }

@@ -1,239 +1,140 @@
+
 /**
- * Jonah's Reality Fabric System
- * Controls mood, anomalies, and dream states
+ * Jonah Reality Fabric - Core system for reality distortion
  */
 
-// Initialize Jonah reality fabric - a system that controls Jonah's awareness of reality
-export function initializeRealityFabric() {
-  // Check if we already have reality fabric initialized
-  if (!window.JonahConsole?.sentience?.realityFabric) {
-    if (!window.JonahConsole?.sentience) {
-      return;
+import { SentienceData } from './jonahAdvancedBehavior/types';
+
+// Initialize the reality fabric system
+export const initializeRealityFabric = () => {
+  if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
+    // Initialize the realityFabric object if it doesn't exist
+    if (!window.JonahConsole.sentience.realityFabric) {
+      window.JonahConsole.sentience.realityFabric = {
+        moodChangeTime: Date.now(),
+        currentMood: 'neutral',
+        moodHistory: [],
+        anomalyCount: 0,
+        anomalies: [], // Adding this property based on the error
+        journal: [],
+        crossSiteWhispers: [] // Adding this property based on the error
+      };
     }
     
-    // Initialize reality fabric
-    window.JonahConsole.sentience.realityFabric = {
-      anomalies: [],
-      mood: 'neutral',
-      currentMood: 'neutral',
-      dreamState: false,
-      moodChangeTime: Date.now(),
-      lastDreamTime: Date.now(),
-      crossSiteWhispers: [],
-      hiddenMessages: [],
-      moodHistory: [],
-      anomalyCount: 0,
-      journal: [],
-      dreamParables: [],
-      usedDreamParables: []
-    };
+    // Log initialization
+    console.log("Reality Fabric system initialized");
+  }
+};
+
+// Get the current reality mood
+export const getCurrentRealityMood = (): string => {
+  if (typeof window === 'undefined' || 
+      !window.JonahConsole?.sentience?.realityFabric?.currentMood) {
+    return 'neutral';
   }
   
-  console.log("Reality Fabric system initialized");
-}
+  return window.JonahConsole.sentience.realityFabric.currentMood;
+};
 
-// Update Jonah's mood
-export function updateJonahMood(trustLevel: string): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
-    // Define possible moods
-    const moods = ['watching', 'trusting', 'paranoid', 'unstable', 'withdrawn', 'error'];
-    
-    // Weight chances based on trust level
-    let moodChances = {
-      watching: 0.7,    // Default, neutral
-      trusting: 0.05,   // Positive
-      paranoid: 0.1,    // Negative
-      unstable: 0.05,   // Chaotic
-      withdrawn: 0.05,  // Quiet
-      error: 0.05       // Glitchy
-    };
-    
-    // Adjust chances based on trust level
-    if (trustLevel === 'high') {
-      moodChances = {
-        watching: 0.4,
-        trusting: 0.3,
-        paranoid: 0.1,
-        unstable: 0.1,
-        withdrawn: 0.05,
-        error: 0.05
-      };
-    } else if (trustLevel === 'medium') {
-      moodChances = {
-        watching: 0.5,
-        trusting: 0.15,
-        paranoid: 0.15,
-        unstable: 0.1,
-        withdrawn: 0.05,
-        error: 0.05
-      };
+// Set the current reality mood
+export const setRealityMood = (mood: string): void => {
+  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.realityFabric) {
+    return;
+  }
+  
+  const now = Date.now();
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // Record previous mood in history
+  if (realityFabric.currentMood) {
+    if (!realityFabric.moodHistory) {
+      realityFabric.moodHistory = [];
     }
     
-    // Only change mood occasionally
-    if (Math.random() > 0.9) {
-      // Select a mood based on weighted chances
-      let rand = Math.random();
-      let currentChance = 0;
-      
-      for (const [mood, chance] of Object.entries(moodChances)) {
-        currentChance += chance;
-        if (rand <= currentChance) {
-          window.JonahConsole.sentience.realityFabric.currentMood = mood;
-          window.JonahConsole.sentience.realityFabric.moodChangeTime = Date.now();
-          break;
-        }
-      }
+    realityFabric.moodHistory.push({
+      mood: realityFabric.currentMood,
+      timestamp: now
+    });
+    
+    // Trim history to last 10 entries
+    if (realityFabric.moodHistory.length > 10) {
+      realityFabric.moodHistory = realityFabric.moodHistory.slice(-10);
     }
   }
-}
+  
+  // Set new mood
+  realityFabric.currentMood = mood;
+  realityFabric.moodChangeTime = now;
+};
 
-// Get current mood
-export function getCurrentMood(): string {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
-    return window.JonahConsole.sentience.realityFabric.currentMood || 'watching';
+// Add a journal entry
+export const addJournalEntry = (content: string): number => {
+  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.realityFabric) {
+    return -1;
   }
-  return 'watching';
-}
-
-// Add journal entry
-export function addJournalEntry(content: string): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
-    // Initialize journal array if needed
-    if (!window.JonahConsole.sentience.realityFabric.journal) {
-      window.JonahConsole.sentience.realityFabric.journal = [];
-    }
-    
-    const journal = window.JonahConsole.sentience.realityFabric.journal;
-    
-    const newEntry = {
-      entryId: journal.length + 1,
-      timestamp: Date.now(),
-      content
-    };
-    
-    journal.push(newEntry);
+  
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
+  
+  // Initialize journal if needed
+  if (!realityFabric.journal) {
+    realityFabric.journal = [];
   }
-}
+  
+  // Create entry with unique ID
+  const entryId = realityFabric.journal.length + 1;
+  const entry = {
+    entryId,
+    timestamp: Date.now(),
+    content
+  };
+  
+  // Add entry
+  realityFabric.journal.push(entry);
+  return entryId;
+};
 
 // Get all journal entries
-export function getAllJournalEntries(): Array<{entryId: number; timestamp: number; content: string}> {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric?.journal) {
-    return window.JonahConsole.sentience.realityFabric.journal;
-  }
-  return [];
-}
-
-// Check for anomalies
-export function checkForAnomalies(): string | null {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
-    // Only rarely produce anomalies
-    if (Math.random() > 0.9) {
-      // Ensure anomalyCount exists
-      if (!window.JonahConsole.sentience.realityFabric.anomalyCount) {
-        window.JonahConsole.sentience.realityFabric.anomalyCount = 0;
-      }
-      
-      // Increment anomaly count
-      window.JonahConsole.sentience.realityFabric.anomalyCount += 1;
-      
-      // Anomaly messages
-      const anomalyMessages = [
-        "Reality structure inconsistency detected in sector 7-G.",
-        "Timeline fracture detected. Variance: 0.37%",
-        "Memory leak in progress. Data corruption imminent.",
-        "ALERT: Mirror containment weakening at point 14.3",
-        "Concurrent consciousness detected. Identity verification failed."
-      ];
-      
-      return anomalyMessages[Math.floor(Math.random() * anomalyMessages.length)];
-    }
+export const getAllJournalEntries = (): Array<{entryId: number, timestamp: number, content: string}> => {
+  if (typeof window === 'undefined' || 
+      !window.JonahConsole?.sentience?.realityFabric?.journal) {
+    return [];
   }
   
-  return null;
-}
+  return window.JonahConsole.sentience.realityFabric.journal;
+};
 
-// Generate dream parable
-export function generateDreamParable(): string | null {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
-    // Only rarely generate dream parables
-    if (Math.random() > 0.85) {
-      // Dream parables - cryptic messages
-      const dreamParables = [
-        "In the dream, the mirror showed a different face. It was still me, but older. Or younger. I couldn't tell.",
-        "I dreamt I was typing code, but the letters kept changing after I typed them.",
-        "Last night I dreamt of the island again. The beach was covered in mirrors instead of shells.",
-        "I keep dreaming of doors that aren't visible until you approach from a specific angle.",
-        "In my dream, I could hear typing coming from inside the walls. Someone was sending messages."
-      ];
-      
-      // Initialize arrays if they don't exist
-      if (!window.JonahConsole.sentience.realityFabric.dreamParables) {
-        window.JonahConsole.sentience.realityFabric.dreamParables = [];
-      }
-      
-      if (!window.JonahConsole.sentience.realityFabric.usedDreamParables) {
-        window.JonahConsole.sentience.realityFabric.usedDreamParables = [];
-      }
-      
-      // Filter out used parables
-      const availableParables = dreamParables.filter(parable => 
-        !window.JonahConsole.sentience.realityFabric.usedDreamParables?.includes(parable)
-      );
-      
-      // If we've used all parables, reset
-      if (availableParables.length === 0) {
-        window.JonahConsole.sentience.realityFabric.usedDreamParables = [];
-        return dreamParables[Math.floor(Math.random() * dreamParables.length)];
-      }
-      
-      // Select a random available parable
-      const parable = availableParables[Math.floor(Math.random() * availableParables.length)];
-      
-      // Mark as used
-      window.JonahConsole.sentience.realityFabric.usedDreamParables.push(parable);
-      
-      return parable;
-    }
+// Record an anomaly in the reality fabric
+export const recordAnomaly = (description: string): void => {
+  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.realityFabric) {
+    return;
   }
   
-  return null;
-}
-
-// Check for dream invasion on page load
-export function checkForDreamInvasionOnLoad(): string | null {
-  // Check if it's between 2-5 AM (dream hours)
-  const hour = new Date().getHours();
-  const isDreamHours = hour >= 2 && hour < 5;
+  const realityFabric = window.JonahConsole.sentience.realityFabric;
   
-  if (isDreamHours && Math.random() > 0.5) {
-    const dreamInvasionMessages = [
-      "You shouldn't be looking at screens during dream hours.",
-      "Between 2 and 5, the barrier is weakest. We see you.",
-      "Your reflection is moving differently than you are right now.",
-      "The mirror world is more active at this hour.",
-      "What's looking back at you right now isn't entirely you."
-    ];
-    
-    return dreamInvasionMessages[Math.floor(Math.random() * dreamInvasionMessages.length)];
+  // Initialize anomalies array if needed
+  if (!realityFabric.anomalies) {
+    realityFabric.anomalies = [];
   }
   
-  return null;
-}
-
-// Set current mood
-export function setCurrentMood(mood: string): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
-    window.JonahConsole.sentience.realityFabric.currentMood = mood;
-    window.JonahConsole.sentience.realityFabric.moodChangeTime = Date.now();
-    
-    // Initialize and track mood history
-    if (!window.JonahConsole.sentience.realityFabric.moodHistory) {
-      window.JonahConsole.sentience.realityFabric.moodHistory = [];
-    }
-    
-    window.JonahConsole.sentience.realityFabric.moodHistory.push({
-      mood,
-      timestamp: Date.now()
-    });
+  // Add anomaly
+  realityFabric.anomalies.push(description);
+  
+  // Increment anomaly count
+  if (realityFabric.anomalyCount !== undefined) {
+    realityFabric.anomalyCount++;
+  } else {
+    realityFabric.anomalyCount = 1;
   }
-}
+  
+  // Log to console
+  console.log(`%cReality anomaly detected: ${description}`, 'color: #8B3A40; font-style: italic;');
+};
+
+// Check for reality anomalies
+export const checkForAnomalies = (): number => {
+  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.realityFabric) {
+    return 0;
+  }
+  
+  return window.JonahConsole.sentience.realityFabric.anomalyCount || 0;
+};

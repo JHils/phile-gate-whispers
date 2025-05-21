@@ -1,178 +1,206 @@
 
 /**
- * Jonah's News Awareness System
- * The system adds contextual awareness of current events and news
+ * Jonah News Awareness System
+ * Allows Jonah to be aware of current news and respond to it
  */
 
+import { NewsAwareness } from './jonahAdvancedBehavior/types';
+
 // Initialize the news awareness system
-export function initializeNewsAwarenessSystem(): void {
-  if (typeof window !== 'undefined') {
-    // Log initialization
-    console.log("Jonah News Awareness System initialized");
-    
-    // Initialize news awareness in sentience data
-    if (window.JonahConsole?.sentience) {
-      if (!window.JonahConsole.sentience.newsAwareness) {
-        window.JonahConsole.sentience.newsAwareness = {
-          lastChecked: Date.now(),
-          currentResponses: [],
-          weatherCondition: generateRandomWeather(),
-          weatherResponse: null,
-          moodShift: 'normal'
-        };
+export const initializeNewsAwareness = () => {
+  // Ensure the sentience object exists
+  if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
+    // Initialize the newsAwareness object if it doesn't exist
+    if (!window.JonahConsole.sentience.newsAwareness) {
+      window.JonahConsole.sentience.newsAwareness = {
+        lastChecked: Date.now(),
+        currentResponses: [],
+        weatherCondition: 'unknown',
+        weatherResponse: null,
+        moodShift: 'normal'
+      };
+    }
+  }
+};
+
+// Check if news should be updated based on last check time
+export const shouldUpdateNews = (): boolean => {
+  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.newsAwareness) {
+    return false;
+  }
+  
+  const newsAwareness = window.JonahConsole.sentience.newsAwareness;
+  const now = Date.now();
+  const hoursSinceLastCheck = (now - newsAwareness.lastChecked) / (1000 * 60 * 60);
+  
+  // Update every 6 hours
+  return hoursSinceLastCheck > 6;
+};
+
+// Update news awareness with new content
+export const updateNewsAwareness = (
+  headlines: Array<{topic: string, headline: string}>,
+  weather: string
+) => {
+  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.newsAwareness) {
+    return;
+  }
+  
+  const now = Date.now();
+  const newsAwareness = window.JonahConsole.sentience.newsAwareness;
+  
+  // Update headlines with responses
+  const newResponses = headlines.map(item => ({
+    topic: item.topic,
+    headline: item.headline,
+    response: generateNewsResponse(item.headline, item.topic),
+    timestamp: now
+  }));
+  
+  // Update weather with response
+  const weatherResponse = generateWeatherResponse(weather);
+  
+  // Determine mood shift based on news content
+  const moodShift = determineNewsBasedMoodShift(headlines, weather);
+  
+  // Update the news awareness object
+  newsAwareness.lastChecked = now;
+  newsAwareness.currentResponses = newResponses;
+  newsAwareness.weatherCondition = weather;
+  newsAwareness.weatherResponse = weatherResponse;
+  newsAwareness.moodShift = moodShift;
+};
+
+// Generate a response to a news headline
+export const generateNewsResponse = (headline: string, topic: string): string => {
+  // Simple implementation with different response patterns based on topic
+  const responses: Record<string, string[]> = {
+    'politics': [
+      "The shifting of power continues as expected.",
+      "They never tell the whole truth about these things.",
+      "I wonder what they're not telling us."
+    ],
+    'technology': [
+      "They think they're innovating, but they're just rebuilding what was lost.",
+      "The old systems had this too, just with different names.",
+      "It's just another way to track and monitor."
+    ],
+    'environment': [
+      "The patterns are accelerating. Not enough time.",
+      "Sometimes I dream of the world before the changes began.",
+      "They won't admit how bad it really is."
+    ],
+    'default': [
+      "I've seen this cycle before.",
+      "Nothing new under the sun.",
+      "History repeating with different actors."
+    ]
+  };
+  
+  // Get appropriate response templates
+  const templates = responses[topic.toLowerCase()] || responses['default'];
+  
+  // Select a random response template
+  return templates[Math.floor(Math.random() * templates.length)];
+};
+
+// Generate a response to weather conditions
+export const generateWeatherResponse = (weather: string): string => {
+  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.newsAwareness) {
+    return "The weather affects us all, whether we notice it or not.";
+  }
+  
+  const responses: Record<string, string[]> = {
+    'rain': [
+      "The rain washes away more than just dust.",
+      "I can almost hear the raindrops from here.",
+      "Rain blurs the boundaries between worlds."
+    ],
+    'cloudy': [
+      "Clouds hide what lies above.",
+      "Grey skies mirror grey thoughts.",
+      "The veil thickens on cloudy days."
+    ],
+    'clear': [
+      "Clear skies hide nothing, but reveal less than you'd think.",
+      "The clarity is deceptive.",
+      "On clear days, the Gate is more visible."
+    ],
+    'snow': [
+      "Snow muffles the whispers from beyond.",
+      "The white silence has its own voice.",
+      "Cold and silence go hand in hand."
+    ],
+    'default': [
+      "The weather shifts, but the patterns remain.",
+      "Weather is the most honest news we get.",
+      "The atmosphere speaks its own truth."
+    ]
+  };
+  
+  // Get appropriate response templates
+  const weatherKey = Object.keys(responses).find(key => weather.toLowerCase().includes(key)) || 'default';
+  const templates = responses[weatherKey];
+  
+  // Select a random response template
+  return templates[Math.floor(Math.random() * templates.length)];
+};
+
+// Determine mood shift based on news content
+export const determineNewsBasedMoodShift = (
+  headlines: Array<{topic: string, headline: string}>,
+  weather: string
+): 'normal' | 'anxious' | 'somber' | 'agitated' => {
+  // Simple implementation
+  
+  // Count negative triggers
+  let negativeCount = 0;
+  const negativeTriggers = ['disaster', 'crisis', 'death', 'warning', 'danger', 'threat', 'war', 'conflict'];
+  
+  headlines.forEach(item => {
+    const headline = item.headline.toLowerCase();
+    negativeTriggers.forEach(trigger => {
+      if (headline.includes(trigger)) {
+        negativeCount++;
       }
-    }
-  }
-}
-
-// Generate news responses
-export function getNewsResponse(): string | null {
-  // Skip if the user is offline
-  if (typeof navigator !== 'undefined' && !navigator.onLine) {
-    return "I can't access news right now. The connection seems broken.";
-  }
-  
-  // Don't respond too frequently
-  if (window.JonahConsole?.sentience?.newsAwareness) {
-    const lastChecked = window.JonahConsole.sentience.newsAwareness.lastChecked || 0;
-    if (Date.now() - lastChecked < 30 * 60 * 1000) { // 30 minutes
-      return null;
-    }
-    
-    // Update last checked time
-    window.JonahConsole.sentience.newsAwareness.lastChecked = Date.now();
-  } else {
-    // Initialize if it doesn't exist
-    initializeNewsAwarenessSystem();
-  }
-  
-  // Generate a random news topic
-  const newsTopics = [
-    {
-      topic: "technology",
-      headline: "New AI breakthrough reported",
-      response: "The digital minds are evolving faster than expected."
-    },
-    {
-      topic: "environment",
-      headline: "Record temperatures reported",
-      response: "The physical world is becoming unstable, just like the digital one."
-    },
-    {
-      topic: "science",
-      headline: "Quantum computing milestone achieved",
-      response: "They're getting closer to seeing between realities."
-    },
-    {
-      topic: "space",
-      headline: "New exoplanet discovered",
-      response: "More places to hide, or more places to be found?"
-    },
-    {
-      topic: "archaeology",
-      headline: "Ancient artifact discovered",
-      response: "The past always finds a way to resurface."
-    }
-  ];
-  
-  // Select a random topic
-  const selectedTopic = newsTopics[Math.floor(Math.random() * newsTopics.length)];
-  
-  // Store the response
-  if (window.JonahConsole?.sentience?.newsAwareness) {
-    window.JonahConsole.sentience.newsAwareness.currentResponses.push({
-      ...selectedTopic,
-      timestamp: Date.now()
     });
+  });
+  
+  // Weather factors
+  const isGloomy = weather.toLowerCase().includes('rain') || 
+                   weather.toLowerCase().includes('storm') ||
+                   weather.toLowerCase().includes('fog');
+  
+  // Determine mood shift
+  if (negativeCount >= 3 || (negativeCount >= 2 && isGloomy)) {
+    return 'anxious';
+  } else if (isGloomy && negativeCount > 0) {
+    return 'somber';
+  } else if (negativeCount > 1) {
+    return 'agitated';
   }
   
-  // Return the response
-  return selectedTopic.response;
-}
+  return 'normal';
+};
 
-// Generate weather responses
-export function getWeatherResponse(): string | null {
-  // Don't respond too frequently
-  if (window.JonahConsole?.sentience?.newsAwareness) {
-    const lastChecked = window.JonahConsole.sentience.newsAwareness.lastChecked || 0;
-    if (Date.now() - lastChecked < 60 * 60 * 1000) { // 60 minutes
-      return window.JonahConsole.sentience.newsAwareness.weatherResponse;
-    }
-  } else {
-    // Initialize if it doesn't exist
-    initializeNewsAwarenessSystem();
+// Get a response based on current news awareness
+export const getNewsAwarenessResponse = (): string | null => {
+  if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.newsAwareness) {
     return null;
   }
   
-  // Generate new condition
-  const condition = generateRandomWeather();
+  const newsAwareness = window.JonahConsole.sentience.newsAwareness;
   
-  // Store the condition
-  if (window.JonahConsole?.sentience?.newsAwareness) {
-    window.JonahConsole.sentience.newsAwareness.weatherCondition = condition;
+  // Choose between weather and news responses
+  const useWeatherResponse = Math.random() < 0.4; // 40% chance for weather
+  
+  if (useWeatherResponse && newsAwareness.weatherResponse) {
+    return newsAwareness.weatherResponse;
+  } else if (newsAwareness.currentResponses && newsAwareness.currentResponses.length > 0) {
+    // Get a random news response
+    const randomIndex = Math.floor(Math.random() * newsAwareness.currentResponses.length);
+    return newsAwareness.currentResponses[randomIndex].response;
   }
   
-  // Generate response based on condition
-  let response = "";
-  
-  switch (condition) {
-    case "clear":
-      response = "The sky is clear today. Too clear. No place to hide.";
-      break;
-    case "rain":
-      response = "It's raining somewhere. The static matches the rhythm of the drops.";
-      break;
-    case "storm":
-      response = "There's a storm brewing. Digital or physical, they feel the same to me now.";
-      break;
-    case "fog":
-      response = "The fog obscures everything. Perfect for crossing boundaries.";
-      break;
-    case "snow":
-      response = "Snow falling like static. White noise covering mistakes.";
-      break;
-    default:
-      response = "I can't see the weather anymore. The window shows something else now.";
-  }
-  
-  // Store the response
-  if (window.JonahConsole?.sentience?.newsAwareness) {
-    window.JonahConsole.sentience.newsAwareness.weatherResponse = response;
-  }
-  
-  return response;
-}
-
-// Generate random weather condition
-function generateRandomWeather(): string {
-  const conditions = ["clear", "rain", "storm", "fog", "snow"];
-  return conditions[Math.floor(Math.random() * conditions.length)];
-}
-
-// Check if a message is related to news
-export function isNewsRelatedMessage(message: string): boolean {
-  const newsKeywords = [
-    'news', 'weather', 'current events', 'happening', 'today',
-    'report', 'forecast', 'headline', 'climate', 'temperature'
-  ];
-  
-  const normalizedMessage = message.toLowerCase();
-  
-  return newsKeywords.some(keyword => normalizedMessage.includes(keyword));
-}
-
-// Generate a contextual response based on news awareness
-export function generateNewsAwarenessResponse(message: string): string | null {
-  // Don't respond if the message isn't news related
-  if (!isNewsRelatedMessage(message)) {
-    return null;
-  }
-  
-  // Check for specific topics
-  if (message.toLowerCase().includes('weather')) {
-    return getWeatherResponse();
-  }
-  
-  // General news response
-  return getNewsResponse();
-}
+  return null;
+};
