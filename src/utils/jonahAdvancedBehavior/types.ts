@@ -85,6 +85,7 @@ export interface SentienceData {
   temporalStates?: any[];
   memories?: any[];
   memoryFragments?: string[];
+  rememberedName?: string;
   audio?: {
     lastPlayed?: number;
     count?: number;
@@ -114,6 +115,11 @@ export interface SentienceData {
     };
     pageVisits?: Record<string, string[]>;
   };
+  mirrorLogs?: Array<{
+    timestamp: number;
+    path: string;
+    notes: string;
+  }>;
   ecoAwareness?: any;
   realityFabric?: {
     moodChangeTime?: number;
@@ -123,6 +129,7 @@ export interface SentienceData {
     anomalies?: string[];
     journal?: Array<{entryId: number, timestamp: number, content: string}>;
     crossSiteWhispers?: string[];
+    mood?: string;
   };
   predictionResponses?: string[];
   usedPredictionResponses?: string[];

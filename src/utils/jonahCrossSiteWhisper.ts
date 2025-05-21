@@ -46,6 +46,17 @@ export function getAllCrossSiteWhispers(): string[] {
   return window.JonahConsole.sentience.realityFabric.crossSiteWhispers;
 }
 
+// Get a cross site whisper (for compatibility with code that uses this function)
+export function getCrossSiteWhisper(): string | null {
+  const whispers = getAllCrossSiteWhispers();
+  
+  if (!whispers || whispers.length === 0) {
+    return null;
+  }
+  
+  return whispers[Math.floor(Math.random() * whispers.length)];
+}
+
 // Check if a specific whisper exists
 export function hasCrossSiteWhisper(whisperText: string): boolean {
   if (typeof window === 'undefined' || 

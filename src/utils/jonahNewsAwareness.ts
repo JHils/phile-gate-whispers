@@ -20,8 +20,14 @@ export const initializeNewsAwareness = () => {
         moodShift: 'normal'
       };
     }
+    
+    // Log initialization
+    console.log("Jonah News Awareness System initialized");
   }
 };
+
+// Export initializeNewsAwarenessSystem as an alias for initializeNewsAwareness
+export const initializeNewsAwarenessSystem = initializeNewsAwareness;
 
 // Check if news should be updated based on last check time
 export const shouldUpdateNews = (): boolean => {
@@ -104,6 +110,9 @@ export const generateNewsResponse = (headline: string, topic: string): string =>
   return templates[Math.floor(Math.random() * templates.length)];
 };
 
+// Create getNewsResponse as an alias for generateNewsResponse for compatibility
+export const getNewsResponse = generateNewsResponse;
+
 // Generate a response to weather conditions
 export const generateWeatherResponse = (weather: string): string => {
   if (typeof window === 'undefined' || !window.JonahConsole?.sentience?.newsAwareness) {
@@ -145,6 +154,9 @@ export const generateWeatherResponse = (weather: string): string => {
   // Select a random response template
   return templates[Math.floor(Math.random() * templates.length)];
 };
+
+// Create getWeatherResponse as an alias for generateWeatherResponse for compatibility
+export const getWeatherResponse = generateWeatherResponse;
 
 // Determine mood shift based on news content
 export const determineNewsBasedMoodShift = (

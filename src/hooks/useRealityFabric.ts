@@ -68,6 +68,7 @@ export function useRealityFabric(trustLevel: string) {
     const dreamInterval = setInterval(() => {
       const dreamMessage = generateDreamParable();
       if (dreamMessage) {
+        // Fixed: Ensure we only add string values to the string[] array
         setDreamMessages(prev => [...prev, dreamMessage]);
       }
     }, 8 * 60 * 1000); // Check every 8 minutes

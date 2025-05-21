@@ -35,7 +35,7 @@ export function generateFullEmotionalResponse(
   
   // Add meta-awareness if requested
   if (includeMetaAwareness) {
-    const metaAwareness = generateMetaAwarenessComment({ trend: 'stable', intensity: 'medium' });
+    const metaAwareness = generateMetaAwarenessComment(emotionalState);
     response += ` ${metaAwareness}`;
   }
   
@@ -43,11 +43,11 @@ export function generateFullEmotionalResponse(
 }
 
 // Generate meta-awareness comment
-export function generateMetaAwarenessComment(trendData: EmotionalState[] | { trend: string, intensity: string }): string {
-  if (Array.isArray(trendData)) {
+export function generateMetaAwarenessComment(data: EmotionalState | EmotionalState[]): string {
+  if (Array.isArray(data)) {
     return "I notice my emotions have been changing.";
   } else {
-    return `I notice my ${trendData.trend} emotions with ${trendData.intensity} intensity.`;
+    return `I notice my ${data.primary} emotions with ${data.intensity} intensity.`;
   }
 }
 

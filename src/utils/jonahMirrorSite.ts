@@ -86,9 +86,9 @@ function recordMirrorVisit() {
     notes
   });
   
-  // Update mirror count (fix the type error by ensuring either both operands are numbers or both are strings)
+  // Update mirror count (fix the type error by ensuring it's a number)
   const reflectionCount = getMirrorReflectionCount();
-  const incrementedCount = typeof reflectionCount === 'number' ? reflectionCount + 1 : 1;
+  const incrementedCount = reflectionCount + 1;
   
   localStorage.setItem('mirror_reflections', String(incrementedCount));
 }
