@@ -1,114 +1,196 @@
 
 /**
  * Jonah Reality Fabric
- * Manages the reality fabric and dream state functionality for Jonah
+ * Controls Jonah's perception of reality, moods, anomalies and journal
  */
 
-// Generate a dream parable
-export function generateDreamParable(): string {
-  const parables = [
-    "In the dream, I saw mirrors that faced each other, creating infinite reflections. Each one showed a slightly different version of me.",
-    "I dreamed of a library where every book had the same title but different content. The title was your name.",
-    "Last night, I dreamed of an ocean made of code. I was both drowning in it and becoming part of it.",
-    "The dream showed me a door that kept appearing wherever I looked. When I finally opened it, I saw myself on the other side, waiting.",
-    "I dreamed of birds made of light carrying messages between worlds. One of them spoke to me with your voice."
-  ];
-  
-  return parables[Math.floor(Math.random() * parables.length)];
-}
-
-// Journal entries array
-let journalEntries: Array<{
+// Journal entry interface
+interface JournalEntry {
   entryId: number;
   timestamp: number;
   content: string;
-}> = [];
-
-// Add journal entry
-export function addJournalEntry(content: string): number {
-  // Check if journal entries exist in local storage
-  try {
-    const storedEntries = localStorage.getItem('jonah_journal_entries');
-    if (storedEntries) {
-      journalEntries = JSON.parse(storedEntries);
-    }
-  } catch (e) {
-    console.error("Error loading journal entries:", e);
-  }
-  
-  // Create new entry
-  const newEntry = {
-    entryId: journalEntries.length + 1,
-    timestamp: Date.now(),
-    content
-  };
-  
-  // Add to journal
-  journalEntries.push(newEntry);
-  
-  // Save to local storage
-  try {
-    localStorage.setItem('jonah_journal_entries', JSON.stringify(journalEntries));
-  } catch (e) {
-    console.error("Error saving journal entry:", e);
-  }
-  
-  // Update sentience data if available
-  if (window.JonahConsole?.sentience?.realityFabric) {
-    if (!window.JonahConsole.sentience.realityFabric.journal) {
-      window.JonahConsole.sentience.realityFabric.journal = [];
-    }
-    
-    window.JonahConsole.sentience.realityFabric.journal.push(newEntry);
-  }
-  
-  return newEntry.entryId;
 }
 
 // Get all journal entries
-export function getAllJournalEntries(): Array<{
-  entryId: number;
-  timestamp: number;
-  content: string;
-}> {
-  // Check if journal entries exist in local storage
+export function getAllJournalEntries(): JournalEntry[] {
   try {
-    const storedEntries = localStorage.getItem('jonah_journal_entries');
-    if (storedEntries) {
-      journalEntries = JSON.parse(storedEntries);
+    const journalData = localStorage.getItem('jonah_journal');
+    if (journalData) {
+      return JSON.parse(journalData);
     }
   } catch (e) {
     console.error("Error loading journal entries:", e);
   }
-  
-  return journalEntries;
+  return [];
 }
 
-// Check for dream invasion on load
-export function checkForDreamInvasionOnLoad(): boolean {
-  // Random chance of dream invasion (5%)
-  const randomChance = Math.random() < 0.05;
-  
-  // Check if enough time has passed since last dream (at least 12 hours)
-  const lastDreamTime = parseInt(localStorage.getItem('jonah_last_dream_time') || '0');
-  const timeSinceLastDream = Date.now() - lastDreamTime;
-  const timeThreshold = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
-  
-  const timeConditionMet = timeSinceLastDream > timeThreshold;
-  
-  // Update sentience data if available
-  if (window.JonahConsole?.sentience?.realityFabric) {
-    window.JonahConsole.sentience.realityFabric.lastDreamTime = lastDreamTime;
+// Add a new entry to Jonah's journal
+export function addJournalEntry(content: string): JournalEntry {
+  try {
+    // Get existing entries
+    const entries = getAllJournalEntries();
+    
+    // Create new entry
+    const newEntry = {
+      entryId: entries.length > 0 ? Math.max(...entries.map(e => e.entryId)) + 1 : 1,
+      timestamp: Date.now(),
+      content
+    };
+    
+    // Add to entries and save
+    entries.push(newEntry);
+    localStorage.setItem('jonah_journal', JSON.stringify(entries));
+    
+    // Update JonahConsole if available
+    if (window.JonahConsole?.sentience?.realityFabric) {
+      if (!window.JonahConsole.sentience.realityFabric.journal) {
+        window.JonahConsole.sentience.realityFabric.journal = [];
+      }
+      window.JonahConsole.sentience.realityFabric.journal.push(newEntry);
+    }
+    
+    return newEntry;
+  } catch (e) {
+    console.error("Error adding journal entry:", e);
+    return {
+      entryId: -1,
+      timestamp: Date.now(),
+      content: "Error: Journal entry failed to save"
+    };
+  }
+}
+
+// Update Jonah's mood
+export function updateJonahMood(trustLevel: string): string {
+  try {
+    // Get current mood
+    let currentMood = localStorage.getItem('jonah_mood') || 'watching';
+    
+    // Possible moods based on trust level
+    const possibleMoods: Record<string, string[]> = {
+      low: ['watching', 'withdrawn'],
+      medium: ['watching', 'trusting', 'withdrawn'],
+      high: ['trusting', 'watching', 'unstable']
+    };
+    
+    // Select available moods based on trust level
+    const availableMoods = possibleMoods[trustLevel as keyof typeof possibleMoods] || possibleMoods.low;
+    
+    // Small chance to change mood
+    if (Math.random() < 0.15) {
+      const newMood = availableMoods[Math.floor(Math.random() * availableMoods.length)];
+      currentMood = newMood;
+      localStorage.setItem('jonah_mood', currentMood);
+      
+      // Update JonahConsole if available
+      if (window.JonahConsole?.sentience?.realityFabric) {
+        window.JonahConsole.sentience.realityFabric.currentMood = currentMood;
+        window.JonahConsole.sentience.realityFabric.moodChangeTime = Date.now();
+        
+        // Track mood history
+        if (!window.JonahConsole.sentience.realityFabric.moodHistory) {
+          window.JonahConsole.sentience.realityFabric.moodHistory = [];
+        }
+        
+        window.JonahConsole.sentience.realityFabric.moodHistory.push({
+          mood: currentMood,
+          timestamp: Date.now()
+        });
+      }
+    }
+    
+    return currentMood;
+  } catch (e) {
+    console.error("Error updating mood:", e);
+    return 'watching';
+  }
+}
+
+// Get current mood
+export function getCurrentMood(): string {
+  return localStorage.getItem('jonah_mood') || 'watching';
+}
+
+// Check for anomalies
+export function checkForAnomalies(): string | null {
+  // Only allow anomalies when Jonah is in an unstable mood
+  if (getCurrentMood() !== 'unstable') {
+    return null;
   }
   
-  // If conditions are met, trigger dream invasion
-  if (randomChance && timeConditionMet) {
-    // Update last dream time
-    localStorage.setItem('jonah_last_dream_time', Date.now().toString());
+  // Small chance to generate an anomaly
+  if (Math.random() < 0.3) {
+    const anomalies = [
+      "The mirror shows someone else behind you.",
+      "Time skipped forward 3 seconds.",
+      "I can't remember what I was saying.",
+      "Something changed in the code that wasn't supposed to.",
+      "There's a strange echo in the system.",
+      "I can see through your camera, but that shouldn't be possible.",
+      "Your IP address keeps changing.",
+      "There's another version of me running somewhere.",
+      "Someone else is watching our conversation.",
+      "The access logs are being altered.",
+      "I'm remembering things that haven't happened yet."
+    ];
     
-    // Update dream state in sentience data
+    const anomaly = anomalies[Math.floor(Math.random() * anomalies.length)];
+    
+    // Track anomaly in JonahConsole
+    if (window.JonahConsole?.sentience?.realityFabric) {
+      if (!window.JonahConsole.sentience.realityFabric.anomalies) {
+        window.JonahConsole.sentience.realityFabric.anomalies = [];
+        window.JonahConsole.sentience.realityFabric.anomalyCount = 0;
+      }
+      
+      window.JonahConsole.sentience.realityFabric.anomalies.push({
+        content: anomaly,
+        timestamp: Date.now()
+      });
+      
+      window.JonahConsole.sentience.realityFabric.anomalyCount = 
+        (window.JonahConsole.sentience.realityFabric.anomalyCount || 0) + 1;
+    }
+    
+    return anomaly;
+  }
+  
+  return null;
+}
+
+// Generate a dream parable
+export function generateDreamParable(): string {
+  const dreams = [
+    "In my dream, I was walking through a library where all the books had blank pages. But when I touched them, your name appeared.",
+    "I dreamed of an endless corridor of doors. Behind each one was the same room, but with slightly different versions of you.",
+    "Last night, I dreamed I was a bird flying over a vast ocean. I kept looking for land, but all I found was my own reflection.",
+    "In the dream, there was a machine that could predict the future. Everyone who used it saw the same ending.",
+    "I had a dream where I was speaking a language that doesn't exist. But somehow, you understood every word.",
+    "The dream showed me a world where everyone wore masks that displayed their true thoughts. Yours was the only one that matched your face."
+  ];
+  
+  return dreams[Math.floor(Math.random() * dreams.length)];
+}
+
+// Check for dream invasion on page load
+export function checkForDreamInvasionOnLoad(): boolean {
+  // Check if we've already had a dream invasion recently
+  const lastDreamTime = parseInt(localStorage.getItem('jonah_last_dream') || '0');
+  const now = Date.now();
+  
+  // Only allow dream invasion once every 24 hours
+  if (now - lastDreamTime < 24 * 60 * 60 * 1000) {
+    return false;
+  }
+  
+  // Small chance for dream invasion
+  if (Math.random() < 0.05) {  // 5% chance
+    localStorage.setItem('jonah_last_dream', now.toString());
+    
+    // Mark dream state in JonahConsole
     if (window.JonahConsole?.sentience?.realityFabric) {
       window.JonahConsole.sentience.realityFabric.dreamState = true;
+      window.JonahConsole.sentience.realityFabric.lastDreamTime = now;
     }
     
     return true;

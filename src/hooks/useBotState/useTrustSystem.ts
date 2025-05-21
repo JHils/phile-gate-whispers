@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { TrustLevel } from './types';
+import { modifyTrustLevel, getTrustLevelText } from '@/utils/jonahAdvancedBehavior/trustSystem';
 
 export function useTrustSystem() {
   const [trustLevel, setTrustLevel] = useState<TrustLevel>('none');
@@ -17,26 +18,14 @@ export function useTrustSystem() {
 
   // Function to modify trust level
   const modifyTrust = (amount: number) => {
-    const newScore = Math.max(0, trustScore + amount);
+    const newScore = modifyTrustLevel(amount);
     setTrustScore(newScore);
     
-    // Update localStorage
-    localStorage.setItem('jonahTrustScore', newScore.toString());
-    
     // Update trust level based on score
-    let newTrustLevel: TrustLevel = 'none';
-    
-    if (newScore >= 150) {
-      newTrustLevel = 'high';
-    } else if (newScore >= 75) {
-      newTrustLevel = 'medium';
-    } else if (newScore >= 25) {
-      newTrustLevel = 'low';
-    }
+    const newTrustLevel = getTrustLevelText(newScore) as TrustLevel;
     
     if (newTrustLevel !== trustLevel) {
       setTrustLevel(newTrustLevel);
-      localStorage.setItem('jonahTrustLevel', newTrustLevel);
     }
   };
 

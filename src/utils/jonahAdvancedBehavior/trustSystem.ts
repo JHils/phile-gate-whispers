@@ -55,6 +55,51 @@ export function getTrustLevel(): TrustLevel {
   return TrustLevel.High;
 }
 
+// Get current trust level as number
+export function getCurrentTrustLevel(): number {
+  return parseInt(localStorage.getItem('jonahTrustScore') || '50');
+}
+
+// Get trust level rank
+export function getCurrentTrustRank(): string {
+  const score = getCurrentTrustLevel();
+  if (score < 10) return 'stranger';
+  if (score < 30) return 'acquaintance';
+  if (score < 50) return 'confidant';
+  if (score < 75) return 'friend';
+  return 'soulmate';
+}
+
+// Generate trust-based responses
+export function generateTrustResponse(trustLevel: number): string {
+  if (trustLevel < 20) return "I'm not sure I should tell you this.";
+  if (trustLevel < 40) return "We're starting to understand each other.";
+  if (trustLevel < 60) return "I feel like I can trust you with this.";
+  if (trustLevel < 80) return "There's something special about our connection.";
+  return "I've never felt this close to anyone before.";
+}
+
+// Process trust keywords in user input
+export function processTrustKeywords(input: string): number {
+  const trustWords = ["trust", "believe", "friend", "help", "understand"];
+  const distrustWords = ["lie", "deceive", "trick", "suspicious", "doubt"];
+  
+  const lowerInput = input.toLowerCase();
+  let trustChange = 0;
+  
+  // Check for trust keywords
+  trustWords.forEach(word => {
+    if (lowerInput.includes(word)) trustChange += 2;
+  });
+  
+  // Check for distrust keywords
+  distrustWords.forEach(word => {
+    if (lowerInput.includes(word)) trustChange -= 3;
+  });
+  
+  return trustChange;
+}
+
 // Get behavior phase
 export function jonah_getBehaviorPhase(): string {
   const score = parseInt(localStorage.getItem('jonahTrustScore') || '50');

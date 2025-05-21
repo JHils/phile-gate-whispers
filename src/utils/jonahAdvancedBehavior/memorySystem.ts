@@ -1,85 +1,125 @@
 
 /**
  * Memory System
- * Manages Jonah's memory storage and retrieval
+ * Core functionality for Jonah's memory capabilities
  */
 
-import { jonah_storeMemoryFragment } from './initializeBehavior';
-import { createDefaultMemoryContext, MemoryContext } from './memory/memoryContext';
+import { MemoryContext, createDefaultMemoryContext } from './memory/memoryContext';
+import { EmotionCategory } from './types';
+
+// Current memory context
+let memoryContext: MemoryContext = createDefaultMemoryContext();
 
 // Initialize memory system
-export function initializeMemorySystem() {
-  console.log("Dream system initialized");
-  
-  // Create initial memory context if not exists
-  if (!localStorage.getItem('jonah_memory_context')) {
-    const defaultContext = createDefaultMemoryContext();
-    localStorage.setItem('jonah_memory_context', JSON.stringify(defaultContext));
-  }
-  
-  return true;
-}
-
-// Store a memory in the system
-export function storeMemory(content: string, category: string = 'general'): boolean {
+export function initializeMemorySystem(): void {
+  // Try to load memory context from localStorage
   try {
-    // Get existing memories
-    const memories = JSON.parse(localStorage.getItem('jonah_memories') || '[]');
-    
-    // Add new memory
-    memories.push({
-      content,
-      category,
-      timestamp: Date.now()
-    });
-    
-    // Store back to localStorage
-    localStorage.setItem('jonah_memories', JSON.stringify(memories.slice(-50)));
-    
-    // Also store as memory fragment for compatibility
-    jonah_storeMemoryFragment(content);
-    
-    return true;
-  } catch (e) {
-    console.error("Error storing memory:", e);
-    return false;
-  }
-}
-
-// Retrieve memories by category
-export function getMemoriesByCategory(category: string): any[] {
-  try {
-    const memories = JSON.parse(localStorage.getItem('jonah_memories') || '[]');
-    return memories.filter((mem: any) => mem.category === category);
-  } catch (e) {
-    console.error("Error retrieving memories:", e);
-    return [];
-  }
-}
-
-// Get memory context
-export function getMemoryContext(): MemoryContext {
-  try {
-    const context = JSON.parse(localStorage.getItem('jonah_memory_context') || '{}');
-    if (!Object.keys(context).length) {
-      return createDefaultMemoryContext();
+    const savedContext = localStorage.getItem('jonah_memory_context');
+    if (savedContext) {
+      memoryContext = { ...memoryContext, ...JSON.parse(savedContext) };
+      console.log('Memory context loaded from storage');
     }
-    return context;
   } catch (e) {
-    console.error("Error getting memory context:", e);
-    return createDefaultMemoryContext();
+    console.error('Error loading memory context:', e);
   }
 }
 
-// Update memory context
-export function updateMemoryContext(updates: Partial<MemoryContext>): MemoryContext {
+// Save memory context
+export function saveMemoryContext(): void {
   try {
-    const context = getMemoryContext();
-    const updatedContext = { ...context, ...updates };
-    localStorage.setItem('jonah_memory_context', JSON.stringify(updatedContext));
-    return updatedContext;
+    localStorage.setItem('jonah_memory_context', JSON.stringify(memoryContext));
   } catch (e) {
-    console.error("Error updating memory context:", e);
-    return getMemoryContext();
+    console.error('Error saving memory context:', e);
   }
+}
+
+// Update memory with user input
+export function updateMemoryWithInput(input: string): void {
+  // Add to recent inputs
+  memoryContext.recentInputs.unshift(input);
+  if (memoryContext.recentInputs.length > 10) {
+    memoryContext.recentInputs.pop();
+  }
+  
+  // Increment interaction count
+  memoryContext.interactionCount++;
+  
+  // Update last interaction time
+  memoryContext.lastInteractionTime = Date.now();
+  
+  // Save updated context
+  saveMemoryContext();
+}
+
+// Update memory with emotion
+export function updateMemoryWithEmotion(emotion: EmotionCategory): void {
+  // Add to recent emotions
+  memoryContext.recentEmotions.unshift(emotion);
+  if (memoryContext.recentEmotions.length > 10) {
+    memoryContext.recentEmotions.pop();
+  }
+  
+  // Calculate dominant emotion
+  const emotionCounts: Record<string, number> = {};
+  memoryContext.recentEmotions.forEach(e => {
+    emotionCounts[e] = (emotionCounts[e] || 0) + 1;
+  });
+  
+  let maxCount = 0;
+  let dominantEmotion: EmotionCategory = 'neutral';
+  
+  Object.entries(emotionCounts).forEach(([emotion, count]) => {
+    if (count > maxCount) {
+      maxCount = count;
+      dominantEmotion = emotion as EmotionCategory;
+    }
+  });
+  
+  memoryContext.dominantEmotion = dominantEmotion;
+  
+  // Save updated context
+  saveMemoryContext();
+}
+
+// Get current memory context
+export function getMemoryContext(): MemoryContext {
+  return { ...memoryContext };
+}
+
+// Set user name in memory
+export function setUserName(name: string): void {
+  memoryContext.userName = name;
+  saveMemoryContext();
+}
+
+// Update trust level in memory
+export function updateMemoryTrustLevel(trustLevel: 'low' | 'medium' | 'high'): void {
+  memoryContext.trustLevel = trustLevel;
+  saveMemoryContext();
+}
+
+// Memorize important phrase
+export function memorizePhrase(phrase: string): void {
+  if (!memoryContext.memorizedPhrases.includes(phrase)) {
+    memoryContext.memorizedPhrases.push(phrase);
+    if (memoryContext.memorizedPhrases.length > 20) {
+      memoryContext.memorizedPhrases.shift();
+    }
+    saveMemoryContext();
+  }
+}
+
+// Check if phrase is memorized
+export function isPhraseMemorized(phrase: string): boolean {
+  return memoryContext.memorizedPhrases.includes(phrase);
+}
+
+// Get a random memorized phrase
+export function getRandomMemorizedPhrase(): string | null {
+  if (memoryContext.memorizedPhrases.length === 0) {
+    return null;
+  }
+  return memoryContext.memorizedPhrases[
+    Math.floor(Math.random() * memoryContext.memorizedPhrases.length)
+  ];
 }

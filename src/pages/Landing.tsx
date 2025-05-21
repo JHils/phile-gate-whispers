@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
 import { useConsoleMessages } from "../hooks/useConsoleMessages";
@@ -107,7 +106,7 @@ const Landing = () => {
     
     // Check for dream invasion on load
     const dreamMessage = checkForDreamInvasionOnLoad();
-    if (dreamMessage && typeof window.triggerJonahMessage === 'function') {
+    if (dreamMessage) {
       // Delay the dream message slightly
       setTimeout(() => {
         window.triggerJonahMessage(dreamMessage);

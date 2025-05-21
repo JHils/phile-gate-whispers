@@ -8,6 +8,9 @@ interface TestamentEntry {
   title: string;
   content: string;
   timestamp: number;
+  unlockCondition?: string;
+  unlockValue?: number;
+  revealed?: boolean;
 }
 
 const TestamentPage: React.FC = () => {

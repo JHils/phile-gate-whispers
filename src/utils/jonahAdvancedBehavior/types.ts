@@ -36,11 +36,20 @@ export interface SentienceData {
     level: number;
     lastInteraction: number;
     topics: string[];
+    lastChecked?: number;
+    previousResponses?: string[];
+    biomeResponses?: Record<string, string[]>;
+    knownBiomes?: string[];
+    dreamtimeActive?: boolean;
+    woodsResponses?: string[];
   };
   memoryParanoia?: {
     level: number;
     triggers: string[];
     lastIncident: number;
+    visitedPages?: string[];
+    pageDuration?: Record<string, number>;
+    consoleCommands?: string[];
   };
   realityFabric?: {
     moodChangeTime?: number;
@@ -66,6 +75,7 @@ export interface SentienceData {
       secondary: string | null;
       intensity: string;
     };
+    stability?: number;
   };
 }
 
@@ -74,6 +84,8 @@ export interface StoryFlag {
   id: string;
   discovered: boolean;
   timestamp?: number;
+  name?: string;
+  description?: string;
 }
 
 // Book Code Interface
@@ -82,6 +94,7 @@ export interface BookCode {
   unlocked: boolean;
   pageNumber?: number;
   timestamp?: number;
+  id?: string;
 }
 
 // Extended emotion categories
@@ -126,6 +139,19 @@ export interface EmotionalState {
   primary: EmotionCategory;
   secondary: EmotionCategory | null;
   intensity: EmotionIntensity;
+}
+
+// EcoAwareness state interface
+export interface EcoAwarenessState {
+  level: number;
+  lastInteraction: number;
+  topics: string[];
+  lastChecked: number;
+  previousResponses: string[];
+  biomeResponses: Record<string, string[]>;
+  knownBiomes: string[];
+  dreamtimeActive: boolean;
+  woodsResponses: string[];
 }
 
 // Helper function to create emotional state
