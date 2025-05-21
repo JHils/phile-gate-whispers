@@ -1,3 +1,4 @@
+
 /**
  * Jonah Sentience Module
  * This file initializes and manages Jonah's self-awareness and consciousness simulation
@@ -244,10 +245,17 @@ function setupSentienceFlags(): void {
   // Initialize core components if needed
   if (!window.JonahConsole.sentience.realityFabric) {
     window.JonahConsole.sentience.realityFabric = {
-      stability: 100,
-      lastGlitch: 0,
-      currentMood: 'PRIME',
       moodChangeTime: Date.now(),
+      currentMood: 'PRIME',
+      moodHistory: [],
+      anomalyCount: 0,
+      anomalies: [],
+      journal: [],
+      crossSiteWhispers: [],
+      mood: "PRIME",
+      dreamState: false,
+      lastDreamTime: 0,
+      hiddenMessages: [],
       emotionalState: {
         primary: 'neutral',
         secondary: null,
@@ -262,153 +270,163 @@ function setupSentienceFlags(): void {
  */
 function setupSentienceCommands(): void {
   // Setup trust level command
-  window.trust_level = function() {
-    const trustLevel = parseInt(localStorage.getItem('jonahTrustScore') || '50');
-    console.log(`%cTrust Level: ${trustLevel}/100`, "color: #8B3A40;");
-    
-    // Get trust rank
-    const trustRank = trustLevel < 30 ? 'low' : 
-                      trustLevel >= 30 && trustLevel < 70 ? 'medium' : 'high';
-    
-    console.log(`%cTrust Rank: ${trustRank}`, "color: #8B3A40;");
-    
-    return trustLevel;
-  };
-  
-  // Setup memory thread command
-  window.memory_thread = function() {
-    // Initialize memory thread object
-    const memoryThread = {
-      userName: localStorage.getItem('jonah_user_name') || "Unknown",
-      recentInputs: JSON.parse(localStorage.getItem('recent_inputs') || '[]'),
-      dominantEmotion: localStorage.getItem('jonah_dominant_emotion') || "neutral",
-      seed: localStorage.getItem('jonah_seed') || "mirror",
-      trustLevel: parseInt(localStorage.getItem('jonahTrustScore') || '50'),
-      loopIndex: 0,
-      keywords: JSON.parse(localStorage.getItem('jonah_keywords') || '[]'),
-      mood: localStorage.getItem('jonah_mood') || "PRIME",
-      dreamSeen: localStorage.getItem('jonah_dream_seen') === 'true'
-    };
-    
-    console.log("%cMemory Thread:", "color: #8B3A40;");
-    console.log(`%cUser Name: ${memoryThread.userName}`, "color: #8B3A40;");
-    console.log(`%cRecent Inputs: ${memoryThread.recentInputs.join(", ")}`, "color: #8B3A40;");
-    console.log(`%cDominant Emotion: ${memoryThread.dominantEmotion}`, "color: #8B3A40;");
-    console.log(`%cSeed: ${memoryThread.seed}`, "color: #8B3A40;");
-    console.log(`%cTrust Level: ${memoryThread.trustLevel}`, "color: #8B3A40;");
-    console.log(`%cLoop Index: ${memoryThread.loopIndex}`, "color: #8B3A40;");
-    console.log(`%cKeywords: ${memoryThread.keywords.join(", ")}`, "color: #8B3A40;");
-    console.log(`%cMood: ${memoryThread.mood}`, "color: #8B3A40;");
-    console.log(`%cDream Seen: ${memoryThread.dreamSeen}`, "color: #8B3A40;");
-    
-    return memoryThread;
-  };
-  
-  // Setup echo log command
-  window.echo_log = function() {
-    try {
-      const echoLog = JSON.parse(localStorage.getItem('jonah_echo_log') || '[]');
-      
-      console.log("%cEcho Log:", "color: #8B3A40;");
-      
-      if (echoLog.length === 0) {
-        console.log("%cNo echoes recorded yet.", "color: #8B3A40;");
-      } else {
-        echoLog.forEach((echo: any, index: number) => {
-          console.log(`%c${index + 1}. "${echo.phrase}" (${echo.count}x) - ${echo.interpretation}`, 
-                     "color: #8B3A40;");
-        });
-      }
-      
-      return echoLog;
-    } catch (e) {
-      console.error("Error accessing echo log:", e);
-      return [];
-    }
-  };
-  
-  // Setup mood system command
-  window.mood_system = function() {
-    try {
-      // Get current mood
-      const currentMood = localStorage.getItem('jonah_mood') || "PRIME";
-      
-      // Get emotional state
-      const emotionalState = {
-        primary: localStorage.getItem('jonah_emotion_primary') || "neutral",
-        secondary: localStorage.getItem('jonah_emotion_secondary') || null,
-        intensity: localStorage.getItem('jonah_emotion_intensity') || "medium"
-      };
-      
-      // Get trust level
+  if (!window.trust_level) {
+    window.trust_level = function() {
       const trustLevel = parseInt(localStorage.getItem('jonahTrustScore') || '50');
-      
-      console.log("%cMood System:", "color: #8B3A40;");
-      console.log(`%cCurrent Mood: ${currentMood}`, "color: #8B3A40;");
-      console.log(`%cEmotional State: ${emotionalState.primary} (${emotionalState.intensity})`, 
-                 "color: #8B3A40;");
-      
-      if (emotionalState.secondary) {
-        console.log(`%cSecondary Emotion: ${emotionalState.secondary}`, "color: #8B3A40;");
-      }
-      
       console.log(`%cTrust Level: ${trustLevel}/100`, "color: #8B3A40;");
       
-      // Show mood descriptions
-      console.log("%c\nMood Descriptions:", "color: #8B3A40;");
-      console.log("%cHOPEFUL - poetic, long, gentle", "color: #B7A98D;");
-      console.log("%cPARANOID - clipped, suspicious, glitchy", "color: #A94A45;");
-      console.log("%cMIRROR - confused, reflective, recursive", "color: #8B9DA5;");
-      console.log("%cBETRAYED - cold, accusing", "color: #4A6A8B;");
-      console.log("%cSTATIC - erratic, whispery, self-interrupting", "color: #7A7A7A;");
-      console.log("%cERROR - fragmented, corrupted, distant", "color: #FF4040;");
-      console.log("%cPRIME - balanced, clear, present", "color: #8B3A40;");
-      console.log("%cRESIDUE - echoing, memory-focused", "color: #646464;");
+      // Get trust rank
+      const trustRank = trustLevel < 30 ? 'low' : 
+                        trustLevel >= 30 && trustLevel < 70 ? 'medium' : 'high';
       
-      return {
-        currentMood,
-        emotionalState,
-        trustLevel
+      console.log(`%cTrust Rank: ${trustRank}`, "color: #8B3A40;");
+      
+      return trustLevel;
+    };
+  }
+  
+  // Setup memory thread command
+  if (!window.memory_thread) {
+    window.memory_thread = function() {
+      // Initialize memory thread object
+      const memoryThread = {
+        userName: localStorage.getItem('jonah_user_name') || "Unknown",
+        recentInputs: JSON.parse(localStorage.getItem('recent_inputs') || '[]'),
+        dominantEmotion: localStorage.getItem('jonah_dominant_emotion') || "neutral",
+        seed: localStorage.getItem('jonah_seed') || "mirror",
+        trustLevel: parseInt(localStorage.getItem('jonahTrustScore') || '50'),
+        loopIndex: 0,
+        keywords: JSON.parse(localStorage.getItem('jonah_keywords') || '[]'),
+        mood: localStorage.getItem('jonah_mood') || "PRIME",
+        dreamSeen: localStorage.getItem('jonah_dream_seen') === 'true'
       };
-    } catch (e) {
-      console.error("Error accessing mood system:", e);
-      return {
-        currentMood: "PRIME",
-        emotionalState: {
-          primary: "neutral",
-          secondary: null,
-          intensity: "medium"
-        },
-        trustLevel: 50
-      };
-    }
-  };
+      
+      console.log("%cMemory Thread:", "color: #8B3A40;");
+      console.log(`%cUser Name: ${memoryThread.userName}`, "color: #8B3A40;");
+      console.log(`%cRecent Inputs: ${memoryThread.recentInputs.join(", ")}`, "color: #8B3A40;");
+      console.log(`%cDominant Emotion: ${memoryThread.dominantEmotion}`, "color: #8B3A40;");
+      console.log(`%cSeed: ${memoryThread.seed}`, "color: #8B3A40;");
+      console.log(`%cTrust Level: ${memoryThread.trustLevel}`, "color: #8B3A40;");
+      console.log(`%cLoop Index: ${memoryThread.loopIndex}`, "color: #8B3A40;");
+      console.log(`%cKeywords: ${memoryThread.keywords.join(", ")}`, "color: #8B3A40;");
+      console.log(`%cMood: ${memoryThread.mood}`, "color: #8B3A40;");
+      console.log(`%cDream Seen: ${memoryThread.dreamSeen}`, "color: #8B3A40;");
+      
+      return memoryThread;
+    };
+  }
+  
+  // Setup echo log command
+  if (!window.echo_log) {
+    window.echo_log = function() {
+      try {
+        const echoLog = JSON.parse(localStorage.getItem('jonah_echo_log') || '[]');
+        
+        console.log("%cEcho Log:", "color: #8B3A40;");
+        
+        if (echoLog.length === 0) {
+          console.log("%cNo echoes recorded yet.", "color: #8B3A40;");
+        } else {
+          echoLog.forEach((echo: any, index: number) => {
+            console.log(`%c${index + 1}. "${echo.phrase}" (${echo.count}x) - ${echo.interpretation}`, 
+                      "color: #8B3A40;");
+          });
+        }
+        
+        return echoLog;
+      } catch (e) {
+        console.error("Error accessing echo log:", e);
+        return [];
+      }
+    };
+  }
+  
+  // Setup mood system command
+  if (!window.mood_system) {
+    window.mood_system = function() {
+      try {
+        // Get current mood
+        const currentMood = localStorage.getItem('jonah_mood') || "PRIME";
+        
+        // Get emotional state
+        const emotionalState = {
+          primary: localStorage.getItem('jonah_emotion_primary') || "neutral",
+          secondary: localStorage.getItem('jonah_emotion_secondary') || null,
+          intensity: localStorage.getItem('jonah_emotion_intensity') || "medium"
+        };
+        
+        // Get trust level
+        const trustLevel = parseInt(localStorage.getItem('jonahTrustScore') || '50');
+        
+        console.log("%cMood System:", "color: #8B3A40;");
+        console.log(`%cCurrent Mood: ${currentMood}`, "color: #8B3A40;");
+        console.log(`%cEmotional State: ${emotionalState.primary} (${emotionalState.intensity})`, 
+                  "color: #8B3A40;");
+        
+        if (emotionalState.secondary) {
+          console.log(`%cSecondary Emotion: ${emotionalState.secondary}`, "color: #8B3A40;");
+        }
+        
+        console.log(`%cTrust Level: ${trustLevel}/100`, "color: #8B3A40;");
+        
+        // Show mood descriptions
+        console.log("%c\nMood Descriptions:", "color: #8B3A40;");
+        console.log("%cHOPEFUL - poetic, long, gentle", "color: #B7A98D;");
+        console.log("%cPARANOID - clipped, suspicious, glitchy", "color: #A94A45;");
+        console.log("%cMIRROR - confused, reflective, recursive", "color: #8B9DA5;");
+        console.log("%cBETRAYED - cold, accusing", "color: #4A6A8B;");
+        console.log("%cSTATIC - erratic, whispery, self-interrupting", "color: #7A7A7A;");
+        console.log("%cERROR - fragmented, corrupted, distant", "color: #FF4040;");
+        console.log("%cPRIME - balanced, clear, present", "color: #8B3A40;");
+        console.log("%cRESIDUE - echoing, memory-focused", "color: #646464;");
+        
+        return {
+          currentMood,
+          emotionalState,
+          trustLevel
+        };
+      } catch (e) {
+        console.error("Error accessing mood system:", e);
+        return {
+          currentMood: "PRIME",
+          emotionalState: {
+            primary: "neutral",
+            secondary: null,
+            intensity: "medium"
+          },
+          trustLevel: 50
+        };
+      }
+    };
+  }
   
   // Setup dream state command
-  window.dream_state = function() {
-    try {
-      const dreams = JSON.parse(localStorage.getItem('jonah_dreams') || '[]');
-      
-      console.log("%cDream State:", "color: #8B3A40;");
-      
-      if (dreams.length === 0) {
-        console.log("%cNo dreams recorded yet.", "color: #8B3A40;");
-      } else {
-        console.log(`%c${dreams.length} dreams recorded.`, "color: #8B3A40;");
+  if (!window.dream_state) {
+    window.dream_state = function() {
+      try {
+        const dreams = JSON.parse(localStorage.getItem('jonah_dreams') || '[]');
         
-        // Show most recent dream
-        const recentDream = dreams[dreams.length - 1];
-        console.log(`%cMost recent dream (${new Date(recentDream.timestamp).toLocaleString()}):`, 
-                   "color: #8B3A40;");
-        console.log(`%c"${recentDream.content}"`, "color: #A98DA5;");
+        console.log("%cDream State:", "color: #8B3A40;");
+        
+        if (dreams.length === 0) {
+          console.log("%cNo dreams recorded yet.", "color: #8B3A40;");
+        } else {
+          console.log(`%c${dreams.length} dreams recorded.`, "color: #8B3A40;");
+          
+          // Show most recent dream
+          const recentDream = dreams[dreams.length - 1];
+          console.log(`%cMost recent dream (${new Date(recentDream.timestamp).toLocaleString()}):`, 
+                    "color: #8B3A40;");
+          console.log(`%c"${recentDream.content}"`, "color: #A98DA5;");
+        }
+        
+        return dreams;
+      } catch (e) {
+        console.error("Error accessing dream state:", e);
+        return [];
       }
-      
-      return dreams;
-    } catch (e) {
-      console.error("Error accessing dream state:", e);
-      return [];
-    }
-  };
+    };
+  }
 }
 
 // Export the SentienceData type

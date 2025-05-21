@@ -3,6 +3,13 @@
  * Manages Jonah's perception of reality, mood shifts, and anomalies
  */
 
+// Define journal entry type
+export interface JournalEntry {
+  entryId: number;
+  timestamp: number;
+  content: string;
+}
+
 // Initialize Reality Fabric system
 export function initializeRealityFabric() {
   // Ensure JonahConsole and sentience exist
@@ -188,4 +195,71 @@ export function generateDreamParable(): string {
   window.logJonahDream(parable);
   
   return parable;
+}
+
+/**
+ * Add an entry to Jonah's journal
+ */
+export function addJournalEntry(content: string): boolean {
+  try {
+    // Get existing journal entries
+    const entries = getAllJournalEntries();
+    
+    // Create new entry
+    const newEntry = {
+      entryId: entries.length + 1,
+      timestamp: Date.now(),
+      content
+    };
+    
+    // Add to entries
+    entries.push(newEntry);
+    
+    // Store back to localStorage
+    localStorage.setItem('jonah_journal', JSON.stringify(entries));
+    
+    // Update JonahConsole object if available
+    if (window.JonahConsole?.sentience?.realityFabric) {
+      if (!window.JonahConsole.sentience.realityFabric.journal) {
+        window.JonahConsole.sentience.realityFabric.journal = [];
+      }
+      window.JonahConsole.sentience.realityFabric.journal.push(newEntry);
+    }
+    
+    return true;
+  } catch (e) {
+    console.error("Error adding journal entry:", e);
+    return false;
+  }
+}
+
+/**
+ * Get all journal entries
+ */
+export function getAllJournalEntries(): JournalEntry[] {
+  try {
+    // Get from localStorage
+    const entries = JSON.parse(localStorage.getItem('jonah_journal') || '[]');
+    return entries;
+  } catch (e) {
+    console.error("Error getting journal entries:", e);
+    return [];
+  }
+}
+
+/**
+ * Check for dream invasion on page load
+ */
+export function checkForDreamInvasionOnLoad(): string | null {
+  // Only 5% chance to trigger a dream invasion
+  if (Math.random() > 0.05) return null;
+  
+  // Check if it's late night hours (11pm - 5am)
+  const hour = new Date().getHours();
+  if (hour >= 23 || hour < 5) {
+    const dreamParable = generateDreamParable();
+    return dreamParable;
+  }
+  
+  return null;
 }

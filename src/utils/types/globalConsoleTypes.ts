@@ -1,3 +1,4 @@
+
 /**
  * Global Console Types
  * Central declaration of all global type interfaces to prevent conflicts
@@ -148,12 +149,30 @@ declare global {
     triggerJonahMessage?: (message: string) => string;
     processStoryQuery?: (query: string) => string;
     
-    // Jonah Final Form commands
-    trust_level?: () => number;
-    memory_thread?: () => any;
-    echo_log?: () => any[];
-    mood_system?: () => any;
-    dream_state?: () => any[];
+    // Jonah Final Form commands - consistent types
+    trust_level: () => number;
+    memory_thread: () => {
+      userName: string;
+      recentInputs: string[];
+      dominantEmotion: string;
+      seed: string;
+      trustLevel: number;
+      loopIndex: number;
+      keywords: string[];
+      mood: string;
+      dreamSeen: boolean;
+    };
+    echo_log: () => any[];
+    mood_system: () => {
+      currentMood: string;
+      emotionalState: {
+        primary: string;
+        secondary: string | null;
+        intensity: string;
+      };
+      trustLevel: number;
+    };
+    dream_state: () => any[];
   }
 }
 

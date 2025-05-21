@@ -6,7 +6,7 @@
 
 declare global {
   interface Window {
-    // Jonah memory and emotional systems
+    // Jonah memory and emotional systems - match types from globalConsoleTypes.ts
     trust_level: () => number;
     memory_thread: () => {
       userName: string;

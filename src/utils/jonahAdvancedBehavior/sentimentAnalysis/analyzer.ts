@@ -1,98 +1,81 @@
 
-import { EmotionalState, EmotionCategory, EmotionIntensity } from '../types';
-import { emotionKeywords, intensifiers } from './keywords';
-
 /**
- * Analyze text for emotional content
- * @param text User input text
- * @returns Emotional state assessment
+ * Sentiment Analysis System
  */
-export function analyzeEmotion(text: string): EmotionalState {
-  // Default to neutral if no text
-  if (!text || text.trim().length === 0) {
-    return {
-      primary: 'neutral',
-      secondary: null,
-      intensity: 'low',
-      timestamp: Date.now()
-    };
-  }
 
-  // Convert to lowercase for matching
-  const lowercaseText = text.toLowerCase();
-  const words = lowercaseText.split(/\s+/);
+import { EmotionCategory } from '../types';
+
+// Simple emotion analyzer - in a full implementation this would use more sophisticated methods
+export function analyzeEmotion(text: string): { primary: EmotionCategory, secondary: EmotionCategory | null } {
+  const normalizedText = text.toLowerCase();
   
-  // Count emotions
-  const emotionScores: Record<EmotionCategory, number> = {
-    fear: 0, sadness: 0, anger: 0, joy: 0, 
-    confusion: 0, curiosity: 0, hope: 0, 
-    anxiety: 0, paranoia: 0, trust: 0, neutral: 0
+  // Emotion keyword mappings
+  const emotionKeywords: Record<EmotionCategory, string[]> = {
+    joy: ['happy', 'joy', 'love', 'glad', 'excited', 'wonderful', 'pleased', 'delighted', 'great'],
+    sadness: ['sad', 'sorry', 'regret', 'miss', 'hurt', 'pain', 'alone', 'lost', 'abandoned'],
+    anger: ['angry', 'mad', 'hate', 'frustrated', 'annoyed', 'upset', 'furious', 'rage'],
+    fear: ['afraid', 'scared', 'worried', 'nervous', 'anxious', 'fear', 'terrified', 'dread'],
+    surprise: ['wow', 'oh', 'surprised', 'shocking', 'unexpected', 'amazed', 'astonished'],
+    disgust: ['gross', 'disgusting', 'awful', 'terrible', 'horrible', 'sick', 'repulsed'],
+    neutral: ['okay', 'fine', 'alright', 'normal', 'regular'],
+    confused: ['confused', 'unsure', 'puzzled', 'lost', 'wonder', 'curious', 'strange']
   };
   
-  // Track intensifiers
-  let intensifierCount = 0;
+  // Count matches for each emotion
+  const emotionCounts: Record<EmotionCategory, number> = {
+    joy: 0,
+    sadness: 0,
+    anger: 0,
+    fear: 0,
+    surprise: 0,
+    disgust: 0,
+    neutral: 0,
+    confused: 0
+  };
   
-  // Process each word
-  words.forEach(word => {
-    // Check if word is an intensifier
-    if (intensifiers.includes(word)) {
-      intensifierCount++;
-      return;
-    }
-    
-    // Check each emotion category
-    Object.entries(emotionKeywords).forEach(([emotion, keywords]) => {
-      if (keywords.some(keyword => word.includes(keyword))) {
-        emotionScores[emotion as EmotionCategory] += 1;
+  // Count keywords for each emotion
+  Object.entries(emotionKeywords).forEach(([emotion, keywords]) => {
+    keywords.forEach(keyword => {
+      if (normalizedText.includes(keyword)) {
+        emotionCounts[emotion as EmotionCategory]++;
       }
     });
   });
   
-  // Find primary and secondary emotions
-  let primary: EmotionCategory = 'neutral';
-  let secondary: EmotionCategory | null = null;
-  let highestScore = 0;
-  let secondHighestScore = 0;
+  // Find primary emotion (highest count)
+  let primaryEmotion: EmotionCategory = 'neutral';
+  let maxCount = 0;
   
-  Object.entries(emotionScores).forEach(([emotion, score]) => {
-    if (score > highestScore) {
-      secondary = primary;
-      secondHighestScore = highestScore;
-      primary = emotion as EmotionCategory;
-      highestScore = score;
-    } else if (score > secondHighestScore) {
-      secondary = emotion as EmotionCategory;
-      secondHighestScore = score;
+  Object.entries(emotionCounts).forEach(([emotion, count]) => {
+    if (count > maxCount) {
+      maxCount = count;
+      primaryEmotion = emotion as EmotionCategory;
     }
   });
   
-  // If no emotion detected, default to neutral
-  if (highestScore === 0) {
-    primary = 'neutral';
-    secondary = null;
+  // If no clear emotion is detected, default to neutral
+  if (maxCount === 0) {
+    primaryEmotion = 'neutral';
   }
   
-  // If secondary is same as primary or very low score, set to null
-  if (secondary === primary || secondHighestScore < 1) {
-    secondary = null;
-  }
+  // Find secondary emotion (second highest count)
+  let secondaryEmotion: EmotionCategory | null = null;
+  let secondMaxCount = 0;
   
-  // Determine intensity based on emotion keywords and intensifiers
-  let intensity: EmotionIntensity = 'low';
+  Object.entries(emotionCounts).forEach(([emotion, count]) => {
+    if (count > secondMaxCount && emotion !== primaryEmotion) {
+      secondMaxCount = count;
+      secondaryEmotion = emotion as EmotionCategory;
+    }
+  });
   
-  // Simple formula: base on keyword repetition and intensifiers
-  const emotionStrength = highestScore + (intensifierCount * 0.5);
-  
-  if (emotionStrength >= 3) {
-    intensity = 'high';
-  } else if (emotionStrength >= 1.5) {
-    intensity = 'medium';
+  // Only return secondary if it actually had matches
+  if (secondMaxCount === 0) {
+    secondaryEmotion = null;
   }
   
   return {
-    primary,
-    secondary,
-    intensity,
-    timestamp: Date.now()
+    primary: primaryEmotion,
+    secondary: secondaryEmotion
   };
 }

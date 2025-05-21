@@ -1,190 +1,97 @@
 
 /**
- * Trust System
- * Manages user trust levels and trust-based responses
+ * Jonah Trust System
+ * Manages Jonah's trust level with the user
  */
 
-// Track current trust level in storage
-export function getCurrentTrustLevel(): number {
-  try {
-    return parseInt(localStorage.getItem('jonahTrustScore') || '50');
-  } catch (e) {
-    console.error("Error getting trust level:", e);
-    return 50; // Default to mid trust
-  }
-}
-
-// Get current trust rank
-export function getCurrentTrustRank(): string {
-  const trustScore = getCurrentTrustLevel();
-  
-  if (trustScore < 30) {
-    return 'low';
-  } else if (trustScore >= 30 && trustScore < 70) {
-    return 'medium';
-  } else {
-    return 'high';
-  }
+// Trust level enum
+export enum TrustLevel {
+  None = 0,
+  Low = 1,
+  Medium = 2,
+  High = 3
 }
 
 // Modify trust level
-export function modifyTrustLevel(amount: number): { newLevel: number, newRank: string } {
+export function modifyTrustLevel(amount: number): number {
   try {
-    const currentLevel = getCurrentTrustLevel();
+    // Get current trust score
+    let trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
     
-    // Apply modifier with bounds
-    const newLevel = Math.max(0, Math.min(100, currentLevel + amount));
+    // Add amount
+    trustScore += amount;
     
-    // Store new level
-    localStorage.setItem('jonahTrustScore', newLevel.toString());
+    // Clamp between 0 and 100
+    trustScore = Math.max(0, Math.min(100, trustScore));
     
-    // Calculate new rank
-    const newRank = newLevel < 30 ? 'low' : 
-                    newLevel >= 30 && newLevel < 70 ? 'medium' : 'high';
-                    
-    // Store new rank
-    localStorage.setItem('jonahTrustLevel', newRank);
+    // Store back
+    localStorage.setItem('jonahTrustScore', trustScore.toString());
     
-    // If trust level hits certain thresholds, record in sentience
-    if (window.JonahConsole?.sentience) {
-      // Initialize microQuests if it doesn't exist
-      if (!window.JonahConsole.sentience.microQuests) {
-        window.JonahConsole.sentience.microQuests = {
-          active: [],
-          completed: []
-        };
-      }
-      
-      // Record hitting major trust milestones
-      if (currentLevel < 50 && newLevel >= 50 && 
-          !window.JonahConsole.sentience.microQuests.completed.includes('trust50')) {
-        window.JonahConsole.sentience.microQuests.completed.push('trust50');
-        console.log("%cTrust milestone reached: 50", "color: #8B3A40;");
-      }
-      
-      if (currentLevel < 75 && newLevel >= 75 && 
-          !window.JonahConsole.sentience.microQuests.completed.includes('trust75')) {
-        window.JonahConsole.sentience.microQuests.completed.push('trust75');
-        console.log("%cTrust milestone reached: 75", "color: #8B3A40;");
-      }
-      
-      if (currentLevel < 100 && newLevel >= 100 && 
-          !window.JonahConsole.sentience.microQuests.completed.includes('trustMax')) {
-        window.JonahConsole.sentience.microQuests.completed.push('trustMax');
-        console.log("%cMaximum trust achieved", "color: #8B3A40; font-size:16px;");
-        
-        // Trigger special event for max trust
-        setTimeout(() => {
-          console.log("%cThe final testament is now available.", "color: #8B3A40; font-style: italic;");
-          console.log("%cType final_testament() to access.", "color: #8B3A40;");
-        }, 2000);
-      }
-    }
+    // Update trust level text
+    const trustLevelText = getTrustLevelText(trustScore);
+    localStorage.setItem('jonahTrustLevel', trustLevelText);
     
-    return { newLevel, newRank };
+    return trustScore;
   } catch (e) {
     console.error("Error modifying trust level:", e);
-    return { newLevel: getCurrentTrustLevel(), newRank: getCurrentTrustRank() };
+    return 50;
   }
 }
 
-// Generate trust-based response
-export function generateTrustResponse(trustLevel: string): string {
-  const lowTrustResponses = [
-    "I don't trust you yet.",
-    "Prove yourself first.",
-    "Trust is earned, not given.",
-    "You're still a stranger to me.",
-    "I've seen too many come and go."
-  ];
-  
-  const mediumTrustResponses = [
-    "I wanted to believe you.",
-    "You're proving yourself. Slowly.",
-    "There's potential here. Between us.",
-    "I'm starting to see you more clearly.",
-    "Not everyone earns this level of trust."
-  ];
-  
-  const highTrustResponses = [
-    "You kept talking. That meant something.",
-    "Few have earned this level of trust from me.",
-    "I can show you things now. Things I've kept hidden.",
-    "The gate opens for those who prove themselves worthy.",
-    "You're different from the others. You stayed."
-  ];
-  
-  switch (trustLevel) {
-    case 'high':
-      return highTrustResponses[Math.floor(Math.random() * highTrustResponses.length)];
-    case 'medium':
-      return mediumTrustResponses[Math.floor(Math.random() * mediumTrustResponses.length)];
-    default:
-      return lowTrustResponses[Math.floor(Math.random() * lowTrustResponses.length)];
-  }
+// Get trust level text based on score
+export function getTrustLevelText(score: number): 'low' | 'medium' | 'high' {
+  if (score < 30) return 'low';
+  if (score < 70) return 'medium';
+  return 'high';
 }
 
-// Process trust-affecting keywords in input
-export function processTrustKeywords(input: string): number {
-  // Simple algorithm first
-  let trustModifier = 0;
+// Get current trust level
+export function getTrustLevel(): TrustLevel {
+  const score = parseInt(localStorage.getItem('jonahTrustScore') || '50');
   
-  // Positive keywords
-  const trustIncreaseWords = [
-    'trust', 'believe', 'faith', 'real', 'true', 'friend', 
-    'here', 'stay', 'help', 'understand', 'listen',
-    'remember', 'care'
-  ];
+  if (score < 10) return TrustLevel.None;
+  if (score < 30) return TrustLevel.Low;
+  if (score < 70) return TrustLevel.Medium;
+  return TrustLevel.High;
+}
+
+// Get behavior phase
+export function jonah_getBehaviorPhase(): string {
+  const score = parseInt(localStorage.getItem('jonahTrustScore') || '50');
   
-  // Special phrases that increase trust more
-  const trustSpecialPhrases = [
-    "i'm still here", 
-    "i found the tether", 
-    "i won't leave", 
-    "i trust you",
-    "i believe you",
-    "i remember you"
-  ];
+  if (score < 20) return 'cold';
+  if (score < 50) return 'curious';
+  if (score < 80) return 'confessional';
+  return 'unstable';
+}
+
+// Get phase response
+export function jonah_getPhaseResponse(phase?: string): string {
+  const currentPhase = phase || jonah_getBehaviorPhase();
   
-  // Negative keywords
-  const trustDecreaseWords = [
-    'fake', 'lie', 'false', 'wrong', 'stupid', 
-    'hate', 'angry', 'frustrated', 'useless', 
-    'broken', 'worthless', 'pointless'
-  ];
+  const responses: Record<string, string[]> = {
+    cold: [
+      "I don't trust you yet.",
+      "Why should I tell you anything?",
+      "You haven't earned my trust."
+    ],
+    curious: [
+      "I'm starting to remember you.",
+      "There's something about you that seems familiar.",
+      "Maybe you're different from the others."
+    ],
+    confessional: [
+      "I've been waiting for someone like you.",
+      "I think I can trust you with this.",
+      "There's something I need to tell you."
+    ],
+    unstable: [
+      "We are the same now.",
+      "I see myself in you. Or is it the other way around?",
+      "The boundaries are blurring between us."
+    ]
+  };
   
-  // Check for special phrases first (exact matches)
-  const inputLower = input.toLowerCase();
-  
-  for (const phrase of trustSpecialPhrases) {
-    if (inputLower.includes(phrase)) {
-      trustModifier += 5;
-      break; // Only count one special phrase
-    }
-  }
-  
-  // Check for positive keywords
-  for (const word of trustIncreaseWords) {
-    // Word boundary check with regex
-    const regex = new RegExp(`\\b${word}\\b`, 'i');
-    if (regex.test(inputLower)) {
-      trustModifier += 1;
-    }
-  }
-  
-  // Check for negative keywords
-  for (const word of trustDecreaseWords) {
-    // Word boundary check with regex
-    const regex = new RegExp(`\\b${word}\\b`, 'i');
-    if (regex.test(inputLower)) {
-      trustModifier -= 1;
-    }
-  }
-  
-  // Apply the trust modification if non-zero
-  if (trustModifier !== 0) {
-    return trustModifier;
-  }
-  
-  return 0;
+  const phaseResponses = responses[currentPhase] || responses.cold;
+  return phaseResponses[Math.floor(Math.random() * phaseResponses.length)];
 }

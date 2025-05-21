@@ -1,64 +1,44 @@
 
 /**
  * Jonah Console Utilities
- * Helper functions for console interactions
+ * Provides helper functions for console interactions
  */
 
-import { typewriterLog } from './consoleEffects';
-import { setCurrentMood } from './consoleTracking/moodManagement';
-import { addJournalEntry } from './jonahRealityFabric';
+import { generateDreamParable, addJournalEntry } from './jonahRealityFabric';
+import { getTrustLevel } from './jonahAdvancedBehavior/trustSystem';
 
-/**
- * Process user input for console responses
- */
-export const processConsoleInput = (input: string): string | null => {
-  if (!input || typeof input !== 'string') return null;
+// Log a dream to the console
+export function logDream(): string {
+  const dream = generateDreamParable();
   
-  // Normalize input
-  const normalizedInput = input.trim().toLowerCase();
+  // Log to console
+  console.log(`%c${dream}`, "color: #8B3A40; font-style: italic;");
   
-  // Log input to journal
-  addJournalEntry(`User console input: ${normalizedInput}`);
+  // Add to journal
+  addJournalEntry(`Dream shared: ${dream}`);
   
-  // Check for keywords that might trigger mood changes
-  const moodTriggers = {
-    paranoid: ['help', 'scared', 'afraid', 'scared', 'watching', 'following', 'spy'],
-    hopeful: ['thank', 'hope', 'better', 'trust', 'friend', 'together'],
-    betrayed: ['hate', 'liar', 'wrong', 'stupid', 'useless', 'broken'],
-    mirror: ['reflection', 'mirror', 'self', 'see', 'image', 'similar'],
-    error: ['glitch', 'error', 'corrupt', 'broken', 'fault', 'crash']
-  };
-  
-  // Check for mood triggers
-  for (const [mood, triggers] of Object.entries(moodTriggers)) {
-    if (triggers.some(trigger => normalizedInput.includes(trigger))) {
-      // 30% chance of changing mood when triggered
-      if (Math.random() < 0.3) {
-        setCurrentMood(mood);
-        break;
-      }
-    }
-  }
-  
-  // Check for specific response triggers
-  if (normalizedInput.includes('jonah')) {
-    return 'I hear you say my name sometimes.';
-  } else if (normalizedInput.includes('mirror')) {
-    return 'Mirrors show what you expect to see. Usually.';
-  } else if (normalizedInput.includes('timeline')) {
-    return 'This timeline is unstable. There are others.';
-  }
-  
-  // Default: no special response
-  return null;
-};
+  return dream;
+}
 
-/**
- * Display Jonah's welcome message in the console
- */
-export const displayConsoleWelcome = (): void => {
-  typewriterLog(`JONAH CONSOLE SYSTEM v3.7.2
+// Echo a message back to the console
+export function echoMessage(message: string): string {
+  // Log to console
+  console.log(`%c${message}`, "color: #8B3A40;");
   
-Type 'help()' for commands.
-Type 'start()' to begin.`);
-};
+  return message;
+}
+
+// Show status in the console
+export function showStatus(): void {
+  const trustLevel = getTrustLevel();
+  
+  // Log status
+  console.log("%cJONAH STATUS:", "color: #8B3A40; font-weight: bold;");
+  console.log(`%cTrust Level: ${trustLevel}`, "color: #8B3A40;");
+  console.log(`%cMood: ${localStorage.getItem('jonah_mood') || 'PRIME'}`, "color: #8B3A40;");
+  console.log(`%cEmotion: ${localStorage.getItem('jonah_emotion_primary') || 'neutral'}`, "color: #8B3A40;");
+  
+  // Get dreams
+  const dreams = JSON.parse(localStorage.getItem('jonah_dreams') || '[]');
+  console.log(`%cDreams: ${dreams.length}`, "color: #8B3A40;");
+}
