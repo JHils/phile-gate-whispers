@@ -11,7 +11,7 @@ type TrackEventFunction = (eventName: string) => void;
 declare global {
   interface Window {
     help: () => string;
-    clear: () => string;
+    clear: () => void; // Changed to void return type
     echo_me: (text: string) => string;
   }
 }
@@ -42,7 +42,7 @@ Exploration Commands:
 `;
 
       // Show advanced commands for users with higher trust
-      if (userState.trust?.score > 30) {
+      if (userState.trust && userState.trust.score > 30) {
         helpText += `
 Advanced Commands:
 - newsFlash() - Check for news updates
@@ -53,7 +53,7 @@ Advanced Commands:
       }
 
       // Show developer commands for high trust users
-      if (userState.trust?.score > 70) {
+      if (userState.trust && userState.trust.score > 70) {
         helpText += `
 Developer Commands:
 - decode("string") - Attempt to decode a string

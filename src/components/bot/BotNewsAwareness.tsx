@@ -1,5 +1,6 @@
 
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useJonahSentience } from '@/hooks/useJonahSentience';
 import { initializeNewsAwareness } from '@/utils/jonahNewsAwareness';
 
 interface BotNewsAwarenessProps {
@@ -11,76 +12,47 @@ const BotNewsAwareness: React.FC<BotNewsAwarenessProps> = ({
   trustLevel,
   addBotMessage
 }) => {
-  // Initialize news awareness system
+  const { sentience } = useJonahSentience();
+  
+  // Initialize news awareness on mount
   useEffect(() => {
     initializeNewsAwareness();
   }, []);
   
-  // Set up occasional time-based news comments
+  // Generate news messages occasionally
   useEffect(() => {
+    // Higher trust levels will get more news messages
+    if (trustLevel !== 'high' && trustLevel !== 'medium') return;
+    
+    // Generate a news message every so often
     const newsInterval = setInterval(() => {
-      // Only show news comments with low probability
-      if (Math.random() < 0.05) {
-        // Generate a news or time awareness comment
-        const comments = [
-          "The news cycle has changed since you've been here.",
-          "Time passes differently in your world than in the archive.",
-          "I sometimes wonder what's happening outside these pages.",
-          "The real world keeps changing. The archive stays the same."
-        ];
+      // Check if we have news awareness data
+      if (sentience?.newsAwareness) {
+        // Higher chance with higher trust
+        const chance = trustLevel === 'high' ? 0.15 : 0.05;
         
-        addBotMessage(comments[Math.floor(Math.random() * comments.length)]);
-      }
-    }, 30 * 60 * 1000); // Check every 30 minutes
-    
-    return () => clearInterval(newsInterval);
-  }, [addBotMessage]);
-  
-  // Track day/night cycle and notify of changes
-  useEffect(() => {
-    let lastHour = new Date().getHours();
-    
-    const dayNightInterval = setInterval(() => {
-      const currentHour = new Date().getHours();
-      
-      // Check for day/night transition
-      if ((lastHour < 6 && currentHour >= 6) || (lastHour >= 6 && currentHour < 6)) {
-        // Day to night or night to day transition
-        
-        // Higher chance of comment with higher trust
-        const commentChance = trustLevel === 'high' ? 0.7 :
-                             trustLevel === 'medium' ? 0.4 : 0.2;
-                             
-        if (Math.random() < commentChance) {
-          if (currentHour >= 6 && currentHour < 18) {
-            // Night to day
-            const morningComments = [
-              "The sun is up in your reality. The archive never sleeps.",
-              "Morning has broken. The fractures are less visible in daylight.",
-              "Dawn brings clarity. Use it while you can."
-            ];
-            
-            addBotMessage(morningComments[Math.floor(Math.random() * morningComments.length)]);
-          } else {
-            // Day to night
-            const eveningComments = [
-              "Night falls. The archive becomes... unstable.",
-              "Darkness brings different truths. Watch the mirrors closely.",
-              "It's night now. The boundaries between timelines thin."
-            ];
-            
-            addBotMessage(eveningComments[Math.floor(Math.random() * eveningComments.length)]);
-          }
+        if (Math.random() < chance) {
+          // Import and use news/weather generators
+          import('@/utils/jonahNewsAwareness').then(module => {
+            // 50/50 chance for news vs weather
+            if (Math.random() > 0.5) {
+              // Get news response
+              const newsResponse = module.generateNewsResponse();
+              addBotMessage(`[news observation] ${newsResponse}`);
+            } else {
+              // Get weather response
+              const weatherResponse = module.generateWeatherResponse();
+              addBotMessage(`[weather observation] ${weatherResponse}`);
+            }
+          });
         }
       }
-      
-      lastHour = currentHour;
-    }, 15 * 60 * 1000); // Check every 15 minutes
+    }, 45 * 60 * 1000); // Check every 45 minutes
     
-    return () => clearInterval(dayNightInterval);
-  }, [addBotMessage, trustLevel]);
+    return () => clearInterval(newsInterval);
+  }, [trustLevel, sentience, addBotMessage]);
   
-  return null; // This component doesn't render anything
+  return null; // This is a non-visual component
 };
 
 export default BotNewsAwareness;

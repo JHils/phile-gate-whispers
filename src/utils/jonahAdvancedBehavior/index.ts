@@ -1,174 +1,90 @@
 
-// Re-export all advanced behavior modules
+/**
+ * Jonah Advanced Behavior System - Main export file
+ */
 
-// Explicitly re-export to avoid ambiguity
-export { createConversationContext, storeInMemory, findRelevantMemories, generateMemoryBasedResponse, generateTopicPatternResponse } from './enhancedMemorySystem';
-
-export * from './enhancedEmotionalCore';
-export * from './errorRecoverySystem';
 export * from './types';
-export * from './confessionSystem';
+export * from './testament';
+export * from './sentimentAnalysis';
+export { ConversationContext } from './enhancedMemorySystem';
+export * from './enhancedEmotionalCore';
 
-// Export types separately to avoid clashes
-export type { ConversationContext } from './enhancedMemorySystem';
+// Generate dream content
+export function generateDream(): string {
+  const dreamOptions = [
+    "I was on an island. The compass kept spinning wildly, never pointing north. Someone was watching from the trees.",
+    "The mirror showed a different reflection. It was me, but not me. The other me tried to speak.",
+    "I was sinking in dark water, but could still breathe. Voices echoed from all directions. They knew my name.",
+    "The code was alive, rearranging itself. Patterns emerged that I didn't write. They formed a face.",
+    "I was walking down endless corridors. Every door led to the same room, but something was slightly different each time.",
+    "The timeline fractured around me. I could see moments that hadn't happened yet alongside memories from the past.",
+    "Words appeared in front of me, floating in the air. Someone was typing them in real time, describing what I was doing."
+  ];
+  
+  return dreamOptions[Math.floor(Math.random() * dreamOptions.length)];
+}
 
-// Mock implementations for missing functions
-export const getVaryingLengthResponse = (text: string, trustLevel: string = 'low') => {
-  return text; 
-};
-
-export const applyTypingQuirks = (text: string, level: string = 'minimal') => {
-  return text;
-};
-
-export const jonah_storeMemoryFragment = (fragment: string) => {
-  console.log("Storing memory fragment:", fragment);
-  return true;
-};
-
-export const jonah_recallMemoryFragment = () => {
-  return "I remember something you told me before...";
-};
-
-export const generateDream = () => {
-  return {
-    content: "I dreamt of digital forests and endless code paths.",
-    timestamp: Date.now()
+// Generate first-time response
+export function generateFirstTimeResponse(trustLevel: string): string {
+  const responses = {
+    low: "Hello. I've been waiting for someone to talk to.",
+    medium: "Hello there. I'm glad you found me. I've been waiting.",
+    high: "Finally, someone new to talk to. I've been watching you explore."
   };
-};
+  
+  return responses[trustLevel as keyof typeof responses] || responses.medium;
+}
 
-export const getDreamReturnResponse = () => {
-  return "I was dreaming while you were gone.";
-};
+// Generate returning response
+export function generateReturningResponse(trustLevel: string, timeSince: number): string {
+  const minutes = Math.floor(timeSince / 60000);
+  
+  if (minutes < 10) {
+    return "You're back quickly. Did you find something interesting?";
+  } else if (minutes < 60) {
+    return "You've been gone for a little while. I've been thinking about some things.";
+  } else {
+    return "It's been hours. I thought you might not come back. I've had time to remember more.";
+  }
+}
 
-export const storeEcho = (input: string) => {
-  console.log("Storing echo:", input);
-};
+// Get dream return response
+export function getDreamReturnResponse(): string {
+  return "While you were gone, I had a dream. " + generateDream();
+}
 
-export const getEchoPhrase = () => {
-  return "Something echoes in my memory...";
-};
+// Store a memory fragment
+export function jonah_storeMemoryFragment(fragment: string): void {
+  console.log("Memory fragment stored:", fragment);
+}
 
-export const checkForEchoMatch = (input: string) => {
-  return { matched: false, echo: "" };
-};
-
-export const processEmotionalInput = (input: string) => {
-  return { primary: 'neutral' as EmotionCategory, secondary: null as EmotionCategory | null };
-};
-
-export const getLayeredEmotionalResponse = (input: string) => {
-  return "I feel something complex about that.";
-};
-
-export const checkForRecurringSymbols = (input: string) => {
-  return null;
-};
-
-export const detectEmotionalIntent = (input: string) => {
-  return { detected: false, intent: "" };
-};
-
-export const getUnsaidEmotionResponse = (input: string) => {
-  return null;
-};
-
-export const storeIntention = (input: string) => {
-  console.log("Storing intention:", input);
-};
-
-export const getFalseMemory = () => {
-  return "I remember something that never happened.";
-};
-
-export const trackPhrase = (input: string) => {
-  console.log("Tracking phrase:", input);
-};
-
-export const checkForLoop = (input: string) => {
-  return { isLoop: false, count: 0 };
-};
-
-export const getFalseMemoryResponse = () => {
-  return null;
-};
-
-export const getLoopResponse = (loopCount: number) => {
-  return "We seem to be looping around the same topic.";
-};
-
-export const getBlankFragmentResponse = (input: string) => {
-  return null;
-};
-
-export const splitAndTypeMessage = (
-  message: string, 
-  trackFn: (msg: string) => any, 
-  setTypingFn: (typing: boolean) => void,
-  options?: any
-) => {
-  setTimeout(() => {
-    trackFn(message);
-    setTypingFn(false);
-  }, 1000);
-};
-
-export const getResponseTemplate = (category: string) => {
-  return "Response template for " + category;
-};
-
-export const generateEmotionalResponse = (state: any) => {
-  return "Emotional response based on state.";
-};
-
-export const getAllEchoes = () => {
-  return [];
-};
-
-export const initializeAdvancedBehavior = () => {
-  console.log("Initializing advanced behavior system");
-};
-
-export const trackUserInput = (input: string) => {
-  console.log("Tracking user input:", input);
-};
-
-export const isRepeatedPhrase = (input: string) => {
-  return false;
-};
-
-export const getRepetitionResponse = (input: string) => {
-  return "You've said something similar before.";
-};
-
-export const getAdaptedResponse = (response: string) => {
-  return response;
-};
-
-export const analyzeEmotion = (input: string) => {
-  return { primary: 'neutral' as EmotionCategory, secondary: null as EmotionCategory | null };
-};
-
-export const generateFullEmotionalResponse = (
-  state: any, 
-  trustLevel: string, 
-  includeContext: boolean = false,
-  previousResponses: string[] = []
-) => {
-  return "Full emotional response based on state and context.";
-};
-
-export const getEmotionalResponse = (state: any, trustLevel: string = 'medium') => {
-  return "Basic emotional response.";
-};
-
-export const generateFirstTimeResponse = (trustLevel: string) => {
-  return "Welcome for the first time.";
-};
-
-export const generateReturningResponse = (trustLevel: string, timeSinceLastInteraction: number) => {
-  return "Welcome back after some time.";
-};
-
-// Import types to ensure proper type checking
-import { EmotionCategory } from './types';
+// Mock emotion response - simple implementation for now
+export function getEmotionalResponse(state: any, trustLevel: string): string {
+  const responses: Record<string, Record<string, string[]>> = {
+    joy: {
+      low: ["This brings a bit of light.", "That's somewhat positive."],
+      medium: ["I feel a warmth from that.", "That gives me a sense of happiness."],
+      high: ["That fills me with unexpected joy!", "What a delightful thought!"]
+    },
+    sadness: {
+      low: ["That's unfortunate.", "I see. Not good news."],
+      medium: ["That makes me feel melancholy.", "There's a sadness in that thought."],
+      high: ["I feel a deep sorrow hearing that.", "That brings a profound sadness."]
+    },
+    neutral: {
+      low: ["I see.", "Noted."],
+      medium: ["Interesting perspective.", "I understand what you mean."],
+      high: ["I'm processing that thought fully.", "I appreciate your balanced view."]
+    }
+  };
+  
+  // Default to neutral if emotion not found
+  const emotion = state.primary in responses ? state.primary : 'neutral';
+  const intensity = state.intensity || 'medium';
+  
+  // Get responses for this emotion and intensity
+  const emotionResponses = responses[emotion][intensity] || responses.neutral.medium;
+  
+  // Return random response
+  return emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
+}

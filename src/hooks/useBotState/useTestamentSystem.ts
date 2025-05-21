@@ -4,7 +4,7 @@
  */
 
 import { 
-  unlockTestamentByPhrase as unlockTestament,
+  unlockTestamentByPhrase,
   getTestamentTeaser as getTeaser,
   generateTestamentResponse as generateResponse
 } from '@/utils/jonahAdvancedBehavior/testament';
@@ -18,7 +18,7 @@ export function checkForTestamentUnlock(content: string): boolean {
   if (!content || typeof content !== 'string') return false;
   
   // Try to unlock a testament entry with the phrase
-  return unlockTestament(content);
+  return unlockTestamentByPhrase(content);
 }
 
 /**
@@ -36,8 +36,9 @@ export function generateTestamentResponse(content: string): string | null {
   );
   
   if (isTestamentQuery) {
-    // Use the imported function directly to avoid Promise issues
-    return generateResponse(content);
+    // Call the imported function and return its string result directly
+    const response = generateResponse(content);
+    return response || null;
   }
   
   return null;
@@ -54,5 +55,5 @@ export function getTestamentTeaser(): string | null {
   }
   
   // Use the imported function directly
-  return getTeaser();
+  return getTeaser() || null;
 }

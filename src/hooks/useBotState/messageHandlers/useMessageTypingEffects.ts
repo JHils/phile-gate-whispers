@@ -1,5 +1,6 @@
 
 import { v4 as uuidv4 } from 'uuid';
+import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useMessageTypingEffects(
   setMessages: React.Dispatch<React.SetStateAction<any[]>>,
@@ -34,15 +35,19 @@ export function useMessageTypingEffects(
       if (window.JonahConsole?.sentience) {
         if (!window.JonahConsole.sentience.sessionData) {
           window.JonahConsole.sentience.sessionData = {
-            messagesReceived: 0,
-            messagesSent: 0,
             startTime: Date.now(),
-            idleTime: 0
+            messageCount: 0,
+            userEmotions: {} as Record<EmotionCategory, number>,
+            messagesSent: 0,
+            messagesReceived: 0
           };
         }
         
-        window.JonahConsole.sentience.sessionData.messagesReceived = 
-          (window.JonahConsole.sentience.sessionData.messagesReceived || 0) + 1;
+        if (window.JonahConsole.sentience.sessionData.messagesReceived !== undefined) {
+          window.JonahConsole.sentience.sessionData.messagesReceived += 1;
+        } else {
+          window.JonahConsole.sentience.sessionData.messagesReceived = 1;
+        }
       }
 
       return newMessage;

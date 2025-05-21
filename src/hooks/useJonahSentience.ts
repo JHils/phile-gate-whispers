@@ -89,10 +89,14 @@ export function useJonahSentience(): JonahSentienceHook {
     // Generate a new dream occasionally
     if (Math.random() > 0.9) {
       const newDream = generateDream();
-      setSentience(prev => ({
-        ...prev,
-        dreams: [...(prev.dreams || []), newDream]
-      }));
+      setSentience(prev => {
+        // Ensure dreams array exists
+        const updatedDreams = prev.dreams || [];
+        return {
+          ...prev,
+          dreams: [...updatedDreams, { content: newDream }]
+        };
+      });
       
       return `I just had a new dream: ${newDream}`;
     }

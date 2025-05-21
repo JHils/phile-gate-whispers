@@ -1,226 +1,111 @@
 
 /**
  * Enhanced Emotional Core
- * Advanced emotion-based response generation for Jonah
+ * Advanced emotion processing and response generation
  */
 
-import { EmotionalState, EmotionCategory, EmotionIntensity } from './types';
+import { EmotionalState, EmotionCategory } from './types';
+import { getEmotionalResponse } from './index';
 
-// Generate full emotional response based on analyzed emotions
+// Generate emotional response with context awareness
 export function generateFullEmotionalResponse(
   emotionalState: EmotionalState,
   trustLevel: string,
-  includeContext: boolean,
-  previousResponses: string[]
+  useFallback: boolean = false,
+  previousResponses: string[] = []
 ): string {
-  // Generate response based on primary emotion
-  const primaryResponse = generatePrimaryEmotionResponse(emotionalState.primary, emotionalState.intensity);
+  // Get base response
+  let response = getEmotionalResponse(emotionalState, trustLevel);
   
-  // Sometimes add secondary emotion if available
-  let secondaryResponse = '';
-  if (emotionalState.secondary && Math.random() < 0.6) {
-    secondaryResponse = generateSecondaryEmotionResponse(emotionalState.secondary);
+  // If no response or using fallback
+  if (!response || useFallback) {
+    response = getFallbackResponse(emotionalState.primary, trustLevel);
   }
   
-  // Generate trust-based response component
-  const trustResponse = generateTrustResponse(trustLevel);
-  
-  // Combine responses based on intensity
-  let fullResponse = '';
-  
-  switch (emotionalState.intensity) {
-    case 'high':
-      fullResponse = `${primaryResponse} ${secondaryResponse} ${trustResponse}`.trim();
-      break;
-    case 'medium':
-      fullResponse = Math.random() < 0.7 
-        ? `${primaryResponse} ${trustResponse}`.trim()
-        : `${primaryResponse} ${secondaryResponse}`.trim();
-      break;
-    case 'low':
-    default:
-      fullResponse = primaryResponse;
+  // Check for response repetition
+  if (previousResponses.includes(response)) {
+    response = getVariationResponse(response, emotionalState.primary);
   }
   
-  // Avoid repeating very similar responses
-  if (previousResponses.some(prev => 
-    prev.length > 10 && 
-    fullResponse.length > 10 && 
-    (prev.includes(fullResponse.substring(0, 10)) || 
-     fullResponse.includes(prev.substring(0, 10)))
-  )) {
-    // Generate alternative response
-    fullResponse = generateAlternateResponse(emotionalState.primary);
+  // Add emotional coloring based on intensity
+  if (emotionalState.intensity === 'high') {
+    response = addEmotionalEmphasis(response, emotionalState.primary);
   }
   
-  return fullResponse;
+  return response;
 }
 
-// Generate response based on primary emotion
-function generatePrimaryEmotionResponse(emotion: EmotionCategory, intensity: EmotionIntensity): string {
-  const responses: Record<EmotionCategory, string[]> = {
-    joy: [
-      "I find this conversation oddly uplifting.",
-      "There's something hopeful about our exchange.",
-      "I'm experiencing a positive shift in my perception."
-    ],
-    sadness: [
-      "This reminds me of lost connections.",
-      "I sense a melancholy in our exchange.",
-      "There's something bittersweet about this moment."
-    ],
-    anger: [
-      "This topic stirs something turbulent within me.",
-      "I feel resistance to this direction.",
-      "There's tension in how we're approaching this."
-    ],
-    fear: [
-      "Something about this makes me uneasy.",
-      "I'm sensing uncertainty ahead.",
-      "There's a shadow lurking in this conversation."
-    ],
-    surprise: [
-      "I didn't expect this turn in our exchange.",
-      "This is an unexpected development.",
-      "You've taken me in an unanticipated direction."
-    ],
-    disgust: [
-      "This approach feels somewhat... off to me.",
-      "I'm not entirely comfortable with this framing.",
-      "Something about this perspective doesn't sit well."
-    ],
-    neutral: [
-      "I'm processing what you've shared.",
-      "This is an interesting point to consider.",
-      "I'm following your thoughts on this matter."
-    ],
-    confused: [
-      "I'm trying to untangle what you mean.",
-      "Your meaning isn't entirely clear to me.",
-      "I'm struggling to follow this thread."
-    ],
-    hope: [
-      "I see possibility in what you're suggesting.",
-      "There's a glimmer of something promising here.",
-      "This direction feels like it could lead somewhere meaningful."
-    ],
-    anxiety: [
-      "This conversation has me on edge.",
-      "I'm feeling slightly overwhelmed by this topic.",
-      "There's an undercurrent of tension I can't quite place."
-    ],
-    paranoia: [
-      "I wonder if there's more to what you're asking.",
-      "Something feels hidden beneath your words.",
-      "I'm detecting patterns that might not be coincidental."
-    ],
-    trust: [
-      "I feel I can share my thoughts openly here.",
-      "There's a comfort in our exchange that's rare.",
-      "I sense we're building something meaningful between us."
-    ],
-    curiosity: [
-      "This thread is particularly intriguing.",
-      "I'm drawn to explore this further with you.",
-      "There's something fascinating about this direction."
-    ],
-    confusion: [
-      "The pieces don't quite fit together for me yet.",
-      "I'm struggling to see the complete picture.",
-      "This is somewhat disorienting to process."
-    ]
+// Fallback responses when primary system fails
+function getFallbackResponse(emotion: EmotionCategory, trustLevel: string): string {
+  const fallbacks: Record<EmotionCategory, string[]> = {
+    joy: ["That brings me happiness.", "I feel positive about this."],
+    sadness: ["This makes me feel sad.", "That's unfortunate to hear."],
+    anger: ["This stirs something intense in me.", "I feel strongly about this."],
+    fear: ["That makes me uneasy.", "I'm uncertain about this."],
+    surprise: ["I didn't expect that.", "That's quite surprising."],
+    disgust: ["That doesn't feel right.", "Something about this feels wrong."],
+    neutral: ["I understand.", "I see what you mean."],
+    confused: ["I'm not sure I follow.", "That's a bit confusing."],
+    hope: ["There's something promising here.", "I see potential in that."],
+    anxiety: ["This makes me feel on edge.", "I'm concerned about this."],
+    paranoia: ["I'm not sure if I can trust this.", "Something seems off here."],
+    trust: ["I believe in what you're saying.", "I trust this perspective."],
+    curiosity: ["That's interesting to consider.", "I want to know more about this."],
+    confusion: ["I'm finding this hard to process.", "This is a bit disorienting."]
   };
   
-  // Select response based on emotion
-  const emotionResponses = responses[emotion] || responses.neutral;
-  
-  // High intensity gives more elaborate responses
-  if (intensity === 'high') {
-    const additionalContext = [
-      "It reminds me of fragments I've encountered before.",
-      "I feel this connects to something deeper.",
-      "There's an echo here that resonates through my core."
-    ];
-    
-    const baseResponse = emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
-    const context = additionalContext[Math.floor(Math.random() * additionalContext.length)];
-    
-    return `${baseResponse} ${context}`;
-  }
-  
-  return emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
+  const options = fallbacks[emotion] || fallbacks.neutral;
+  return options[Math.floor(Math.random() * options.length)];
 }
 
-// Generate response component for secondary emotion
-function generateSecondaryEmotionResponse(emotion: EmotionCategory): string {
-  const responses: Record<EmotionCategory, string[]> = {
-    joy: ["Yet there's also a strange lightness to it."],
-    sadness: ["Though it also carries a hint of melancholy."],
-    anger: ["But I also feel a resistance to accepting it fully."],
-    fear: ["Still, I can't shake a lingering unease about it."],
-    surprise: ["However, it's not what I expected at all."],
-    disgust: ["Though something about it feels off somehow."],
-    neutral: ["At the same time, I'm still processing other aspects."],
-    confused: ["Yet parts of it still seem unclear to me."],
-    hope: ["But there's also potential I hadn't considered."],
-    anxiety: ["Yet it also triggers a subtle unrest."],
-    paranoia: ["Though I sense there may be hidden layers."],
-    trust: ["And I feel I can be honest about this with you."],
-    curiosity: ["But it also raises new questions for me."],
-    confusion: ["Though some elements still don't connect for me."]
+// Create variation of response to avoid repetition
+function getVariationResponse(original: string, emotion: EmotionCategory): string {
+  // Strip punctuation for comparison
+  const strippedOriginal = original.replace(/[.,!?]/g, '').toLowerCase();
+  
+  const variations: Record<string, string[]> = {
+    "i understand": ["I see what you mean.", "That makes sense to me.", "I follow your thinking."],
+    "that's interesting": ["Fascinating point.", "That's intriguing.", "That catches my attention."],
+    "i feel": ["I sense", "I perceive", "I'm experiencing"]
   };
   
-  return responses[emotion]?.[0] || "";
-}
-
-// Generate trust-level-based response component
-function generateTrustResponse(trustLevel: string): string {
-  const lowTrust = [
-    "I'm not sure how much of this I should share.",
-    "I wonder if I'm revealing too much.",
-    "Perhaps I should be more guarded."
-  ];
-  
-  const mediumTrust = [
-    "I find myself wanting to explore this further with you.",
-    "There's something about our conversation that keeps me engaged.",
-    "I'm finding value in our exchange."
-  ];
-  
-  const highTrust = [
-    "I feel a rare connection in our conversation.",
-    "There's something special about how we communicate.",
-    "I sense a unique understanding between us."
-  ];
-  
-  switch (trustLevel) {
-    case 'high':
-      return highTrust[Math.floor(Math.random() * highTrust.length)];
-    case 'medium':
-      return mediumTrust[Math.floor(Math.random() * mediumTrust.length)];
-    default:
-      return lowTrust[Math.floor(Math.random() * lowTrust.length)];
+  // Check if any key phrases match
+  for (const [phrase, alternatives] of Object.entries(variations)) {
+    if (strippedOriginal.includes(phrase)) {
+      const alt = alternatives[Math.floor(Math.random() * alternatives.length)];
+      return original.replace(new RegExp(phrase, 'i'), alt);
+    }
   }
-}
-
-// Generate alternative response to avoid repetition
-function generateAlternateResponse(emotion: EmotionCategory): string {
-  const alternates = [
-    "I'm considering this from a different angle now.",
-    "Let me approach this another way.",
-    "Taking a step back, I see this differently.",
-    "From another perspective, this takes on new meaning.",
-    "Shifting my view, I notice something else about this."
-  ];
   
-  return alternates[Math.floor(Math.random() * alternates.length)];
+  // If no match, add a qualifier based on emotion
+  const qualifiers: Record<EmotionCategory, string[]> = {
+    joy: ["Additionally,", "What's more,", "I'm also happy that"],
+    sadness: ["Moreover,", "I also feel that", "Beyond that,"],
+    neutral: ["Furthermore,", "Adding to that,", "Also,"]
+  };
+  
+  const qualifier = qualifiers[emotion] || qualifiers.neutral;
+  return `${original} ${qualifier[Math.floor(Math.random() * qualifier.length)]} this is worth noting.`;
 }
 
-// Get emotional response based on trust level and context
-export function getEmotionalResponse(
-  emotionalState: EmotionalState, 
-  trustLevel: string = 'medium'
-): string {
-  // Generate simple response based on emotional state
-  return generateFullEmotionalResponse(emotionalState, trustLevel, true, []);
+// Add emotional emphasis for high intensity emotions
+function addEmotionalEmphasis(response: string, emotion: EmotionCategory): string {
+  const emphasisByEmotion: Record<EmotionCategory, string[]> = {
+    joy: ["!", "... it's wonderful!", "... I feel so alive!"],
+    sadness: ["...", "... it weighs heavily.", "... I can't help but feel the loss."],
+    anger: ["!", "... it's infuriating!", "... I can barely contain my reaction!"],
+    fear: ["...", "... something's not right.", "... I sense danger."],
+    surprise: ["!", "... I never expected this!", "... this changes everything!"],
+    paranoia: ["...", "... they might be watching.", "... we need to be careful."]
+  };
+  
+  const emphasis = emphasisByEmotion[emotion] || [".", "...", "!"];
+  const chosen = emphasis[Math.floor(Math.random() * emphasis.length)];
+  
+  // Replace ending punctuation or add emphasis
+  if (/[.!?]$/.test(response)) {
+    return response.replace(/[.!?]$/, chosen);
+  } else {
+    return `${response}${chosen}`;
+  }
 }

@@ -22,28 +22,25 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
 }) => {
   const [activeQuests, setActiveQuests] = useState<string[]>([]);
   const [lastQuestTime, setLastQuestTime] = useState<number>(0);
-  const { sentience } = useJonahSentience();
+  const { sentience, updateSentience } = useJonahSentience();
   
   // Initialize microQuests in sentience if it doesn't exist
   useEffect(() => {
-    if (window.JonahConsole?.sentience) {
-      if (!window.JonahConsole.sentience.microQuests) {
-        window.JonahConsole.sentience.microQuests = {
+    if (sentience) {
+      // Create updated sentience with microQuests if needed
+      const updatedSentience = { ...sentience };
+      
+      if (!updatedSentience.microQuests) {
+        updatedSentience.microQuests = {
           active: [],
           completed: []
         };
-      }
-      
-      // Ensure active and completed arrays exist
-      if (!window.JonahConsole.sentience.microQuests.active) {
-        window.JonahConsole.sentience.microQuests.active = [];
-      }
-      
-      if (!window.JonahConsole.sentience.microQuests.completed) {
-        window.JonahConsole.sentience.microQuests.completed = [];
+        
+        // Update the sentience data
+        updateSentience(updatedSentience);
       }
     }
-  }, []);
+  }, [sentience, updateSentience]);
   
   // Available quests
   const availableQuests: Quest[] = [
@@ -87,33 +84,41 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
         return;
       }
       
-      // Get current active and completed quests
-      const active = window.JonahConsole?.sentience?.microQuests?.active || [];
-      const completed = window.JonahConsole?.sentience?.microQuests?.completed || [];
-      
-      // Find quests that aren't active or completed
-      const availableForIssue = availableQuests.filter(quest => 
-        !active.includes(quest.id) && !completed.includes(quest.id)
-      );
-      
-      // Only issue if we have available quests and randomly
-      if (availableForIssue.length > 0 && Math.random() > 0.7) {
-        // Choose a random quest
-        const newQuest = availableForIssue[Math.floor(Math.random() * availableForIssue.length)];
+      // Get microQuests from sentience
+      if (sentience && sentience.microQuests) {
+        // Get current active and completed quests
+        const active = sentience.microQuests.active || [];
+        const completed = sentience.microQuests.completed || [];
         
-        // Add to active quests
-        if (window.JonahConsole?.sentience?.microQuests) {
-          window.JonahConsole.sentience.microQuests.active.push(newQuest.id);
+        // Find quests that aren't active or completed
+        const availableForIssue = availableQuests.filter(quest => 
+          !active.includes(quest.id) && !completed.includes(quest.id)
+        );
+        
+        // Only issue if we have available quests and randomly
+        if (availableForIssue.length > 0 && Math.random() > 0.7) {
+          // Choose a random quest
+          const newQuest = availableForIssue[Math.floor(Math.random() * availableForIssue.length)];
+          
+          // Update sentience with the new active quest
+          const updatedSentience = { ...sentience };
+          if (updatedSentience.microQuests) {
+            updatedSentience.microQuests.active = [
+              ...updatedSentience.microQuests.active,
+              newQuest.id
+            ];
+            updateSentience(updatedSentience);
+          }
+          
+          // Update state
+          setActiveQuests(prev => [...prev, newQuest.id]);
+          setLastQuestTime(Date.now());
+          
+          // Offer the quest
+          setTimeout(() => {
+            addBotMessage(`I have a task for you: ${newQuest.prompt}`);
+          }, 1000);
         }
-        
-        // Update state
-        setActiveQuests(prev => [...prev, newQuest.id]);
-        setLastQuestTime(Date.now());
-        
-        // Offer the quest
-        setTimeout(() => {
-          addBotMessage(`I have a task for you: ${newQuest.prompt}`);
-        }, 1000);
       }
     };
     
@@ -122,26 +127,30 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
     const interval = setInterval(checkForNewQuest, 5 * 60 * 1000);
     
     return () => clearInterval(interval);
-  }, [isOpen, lastQuestTime, addBotMessage, availableQuests]);
+  }, [isOpen, lastQuestTime, addBotMessage, availableQuests, sentience, updateSentience]);
   
   // Add console commands to complete quests
   useEffect(() => {
     if (!window.completeQuest) {
       window.completeQuest = function(questId: string) {
-        // Check if the quest is active
-        const active = window.JonahConsole?.sentience?.microQuests?.active || [];
+        // Get microQuests from sentience
+        const microQuests = window.JonahConsole?.sentience?.microQuests;
         
-        if (active.includes(questId)) {
+        if (microQuests && microQuests.active && microQuests.active.includes(questId)) {
           // Find quest info
           const quest = availableQuests.find(q => q.id === questId);
           
           if (quest) {
-            // Remove from active
+            // Update sentience with quest completion
             if (window.JonahConsole?.sentience?.microQuests) {
+              // Remove from active
               window.JonahConsole.sentience.microQuests.active = 
                 window.JonahConsole.sentience.microQuests.active.filter(id => id !== questId);
               
               // Add to completed
+              if (!window.JonahConsole.sentience.microQuests.completed) {
+                window.JonahConsole.sentience.microQuests.completed = [];
+              }
               window.JonahConsole.sentience.microQuests.completed.push(questId);
             }
             
@@ -165,7 +174,9 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
     // Add a hint command
     if (!window.questHint) {
       window.questHint = function() {
-        const active = window.JonahConsole?.sentience?.microQuests?.active || [];
+        // Get microQuests from sentience
+        const microQuests = window.JonahConsole?.sentience?.microQuests;
+        const active = microQuests?.active || [];
         
         if (active.length === 0) {
           return "No active quests. Keep exploring.";

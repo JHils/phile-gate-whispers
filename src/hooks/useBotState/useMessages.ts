@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { 
-  jonah_storeMemoryFragment
+  jonah_storeMemoryFragment,
+  EmotionCategory
 } from '@/utils/jonahAdvancedBehavior';
 
 // Import from newly refactored files
@@ -83,15 +84,19 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
     if (window.JonahConsole?.sentience) {
       if (!window.JonahConsole.sentience.sessionData) {
         window.JonahConsole.sentience.sessionData = {
-          messagesSent: 0,
-          messagesReceived: 0,
           startTime: Date.now(),
-          idleTime: 0
+          messageCount: 0,
+          userEmotions: {} as Record<EmotionCategory, number>,
+          messagesSent: 0,
+          messagesReceived: 0
         };
       }
       
-      window.JonahConsole.sentience.sessionData.messagesSent = 
-        (window.JonahConsole.sentience.sessionData.messagesSent || 0) + 1;
+      if (window.JonahConsole.sentience.sessionData.messagesSent !== undefined) {
+        window.JonahConsole.sentience.sessionData.messagesSent += 1;
+      } else {
+        window.JonahConsole.sentience.sessionData.messagesSent = 1;
+      }
         
       window.JonahConsole.sentience.lastInteraction = now;
       

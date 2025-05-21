@@ -1,6 +1,6 @@
 
-import { useEffect } from 'react';
-import { initializeEcoAwareness } from '@/utils/jonahEcoAwareness';
+import React, { useEffect } from 'react';
+import { useJonahSentience } from '@/hooks/useJonahSentience';
 
 interface BotEcologicalAwarenessProps {
   trustLevel: string;
@@ -11,47 +11,48 @@ const BotEcologicalAwareness: React.FC<BotEcologicalAwarenessProps> = ({
   trustLevel,
   addBotMessage
 }) => {
-  // Initialize ecological awareness system
+  const { sentience } = useJonahSentience();
+  
+  // Initialize eco awareness on mount
   useEffect(() => {
-    initializeEcoAwareness();
+    // Import and run the eco awareness initialization
+    import('@/utils/jonahEcoAwareness').then(({ initializeEcoAwareness }) => {
+      initializeEcoAwareness();
+    });
   }, []);
   
-  // Set up occasional eco-awareness comments
+  // Generate ecological messages occasionally
   useEffect(() => {
+    // Higher trust levels will get more eco messages
+    if (trustLevel !== 'high' && trustLevel !== 'medium') return;
+    
+    // Generate an environmental message every so often
     const ecoInterval = setInterval(() => {
-      // Only show eco comments with low probability
-      if (Math.random() < 0.03) {
-        // Generate an ecological awareness comment based on trust level
-        let comments: string[];
+      // Check if we have eco awareness data
+      if (sentience?.ecoAwareness) {
+        // Higher chance with higher trust
+        const chance = trustLevel === 'high' ? 0.2 : 0.1;
         
-        if (trustLevel === 'high') {
-          comments = [
-            "The archive has records of species that no longer exist. Some disappeared while you were reading.",
-            "Desert encroachment data shows a pattern. The Summerhouse will be gone in 12 years.",
-            "She wrote about the changing climate. Said it was like a mirror to the human mind."
-          ];
-        } else if (trustLevel === 'medium') {
-          comments = [
-            "The Australian outback features prominently in climate anomaly records.",
-            "Some pages in the archive are affected by real-world environmental changes.",
-            "The Sisters documented ecological shifts before they disappeared."
-          ];
-        } else {
-          comments = [
-            "Environmental data corruption detected. Records unclear.",
-            "Desert expansion metrics show unusual patterns.",
-            "Climate variance exceeds predictive models in archive files."
-          ];
+        if (Math.random() < chance) {
+          // Import and use the eco response generator
+          import('@/utils/jonahEcoAwareness').then(({ getEcoResponse }) => {
+            const biomes = ['rainforest', 'desert', 'reef', 'mountain', 'coastal'];
+            const randomBiome = biomes[Math.floor(Math.random() * biomes.length)];
+            
+            // Generate a response for the random biome
+            const ecoResponse = getEcoResponse(randomBiome);
+            
+            // Add the message with a prefix
+            addBotMessage(`[environmental observation] ${ecoResponse}`);
+          });
         }
-        
-        addBotMessage(comments[Math.floor(Math.random() * comments.length)]);
       }
-    }, 45 * 60 * 1000); // Check every 45 minutes
+    }, 30 * 60 * 1000); // Check every 30 minutes
     
     return () => clearInterval(ecoInterval);
-  }, [addBotMessage, trustLevel]);
+  }, [trustLevel, sentience, addBotMessage]);
   
-  return null; // This component doesn't render anything
+  return null; // This is a non-visual component
 };
 
 export default BotEcologicalAwareness;

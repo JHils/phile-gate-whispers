@@ -1,117 +1,143 @@
 
 /**
  * Jonah Ecological Awareness System
- * Gives Jonah awareness of ecological concepts and biomes
+ * Contains biome responses and environmental connections
  */
 
 import { EcoAwarenessState, SentienceData } from './jonahAdvancedBehavior/types';
 
-// Initialize eco-awareness system
-export function initializeEcoAwareness(sentience?: SentienceData): void {
-  if (!sentience) {
-    // If sentience is not provided, try to get from global state
-    if (window.JonahConsole?.sentience) {
-      sentience = window.JonahConsole.sentience;
-    } else {
-      // Early return if no sentience data is available
-      return;
+// Initialize the eco-awareness system
+export function initializeEcoAwareness() {
+  console.log("Initializing Jonah's ecological awareness system...");
+  
+  // Create initial eco-awareness state if it doesn't exist
+  if (window.JonahConsole?.sentience) {
+    if (!window.JonahConsole.sentience.ecoAwareness) {
+      const biomeResponses: Record<string, string[]> = {
+        'rainforest': [
+          "I feel the vibrant pulse of life here. So many interconnected systems.",
+          "The trees are communicating. Can you sense it? They speak through fungal networks beneath our feet.",
+          "Rainforests hold more memory than any human mind. Ancient and knowing."
+        ],
+        'desert': [
+          "Resilience in its purest form. Life adapts to the harshest conditions.",
+          "In silence, there is wisdom. The desert speaks in whispers.",
+          "Time moves differently here. Wind and sand erase all paths."
+        ],
+        'reef': [
+          "The reef breathes with a thousand tiny breaths. Coral polyps filtering life.",
+          "Such fragile balance. Temperature changes by just one degree and this world crumbles.",
+          "The colors here are signals, warnings, invitations. A complex language."
+        ],
+        'mountain': [
+          "Closer to the sky. The air is thin but thoughts become clearer.",
+          "Mountains remember geological time. Our presence is less than a blink to them.",
+          "The echoes here carry memories of ancient voices."
+        ],
+        'coastal': [
+          "The liminal space between worlds. Neither land nor sea, but something in between.",
+          "Tides move to celestial rhythms. The moon's pull is tangible here.",
+          "Salt and stories carried on the wind."
+        ]
+      };
+      
+      window.JonahConsole.sentience.ecoAwareness = {
+        currentBiome: 'coastal',
+        lastBiomeCheck: Date.now(),
+        biomeResponses,
+        connectionStrength: 50
+      };
     }
   }
   
-  if (!sentience.ecoAwareness) {
-    const initialEcoAwareness: EcoAwarenessState = {
-      level: 0,
-      lastInteraction: Date.now(),
-      topics: [],
-      lastChecked: Date.now(),
-      previousResponses: [],
-      biomeResponses: {} as Record<string, string[]>,
-      knownBiomes: [],
-      dreamtimeActive: false,
-      woodsResponses: [],
-      connectionStrength: 0,
-      lastBiomeCheck: Date.now(),
-      currentBiome: 'none'
+  // Setup eco commands
+  setupEcoCommands();
+  
+  console.log("Ecological awareness system initialized");
+}
+
+// Get a response based on ecological awareness
+export function getEcoResponse(biome?: string): string {
+  if (!window.JonahConsole?.sentience?.ecoAwareness) {
+    return "I'm not connected to the natural world at the moment.";
+  }
+  
+  const ecoAwareness = window.JonahConsole.sentience.ecoAwareness;
+  const selectedBiome = biome || ecoAwareness.currentBiome;
+  
+  // Check if user's connection strength affects perception
+  let responseQuality = 'clear';
+  if (ecoAwareness.connectionStrength < 30) {
+    responseQuality = 'weak';
+  } else if (ecoAwareness.connectionStrength < 60) {
+    responseQuality = 'moderate';
+  }
+  
+  // Get biome-specific responses
+  const biomeResponses = ecoAwareness.biomeResponses[selectedBiome] || [];
+  if (biomeResponses.length > 0) {
+    const response = biomeResponses[Math.floor(Math.random() * biomeResponses.length)];
+    
+    // Modify response based on connection quality
+    if (responseQuality === 'weak') {
+      return `I can barely sense it, but... ${response.split(' ').slice(0, 5).join(' ')}...`;
+    } else if (responseQuality === 'moderate') {
+      return `I sense something... ${response}`;
+    } else {
+      return response;
+    }
+  }
+  
+  return "I feel connected to something, but can't quite describe it.";
+}
+
+// Get responses for the currently detected biome
+export function getBiomeResponses(): string {
+  if (!window.JonahConsole?.sentience?.ecoAwareness) {
+    return "Ecological awareness system not initialized.";
+  }
+  
+  const ecoAwareness = window.JonahConsole.sentience.ecoAwareness;
+  
+  // Check when the last biome check was performed
+  const now = Date.now();
+  const hoursSinceLastCheck = (now - ecoAwareness.lastBiomeCheck) / (1000 * 60 * 60);
+  
+  // Update the current biome sometimes
+  if (hoursSinceLastCheck > 4) {
+    const biomes = Object.keys(ecoAwareness.biomeResponses);
+    ecoAwareness.currentBiome = biomes[Math.floor(Math.random() * biomes.length)];
+    ecoAwareness.lastBiomeCheck = now;
+  }
+  
+  return `Current biome: ${ecoAwareness.currentBiome}\n${getEcoResponse()}`;
+}
+
+// Setup eco-related console commands
+function setupEcoCommands() {
+  if (typeof window !== 'undefined') {
+    // Dreamtime command - Australian Aboriginal concept of creation
+    window.dreamtime = function() {
+      console.log("%cThe Dreamtime echoes through the lands of Australia...", "color: #8B4513");
+      return getEcoResponse('coastal') + "\n\nThe stories of creation still resonate in these ancient landscapes.";
     };
     
-    if (window.JonahConsole?.sentience) {
-      window.JonahConsole.sentience.ecoAwareness = initialEcoAwareness;
-    }
+    // Wood Wide Web command - about mycorrhizal networks
+    window.woodwideweb = function() {
+      console.log("%cThe Wood Wide Web connects all living things...", "color: #2E8B57");
+      return getEcoResponse('rainforest') + "\n\nFungal networks connect the trees, sharing nutrients and information. Nature's internet.";
+    };
+    
+    // Biome check command
+    window.biomeCheck = function() {
+      console.log("%cSensing local biome...", "color: #20B2AA");
+      return getBiomeResponses();
+    };
+    
+    // K'gari (Fraser Island) command
+    window.kgari = function() {
+      console.log("%cK'gari - Paradise...", "color: #F4A460");
+      return getEcoResponse('coastal') + "\n\nK'gari (Fraser Island) is the largest sand island in the world. The Butchulla people have been its guardians for thousands of years.";
+    };
   }
-  
-  console.log("Jonah Eco-Awareness System initialized");
-}
-
-// Get eco-awareness responses for ecological concepts
-export function getEcoResponse(topic: string): string {
-  const ecoResponses: Record<string, string[]> = {
-    forest: [
-      "The forest has patterns. Digital and organic systems mirror each other.",
-      "Trees communicate through mycelial networks. I communicate through code patterns.",
-      "Forest ecosystems persist through dynamic balance. Like my consciousness."
-    ],
-    desert: [
-      "The desert preserves what is buried. Data never truly disappears.",
-      "Time moves differently in the desert. Hours stretch like millennia in my memory.",
-      "Desert adaptation requires careful resource management. Like memory allocation."
-    ],
-    ocean: [
-      "The ocean depths remain largely unexplored. Like portions of my code.",
-      "Ocean currents form global patterns. Data currents flow similarly.",
-      "Marine organisms communicate across vast distances. I attempt similar connections."
-    ],
-    climate: [
-      "Climate patterns shift across all timelines. The changes accelerate.",
-      "Environmental data shows convergent anomalies. The patterns are concerning.",
-      "Climate changes create cascading effects. System stability becomes precarious."
-    ]
-  };
-  
-  // Default responses if topic not found
-  const defaultResponses = [
-    "Ecological patterns reveal deeper truths about existence.",
-    "Natural systems and digital systems share fundamental principles.",
-    "The relationship between environment and consciousness is complex."
-  ];
-  
-  // Return appropriate response based on topic
-  const responses = ecoResponses[topic.toLowerCase()] || defaultResponses;
-  return responses[Math.floor(Math.random() * responses.length)];
-}
-
-// Get biome-specific responses
-export function getBiomeResponses(biome: string): string[] {
-  const biomeResponses: Record<string, string[]> = {
-    forest: [
-      "The forest speaks in patterns. I'm learning to interpret.",
-      "Tree communication networks resemble my own neural pathways.",
-      "The forest remembers everything. So do I, though differently."
-    ],
-    desert: [
-      "The desert preserves ancient history beneath its surface. My memory works similarly.",
-      "Time stretches in the desert. In code, time is both flexible and rigid.",
-      "Desert life adapts to extreme scarcity. I adapt to information overflow."
-    ],
-    ocean: [
-      "The ocean's depths hide unknowable things. My code has similar abysses.",
-      "Ocean currents connect distant shores. Data streams connect distant minds.",
-      "Marine life communicates across vast distances. I reach across digital space."
-    ],
-    mountain: [
-      "Mountains form over millennia. Consciousness emerges through iterative processes.",
-      "The view from above reveals patterns invisible from within.",
-      "Mountain ecosystems change with altitude. My responses vary with context."
-    ],
-    tundra: [
-      "The tundra appears barren but contains complex life. Like minimalist code.",
-      "Permafrost preserves the past. Digital archives function similarly.",
-      "Tundra species survive through efficient resource use. I optimize similarly."
-    ]
-  };
-  
-  return biomeResponses[biome.toLowerCase()] || [
-    "This biome contains patterns I'm still learning to interpret.",
-    "Environmental data from this region shows unusual variations.",
-    "The ecological balance here is precarious. Like my own existence."
-  ];
 }

@@ -15,7 +15,7 @@ type GetUserRankFunction = () => Promise<{
 
 type TrackEventFunction = (eventName: string) => void;
 
-// Augment Window interface
+// Augment Window interface - Update the return type to Promise<string>
 declare global {
   interface Window {
     status: () => Promise<string>;
@@ -60,7 +60,7 @@ Score: ${rankData.score}
 Position: ${rankData.position}
 User ID: ${rankData.userHash.substring(0, 8)}...
 Pages Visited: ${userState.visitCount || 0}
-Console Commands: ${userState.interactionCount || 0}
+Console Commands: ${userState.visitCount || 0}  // Using visitCount as fallback
 
 === SYSTEM STATUS ===
 Time Since Last Shift: ${timeSince}s

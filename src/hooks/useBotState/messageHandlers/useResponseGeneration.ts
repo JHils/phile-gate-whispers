@@ -28,7 +28,8 @@ import {
   createEmotionalState
 } from '@/utils/jonahAdvancedBehavior/types';
 
-import { analyze } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
+// Import the correct analyzer function
+import { analyze } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/analyzer';
 
 // Define missing types if needed
 interface MemoryContext {
