@@ -1,6 +1,5 @@
-
 import { EmotionalState, EmotionCategory, EmotionalTrend } from '../types';
-import { emotionalResponses, emotionalClarifyingQuestions } from './responses';
+import { emotionResponses, clarifyingQuestions } from './responses';
 import { PatternAnalysis, UnsaidInterpretation } from './types';
 
 // Track pattern history for trend detection
@@ -13,7 +12,7 @@ export function getEmotionalResponse(emotionalState: EmotionalState): string {
   const { primary, secondary, intensity } = emotionalState;
   
   // Get responses for primary emotion
-  const primaryResponses = emotionalResponses[primary] || emotionalResponses.neutral;
+  const primaryResponses = emotionResponses[primary] || emotionResponses.neutral;
   
   // Select random response from appropriate intensity
   const intensityResponses = primaryResponses[intensity] || primaryResponses.medium;
@@ -28,7 +27,7 @@ export function getClarifyingQuestion(emotionalState: EmotionalState): string | 
   const { primary } = emotionalState;
   
   // Get questions for this emotion
-  const questions = emotionalClarifyingQuestions[primary] || emotionalClarifyingQuestions.neutral;
+  const questions = clarifyingQuestions[primary] || clarifyingQuestions.neutral;
   
   if (questions.length === 0) {
     return null;
@@ -42,7 +41,7 @@ export function getClarifyingQuestion(emotionalState: EmotionalState): string | 
  */
 export function generateEmotionalResponse(emotion: EmotionCategory, template: string): string {
   // Get responses for this emotion
-  const responses = emotionalResponses[emotion] || emotionalResponses.neutral;
+  const responses = emotionResponses[emotion] || emotionResponses.neutral;
   
   // Get a random response from medium intensity
   const options = responses.medium || [];
