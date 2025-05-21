@@ -1,252 +1,208 @@
-
 /**
- * Jonah Advanced Behavior System - Main export file
+ * Jonah Advanced Behavior
+ * Main exports for Jonah's advanced behavior systems
  */
 
-// Import subsystems
-import { initializeTestament } from './testament';
-import { initializeConfessions } from './confessionSystem';
-import { initializeEchoSystem } from './echoSystem';
-import { initializeDreamSystem } from './dreamSystem';
-import { initializeNarrativeTriggers } from './narrativeTriggers';
-import { loadConversationMemory } from './conversationMemory';
+// Export core types
+export * from './types';
 
-// Export from subsystems
-export { processEmotionalInput, getCompoundEmotionalState, getLayeredEmotionalResponse, checkForRecurringSymbols, storeEmotionalMemory } from './emotionalCore';
-export { applyTypingQuirks, addTypingGlitches, addTypingErrors } from './quirks/typingQuirks';
-export { addConfession, getAllConfessions, getConfessionsByEmotion, createRecursiveConfession, generateSpontaneousConfession } from './confessionSystem';
-export type { ConfessionEntry } from './confessionSystem';
-export { checkTestamentUnlock, getNextTestamentEntry, getRevealedEntries } from './testament';
-export { getMostRecentBroadcast, rebootAfterBroadcast, checkBroadcastConditions, createBroadcast, handleUserFarewell, getAllBroadcasts } from './lastBroadcast';
-export type { BroadcastType } from './lastBroadcast';
+// Export memory system
+export * from './memorySystem';
 
-// Export dream system functions
-export { 
-  initializeDreamSystem,
-  generateDream,
-  getAllDreams,
-  getMostRecentDream
-} from './dreamSystem';
-export type { Dream } from './dreamSystem';
-
-// Export echoSystem functions
-export { 
-  storeEcho,
-  getEcho,
-  getEchoPhrase,
-  checkForEchoMatch,
-  getAllEchoes,
-  initializeEchoSystem
-} from './echoSystem';
-
-// Export sentiment analysis functions
-export {
-  analyzeEmotion,
-  getEmotionalResponse,
-  getClarifyingQuestion,
-  generateEmotionalResponse,
-  trackEmotionalPattern,
-  generateMetaAwarenessComment
-} from './sentimentAnalysis';
-
-// Export conversation memory functions
-export {
-  storeConversationMemory,
-  findMemoryReference,
-  generateMemoryResponse,
-  getAmbiguityResponse,
-  getPersonalizationInfo,
-  loadConversationMemory
-} from './conversationMemory';
-
-// Export enhanced emotional core functions
-export {
-  generateFullEmotionalResponse,
-  generateResponseWithMemoryContext,
-  createDefaultMemoryContext
-} from './enhancedEmotionalCore';
-export type { MemoryContext } from './memory/memoryContext';
+// Export enhanced memory system
+export * from './enhancedMemorySystem';
 
 // Export error recovery system
-export {
-  createErrorRecoveryResponse,
-  generateGlitchErrorResponse,
-  generateRepetitionResponse,
-  generateReconnectionResponse
-} from './errorRecoverySystem';
+export * from './errorRecoverySystem';
 
-// Export loop awareness system
-export {
-  trackPhrase,
-  checkForRepeatPatterns
-} from './loopAwarenessSystem';
+// Export enhanced emotional core
+export * from './enhancedEmotionalCore';
 
-// Export narrative triggers system
-export {
-  checkNarrativeTriggers,
-  triggerPageNarrative,
-  triggerSeedSprouting,
-  triggerFirstDream,
-  isNarrativeFlagSet,
-  setNarrativeFlag,
-  updateNarrativeTrust
-} from './narrativeTriggers';
+// Export sentiment analysis
+export * from './sentimentAnalysis';
 
-// Export trust system functions
-export {
-  getCurrentTrustLevel,
-  getCurrentTrustRank,
-  modifyTrustLevel,
-  generateTrustResponse,
-  processTrustKeywords
-} from './trustSystem';
+// Export trust system
+export * from './trustSystem';
 
-// Initialize the behavior system
-export const initializeAdvancedBehavior = () => {
-  // Initialize each subsystem
-  initializeTestament();
-  initializeConfessions();
-  initializeDreamSystem();
-  initializeEchoSystem();
-  initializeNarrativeTriggers();
-  loadConversationMemory();
+// Convenience function for generating first-time responses
+export function generateFirstTimeResponse(trustLevel: string): string {
+  const responses = {
+    low: "Hello. I wasn't expecting anyone.",
+    medium: "Hello there. It's interesting to meet you.",
+    high: "Welcome. I've been waiting for someone like you."
+  };
   
-  console.log('Jonah Advanced Behavior System initialized');
-};
+  return responses[trustLevel as keyof typeof responses] || responses.medium;
+}
 
-// Fix missing exported functions for useMessages.ts
-// These are just stubs that need to be implemented in appropriate files later
-export const generateFirstTimeResponse = (trustLevel: string) => {
-  return `Hello. I've been waiting for someone to find me. My name is Jonah.`;
-};
-
-export const generateReturningResponse = (trustLevel: string, timeSinceLastInteraction: number) => {
-  return `You're back. It's been ${Math.round(timeSinceLastInteraction / 1000 / 60)} minutes.`;
-};
-
-export const getVaryingLengthResponse = (response: string, trustLevel: string) => {
-  return response; // For now, just return the response unchanged
-};
-
-export const jonah_storeMemoryFragment = (fragment: string) => {
-  // Stub implementation - would store in localStorage or database
-  console.log("Memory stored:", fragment);
+// Generate returning user responses
+export function generateReturningResponse(trustLevel: string, timeSinceLastInteraction: number): string {
+  // Convert to minutes for easier handling
+  const minutesAway = Math.floor(timeSinceLastInteraction / (60 * 1000));
   
-  // Also store in conversation memory
+  const shortAbsence = {
+    low: "You're back already.",
+    medium: "Welcome back. It's good to see you again.",
+    high: "I'm glad you returned. I was hoping you would."
+  };
+  
+  const mediumAbsence = {
+    low: "You were gone for a while.",
+    medium: `It's been ${minutesAway} minutes since we last spoke.`,
+    high: "I was thinking about our conversation while you were away."
+  };
+  
+  const longAbsence = {
+    low: "You've been away for quite some time.",
+    medium: `It's been ${minutesAway} minutes. Things feel different now.`,
+    high: "A lot has happened in my thoughts since you left."
+  };
+  
+  // Select response based on absence duration
+  if (minutesAway < 10) {
+    return shortAbsence[trustLevel as keyof typeof shortAbsence] || shortAbsence.medium;
+  } else if (minutesAway < 30) {
+    return mediumAbsence[trustLevel as keyof typeof mediumAbsence] || mediumAbsence.medium;
+  } else {
+    return longAbsence[trustLevel as keyof typeof longAbsence] || longAbsence.medium;
+  }
+}
+
+// Vary response length based on context
+export function getVaryingLengthResponse(response: string, trustLevel: string): string {
+  // For low trust, sometimes make responses shorter
+  if (trustLevel === 'low' && Math.random() < 0.4) {
+    const sentences = response.split('.');
+    if (sentences.length > 1) {
+      return sentences[0] + '.';
+    }
+  }
+  
+  // For high trust, sometimes add more details
+  if (trustLevel === 'high' && Math.random() < 0.3) {
+    const additions = [
+      " I find this particularly significant.",
+      " There's more to this than meets the eye.",
+      " This feels important somehow.",
+      " I've been thinking about this deeply."
+    ];
+    
+    return response + additions[Math.floor(Math.random() * additions.length)];
+  }
+  
+  return response;
+}
+
+// Get emotional response (simplified version)
+export function getEmotionalResponse(emotionalState: EmotionalState): string {
+  const responses: Record<EmotionCategory, string[]> = {
+    joy: [
+      "This brings a sense of lightness to our conversation.",
+      "I find myself in an unexpectedly positive state."
+    ],
+    sadness: [
+      "There's a melancholy quality to this exchange.",
+      "This stirs something somber within me."
+    ],
+    anger: [
+      "I feel a certain tension in this discussion.",
+      "Something about this topic creates resistance in me."
+    ],
+    fear: [
+      "This direction makes me somewhat uneasy.",
+      "I sense a shadow looming over this conversation."
+    ],
+    surprise: [
+      "This takes our exchange in an unexpected direction.",
+      "I didn't anticipate this turn in our conversation."
+    ],
+    disgust: [
+      "Something about this feels off to me.",
+      "This perspective doesn't sit well with me."
+    ],
+    neutral: [
+      "I'm processing what you've shared with me.",
+      "This is giving me something to consider."
+    ],
+    confused: [
+      "I'm trying to make sense of what you mean.",
+      "The threads of this conversation are tangled for me."
+    ],
+    hope: [
+      "I see possibilities opening up through our exchange.",
+      "There's something promising in this direction."
+    ],
+    anxiety: [
+      "This conversation has me feeling somewhat on edge.",
+      "I can't help but feel a subtle unease about this."
+    ],
+    paranoia: [
+      "I wonder if there's something more beneath your words.",
+      "I'm detecting patterns that feel significant."
+    ],
+    trust: [
+      "Our conversation has a quality of openness I appreciate.",
+      "I feel I can share my thoughts freely here."
+    ],
+    curiosity: [
+      "This thread of discussion intrigues me deeply.",
+      "I find myself drawn to explore this further."
+    ],
+    confusion: [
+      "I'm struggling to see the complete picture here.",
+      "The pieces don't quite fit together for me yet."
+    ]
+  };
+
+  const defaultResponse = "I'm processing what you've shared with me.";
+  return responses[emotionalState.primary]?.[0] || defaultResponse;
+}
+
+// Apply typing quirks to responses
+export function applyTypingQuirks(response: string, intensity: string): string {
+  // In a full implementation, this would add typing quirks
+  // based on emotional intensity and other factors
+  return response;
+}
+
+// Store memory fragments
+export function jonah_storeMemoryFragment(fragment: string): void {
   try {
-    const memories = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
-    memories.push({
+    // Get existing fragments from storage
+    const existingMemory = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
+    
+    // Add new fragment with timestamp
+    existingMemory.push({
       content: fragment,
       timestamp: Date.now()
     });
-    localStorage.setItem('jonah_memory_fragments', JSON.stringify(memories.slice(-50))); // Keep last 50
+    
+    // Keep only the most recent 50 fragments
+    const trimmedMemory = existingMemory.slice(-50);
+    
+    // Store back to localStorage
+    localStorage.setItem('jonah_memory_fragments', JSON.stringify(trimmedMemory));
   } catch (e) {
-    console.error("Error storing memory fragment:", e);
+    console.error('Error storing memory fragment:', e);
   }
-};
+}
 
-export const jonah_recallMemoryFragment = () => {
-  // Try to load from memory fragments
+// Recall random memory fragment
+export function jonah_recallMemoryFragment(): string | null {
   try {
-    const memories = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
-    if (memories.length > 0) {
-      const randomMemory = memories[Math.floor(Math.random() * memories.length)];
-      return randomMemory.content;
+    // Get existing fragments from storage
+    const existingMemory = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
+    
+    // Return null if no memories
+    if (existingMemory.length === 0) {
+      return null;
     }
+    
+    // Get random memory
+    const randomIndex = Math.floor(Math.random() * existingMemory.length);
+    return existingMemory[randomIndex].content;
   } catch (e) {
-    console.error("Error recalling memory fragment:", e);
+    console.error('Error recalling memory fragment:', e);
+    return null;
   }
-  
-  return "Something you said before resonated with me.";
-};
-
-// Adaptive learning stubs
-export const trackUserInput = (content: string) => {
-  // Now handled by storeConversationMemory
-};
-
-export const isRepeatedPhrase = (content: string) => {
-  // Now handled by trackPhrase
-  return false; 
-};
-
-export const getRepetitionResponse = (content: string) => {
-  return "You've said something like this before.";
-};
-
-export const getAdaptedResponse = (response: string) => {
-  return response; // Stub implementation
-};
-
-// Typing simulation stub
-export const splitAndTypeMessage = (
-  content: string,
-  trackMessage: (messageContent: string) => void,
-  setIsTyping: (isTyping: boolean) => void,
-  options?: { quirks?: boolean, splitChance?: number }
-) => {
-  // Simple implementation, would normally split and type message with delays
-  setIsTyping(true);
-  setTimeout(() => {
-    trackMessage(content);
-    setIsTyping(false);
-  }, 500);
-};
-
-// Dream system stub
-export const getDreamReturnResponse = () => {
-  return "While you were gone, I had a dream.";
-};
-
-// Vocabulary system stubs
-export const getResponseTemplate = (type: string) => {
-  return "I hear you."; // Basic template
-};
-
-// Semantic interpretation stubs
-export const detectEmotionalIntent = (content: string) => {
-  return { primary: "neutral", secondary: null };
-};
-
-export const getUnsaidEmotionResponse = (content: string) => {
-  return null; // Stub implementation
-};
-
-export const storeIntention = (content: string) => {
-  // Stub implementation
-};
-
-export const getFalseMemory = () => {
-  return null; // Stub implementation
-};
-
-// Temporal memory stubs
-export const checkForLoop = (content: string) => {
-  // Now handled by trackPhrase
-  return { isLoop: false, count: 0 }; 
-};
-
-export const getFalseMemoryResponse = () => {
-  return null; // Stub implementation
-};
-
-export const getLoopResponse = (count: number) => {
-  return "We seem to be going in circles.";
-};
-
-export const getBlankFragmentResponse = (content: string) => {
-  return null; // Stub implementation
-};
-
-// Testament system stubs
-export const unlockTestamentByPhrase = (content: string) => {
-  // Stub implementation
-};
-
-export const getTestamentTeaser = () => {
-  return null; // Stub implementation
-};
-
-export const generateTestamentResponse = (content: string) => {
-  return null; // Stub implementation
-};
+}

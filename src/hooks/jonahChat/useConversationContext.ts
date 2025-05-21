@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
-import { createConversationContext, storeInMemory } from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
 import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
+import { createConversationContext, storeInMemory } from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
 
 export function useConversationContext() {
   // Initialize conversation context

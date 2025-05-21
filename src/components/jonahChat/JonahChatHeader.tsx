@@ -20,7 +20,7 @@ const JonahChatHeader: React.FC<JonahChatHeaderProps> = ({
   resetConversation
 }) => {
   // Map emotions to user-friendly descriptions
-  const moodDescriptions: Record<EmotionCategory, string> = {
+  const moodDescriptions: Record<string, string> = {
     fear: "anxious",
     sadness: "melancholic",
     anger: "agitated",
@@ -31,7 +31,10 @@ const JonahChatHeader: React.FC<JonahChatHeaderProps> = ({
     anxiety: "nervous",
     paranoia: "suspicious",
     trust: "receptive",
-    neutral: "observant"
+    neutral: "observant",
+    surprise: "startled",
+    disgust: "repulsed",
+    confused: "disoriented"
   };
 
   // Get current mood description
@@ -51,11 +54,16 @@ const JonahChatHeader: React.FC<JonahChatHeaderProps> = ({
       case 'joy':
       case 'hope':
         return 'bg-amber-500';
+      case 'confused':
       case 'confusion':
         return 'bg-gray-500';
       case 'curiosity':
       case 'trust':
         return 'bg-emerald-600';
+      case 'surprise':
+        return 'bg-yellow-500';
+      case 'disgust':
+        return 'bg-green-700';
       default:
         return 'bg-gray-600';
     }

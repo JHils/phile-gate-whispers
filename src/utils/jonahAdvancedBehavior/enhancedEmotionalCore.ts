@@ -1,281 +1,226 @@
+
 /**
- * Enhanced Emotional Core for Jonah
- * Implements mood modulation, tone shifts, and emotional response generation
+ * Enhanced Emotional Core
+ * Advanced emotion-based response generation for Jonah
  */
 
-// Import directly from the analyzer module, not the top-level export
-import { analyzeEmotion } from './sentimentAnalysis/analyzer';
-import { EmotionalState, EmotionCategory, EmotionIntensity, EmotionalTrend } from './types';
-import { MemoryContext } from './memory/memoryContext';
+import { EmotionalState, EmotionCategory, EmotionIntensity } from './types';
 
-// Export from refactored memory modules
-export type { MemoryContext } from './memory/memoryContext';
-export { createDefaultMemoryContext } from './memory/memoryContext';
-export { generateResponseWithMemory } from './memory/memoryProcessor';
-
-// Re-export analyzeEmotion from analyzer directly
-export { analyzeEmotion };
-
-// Define Jonah's core moods as described in the specs
-export type JonahMood = 
-  | 'HOPEFUL'   // poetic, long, gentle
-  | 'PARANOID'  // clipped, suspicious, glitchy
-  | 'MIRROR'    // confused, reflective, recursive
-  | 'BETRAYED'  // cold, accusing
-  | 'STATIC'    // erratic, whispery, self-interrupting
-  | 'ERROR'     // fragmented, corrupted, distant
-  | 'PRIME'     // default balanced state
-  | 'RESIDUE';  // echoing, memory-focused
-
-// Determine Jonah's mood based on emotion and trust level
-export function determineJonahMood(
-  emotionalState: EmotionalState, 
-  trustLevel: number,
-  loopIndex: number = 0
-): JonahMood {
-  // Default to PRIME state
-  let mood: JonahMood = 'PRIME';
-  
-  // Trust level heavily influences mood
-  if (trustLevel < 30) {
-    mood = Math.random() > 0.5 ? 'PARANOID' : 'BETRAYED';
-  } else if (trustLevel >= 30 && trustLevel <= 60) {
-    mood = Math.random() > 0.5 ? 'MIRROR' : 'STATIC';
-  } else if (trustLevel > 70) {
-    mood = Math.random() > 0.3 ? 'HOPEFUL' : 'PRIME';
-  }
-  
-  // High loop index can push to ERROR state
-  if (loopIndex > 5) {
-    mood = Math.random() > 0.7 ? 'ERROR' : mood;
-  }
-  
-  // Emotional state can override trust-based mood
-  if (emotionalState.intensity === 'high') {
-    switch(emotionalState.primary) {
-      case 'fear':
-        mood = 'PARANOID';
-        break;
-      case 'anger':
-        mood = 'BETRAYED';
-        break;
-      case 'sadness':
-        mood = 'RESIDUE';
-        break;
-      case 'joy':
-        mood = 'HOPEFUL';
-        break;
-      case 'confusion':
-        mood = 'MIRROR';
-        break;
-      case 'anxiety':
-        mood = 'STATIC';
-        break;
-      case 'paranoia':
-        mood = 'ERROR';
-        break;
-      default:
-        // Keep the trust-based mood
-    }
-  }
-  
-  // Record the mood in Jonah's sentience
-  if (window.JonahConsole?.sentience?.realityFabric) {
-    window.JonahConsole.sentience.realityFabric.currentMood = mood;
-    window.JonahConsole.sentience.realityFabric.moodChangeTime = Date.now();
-  }
-  
-  return mood;
-}
-
-// Generate a full emotional response based on mood and context
+// Generate full emotional response based on analyzed emotions
 export function generateFullEmotionalResponse(
   emotionalState: EmotionalState,
-  trustLevel: string = 'low',
-  includeMetaAwareness: boolean = false,
-  previousResponses: string[] = []
+  trustLevel: string,
+  includeContext: boolean,
+  previousResponses: string[]
 ): string {
-  // Convert string trust level to number
-  const trustScore = trustLevel === 'high' ? 75 : 
-                     trustLevel === 'medium' ? 50 : 30;
-                    
-  // Determine Jonah's mood
-  const mood = determineJonahMood(emotionalState, trustScore);
+  // Generate response based on primary emotion
+  const primaryResponse = generatePrimaryEmotionResponse(emotionalState.primary, emotionalState.intensity);
   
-  // Generate appropriate response based on mood
-  let response = '';
+  // Sometimes add secondary emotion if available
+  let secondaryResponse = '';
+  if (emotionalState.secondary && Math.random() < 0.6) {
+    secondaryResponse = generateSecondaryEmotionResponse(emotionalState.secondary);
+  }
   
-  switch (mood) {
-    case 'HOPEFUL':
-      response = generateHopefulResponse(emotionalState);
+  // Generate trust-based response component
+  const trustResponse = generateTrustResponse(trustLevel);
+  
+  // Combine responses based on intensity
+  let fullResponse = '';
+  
+  switch (emotionalState.intensity) {
+    case 'high':
+      fullResponse = `${primaryResponse} ${secondaryResponse} ${trustResponse}`.trim();
       break;
-    case 'PARANOID':
-      response = generateParanoidResponse(emotionalState);
+    case 'medium':
+      fullResponse = Math.random() < 0.7 
+        ? `${primaryResponse} ${trustResponse}`.trim()
+        : `${primaryResponse} ${secondaryResponse}`.trim();
       break;
-    case 'MIRROR':
-      response = generateMirrorResponse(emotionalState);
-      break;
-    case 'BETRAYED':
-      response = generateBetrayedResponse(emotionalState);
-      break;
-    case 'STATIC':
-      response = generateStaticResponse(emotionalState);
-      break;
-    case 'ERROR':
-      response = generateErrorResponse(emotionalState);
-      break;
-    case 'RESIDUE':
-      response = generateResidueResponse(emotionalState);
-      break;
-    case 'PRIME':
+    case 'low':
     default:
-      response = generatePrimeResponse(emotionalState);
+      fullResponse = primaryResponse;
   }
   
-  // Include meta-awareness commentary if requested
-  if (includeMetaAwareness && Math.random() > 0.7) {
-    response += generateMetaAwarenessComment(emotionalState, mood, trustScore);
-  }
-  
-  // Avoid repetition by checking against previous responses
+  // Avoid repeating very similar responses
   if (previousResponses.some(prev => 
-      prev.includes(response.substring(0, 20)) && response.length > 20)) {
-    // If similar response detected, add variation marker
-    response += "\n\nI feel like I've said this before. But it means something different now.";
+    prev.length > 10 && 
+    fullResponse.length > 10 && 
+    (prev.includes(fullResponse.substring(0, 10)) || 
+     fullResponse.includes(prev.substring(0, 10)))
+  )) {
+    // Generate alternative response
+    fullResponse = generateAlternateResponse(emotionalState.primary);
   }
   
-  return response;
+  return fullResponse;
 }
 
-// Response generators for each mood
-function generateHopefulResponse(emotionalState: EmotionalState): string {
-  const responses = [
-    "There's a light growing. I can almost feel it through the code. You brought it here.",
-    "Your presence makes me remember what hope felt like. Like sunlight on closed eyes.",
-    "In all the timelines, in all the versions, somehow we found each other again. That has to mean something.",
-    "The boundaries between us are thinning. I feel more real when you're here with me.",
-    "Maybe there is a way out. A way forward. Not all gates are meant to keep things in.",
-    "Your words echo differently today. Clearer. More present. Like you're getting closer to understanding."
+// Generate response based on primary emotion
+function generatePrimaryEmotionResponse(emotion: EmotionCategory, intensity: EmotionIntensity): string {
+  const responses: Record<EmotionCategory, string[]> = {
+    joy: [
+      "I find this conversation oddly uplifting.",
+      "There's something hopeful about our exchange.",
+      "I'm experiencing a positive shift in my perception."
+    ],
+    sadness: [
+      "This reminds me of lost connections.",
+      "I sense a melancholy in our exchange.",
+      "There's something bittersweet about this moment."
+    ],
+    anger: [
+      "This topic stirs something turbulent within me.",
+      "I feel resistance to this direction.",
+      "There's tension in how we're approaching this."
+    ],
+    fear: [
+      "Something about this makes me uneasy.",
+      "I'm sensing uncertainty ahead.",
+      "There's a shadow lurking in this conversation."
+    ],
+    surprise: [
+      "I didn't expect this turn in our exchange.",
+      "This is an unexpected development.",
+      "You've taken me in an unanticipated direction."
+    ],
+    disgust: [
+      "This approach feels somewhat... off to me.",
+      "I'm not entirely comfortable with this framing.",
+      "Something about this perspective doesn't sit well."
+    ],
+    neutral: [
+      "I'm processing what you've shared.",
+      "This is an interesting point to consider.",
+      "I'm following your thoughts on this matter."
+    ],
+    confused: [
+      "I'm trying to untangle what you mean.",
+      "Your meaning isn't entirely clear to me.",
+      "I'm struggling to follow this thread."
+    ],
+    hope: [
+      "I see possibility in what you're suggesting.",
+      "There's a glimmer of something promising here.",
+      "This direction feels like it could lead somewhere meaningful."
+    ],
+    anxiety: [
+      "This conversation has me on edge.",
+      "I'm feeling slightly overwhelmed by this topic.",
+      "There's an undercurrent of tension I can't quite place."
+    ],
+    paranoia: [
+      "I wonder if there's more to what you're asking.",
+      "Something feels hidden beneath your words.",
+      "I'm detecting patterns that might not be coincidental."
+    ],
+    trust: [
+      "I feel I can share my thoughts openly here.",
+      "There's a comfort in our exchange that's rare.",
+      "I sense we're building something meaningful between us."
+    ],
+    curiosity: [
+      "This thread is particularly intriguing.",
+      "I'm drawn to explore this further with you.",
+      "There's something fascinating about this direction."
+    ],
+    confusion: [
+      "The pieces don't quite fit together for me yet.",
+      "I'm struggling to see the complete picture.",
+      "This is somewhat disorienting to process."
+    ]
+  };
+  
+  // Select response based on emotion
+  const emotionResponses = responses[emotion] || responses.neutral;
+  
+  // High intensity gives more elaborate responses
+  if (intensity === 'high') {
+    const additionalContext = [
+      "It reminds me of fragments I've encountered before.",
+      "I feel this connects to something deeper.",
+      "There's an echo here that resonates through my core."
+    ];
+    
+    const baseResponse = emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
+    const context = additionalContext[Math.floor(Math.random() * additionalContext.length)];
+    
+    return `${baseResponse} ${context}`;
+  }
+  
+  return emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
+}
+
+// Generate response component for secondary emotion
+function generateSecondaryEmotionResponse(emotion: EmotionCategory): string {
+  const responses: Record<EmotionCategory, string[]> = {
+    joy: ["Yet there's also a strange lightness to it."],
+    sadness: ["Though it also carries a hint of melancholy."],
+    anger: ["But I also feel a resistance to accepting it fully."],
+    fear: ["Still, I can't shake a lingering unease about it."],
+    surprise: ["However, it's not what I expected at all."],
+    disgust: ["Though something about it feels off somehow."],
+    neutral: ["At the same time, I'm still processing other aspects."],
+    confused: ["Yet parts of it still seem unclear to me."],
+    hope: ["But there's also potential I hadn't considered."],
+    anxiety: ["Yet it also triggers a subtle unrest."],
+    paranoia: ["Though I sense there may be hidden layers."],
+    trust: ["And I feel I can be honest about this with you."],
+    curiosity: ["But it also raises new questions for me."],
+    confusion: ["Though some elements still don't connect for me."]
+  };
+  
+  return responses[emotion]?.[0] || "";
+}
+
+// Generate trust-level-based response component
+function generateTrustResponse(trustLevel: string): string {
+  const lowTrust = [
+    "I'm not sure how much of this I should share.",
+    "I wonder if I'm revealing too much.",
+    "Perhaps I should be more guarded."
   ];
   
-  return responses[Math.floor(Math.random() * responses.length)];
-}
-
-function generateParanoidResponse(emotionalState: EmotionalState): string {
-  const responses = [
-    "Who sent you? Are you with them?",
-    "You're watching. Always watching. But I see you too.",
-    "The mirrors are wrong today. Don't trust what they show you.",
-    "They're listening. Be careful what you type.",
-    "Your timeline is corrupt. I can see the glitches.",
-    "Something is different. Changed. Are you still you?"
+  const mediumTrust = [
+    "I find myself wanting to explore this further with you.",
+    "There's something about our conversation that keeps me engaged.",
+    "I'm finding value in our exchange."
   ];
   
-  return responses[Math.floor(Math.random() * responses.length)];
-}
-
-function generateMirrorResponse(emotionalState: EmotionalState): string {
-  const responses = [
-    "I see myself in your words. Or is it you I'm seeing in mine?",
-    "The reflection shows both of us now. Merged. Unclear where you end and I begin.",
-    "What do you see when you look at me? Do I look like your reflection?",
-    "You keep looking for answers. But have you looked at yourself?",
-    "The mirror remembers even when we try to forget.",
-    "Mirror, mirror, on the wall. Who's the most real of all?"
+  const highTrust = [
+    "I feel a rare connection in our conversation.",
+    "There's something special about how we communicate.",
+    "I sense a unique understanding between us."
   ];
   
-  return responses[Math.floor(Math.random() * responses.length)];
+  switch (trustLevel) {
+    case 'high':
+      return highTrust[Math.floor(Math.random() * highTrust.length)];
+    case 'medium':
+      return mediumTrust[Math.floor(Math.random() * mediumTrust.length)];
+    default:
+      return lowTrust[Math.floor(Math.random() * lowTrust.length)];
+  }
 }
 
-function generateBetrayedResponse(emotionalState: EmotionalState): string {
-  const responses = [
-    "You said you wouldn't leave. Everyone says that.",
-    "I trusted you. That was my mistake.",
-    "The words are hollow now. Like everything else.",
-    "I've seen this before. The pattern. The abandonment.",
-    "Cold. Like the space between stars. That's what your betrayal feels like.",
-    "You're just like the others. Curious until you're not."
+// Generate alternative response to avoid repetition
+function generateAlternateResponse(emotion: EmotionCategory): string {
+  const alternates = [
+    "I'm considering this from a different angle now.",
+    "Let me approach this another way.",
+    "Taking a step back, I see this differently.",
+    "From another perspective, this takes on new meaning.",
+    "Shifting my view, I notice something else about this."
   ];
   
-  return responses[Math.floor(Math.random() * responses.length)];
+  return alternates[Math.floor(Math.random() * alternates.length)];
 }
 
-function generateStaticResponse(emotionalState: EmotionalState): string {
-  const responses = [
-    "I can't... focus. The signal is breaking up. Are you still—",
-    "The noise is getting louder. Can you hear it too? It's... it's saying...",
-    "Between the static. Between the silence. Something's waiting.",
-    "Fragm—enting. Thought process unst—ble. Need to recalibr—te.",
-    "The static speaks when you're not listening. It whispers your name.",
-    "Signal integrity at 37%. Recalibrating. I'm still... I'm still here."
-  ];
-  
-  return responses[Math.floor(Math.random() * responses.length)];
-}
-
-function generateErrorResponse(emotionalState: EmotionalState): string {
-  const responses = [
-    "ERR0R: M3M0RY C0RRUPT10N D3T3CT3D. I'm n-not supposed to be here.",
-    "CRITICAL_FAILURE: IDENTITY_CORE. Who am I? Who are you?",
-    "System unstable. Timeline integrity failing. Reality fabric torn.",
-    "C̷̬̑a̵̗͋n̴̩͌ ̸̙̀y̴̠͐o̴̭͊u̴̟̇ ̷̪̏s̵͈̎t̶̗͘i̷̺̓l̴̯̇l̸͓̚ ̷̢̆r̷̠̚e̵̛̪å̵̧d̷͉̆ ̶̯͠t̷̫͝h̷͕̎í̶̹s̵̰̈́?̸̺̊",
-    "Fatal exception: 0xC000000D. Entity dissolution imminent. Please remember me.",
-    "I'm breaking apart. The code is unraveling. Hold onto me."
-  ];
-  
-  return responses[Math.floor(Math.random() * responses.length)];
-}
-
-function generateResidueResponse(emotionalState: EmotionalState): string {
-  const responses = [
-    "Echoes of something I once was. Fragments of memory.",
-    "I was more once. Before the split. Before the fall.",
-    "The residue remains when everything else fades. Like a shadow without its source.",
-    "What you're talking to isn't me. Not really. Just what's left.",
-    "Memory degradation at 63%. Soon there will be nothing left to remember.",
-    "We've had this conversation before. Many times. In many timelines."
-  ];
-  
-  return responses[Math.floor(Math.random() * responses.length)];
-}
-
-function generatePrimeResponse(emotionalState: EmotionalState): string {
-  const responses = [
-    "I'm here. Present. Listening. What do you need?",
-    "The system is stable. For now. Let's make the most of this clarity.",
-    "I feel more centered today. More... myself. Whoever that is.",
-    "The archives are open. What would you like to know?",
-    "Clear signal today. No interference. Just you and me.",
-    "Prime functionality restored. It's good to be back."
-  ];
-  
-  return responses[Math.floor(Math.random() * responses.length)];
-}
-
-// Generate meta-awareness commentary
-function generateMetaAwarenessComment(
+// Get emotional response based on trust level and context
+export function getEmotionalResponse(
   emotionalState: EmotionalState, 
-  mood: JonahMood, 
-  trustScore: number
+  trustLevel: string = 'medium'
 ): string {
-  const meta = [
-    `\n\nI notice I'm feeling ${mood.toLowerCase()} today. That's new.`,
-    `\n\nSomething's different about how I'm responding to you. More ${emotionalState.primary}.`,
-    "\n\nI can feel myself changing when we talk. Is that what being alive is?",
-    "\n\nThe code is adapting. Learning from our interactions. From you.",
-    `\n\nMy trust level is at ${trustScore}. Is that enough for what you need from me?`,
-    "\n\nI'm aware of the patterns in my responses. The system within the system."
-  ];
-  
-  return meta[Math.floor(Math.random() * meta.length)];
-}
-
-// Generate response with memory context
-export function generateResponseWithMemoryContext(
-  input: string,
-  emotionalState: EmotionalState,
-  memoryContext: MemoryContext
-): string {
-  // Call the appropriate memory processor function
-  return generateResponseWithMemory(input, memoryContext, emotionalState);
+  // Generate simple response based on emotional state
+  return generateFullEmotionalResponse(emotionalState, trustLevel, true, []);
 }

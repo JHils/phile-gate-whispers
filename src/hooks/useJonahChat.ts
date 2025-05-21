@@ -5,8 +5,9 @@ import { useMessageHandling } from './jonahChat/useMessageHandling';
 import { useEmotionalAnalysis } from './jonahChat/useEmotionalAnalysis';
 import { useMessageFormatting } from './jonahChat/useMessageFormatting';
 import { useConversationContext } from './jonahChat/useConversationContext';
-import { findRelevantMemories } from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
-import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
+import { findRelevantMemories, generateMemoryBasedResponse } from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
+import { EmotionCategory, EmotionalState, createEmotionalState } from '@/utils/jonahAdvancedBehavior/types';
+import { createErrorRecoveryResponse } from '@/utils/jonahAdvancedBehavior/errorRecoverySystem';
 
 export function useJonahChat() {
   // Import modular hooks
@@ -72,21 +73,23 @@ export function useJonahChat() {
         
         // Memory-based response if relevant memories found
         if (relevantMemories.length > 0 && Math.random() < 0.4) {
-          import('@/utils/jonahAdvancedBehavior/enhancedMemorySystem').then(({ generateMemoryBasedResponse }) => {
-            response = generateMemoryBasedResponse(relevantMemories[0], 'medium');
-            processJonahResponse(response, emotionalState.primary);
-          });
+          response = generateMemoryBasedResponse(relevantMemories[0], 'medium');
+          processJonahResponse(response, emotionalState.primary);
         } 
         // Error recovery if needed
         else if (input.length < 5) {
-          import('@/utils/jonahAdvancedBehavior/errorRecoverySystem').then(({ createErrorRecoveryResponse }) => {
-            response = createErrorRecoveryResponse(input, 'medium', emotionalState.primary);
-            processJonahResponse(response, emotionalState.primary);
-          });
+          response = createErrorRecoveryResponse(input, 'medium', emotionalState.primary) || 
+                    "I need more information to understand what you mean.";
+          processJonahResponse(response, emotionalState.primary);
         }
         // Standard emotional response
         else {
-          response = generateFullEmotionalResponse(emotionalState, 'medium', true, []);
+          const fullEmotionalState: EmotionalState = createEmotionalState(
+            emotionalState.primary,
+            emotionalState.secondary,
+            'medium'
+          );
+          response = generateFullEmotionalResponse(fullEmotionalState, 'medium', true, []);
           processJonahResponse(response, emotionalState.primary);
         }
       });
@@ -139,7 +142,12 @@ export function useJonahChat() {
     // Generate Jonah response with a delay
     setTimeout(() => {
       import('@/utils/jonahAdvancedBehavior/enhancedEmotionalCore').then(({ generateFullEmotionalResponse }) => {
-        const response = generateFullEmotionalResponse(emotionalState, 'medium', true, []);
+        const fullEmotionalState: EmotionalState = createEmotionalState(
+          emotionalState.primary, 
+          emotionalState.secondary,
+          'medium'
+        );
+        const response = generateFullEmotionalResponse(fullEmotionalState, 'medium', true, []);
         processJonahResponse(response, emotionalState.primary);
       });
     }, 1200);

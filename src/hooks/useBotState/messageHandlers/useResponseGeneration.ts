@@ -26,7 +26,7 @@ import { checkForRecurringSymbols, processEmotionalInput, getLayeredEmotionalRes
 import { getEchoPhrase } from '../useEchoSystem';
 import { getDreamReturnResponse } from '../useDreamSystem';
 import { getResponseTemplate, generateEmotionalResponse } from '../useVocabularySystem';
-import { EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionalState, EmotionCategory, createEmotionalState } from '@/utils/jonahAdvancedBehavior/types';
 
 // Import from the refactored modules
 import { 
@@ -159,9 +159,14 @@ export function useResponseGeneration(
   const generateResponseFromTemplate = (content: string, trustLevel: string): string => {
     // Analyze emotion using the enhanced system
     const emotionalState = analyzeEmotion(content);
+    const fullState: EmotionalState = createEmotionalState(
+      emotionalState.primary,
+      emotionalState.secondary,
+      'medium'
+    );
     
     // Generate full response with the enhanced system
-    return generateFullEmotionalResponse(emotionalState, trustLevel, true, previousResponses);
+    return generateFullEmotionalResponse(fullState, trustLevel, true, previousResponses);
   };
 
   // Main handler for response generation with enhanced systems
@@ -182,6 +187,11 @@ export function useResponseGeneration(
     
     // Analyze emotional content
     const emotionalState = analyzeEmotion(content);
+    const fullState: EmotionalState = createEmotionalState(
+      emotionalState.primary,
+      emotionalState.secondary,
+      'medium'
+    );
     
     // Update conversation memory
     conversationContext = storeInMemory(
@@ -248,7 +258,7 @@ export function useResponseGeneration(
     }
     // Check for basic emotional response as fallback
     else if (Math.random() < 0.4) {
-      const basicEmotionalResponse = getEmotionalResponse(emotionalState);
+      const basicEmotionalResponse = getEmotionalResponse(fullState);
       if (basicEmotionalResponse) {
         response = basicEmotionalResponse;
       }

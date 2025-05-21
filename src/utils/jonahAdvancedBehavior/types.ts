@@ -95,6 +95,7 @@ export interface BookCode {
   pageNumber?: number;
   timestamp?: number;
   id?: string;
+  name?: string; // Added this for compatibility
 }
 
 // Extended emotion categories
@@ -152,6 +153,14 @@ export interface EcoAwarenessState {
   knownBiomes: string[];
   dreamtimeActive: boolean;
   woodsResponses: string[];
+}
+
+// Create conversation context interface
+export interface ConversationContext {
+  recentInputs: string[];
+  recentEmotions: EmotionCategory[];
+  trustLevel: EmotionIntensity;
+  timestamp: number;
 }
 
 // Helper function to create emotional state
