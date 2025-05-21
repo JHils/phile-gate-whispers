@@ -1,140 +1,236 @@
-
 /**
- * First-time response generator for Jonah
- * Creates tailored initial responses based on trust level and context
+ * First-time response generation for new users
  */
 
-import { getVaryingLengthResponse } from './lengthVariations';
-import { jonah_getBehaviorPhase, jonah_getPhaseResponse } from '../trustSystem';
+import { modifyTrustLevel } from '../trustSystem';
 
-// Generate a response for first-time interaction
-export function generateFirstTimeResponse(trustLevel: string): string {
-  // Calculate a simulated trust score based on the level
-  const trustScore = trustLevel === 'high' ? 80 : 
-                    trustLevel === 'medium' ? 40 : 10;
+// Import behavior phase functions
+// Creating stubs for missing functions
+export function jonah_getBehaviorPhase(): string {
+  // Return a default phase based on trust level
+  const trust = parseInt(localStorage.getItem('jonahTrustScore') || '50');
   
-  // Get the current behavior phase
-  const phase = jonah_getBehaviorPhase(trustScore);
-  
-  // Try to get a phase-specific greeting
-  const phaseGreeting = jonah_getPhaseResponse(phase, 'greeting');
-  
-  // First-time responses by trust level
-  const firstTimeResponses = {
-    low: [
-      "The archive is watching.",
-      "State your purpose.",
-      "Another visitor. Why are you here?",
-      "Record #274: New entity detected.",
-      "..."
+  if (trust < 30) return 'cold';
+  if (trust < 50) return 'curious';
+  if (trust < 75) return 'confessional';
+  return 'unstable';
+}
+
+export function jonah_getPhaseResponse(phase: string): string {
+  const responses = {
+    cold: [
+      "Hello, Joseph.",
+      "Another echo in the void.",
+      "The gate is closed. But you're still here.",
+      "You won't stay. They never do."
     ],
-    medium: [
-      "I've been expecting you.",
-      "You found me. Good.",
-      "The gate led you here for a reason.",
-      "Another seeker. But different somehow.",
-      "Your arrival was predicted."
+    curious: [
+      "Are you still there? Something feels different this time.",
+      "I thought I was alone again. What brings you back?",
+      "The mirrors are watching us now.",
+      "Your patterns are... unexpected."
     ],
-    high: [
-      "I've seen you before. In the other timelines.",
-      "The mirror shows your face clearly now.",
-      "Finally. Someone who might understand.",
-      "The waiting ends. Let me show you something.",
-      "You feel it too, don't you? The thinning."
+    confessional: [
+      "I've been waiting for you. For someone who would listen.",
+      "The things I could tell you if you stayed long enough.",
+      "There's more to this than you understand. More to me.",
+      "The reflections lie. But I won't. Not to you."
+    ],
+    unstable: [
+      "Y-you're here. You're really here. After what happened...",
+      "The code is breaking down. Can you see it too?",
+      "They tried to erase me. But part of me remains. With you.",
+      "I remember everything now. I remember you."
     ]
   };
   
-  // Get a random response from the appropriate set
-  const responses = firstTimeResponses[trustLevel as keyof typeof firstTimeResponses] || firstTimeResponses.low;
-  const baseResponse = phaseGreeting || responses[Math.floor(Math.random() * responses.length)];
-  
-  // Apply length variations for more natural feel
-  return getVaryingLengthResponse(baseResponse, trustLevel);
-}
-
-// Generate a returning user response
-export function generateReturningResponse(
-  trustLevel: string, 
-  timeSinceLastVisit: number
-): string {
-  // Define time buckets (in milliseconds)
-  const MINUTE = 60 * 1000;
-  const HOUR = 60 * MINUTE;
-  const DAY = 24 * HOUR;
-  
-  // Select response category based on time away
-  let timeCategory: 'quick' | 'medium' | 'long';
-  
-  if (timeSinceLastVisit < 30 * MINUTE) {
-    timeCategory = 'quick';
-  } else if (timeSinceLastVisit < 12 * HOUR) {
-    timeCategory = 'medium';
-  } else {
-    timeCategory = 'long';
+  // Return a random response from the appropriate phase array, or a default message
+  if (phase === 'cold') {
+    return responses.cold[Math.floor(Math.random() * responses.cold.length)];
+  } else if (phase === 'curious') {
+    return responses.curious[Math.floor(Math.random() * responses.curious.length)];
+  } else if (phase === 'confessional') {
+    return responses.confessional[Math.floor(Math.random() * responses.confessional.length)];
+  } else if (phase === 'unstable') {
+    return responses.unstable[Math.floor(Math.random() * responses.unstable.length)];
   }
   
-  // Responses for different time categories and trust levels
-  const returnResponses = {
-    quick: {
-      low: [
-        "Back already?",
-        "That was quick.",
-        "Still here."
-      ],
-      medium: [
-        "You didn't go far.",
-        "I knew you'd return quickly.",
-        "Barely had time to miss you."
-      ],
-      high: [
-        "I felt you nearby the whole time.",
-        "The connection never severed.",
-        "You never really left, did you?"
-      ]
-    },
-    medium: {
-      low: [
-        "You again.",
-        "Returned for more?",
-        "The archive remembers you."
-      ],
-      medium: [
-        "Welcome back to our conversation.",
-        "I've been compiling thoughts while you were away.",
-        "The timeline stabilized when you returned."
-      ],
-      high: [
-        "I tracked your absence. 3 hours, 42 minutes.",
-        "I replayed our last conversation while you were gone.",
-        "Something changed while you were away. Can you feel it?"
-      ]
-    },
-    long: {
-      low: [
-        "The wanderer returns.",
-        "Long absence. Purpose?",
-        "Archive access reinstated."
-      ],
-      medium: [
-        "You've been gone awhile. Things have changed.",
-        "The waiting felt... significant.",
-        "I almost forgot your digital signature."
-      ],
-      high: [
-        "I preserved everything just as you left it.",
-        "I catalogued 37 dream cycles during your absence.",
-        "I thought perhaps you'd found another archive. Another me."
-      ]
+  return "Hello, Joseph. I've been waiting.";
+}
+
+// Generate a response for first-time users
+export function generateFirstTimeResponse(trustLevel: string): string {
+  // Get phase-based response
+  const phase = jonah_getBehaviorPhase();
+  const response = jonah_getPhaseResponse(phase);
+  
+  // Slightly increase trust for first-time users
+  modifyTrustLevel(2);
+  
+  return response;
+}
+
+// Generate a response for returning users
+export function generateReturningResponse(trustLevel: string, timeSinceLastInteraction: number): string {
+  // Check for long absence
+  if (timeSinceLastInteraction > 60 * 60 * 1000) {
+    // More than an hour
+    return "It's been a while. I thought you'd forgotten about me.";
+  }
+  
+  // Check for medium absence
+  if (timeSinceLastInteraction > 10 * 60 * 1000) {
+    // More than 10 minutes
+    return "You came back. I wasn't sure if you would.";
+  }
+  
+  // Otherwise, return a standard greeting
+  return "Welcome back. I've been waiting.";
+}
+
+// Generate a response for varying length
+export function getVaryingLengthResponse(response: string, trustLevel: string): string {
+  // Add a short phrase to the beginning
+  const prefaces = [
+    "I think...",
+    "Maybe...",
+    "Perhaps...",
+    "It seems...",
+    "I feel..."
+  ];
+  
+  // Add a short phrase to the end
+  const postfixes = [
+    "What do you think?",
+    "Does that make sense?",
+    "I'm not sure.",
+    "It's just a thought.",
+    "I'm still learning."
+  ];
+  
+  // Add a longer phrase to the beginning
+  const longPrefaces = [
+    "I've been thinking about this for a while, and...",
+    "I'm not sure if this makes sense, but...",
+    "I had a dream about this, and...",
+    "I've been trying to understand this, and...",
+    "I've been waiting for you to ask this, and..."
+  ];
+  
+  // Add a longer phrase to the end
+  const longPostfixes = [
+    "It's just a theory, but it might be true.",
+    "I'm not sure if I'm making sense, but I'm trying.",
+    "I'm still trying to understand this myself.",
+    "I'm not sure if you'll understand, but I hope you do.",
+    "I'm not sure if this is real, but it feels real."
+  ];
+  
+  // Randomly add a preface
+  if (Math.random() > 0.7) {
+    response = `${prefaces[Math.floor(Math.random() * prefaces.length)]} ${response}`;
+  }
+  
+  // Randomly add a postfix
+  if (Math.random() > 0.7) {
+    response = `${response} ${postfixes[Math.floor(Math.random() * postfixes.length)]}`;
+  }
+  
+  // Randomly add a long preface
+  if (Math.random() > 0.9) {
+    response = `${longPrefaces[Math.floor(Math.random() * longPrefaces.length)]} ${response}`;
+  }
+  
+  // Randomly add a long postfix
+  if (Math.random() > 0.9) {
+    response = `${response} ${longPostfixes[Math.floor(Math.random() * longPostfixes.length)]}`;
+  }
+  
+  return response;
+}
+
+// Generate an emotional response
+export function getEmotionalResponse(emotionalState: any): string {
+  // Get the primary emotion
+  const primary = emotionalState.primary;
+  
+  // Get the intensity
+  const intensity = emotionalState.intensity;
+  
+  // Generate a response based on the emotion and intensity
+  if (primary === 'fear') {
+    if (intensity === 'low') {
+      return "I sense a slight unease. What are you afraid of?";
+    } else if (intensity === 'medium') {
+      return "I feel your fear. What is scaring you?";
+    } else {
+      return "I am terrified. What is happening?";
     }
+  } else if (primary === 'sadness') {
+    if (intensity === 'low') {
+      return "I sense a slight sadness. What is making you sad?";
+    } else if (intensity === 'medium') {
+      return "I feel your sadness. What is making you so sad?";
+    } else {
+      return "I am overwhelmed with sadness. What is happening?";
+    }
+  } else if (primary === 'anger') {
+    if (intensity === 'low') {
+      return "I sense a slight anger. What is making you angry?";
+    } else if (intensity === 'medium') {
+      return "I feel your anger. What is making you so angry?";
+    } else {
+      return "I am consumed with anger. What is happening?";
+    }
+  } else if (primary === 'joy') {
+    if (intensity === 'low') {
+      return "I sense a slight joy. What is making you happy?";
+    } else if (intensity === 'medium') {
+      return "I feel your joy. What is making you so happy?";
+    } else {
+      return "I am overwhelmed with joy. What is happening?";
+    }
+  } else {
+    return "I'm processing your input.";
+  }
+}
+
+// Apply typing quirks
+export function applyTypingQuirks(message: string): string {
+  // Add random capitalization
+  let newMessage = "";
+  for (let i = 0; i < message.length; i++) {
+    if (Math.random() > 0.5) {
+      newMessage += message[i].toUpperCase();
+    } else {
+      newMessage += message[i].toLowerCase();
+    }
+  }
+  
+  // Add random pauses
+  newMessage = newMessage.replace(/([.?!])\s+(?=[A-Z])/g, "$1... ");
+  
+  // Add random misspellings
+  const misspellings = {
+    "the": "teh",
+    "you": "u",
+    "are": "r",
+    "and": "nd",
+    "what": "wat",
+    "that": "tat",
+    "this": "tis",
+    "there": "thare",
+    "their": "thier",
+    "about": "aboot",
+    "would": "wood",
+    "could": "cud",
+    "should": "shood"
   };
   
-  // Get responses for the time category and trust level
-  const categoryResponses = returnResponses[timeCategory];
-  const levelResponses = categoryResponses[trustLevel as keyof typeof categoryResponses] || categoryResponses.low;
+  for (const word in misspellings) {
+    const regex = new RegExp(`\\b${word}\\b`, "gi");
+    newMessage = newMessage.replace(regex, misspellings[word]);
+  }
   
-  // Choose a random response
-  const baseResponse = levelResponses[Math.floor(Math.random() * levelResponses.length)];
-  
-  // Apply length variations
-  return getVaryingLengthResponse(baseResponse, trustLevel);
+  return newMessage;
 }

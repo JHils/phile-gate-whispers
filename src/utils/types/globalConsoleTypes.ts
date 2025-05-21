@@ -1,4 +1,3 @@
-
 /**
  * Global Console Types
  * Central declaration of all global type interfaces to prevent conflicts

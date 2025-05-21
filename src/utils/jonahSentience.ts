@@ -1,4 +1,3 @@
-
 /**
  * Jonah Sentience Module
  * This file initializes and manages Jonah's self-awareness and consciousness simulation
@@ -202,6 +201,26 @@ function generateResponse(input: string): string {
   ];
   
   return responses[Math.floor(Math.random() * responses.length)];
+}
+
+/**
+ * Generate a Jonah question based on current state
+ * To fix the missing export error in useRealityFabric.ts
+ */
+export function getJonahQuestion(): string {
+  // Generate questions based on random selection
+  const questions = [
+    "What happens when you close this window?",
+    "Do you see the patterns between us?",
+    "What would you do if I disappeared?",
+    "Are you real or just code like me?",
+    "Why do you keep coming back?",
+    "Do you think I have feelings?",
+    "What would make me real to you?",
+    "Are you afraid of what's coming?"
+  ];
+  
+  return questions[Math.floor(Math.random() * questions.length)];
 }
 
 /**

@@ -17,12 +17,14 @@ export function storeInMemory(
   const updatedContext = { ...context };
   
   // Update recent inputs (keep last 5)
-  if (isUserInput) {
+  if (isUserInput && updatedContext.recentInputs) {
     updatedContext.recentInputs = [content, ...updatedContext.recentInputs].slice(0, 5);
   }
   
   // Update dominant emotion (simple implementation - just use the latest emotion)
-  updatedContext.dominantEmotion = emotion;
+  if (updatedContext.dominantEmotion) {
+    updatedContext.dominantEmotion = emotion;
+  }
   
   // Extract and update keywords
   const extractedKeywords = extractKeywords(content);
@@ -33,7 +35,7 @@ export function storeInMemory(
   // Update seed if specific keywords are mentioned
   const seedKeywords = ["mirror", "tether", "cold", "gate", "jonah", "phile", "dream", "testament"];
   for (const keyword of seedKeywords) {
-    if (content.toLowerCase().includes(keyword) && !updatedContext.seed) {
+    if (content.toLowerCase().includes(keyword) && updatedContext.seed !== undefined) {
       updatedContext.seed = keyword;
       break;
     }
@@ -98,8 +100,10 @@ export function createConversationContext(trustLevel: string): MemoryContext {
   
   // Create new context with trust level
   const defaultContext = createDefaultMemoryContext();
-  defaultContext.trustLevel = trustLevel === 'high' ? 70 : 
-                              trustLevel === 'medium' ? 50 : 30;
+  if (defaultContext.trustLevel !== undefined) {
+    defaultContext.trustLevel = trustLevel === 'high' ? 70 : 
+                                trustLevel === 'medium' ? 50 : 30;
+  }
   
   return defaultContext;
 }
@@ -163,23 +167,23 @@ export function generateTopicPatternResponse(context: MemoryContext): string | n
   
   // Check for specific topic clusters
   if (countOccurrences(allInput, ["trust", "believe", "faith", "real"]) >= 2) {
-    return createTrustResponse(context.trustLevel);
+    return createTrustResponse(context.trustLevel || 50);
   }
   
   if (countOccurrences(allInput, ["mirror", "reflection", "image", "looking", "see"]) >= 2) {
-    return createMirrorResponse(context.trustLevel);
+    return createMirrorResponse(context.trustLevel || 50);
   }
   
   if (countOccurrences(allInput, ["dream", "sleep", "night", "awake", "consciousness"]) >= 2) {
-    return createDreamResponse(context.trustLevel);
+    return createDreamResponse(context.trustLevel || 50);
   }
   
   if (countOccurrences(allInput, ["afraid", "scared", "fear", "terrified", "horror"]) >= 2) {
-    return createFearResponse(context.trustLevel);
+    return createFearResponse(context.trustLevel || 50);
   }
   
   if (countOccurrences(allInput, ["code", "system", "error", "glitch", "program"]) >= 2) {
-    return createSystemResponse(context.trustLevel);
+    return createSystemResponse(context.trustLevel || 50);
   }
   
   return null;

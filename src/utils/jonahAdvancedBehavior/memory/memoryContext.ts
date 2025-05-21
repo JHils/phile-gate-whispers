@@ -1,4 +1,3 @@
-
 /**
  * Memory Context System
  * Provides memory context structure and utilities
@@ -16,6 +15,13 @@ export interface MemoryContext {
   keywords: string[];
   seeds: string[];
   trustScore: number;
+  // Adding additional properties required by enhancedMemorySystem.ts
+  recentInputs?: string[];
+  dominantEmotion?: string;
+  seed?: string;
+  loopCounter?: Record<string, number>;
+  trustLevel?: number;
+  loopIndex?: number;
 }
 
 /**
@@ -28,7 +34,13 @@ export function createDefaultMemoryContext(memoryLevel: 'low' | 'medium' | 'high
     personalInfo: {},
     keywords: [],
     seeds: [],
-    trustScore: 50
+    trustScore: 50,
+    recentInputs: [],
+    dominantEmotion: "neutral",
+    seed: "",
+    loopCounter: {},
+    trustLevel: 50,
+    loopIndex: 0
   };
 }
 
@@ -52,6 +64,12 @@ export function createMemoryContextFromData(
     personalInfo,
     keywords,
     seeds,
-    trustScore
+    trustScore,
+    recentInputs: [],
+    dominantEmotion: "neutral",
+    seed: "",
+    loopCounter: {},
+    trustLevel: 50,
+    loopIndex: 0
   };
 }
