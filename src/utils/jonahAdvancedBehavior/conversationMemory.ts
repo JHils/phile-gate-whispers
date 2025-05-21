@@ -22,8 +22,9 @@ let memory: ConversationMemory = {
   recentMessages: [],
   userEmotions: {
     joy: 0, sadness: 0, anger: 0, fear: 0, 
+    surprise: 0, disgust: 0, neutral: 0, confused: 0,
     curiosity: 0, confusion: 0, hope: 0, 
-    anxiety: 0, paranoia: 0, trust: 0, neutral: 0
+    anxiety: 0, paranoia: 0, trust: 0
   },
   personalDetails: {},
   keywords: new Set(),

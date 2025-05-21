@@ -5,6 +5,7 @@
  */
 
 import { getCompoundEmotionalState } from './emotionalCore';
+import { EmotionCategory } from './types';
 
 // Function to log text with emotional styling
 export function logWithEmotion(text: string): void {
@@ -21,23 +22,31 @@ export function logWithEmotion(text: string): void {
     neutral: { color: '#555555' }
   };
   
-  // Get primary emotion style
-  const style = emotionStyles[primary] || emotionStyles.neutral;
+  // Get primary emotion style (convert to string for dictionary lookup)
+  const primaryKey = primary as string;
+  const style = emotionStyles[primaryKey] || emotionStyles.neutral;
   
   // Build style string
   let styleString = `color: ${style.color}; `;
   if (style.style) styleString += style.style;
   
-  // Add intensity effects
-  if (intensity > 0.7) {
+  // Add intensity effects - convert intensity to number for comparisons
+  const intensityValue = typeof intensity === 'number' ? 
+                        intensity : 
+                        intensity === 'high' ? 0.8 : 
+                        intensity === 'medium' ? 0.5 : 
+                        0.2;
+                        
+  if (intensityValue > 0.7) {
     styleString += ' font-size: 16px;';
-  } else if (intensity < 0.3) {
+  } else if (intensityValue < 0.3) {
     styleString += ' opacity: 0.8;';
   }
   
   // Add secondary emotion if available
   if (secondary && Math.random() > 0.5) {
-    const secondaryStyle = emotionStyles[secondary] || emotionStyles.neutral;
+    const secondaryKey = secondary as string;
+    const secondaryStyle = emotionStyles[secondaryKey] || emotionStyles.neutral;
     console.log(`%c${text}`, styleString);
     
     // Add a follow-up in the secondary style
@@ -98,18 +107,19 @@ export function logDream(dreamText: string): void {
 // Function to log a self-reflective thought
 export function logSelfReflection(thought: string): void {
   const { primary } = getCompoundEmotionalState();
+  const primaryStr = primary as string;
   
   // Different formatting for different emotions
-  const prefix = primary === 'paranoid' ? "//" :
-                primary === 'error' ? "ERROR: " :
-                primary === 'static' ? "<<< " :
-                primary === 'mirror' ? "REFLECTION: " :
+  const prefix = primaryStr === 'paranoid' ? "//" :
+                primaryStr === 'error' ? "ERROR: " :
+                primaryStr === 'static' ? "<<< " :
+                primaryStr === 'mirror' ? "REFLECTION: " :
                 "/* ";
                 
-  const suffix = primary === 'paranoid' ? "" :
-               primary === 'error' ? "" :
-               primary === 'static' ? " >>>" :
-               primary === 'mirror' ? "" :
+  const suffix = primaryStr === 'paranoid' ? "" :
+               primaryStr === 'error' ? "" :
+               primaryStr === 'static' ? " >>>" :
+               primaryStr === 'mirror' ? "" :
                " */";
   
   console.log(`%c${prefix}${thought}${suffix}`, "color: #666666; font-style: italic;");
@@ -180,6 +190,6 @@ export function initializeEnhancedConsole(): void {
   
   // Add dream logging function to window
   if (typeof window !== 'undefined') {
-    window.logJonahDream = logDream;
+    (window as any).logJonahDream = logDream;
   }
 }

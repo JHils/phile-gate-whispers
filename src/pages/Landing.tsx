@@ -84,7 +84,7 @@ const Landing: React.FC = () => {
           </button>
         </>
       )}
-      <div>{someFunction("true")}</div>
+      <div>{someFunction("test")}</div>
     </div>
   );
 };

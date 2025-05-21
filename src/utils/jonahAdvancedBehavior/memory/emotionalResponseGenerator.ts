@@ -7,6 +7,12 @@
 import { EmotionalState } from '../types';
 import { MemoryContext } from './memoryContext';
 
+// Extended memory context with required fields
+interface ExtendedMemoryContext extends MemoryContext {
+  trustScore: number; 
+  lastInteractions: Array<{content: string, isUser: boolean}>;
+}
+
 /**
  * Generate full emotional response with memory context
  */
@@ -16,14 +22,27 @@ export function generateFullEmotionalResponse(
   context: MemoryContext,
   previousResponses: string[] = []
 ): string {
+  // Convert to extended context with default values for missing properties
+  const extendedContext: ExtendedMemoryContext = {
+    ...context,
+    trustScore: typeof context.trustLevel === 'string' ? 
+      context.trustLevel === 'high' ? 80 : 
+      context.trustLevel === 'medium' ? 50 : 
+      30 : 50,
+    lastInteractions: context.recentInputs.map(input => ({
+      content: input,
+      isUser: true // Assume all are user inputs for simplicity
+    }))
+  };
+
   // Get basic response
-  const baseResponse = getBaseResponse(emotionalState, context);
+  const baseResponse = getBaseResponse(emotionalState, extendedContext);
   
   // Add memory references if appropriate
-  const memoryEnhanced = addMemoryReferences(baseResponse, context);
+  const memoryEnhanced = addMemoryReferences(baseResponse, extendedContext);
   
   // Add meta-awareness if deep mode is unlocked
-  const metaAware = addMetaAwareness(memoryEnhanced, emotionalState, context);
+  const metaAware = addMetaAwareness(memoryEnhanced, emotionalState, extendedContext);
   
   // Check for repetition
   if (previousResponses.some(prev => prev.includes(metaAware.substring(0, 15)))) {

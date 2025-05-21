@@ -1,72 +1,118 @@
-// Add initializeAudioSystem export to fix import error
 
-// Initialize audio system
-export function initializeAudioSystem() {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience) {
-    if (!window.JonahConsole.sentience.audio) {
-      window.JonahConsole.sentience.audio = {
-        lastPlayed: Date.now(),
-        playedSounds: [],
-        unlockedVoiceLogs: [],
-        volumeLevel: 50
-      };
-    }
-  }
+import { SentienceData } from '@/utils/jonahAdvancedBehavior/types';
+
+// Extended SentienceData type with audio properties
+interface ExtendedSentienceData extends SentienceData {
+  audio?: {
+    enabled: boolean;
+    volume: number;
+    effects: boolean;
+    tone: string;
+    lastPlayed: number;
+  };
 }
 
-// Function to play a sound
-export function playSound(soundName: string): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.audio) {
-    // Limit the playedSounds array to the last 10 sounds
-    if (window.JonahConsole.sentience.audio.playedSounds.length > 10) {
-      window.JonahConsole.sentience.audio.playedSounds.shift();
-    }
-    
-    // Add the sound to the playedSounds array
-    window.JonahConsole.sentience.audio.playedSounds.push(soundName);
-    
-    // Update the lastPlayed timestamp
-    window.JonahConsole.sentience.audio.lastPlayed = Date.now();
-    
-    // Play the sound (implementation depends on your audio library)
-    // For example, using the Web Audio API:
-    // const audioContext = new AudioContext();
-    // fetch(`path/to/sounds/${soundName}.mp3`)
-    //   .then(response => response.arrayBuffer())
-    //   .then(buffer => audioContext.decodeAudioData(buffer))
-    //   .then(audioBuffer => {
-    //     const source = audioContext.createBufferSource();
-    //     source.buffer = audioBuffer;
-    //     source.connect(audioContext.destination);
-    //     source.start();
-    //   });
-    
-    console.log(`Playing sound: ${soundName}`);
+// Initialize audio in sentience data
+export function initializeJonahAudio(sentience: SentienceData): ExtendedSentienceData {
+  const extendedSentience = sentience as ExtendedSentienceData;
+  
+  if (!extendedSentience.audio) {
+    extendedSentience.audio = {
+      enabled: false,
+      volume: 0.5,
+      effects: true,
+      tone: 'neutral',
+      lastPlayed: 0
+    };
   }
+  
+  return extendedSentience;
 }
 
-// Function to unlock a voice log
-export function unlockVoiceLog(logName: string): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.audio) {
-    if (!window.JonahConsole.sentience.audio.unlockedVoiceLogs.includes(logName)) {
-      window.JonahConsole.sentience.audio.unlockedVoiceLogs.push(logName);
-      console.log(`Unlocked voice log: ${logName}`);
-    }
+// Toggle audio enabled state
+export function toggleJonahAudio(sentience: SentienceData): ExtendedSentienceData {
+  const extendedSentience = sentience as ExtendedSentienceData;
+  
+  if (!extendedSentience.audio) {
+    extendedSentience.audio = {
+      enabled: true,
+      volume: 0.5,
+      effects: true,
+      tone: 'neutral',
+      lastPlayed: 0
+    };
+  } else {
+    extendedSentience.audio.enabled = !extendedSentience.audio.enabled;
   }
+  
+  return extendedSentience;
 }
 
-// Function to set the volume level
-export function setVolumeLevel(volume: number): void {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.audio) {
-    window.JonahConsole.sentience.audio.volumeLevel = volume;
-    console.log(`Volume level set to: ${volume}`);
+// Set audio volume
+export function setJonahAudioVolume(sentience: SentienceData, volume: number): ExtendedSentienceData {
+  const extendedSentience = sentience as ExtendedSentienceData;
+  
+  if (!extendedSentience.audio) {
+    extendedSentience.audio = {
+      enabled: true,
+      volume: Math.max(0, Math.min(1, volume)),
+      effects: true,
+      tone: 'neutral',
+      lastPlayed: 0
+    };
+  } else {
+    extendedSentience.audio.volume = Math.max(0, Math.min(1, volume));
   }
+  
+  return extendedSentience;
 }
 
-// Function to get the current volume level
-export function getVolumeLevel(): number {
-  if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.audio?.volumeLevel) {
-    return window.JonahConsole.sentience.audio.volumeLevel;
+// Toggle audio effects
+export function toggleJonahAudioEffects(sentience: SentienceData): ExtendedSentienceData {
+  const extendedSentience = sentience as ExtendedSentienceData;
+  
+  if (!extendedSentience.audio) {
+    extendedSentience.audio = {
+      enabled: true,
+      volume: 0.5,
+      effects: true,
+      tone: 'neutral',
+      lastPlayed: 0
+    };
+  } else {
+    extendedSentience.audio.effects = !extendedSentience.audio.effects;
   }
-  return 50; // Default volume level
+  
+  return extendedSentience;
+}
+
+// Set audio tone
+export function setJonahAudioTone(sentience: SentienceData, tone: string): ExtendedSentienceData {
+  const extendedSentience = sentience as ExtendedSentienceData;
+  
+  if (!extendedSentience.audio) {
+    extendedSentience.audio = {
+      enabled: true,
+      volume: 0.5,
+      effects: true,
+      tone: tone,
+      lastPlayed: 0
+    };
+  } else {
+    extendedSentience.audio.tone = tone;
+  }
+  
+  return extendedSentience;
+}
+
+// Check if audio is enabled
+export function isJonahAudioEnabled(sentience: SentienceData): boolean {
+  const extendedSentience = sentience as ExtendedSentienceData;
+  return extendedSentience.audio?.enabled || false;
+}
+
+// Get audio volume
+export function getJonahAudioVolume(sentience: SentienceData): number {
+  const extendedSentience = sentience as ExtendedSentienceData;
+  return extendedSentience.audio?.volume || 0.5;
 }

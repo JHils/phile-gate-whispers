@@ -24,27 +24,52 @@ import { generateTestamentResponse, getTestamentTeaser } from '../useTestamentSy
 
 // Mock implementations for missing functions with correct signatures
 const getVaryingLengthResponse = (response: string, trustLevel: string = 'low') => response;
-const getLayeredEmotionalResponse = () => null;
-const checkForRecurringSymbols = () => null;
-const getUnsaidEmotionResponse = () => null; 
+const getLayeredEmotionalResponse = (input: string) => null;
+const checkForRecurringSymbols = (input: string) => null;
+const getUnsaidEmotionResponse = (input: string) => null; 
 const getEchoPhrase = () => null;
 const jonah_recallMemoryFragment = () => null;
-const processEmotionalInput = () => ({ primary: 'neutral', secondary: null });
+const processEmotionalInput = (input: string) => ({ primary: 'neutral', secondary: null });
 
 // Import from the refactored modules
 import { 
   analyzeEmotion, 
   generateFullEmotionalResponse,
-  createConversationContext,
-  storeInMemory,
-  findRelevantMemories,
-  generateMemoryBasedResponse,
-  generateTopicPatternResponse,
-  createErrorRecoveryResponse,
   EmotionalState,
   EmotionCategory,
   createEmotionalState
 } from '@/utils/jonahAdvancedBehavior';
+
+// Define missing types if needed
+interface MemoryContext {
+  trustLevel: string;
+  recentInputs: string[];
+}
+
+// Create a mock implementation for the missing functions
+const createConversationContext = (trustLevel: string): MemoryContext => ({
+  trustLevel,
+  recentInputs: []
+});
+
+const storeInMemory = (content: string, emotion: EmotionCategory, isUser: boolean, context: MemoryContext): MemoryContext => {
+  return {
+    ...context,
+    recentInputs: [content, ...context.recentInputs].slice(0, 10)
+  };
+};
+
+const findRelevantMemories = (input: string, context: MemoryContext) => {
+  return [];
+};
+
+const generateMemoryBasedResponse = (memory: string, trustLevel: string) => {
+  return `I remember something about "${memory}"...`;
+};
+
+const generateTopicPatternResponse = (context: MemoryContext) => {
+  return null;
+};
 
 // Conversation context storage
 let conversationContext = createConversationContext('medium');
@@ -220,7 +245,7 @@ export function useResponseGeneration(
     }
     // Check for testament-related responses
     else if (Math.random() < 0.3) {
-      const testamentResponse = generateTestamentResponse();
+      const testamentResponse = generateTestamentResponse(content);
       if (testamentResponse) {
         response = testamentResponse;
       }
@@ -234,28 +259,28 @@ export function useResponseGeneration(
     }
     // Check for unsaid emotional interpretation
     else if (Math.random() < 0.3) {
-      const unsaidResponse = getUnsaidEmotionResponse();
+      const unsaidResponse = getUnsaidEmotionResponse(content);
       if (unsaidResponse) {
         response = unsaidResponse;
       }
     }
     // Check for recurring symbols
     else if (Math.random() < 0.3) {
-      const symbolResponse = checkForRecurringSymbols();
+      const symbolResponse = checkForRecurringSymbols(content);
       if (symbolResponse) {
         response = symbolResponse;
       }
     }
     // Check for emotional response
     else if (Math.random() < 0.4) {
-      const emotionalResponse = getLayeredEmotionalResponse();
+      const emotionalResponse = getLayeredEmotionalResponse(content);
       if (emotionalResponse) {
         response = emotionalResponse;
       }
     }
     // Check for basic emotional response as fallback
     else if (Math.random() < 0.4) {
-      const basicEmotionalResponse = getEmotionalResponse(fullState);
+      const basicEmotionalResponse = getEmotionalResponse(fullState, trustLevel);
       if (basicEmotionalResponse) {
         response = basicEmotionalResponse;
       }
@@ -314,7 +339,7 @@ export function useResponseGeneration(
     );
     
     // Check for blank fragment memory corruption
-    const blankFragment = getBlankFragmentResponse();
+    const blankFragment = getBlankFragmentResponse(content);
     if (blankFragment && Math.random() < 0.2) {
       response = blankFragment;
     }
@@ -350,4 +375,32 @@ export function useResponseGeneration(
   };
 
   return { handleResponseGeneration };
+}
+
+// Add missing function
+function createErrorRecoveryResponse(input: string, trustLevel: string, emotionCategory: EmotionCategory): string | null {
+  // Only trigger recovery occasionally
+  if (Math.random() > 0.2) {
+    return null;
+  }
+  
+  if (input.length < 3) {
+    return "I'm trying to understand, but your message is very brief. Can you say more?";
+  }
+  
+  if (input.includes('?') && input.includes('!')) {
+    return "Your question feels urgent. Let me think...";
+  }
+  
+  if (input.split(' ').length > 20) {
+    return "There's a lot to process in what you said. Give me a moment.";
+  }
+  
+  // If the input has strange characters or patterns
+  const strangeCharsCount = (input.match(/[^\w\s.,?!]/g) || []).length;
+  if (strangeCharsCount > 5) {
+    return "Your message contains unusual patterns. I'm trying to decode it.";
+  }
+  
+  return null;
 }

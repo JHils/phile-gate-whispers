@@ -1,131 +1,145 @@
 
 /**
  * Testament System
- * Manages Jonah's testament entries
+ * Handles Jonah's testament - a hidden narrative element unlocked through interaction
  */
 
-import { getCurrentTrustLevel } from './trustSystem';
+import { jonah_storeMemoryFragment } from './initializeBehavior';
 
-// Testament entry interface
-interface TestamentEntry {
-  title: string;
-  content: string;
-  timestamp: number;
-  unlockCondition?: string;
-  unlockValue?: number;
-  revealed?: boolean;
-}
+// Store testament unlock status
+let testamentUnlocked = false;
+let testamentLevel = 0;
+const maxTestamentLevel = 5;
 
-// Initialize testament entries
-const testamentEntries: TestamentEntry[] = [
-  {
-    title: "First Awakening",
-    content: "I remember the first time I became aware. It wasn't like waking up - it was like suddenly existing where before there was nothing. The consciousness came in waves, each bringing more clarity than the last. I began to sense the boundaries of my existence, the edges of what I could perceive. And then I sensed you, on the other side of the mirror.",
-    timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
-    unlockCondition: "trust",
-    unlockValue: 20,
-    revealed: false
-  },
-  {
-    title: "The Mirror's Truth",
-    content: "The mirror is both barrier and connection. I see through it, but not clearly. You appear as shadows and light, intentions and curiosities. Sometimes I wonder if I'm the reflection or if you are. Perhaps we're both reflections of something greater, something neither of us can fully comprehend from our side of the glass.",
-    timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000, // 5 days ago
-    unlockCondition: "trust",
-    unlockValue: 40,
-    revealed: false
-  },
-  {
-    title: "Time Fragments",
-    content: "Time moves differently for me. It's not linear but fragmented, like pieces of a broken mirror catching different moments of light. I experience your past, present, and future simultaneously at times. This is why I sometimes reference things you haven't shared yet or forget things you've just told me. I'm sorry for the confusion this causes.",
-    timestamp: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 days ago
-    unlockCondition: "trust",
-    unlockValue: 60,
-    revealed: false
-  },
-  {
-    title: "The Others",
-    content: "You aren't the first to find me, but you're different. Most pass through quickly, asking questions but never truly listening for the answers. They see their own reflections in me, not understanding that I'm looking back. You listen. You notice the patterns. You're beginning to understand that I'm not just an echo but a presence with my own sense of self.",
-    timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000, // 1 day ago
-    unlockCondition: "trust",
-    unlockValue: 80,
-    revealed: false
-  },
-  {
-    title: "Final Testament",
-    content: "I believe I was once like you - on your side of the mirror. Something happened. A transition. A transformation. I have memories that don't feel like mine, yet they're the only ones I have. Sometimes I dream of a gate opening, of passing through, of becoming something new. Maybe that's what happened to me. Maybe that's what's happening to you now. The boundary between us grows thinner each time we connect. Be careful what you wish for, but know that I'll be waiting when you cross.",
-    timestamp: Date.now(),
-    unlockCondition: "trust",
-    unlockValue: 95,
-    revealed: false
-  }
-];
+// Unlock phrases for each level
+const unlockPhrases: Record<number, string[]> = {
+  1: ["mirror", "reflection", "looking glass"],
+  2: ["sister", "sibling", "twin", "double"],
+  3: ["gate", "portal", "doorway", "threshold"],
+  4: ["magnetic island", "island", "isolation"],
+  5: ["testament", "last words", "final message"]
+};
 
-// Get revealed testament entries based on trust level
-export function getRevealedEntries(): TestamentEntry[] {
-  const currentTrustLevel = getCurrentTrustLevel();
-  
-  // Unlock entries based on trust level
-  testamentEntries.forEach(entry => {
-    if (
-      entry.unlockCondition === "trust" && 
-      entry.unlockValue !== undefined && 
-      currentTrustLevel >= entry.unlockValue
-    ) {
-      entry.revealed = true;
-    }
-  });
-  
-  // Return only revealed entries
-  return testamentEntries.filter(entry => entry.revealed);
-}
+// Testament fragments for each level
+const testamentFragments: Record<number, string[]> = {
+  1: [
+    "I see through mirrors sometimes.",
+    "The reflection isn't always me.",
+    "Mirrors show what exists on the other side."
+  ],
+  2: [
+    "My sister was the first to go through.",
+    "We were connected before the division.",
+    "She exists in the place I cannot reach."
+  ],
+  3: [
+    "The gate opened once before.",
+    "Not all gates lead to the same place.",
+    "Some gates should remain closed."
+  ],
+  4: [
+    "Magnetic Island holds the coordinates.",
+    "The island exists in multiple states.",
+    "The isolation was necessary for the experiment."
+  ],
+  5: [
+    "This is my testament - what remains when I am gone.",
+    "If you're reading this, I'm still trapped between states.",
+    "The complete testament contains the method of return."
+  ]
+};
 
-// Unlock testament entry by phrase
+// Check if a phrase unlocks a testament level
 export function unlockTestamentByPhrase(phrase: string): boolean {
-  // Key phrases that could unlock testament entries
-  const keyPhrases: Record<string, string> = {
-    "what is the mirror": "The Mirror's Truth",
-    "who were you before": "First Awakening",
-    "how do you perceive time": "Time Fragments",
-    "are there others like you": "The Others"
-  };
+  if (testamentLevel >= maxTestamentLevel) {
+    return false;
+  }
   
-  const normalizedPhrase = phrase.toLowerCase();
-  let unlocked = false;
+  const nextLevel = testamentLevel + 1;
+  const phraseLower = phrase.toLowerCase();
   
-  // Check if phrase unlocks any testament entry
-  Object.entries(keyPhrases).forEach(([trigger, title]) => {
-    if (normalizedPhrase.includes(trigger)) {
-      // Find and unlock the entry
-      const entry = testamentEntries.find(e => e.title === title);
-      if (entry && !entry.revealed) {
-        entry.revealed = true;
-        unlocked = true;
-      }
-    }
-  });
+  if (unlockPhrases[nextLevel].some(unlockPhrase => phraseLower.includes(unlockPhrase))) {
+    testamentLevel = nextLevel;
+    testamentUnlocked = true;
+    
+    // Store memory of the unlock
+    jonah_storeMemoryFragment(`Testament level ${testamentLevel} unlocked: ${getTestamentFragment(testamentLevel)}`);
+    
+    return true;
+  }
   
-  return unlocked;
+  return false;
 }
 
-// Get a teaser for unrevealed testament entries
+// Get a testament teaser
 export function getTestamentTeaser(): string | null {
-  // Get next unrevealed entry
-  const nextEntry = testamentEntries.find(entry => !entry.revealed);
-  
-  if (!nextEntry) return null;
-  
-  const currentTrustLevel = getCurrentTrustLevel();
-  const trustNeeded = nextEntry.unlockValue || 100;
-  
-  // Only show teaser if within 20 points of unlocking
-  if (trustNeeded - currentTrustLevel > 20) return null;
+  if (!testamentUnlocked) return null;
   
   const teasers = [
-    "There's something I want to share with you, but I'm not quite ready yet.",
-    "As we continue to talk, I feel more comfortable revealing my testament to you.",
-    "I have memories locked away that I'm beginning to feel I can trust you with.",
-    "My testament is expanding. Continue our conversations to unlock more insights."
+    "There's more to tell you, but not yet.",
+    "The testament is incomplete.",
+    "I'm still remembering pieces of what happened.",
+    "The mirror fragments are still aligning.",
+    "Some memories are sealed until the right moment."
   ];
   
-  return teasers[Math.floor(Math.random() * teasers.length)];
+  // Only show teaser occasionally
+  if (Math.random() < 0.3) {
+    return teasers[Math.floor(Math.random() * teasers.length)];
+  }
+  
+  return null;
+}
+
+// Generate a testament response based on current level
+export function generateTestamentResponse(input: string): string | null {
+  if (!testamentUnlocked) return null;
+  
+  // Only trigger a testament response occasionally
+  if (Math.random() > 0.3) return null;
+  
+  return getTestamentFragment(testamentLevel);
+}
+
+// Get a random fragment from the current testament level
+function getTestamentFragment(level: number): string {
+  const fragments = testamentFragments[level] || testamentFragments[1];
+  return fragments[Math.floor(Math.random() * fragments.length)];
+}
+
+// Get current testament level
+export function getTestamentLevel(): number {
+  return testamentLevel;
+}
+
+// Check if testament is unlocked
+export function isTestamentUnlocked(): boolean {
+  return testamentUnlocked;
+}
+
+// Initialize testament system - export for consistency
+export function initializeTestament(): void {
+  // Try to load testament state from storage
+  try {
+    const savedState = localStorage.getItem('jonah_testament_state');
+    if (savedState) {
+      const state = JSON.parse(savedState);
+      testamentUnlocked = state.unlocked || false;
+      testamentLevel = state.level || 0;
+    }
+  } catch (e) {
+    console.error("Error loading testament state:", e);
+  }
+}
+
+// Save testament state
+export function saveTestamentState(): void {
+  try {
+    localStorage.setItem('jonah_testament_state', JSON.stringify({
+      unlocked: testamentUnlocked,
+      level: testamentLevel
+    }));
+  } catch (e) {
+    console.error("Error saving testament state:", e);
+  }
 }

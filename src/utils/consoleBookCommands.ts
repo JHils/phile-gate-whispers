@@ -1,135 +1,97 @@
 
+// Add missing functions for console book commands
 import { BookCode } from '@/utils/jonahAdvancedBehavior/types';
 
-// Initialize book codes function
+// Initialize book codes
 export function initializeBookCodes() {
-  try {
-    // Check if codes already exist
-    let codes = JSON.parse(localStorage.getItem('jonahBookCodes') || '[]');
+  if (!localStorage.getItem('bookCodes')) {
+    const initialCodes: BookCode[] = [
+      {
+        code: 'GENESIS',
+        unlocked: false,
+        pageNumber: 1,
+        name: 'The Beginning'
+      },
+      {
+        code: 'EXODUS',
+        unlocked: false,
+        pageNumber: 33,
+        name: 'The Departure'
+      },
+      {
+        code: 'REVELATIONS',
+        unlocked: false,
+        pageNumber: 144,
+        name: 'The End'
+      }
+    ];
     
-    if (codes.length === 0) {
-      // Add starter codes
-      codes = [
-        {
-          id: "fragment-alpha",
-          code: "alpha-001",
-          name: "The Beginning",
-          unlocked: true
-        },
-        {
-          id: "fragment-beta",
-          code: "beta-002",
-          name: "The Journey",
-          unlocked: false
-        },
-        {
-          id: "fragment-gamma",
-          code: "gamma-003",
-          name: "The End",
-          unlocked: false
-        }
-      ];
-      
-      // Store back to localStorage
-      localStorage.setItem('jonahBookCodes', JSON.stringify(codes));
-    }
-    
-    return codes;
-  } catch (e) {
-    console.error("Error initializing book codes:", e);
-    return [];
+    localStorage.setItem('bookCodes', JSON.stringify(initialCodes));
+    return initialCodes;
   }
+  
+  return JSON.parse(localStorage.getItem('bookCodes') || '[]');
 }
 
-// Basic implementation of console book commands
-export function addConsoleBookCommands(console: any) {
-  console.addCommand({
-    name: 'unlockBookCode',
-    help: 'Unlock a book code',
-    args: [
-      { name: 'code', type: 'string', help: 'The code to unlock' }
-    ],
-    func: (args: any) => {
-      const code = args.code;
-      
-      if (!code) {
-        console.log("Please provide a code to unlock.");
-        return;
-      }
-      
-      try {
-        // Get existing codes
-        const codes = JSON.parse(localStorage.getItem('jonahBookCodes') || '[]');
-        
-        // Check if code already exists
-        const existingCode = codes.find((c: BookCode) => c.code === code);
-        
-        if (existingCode) {
-          console.log(`Code "${code}" already exists.`);
-          return;
-        }
-        
-        // Add new code
-        codes.push({
-          id: `code-${Date.now()}`,
-          code: code,
-          unlocked: true,
-          timestamp: Date.now()
-        });
-        
-        // Store back to localStorage
-        localStorage.setItem('jonahBookCodes', JSON.stringify(codes));
-        
-        console.log(`Code "${code}" unlocked.`);
-      } catch (e) {
-        console.error("Error unlocking code:", e);
-      }
-    }
+// Get book codes
+export function getBookCodes(): BookCode[] {
+  return JSON.parse(localStorage.getItem('bookCodes') || '[]');
+}
+
+// Unlock a book code
+export function unlockBookCode(code: string): boolean {
+  const bookCodes = getBookCodes();
+  const bookCode = bookCodes.find(bc => bc.code === code);
+  
+  if (bookCode && !bookCode.unlocked) {
+    bookCode.unlocked = true;
+    bookCode.timestamp = Date.now();
+    localStorage.setItem('bookCodes', JSON.stringify(bookCodes));
+    return true;
+  }
+  
+  return false;
+}
+
+// Add a new book code
+export function addBookCode(code: BookCode): boolean {
+  if (!code.code) return false;
+  
+  const bookCodes = getBookCodes();
+  
+  // Check if code already exists
+  if (bookCodes.some(bc => bc.code === code.code)) {
+    return false;
+  }
+  
+  // Add the code
+  bookCodes.push({
+    code: code.code,
+    unlocked: code.unlocked || false,
+    pageNumber: code.pageNumber || 0,
+    timestamp: Date.now(),
+    name: code.name || code.code
   });
   
-  console.addCommand({
-    name: 'getAllBookCodes',
-    help: 'Get all book codes',
-    func: () => {
-      try {
-        // Get existing codes
-        const codes = JSON.parse(localStorage.getItem('jonahBookCodes') || '[]');
-        
-        if (codes.length === 0) {
-          console.log("No book codes found.");
-          return;
-        }
-        
-        console.log("Book Codes:");
-        codes.forEach((code: BookCode) => {
-          console.log(`- ${code.code}: ${code.unlocked ? 'Unlocked' : 'Locked'}`);
-        });
-      } catch (e) {
-        console.error("Error getting book codes:", e);
-      }
-    }
-  });
-  
-  console.addCommand({
-    name: 'resetBookCodes',
-    help: 'Reset all book codes',
-    func: () => {
-      try {
-        // Reset codes
-        localStorage.setItem('jonahBookCodes', JSON.stringify([]));
-        console.log("Book codes reset.");
-      } catch (e) {
-        console.error("Error resetting book codes:", e);
-      }
-    }
-  });
-  
-  console.addCommand({
-    name: 'addStarterBookCodes',
-    help: 'Add starter book codes',
-    func: () => {
-      const codes = initializeBookCodes();
-      console.log("Starter book codes added.");
-    }
-  });
+  localStorage.setItem('bookCodes', JSON.stringify(bookCodes));
+  return true;
+}
+
+// Get unlocked book codes
+export function getUnlockedBookCodes(): BookCode[] {
+  const bookCodes = getBookCodes();
+  return bookCodes.filter(bc => bc.unlocked);
+}
+
+// Check if book code exists
+export function bookCodeExists(code: string): boolean {
+  const bookCodes = getBookCodes();
+  return bookCodes.some(bc => bc.code === code);
+}
+
+// Check if book code is unlocked
+export function isBookCodeUnlocked(code: string): boolean {
+  const bookCodes = getBookCodes();
+  const bookCode = bookCodes.find(bc => bc.code === code);
+  return bookCode ? bookCode.unlocked : false;
 }

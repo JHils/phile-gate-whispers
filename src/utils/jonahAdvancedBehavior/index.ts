@@ -40,7 +40,7 @@ export const storeEcho = (input: string) => {
   console.log("Storing echo:", input);
 };
 
-export const getEchoPhrase = (emotionCategory: string) => {
+export const getEchoPhrase = () => {
   return "Something echoes in my memory...";
 };
 
@@ -169,7 +169,7 @@ export const generateFullEmotionalResponse = (
   return "Full emotional response based on state and context.";
 };
 
-export const getEmotionalResponse = (state: any) => {
+export const getEmotionalResponse = (state: any, trustLevel: string = 'medium') => {
   return "Basic emotional response.";
 };
 
@@ -180,3 +180,6 @@ export const generateFirstTimeResponse = (trustLevel: string) => {
 export const generateReturningResponse = (trustLevel: string, timeSinceLastInteraction: number) => {
   return "Welcome back after some time.";
 };
+
+// Import types to ensure proper type checking
+import { EmotionCategory } from './types';

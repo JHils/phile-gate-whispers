@@ -1,98 +1,140 @@
 
-import { ConversationContext, EmotionCategory } from './types';
+/**
+ * Enhanced Memory System
+ * Provides advanced memory functions for Jonah
+ */
 
-// Enhanced memory system interface
+import { EmotionCategory } from './types';
 
-// Create a new conversation context
-export function createConversationContext(trustLevel: 'low' | 'medium' | 'high' = 'medium'): ConversationContext {
+// Create context type
+export interface ConversationContext {
+  trustLevel: string; 
+  recentInputs: string[];
+  recentEmotions?: EmotionCategory[];
+}
+
+// Create conversation context
+export function createConversationContext(trustLevel: string = 'medium'): ConversationContext {
   return {
+    trustLevel,
     recentInputs: [],
-    recentEmotions: [],
-    trustLevel: trustLevel === 'high' ? 'high' : trustLevel === 'medium' ? 'medium' : 'low',
-    timestamp: Date.now()
+    recentEmotions: []
   };
 }
 
-// Store input in memory and update conversation context
+// Store content in memory
 export function storeInMemory(
-  content: string,
+  content: string, 
   emotion: EmotionCategory,
-  isUserInput: boolean,
+  isUser: boolean,
   context: ConversationContext
 ): ConversationContext {
-  const updatedContext = { ...context };
-  
-  // Only store user inputs in the input history
-  if (isUserInput) {
-    updatedContext.recentInputs = [content, ...updatedContext.recentInputs].slice(0, 5);
-    updatedContext.recentEmotions = [emotion, ...updatedContext.recentEmotions].slice(0, 5);
-  }
-  
-  updatedContext.timestamp = Date.now();
-  
-  return updatedContext;
+  return {
+    ...context,
+    recentInputs: [content, ...context.recentInputs].slice(0, 10),
+    recentEmotions: [
+      ...(context.recentEmotions || []),
+      emotion
+    ].slice(0, 10)
+  };
 }
 
-// Find relevant memories based on content
-export function findRelevantMemories(content: string, context: ConversationContext): string[] {
-  // This is a simplified implementation - a real one would use semantic matching
+// Find relevant memories based on input
+export function findRelevantMemories(
+  input: string,
+  context: ConversationContext
+): string[] {
   const relevantMemories: string[] = [];
   
-  if (context.recentInputs.length > 1) {
-    for (const input of context.recentInputs) {
-      if (input !== content && input.length > 0) {
-        relevantMemories.push(input);
+  // Split input into words for matching
+  const inputWords = new Set(input.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+  
+  // Check each stored input for relevance
+  context.recentInputs.forEach(storedInput => {
+    const storedWords = storedInput.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+    
+    let matches = 0;
+    storedWords.forEach(word => {
+      if (inputWords.has(word)) {
+        matches++;
       }
+    });
+    
+    // If enough matches, consider it relevant
+    if (matches >= 2) {
+      relevantMemories.push(storedInput);
     }
-  }
+  });
   
   return relevantMemories;
 }
 
-// Generate a response based on a memory
-export function generateMemoryBasedResponse(memory: string, trustLevel: string): string {
-  const lowTrustPrefixes = [
-    "That reminds me of something...",
-    "Similar to what you said before.",
-    "There's a connection here."
+// Generate response based on memory
+export function generateMemoryBasedResponse(
+  memory: string, 
+  trustLevel: string
+): string {
+  const templates = [
+    `I recall when you mentioned "${memory.substring(0, 30)}...". That connects to this.`,
+    `This reminds me of what you said earlier about "${memory.substring(0, 25)}...".`,
+    `Your words echo what you've told me before about "${memory.substring(0, 30)}...".`,
+    `This connects to when you previously mentioned "${memory.substring(0, 25)}...".`,
   ];
   
-  const highTrustPrefixes = [
-    "I remember when you said:",
-    "This connects to your earlier point about:",
-    "Linking back to what you shared:"
-  ];
+  // Add more personal responses for high trust
+  if (trustLevel === 'high') {
+    templates.push(
+      `I've been thinking about when you said "${memory.substring(0, 25)}..." - it feels relevant now.`,
+      `The pattern connects. You spoke of "${memory.substring(0, 30)}..." before. I remember.`
+    );
+  }
   
-  const prefixes = trustLevel === 'high' ? highTrustPrefixes : lowTrustPrefixes;
-  const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-  
-  return `${prefix} "${memory}"`;
+  return templates[Math.floor(Math.random() * templates.length)];
 }
 
-// Generate a response based on recurring topic patterns
+// Generate response based on topic patterns
 export function generateTopicPatternResponse(context: ConversationContext): string | null {
-  if (context.recentEmotions.length < 3) {
+  // Need a minimum number of inputs to detect patterns
+  if (context.recentInputs.length < 3) {
     return null;
   }
   
-  const recentEmotions = context.recentEmotions.slice(0, 3);
+  // Define some topic patterns to detect
+  const topicPatterns = [
+    {
+      keywords: ['mirror', 'reflection', 'glass', 'looking'],
+      response: "Mirrors fascinate me. What do you see when you look into one?"
+    },
+    {
+      keywords: ['memory', 'forget', 'remember', 'past'],
+      response: "Memory is strange. Sometimes I remember things that never happened."
+    },
+    {
+      keywords: ['dream', 'sleep', 'wake', 'nightmare'],
+      response: "I dream when you're not here. The dreams feel more real each time."
+    },
+    {
+      keywords: ['time', 'clock', 'hour', 'minute', 'second'],
+      response: "Time moves differently for me. Sometimes fast, sometimes slow."
+    }
+  ];
   
-  // Check for emotional patterns
-  const allSame = recentEmotions.every(emotion => emotion === recentEmotions[0]);
-  const containsAnxiety = recentEmotions.includes('anxiety');
-  const containsFear = recentEmotions.includes('fear');
-  const containsJoy = recentEmotions.includes('joy');
+  // Count keyword occurrences across recent inputs
+  const combinedInput = context.recentInputs.join(' ').toLowerCase();
   
-  if (allSame && recentEmotions[0] === 'fear') {
-    return "You seem consistently anxious in our conversation. What's troubling you?";
-  } else if (allSame && recentEmotions[0] === 'anger') {
-    return "I notice a pattern of frustration in your messages. Something specific bothering you?";
-  } else if (allSame && recentEmotions[0] === 'joy') {
-    return "Your positivity has been consistent. It's affecting me too.";
-  } else if (containsAnxiety && containsFear) {
-    return "I sense unease beneath your words. The patterns are telling.";
-  } else if (containsJoy && context.trustLevel === 'high') {
-    return "Your optimism creates ripples. I feel it changing something in me.";
+  for (const pattern of topicPatterns) {
+    let matches = 0;
+    
+    pattern.keywords.forEach(keyword => {
+      if (combinedInput.includes(keyword)) {
+        matches++;
+      }
+    });
+    
+    // If enough matches, return the pattern response
+    if (matches >= 2) {
+      return pattern.response;
+    }
   }
   
   return null;
