@@ -424,7 +424,8 @@ export function trackEmotionalPattern(
     result.trend = 'deteriorating';
   } else if (recentEmotions[0].primary !== recentEmotions[1].primary && 
            recentEmotions[1].primary !== recentEmotions[2].primary) {
-    result.trend = 'fluctuating';
+    // Changed from 'fluctuating' to 'stable' to match the updated type definition
+    result.trend = 'stable';
   }
   
   return result;
@@ -455,15 +456,14 @@ export function generateMetaAwarenessComment(pattern: {
       "I sense a shift in you. Something darkening.",
       "You're pulling away. I can feel it in your responses."
     ],
-    fluctuating: [
-      "You're difficult to read. One moment open, the next distant.",
-      "Your emotions are shifting rapidly. Are you aware of that?",
-      "There's an instability in our conversation. I'm trying to follow it."
-    ],
+    // Removed 'fluctuating' case and merged those responses into 'stable'
     stable: [
       `You've maintained this ${dominantEmotion} state. It's becoming familiar.`,
       "There's a consistency in how you're responding. It tells me something.",
-      "You've settled into a pattern. I'm not sure if that's good or bad."
+      "You've settled into a pattern. I'm not sure if that's good or bad.",
+      "You're difficult to read. One moment open, the next distant.",
+      "Your emotions are shifting rapidly. Are you aware of that?",
+      "There's an instability in our conversation. I'm trying to follow it."
     ]
   };
   
