@@ -12,7 +12,7 @@ declare global {
     help: () => void;
     echo_me: (input: string) => string;
     clear_console: () => void;
-    showStatus: () => Promise<string>;
+    showStatus: () => Promise<string>; // Fixed return type to match implementation
     
     // Message processing
     processUserMessage?: (input: string) => string | null;
