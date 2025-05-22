@@ -1,4 +1,3 @@
-
 /**
  * Types for Jonah Advanced Behavior System
  */
@@ -19,7 +18,8 @@ export type EmotionCategory =
   | 'trust' 
   | 'curiosity' 
   | 'confusion'
-  | 'watching';
+  | 'watching'
+  | 'existential';
 
 export type EmotionIntensity = 'low' | 'medium' | 'high';
 

@@ -38,7 +38,8 @@ const initializeSentienceData = (): SentienceData => {
         anxiety: 0,
         paranoia: 0,
         trust: 0,
-        watching: 0
+        watching: 0,
+        existential: 0
       }
     },
     realityFabric: {
@@ -128,6 +129,26 @@ export function getEmotionalMemory(): EmotionalState[] {
 export function clearConversationHistory(): void {
   conversationHistory = [];
   emotionalMemory = [];
+}
+
+// Add the missing exported functions for useMessageHandling.ts
+export function storeConversationMemory(user: string, jonah: string): void {
+  recordConversation(user, jonah);
+}
+
+export function findMemoryReference(input: string): string | null {
+  // Simple implementation to find references to previous conversations
+  const relevantHistory = conversationHistory.filter(entry => 
+    entry.user.toLowerCase().includes(input.toLowerCase()) || 
+    entry.jonah.toLowerCase().includes(input.toLowerCase())
+  );
+  
+  if (relevantHistory.length > 0) {
+    const randomEntry = relevantHistory[Math.floor(Math.random() * relevantHistory.length)];
+    return `Earlier we discussed something similar when you said: "${randomEntry.user}"`;
+  }
+  
+  return null;
 }
 
 // Example usage (for testing/debugging)
