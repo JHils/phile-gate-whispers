@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTrackingSystem } from "../hooks/useTrackingSystem";
@@ -22,9 +23,9 @@ const GovWatch = () => {
     
     // Add event listener for console command
     const originalReveal = window.reveal;
-    window.reveal = function() {
+    window.reveal = function(element = "") { // Added default parameter to fix the error
       // Call original function if it exists
-      if (originalReveal) originalReveal();
+      if (originalReveal) originalReveal(element);
       
       // Add glitch effect to page
       document.body.classList.add('glitch-effect');

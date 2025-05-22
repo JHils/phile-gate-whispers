@@ -6,16 +6,10 @@
 import { EmotionCategory, EmotionIntensity } from '../types';
 
 // Type for emotion responses mapped by emotion category and intensity
-export interface EmotionResponses {
-  [key in EmotionCategory]: {
-    [intensity in EmotionIntensity]: string[]
-  }
-}
+export type EmotionResponses = Record<EmotionCategory, Record<EmotionIntensity, string[]>>;
 
 // Type for clarifying questions mapped by emotion category
-export interface ClarifyingQuestions {
-  [key in EmotionCategory]: string[]
-}
+export type ClarifyingQuestions = Record<EmotionCategory, string[]>;
 
 // Type for emotional response generation configuration
 export interface ResponseConfig {
