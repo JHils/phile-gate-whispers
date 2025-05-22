@@ -23,13 +23,13 @@ export {
   analyzeEmotion,
   getEmotionalResponse,
   getLayeredEmotionalResponse,
+  checkForRecurringSymbols,
+  processEmotionalInput,
+  checkForTriggerPhrases,
   generateGreeting,
   getFalseMemoryResponse,
   getLoopResponse,
-  getBlankFragmentResponse,
-  checkForRecurringSymbols,
-  processEmotionalInput,
-  checkForTriggerPhrases
+  getBlankFragmentResponse
 };
 
 // Export types properly

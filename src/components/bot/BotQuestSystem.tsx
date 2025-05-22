@@ -28,7 +28,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
         updatedSentience.microQuests = {
           active: [],
           completed: [],
-          available: [] // Added missing required property
+          available: []
         };
         
         // Update the sentience data
@@ -45,7 +45,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
       description: "Find where the mirror leads. It's not where you think.",
       completed: false,
       unlocked: false,
-      reward: 10  // Changed from string to number
+      reward: 10
     },
     { 
       id: "count_sisters", 
@@ -53,7 +53,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
       description: "How many lost sisters are there? Count carefully.",
       completed: false,
       unlocked: false,
-      reward: 15  // Changed from string to number
+      reward: 15
     },
     { 
       id: "decode_whisper", 
@@ -61,7 +61,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
       description: "There's a whisper hidden in the console. Listen for it.",
       completed: false,
       unlocked: false,
-      reward: 8  // Changed from string to number
+      reward: 8
     },
     { 
       id: "find_keyhole", 
@@ -69,7 +69,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
       description: "The keyhole is visible on exactly one page. Find it.",
       completed: false,
       unlocked: false,
-      reward: 20  // Changed from string to number
+      reward: 20
     },
     { 
       id: "trace_jonah", 
@@ -77,7 +77,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
       description: "Trace where Jonah came from. The truth is in the logs.",
       completed: false,
       unlocked: false,
-      reward: 15  // Changed from string to number
+      reward: 15
     }
   ];
   
@@ -168,7 +168,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
               setActiveQuests(prev => prev.filter(id => id !== questId));
               
               // Reward the user
-              const reward = questInfo.reward || 0;
+              const reward = questInfo.reward;
               modifyTrust(reward);
               
               console.log(`%cQuest completed: ${questInfo.description}`, "color: #8B3A40; font-size: 14px;");

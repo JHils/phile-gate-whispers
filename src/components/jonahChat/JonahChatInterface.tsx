@@ -4,9 +4,10 @@ import JonahChatHeader from './JonahChatHeader';
 import EnhancedJonahChatMessages from './EnhancedJonahChatMessages';
 import EnhancedJonahChatInput from './EnhancedJonahChatInput';
 import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
+import { ChatMessage } from '@/hooks/jonahChat/types';
 
 type JonahChatInterfaceProps = {
-  messages: any[];
+  messages: ChatMessage[];
   input: string;
   setInput: (value: string) => void;
   isTyping: boolean;
@@ -43,10 +44,12 @@ const JonahChatInterface: React.FC<JonahChatInterfaceProps> = ({
       <JonahChatHeader 
         jonahMood={jonahMood} 
         emotionalTrend={emotionalTrend} 
+        responseStyle={responseStyle}
         conversationDepth={conversationDepth}
         jonahVersion={jonahVersion}
         toggleVersion={toggleVersion}
         resetConversation={resetConversation}
+        messageWeight={messageWeight}
       />
       
       <EnhancedJonahChatMessages 

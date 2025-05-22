@@ -3,8 +3,9 @@ import { useState, useCallback, useEffect } from 'react';
 import { EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 import { 
   analyzeEmotion, 
+  checkForTriggerPhrases,
   processEmotionalInput
-} from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/analyzer';
+} from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
 import { generateGreeting } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/responseGenerator';
 import { modifyTrustLevel } from '@/utils/jonahAdvancedBehavior/trustSystem';
 

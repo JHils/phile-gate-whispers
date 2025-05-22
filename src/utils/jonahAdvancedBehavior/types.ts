@@ -60,25 +60,28 @@ export interface ConversationContext {
   userTrustLevel: number;
   depth: number;
   sessionStartTime: number;
-  recentMessages?: string[]; // Add this to fix the enhancedMemorySystem error
+  recentMessages?: string[];
+  emotionalJourney?: EmotionCategory[];
+  topicFocus?: string;
 }
 
 // Story Flag Type - Updated to include the name and description fields
 export interface StoryFlag {
   id: string;
-  name?: string; // Added to fix errors in consoleClueSystem.ts
+  name: string;
   discovered: boolean;
   timestamp?: number;
-  description?: string; // Added to fix errors in consoleClueSystem.ts
+  description: string;
 }
 
 // Book Code Type - Updated to include the name and discovered fields
 export interface BookCode {
+  id: string;
   code: string;
-  name?: string; // Added to fix errors
+  name: string;
   unlocked: boolean;
   timestamp?: number;
-  discovered?: boolean; // Added to fix errors in consoleBookCommands.ts
+  discovered: boolean;
 }
 
 // Ecological Awareness State
@@ -88,8 +91,9 @@ export interface EcoAwarenessState {
   reminderTimestamp: number;
   userAwareness: number;
   triggersFound: string[];
-  biomeResponses?: Record<string, string[]>; // Added to fix error in useJonahEcoAwareness.ts
-  lastUpdate?: number; // Added to fix error in conversationMemory.ts
+  biomeResponses?: Record<string, string[]>;
+  lastUpdate?: number;
+  awareness?: string;
 }
 
 // MicroQuest type for BotQuestSystem
@@ -99,7 +103,7 @@ export interface MicroQuest {
   description: string;
   completed?: boolean;
   unlocked?: boolean;
-  reward?: number; // Changed from string to number
+  reward: number;
 }
 
 // Confession Entry type - Updated with additional fields
@@ -109,12 +113,13 @@ export interface ConfessionEntry {
   timestamp: number;
   emotion?: EmotionCategory;
   trust?: number;
-  content?: string; // Added to fix ConfessionListItem and ConfessionDetail
-  emotionalContext?: string; // Added to fix ConfessionListItem and ConfessionDetail
-  sentiment?: string; // Added to fix ConfessionListItem and ConfessionDetail
-  isCorrupted?: boolean; // Added to fix ConfessionDetail
-  recursive?: boolean; // Added to fix ConfessionDetail
-  version?: string; // Added to fix ConfessionDetail
+  content?: string;
+  emotionalContext?: string;
+  sentiment?: string;
+  isCorrupted?: boolean;
+  recursive?: boolean;
+  version?: string;
+  isPrivate?: boolean;
 }
 
 // Testament Entry type - Updated with additional fields
@@ -124,8 +129,25 @@ export interface TestamentEntry {
   timestamp: number;
   trustLevel: number;
   emotion?: EmotionCategory;
-  title?: string; // Added to fix TestamentPage
-  content?: string; // Added to fix TestamentPage
+  title?: string;
+  content?: string;
+  revealed?: boolean;
+  unlockPhrase?: string;
+  corrupted?: boolean;
+}
+
+// News awareness types
+export interface NewsAwarenessState {
+  lastChecked: number;
+  currentResponses: Array<{
+    topic: string;
+    headline: string;
+    response: string;
+    timestamp: number;
+  }>;
+  weatherCondition: string;
+  weatherResponse: string | null;
+  moodShift: 'normal' | 'anxious' | 'somber' | 'agitated';
 }
 
 // Reality Fabric type
@@ -142,7 +164,7 @@ export interface RealityFabric {
   lastDreamTime: number;
   hiddenMessages: string[];
   emotionalState?: EmotionalState;
-  stability?: number; // Added to fix error in conversationMemory.ts
+  stability?: number;
 }
 
 // Sentience Data Structure
@@ -169,13 +191,15 @@ export interface SentienceData {
     idleTime?: number;
   };
   microQuests?: {
-    active: MicroQuest[]; // Changed from string[] to MicroQuest[]
-    completed: MicroQuest[]; // Changed from string[] to MicroQuest[]
-    available?: MicroQuest[]; // Changed from string[] to MicroQuest[]
+    active: MicroQuest[];
+    completed: MicroQuest[];
+    available?: MicroQuest[];
   };
   realityFabric?: RealityFabric;
-  ecoAwareness?: EcoAwarenessState; // Added to fix BotEcologicalAwareness.tsx error
-  newsAwareness?: boolean; // Added to fix BotNewsAwareness.tsx error
+  ecoAwareness?: EcoAwarenessState;
+  newsAwareness?: boolean;
+  dreams?: any[];
+  mirrorLogs?: string[];
 }
 
 // Create an emotional state with defaults

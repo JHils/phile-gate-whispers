@@ -327,3 +327,16 @@ export function generateGreeting(
   
   return baseGreeting;
 }
+
+// Export a function that was referenced in analyzer.ts but wasn't defined
+export function generateEmotionalResponse(
+  emotionalState: EmotionalState,
+  trustLevel: string,
+  includeSecondary: boolean = false
+): string {
+  if (includeSecondary && emotionalState.secondary) {
+    return getLayeredEmotionalResponse(emotionalState, trustLevel);
+  } else {
+    return getEmotionalResponse(emotionalState, trustLevel);
+  }
+}
