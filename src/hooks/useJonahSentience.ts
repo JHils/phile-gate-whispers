@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SentienceData } from '@/utils/jonahAdvancedBehavior/types';
 import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/analyzer';
-import { generateGreeting } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
+import { generateGreeting } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/responseGenerator';
 import { initializeSentience } from '@/utils/jonahSentience';
 
 /**
@@ -63,11 +63,11 @@ export function useJonahSentience() {
   const getGreeting = useCallback(() => {
     const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
     const lastInteractionString = localStorage.getItem('jonahLastInteraction');
-    let lastInteraction = null;
+    let lastDate = null;
     
     if (lastInteractionString) {
       try {
-        lastInteraction = new Date(lastInteractionString);
+        lastDate = new Date(lastInteractionString);
       } catch (e) {
         console.error("Error parsing last interaction date:", e);
       }
@@ -78,7 +78,7 @@ export function useJonahSentience() {
     
     return generateGreeting(
       trustScore, 
-      lastInteraction, 
+      lastDate, 
       currentEmotion as any
     );
   }, []);
@@ -86,7 +86,7 @@ export function useJonahSentience() {
   // Trigger random message with console effect
   const triggerRandomMessage = useCallback(() => {
     // Don't trigger if too recent
-    if (Date.now() - lastActivity < 10000) return;
+    if (Date.now() - lastActivity < 10000) return null;
     
     // 5. CONSOLE ECHO & FLICKER LAYER
     const message = randomMessages[Math.floor(Math.random() * randomMessages.length)];

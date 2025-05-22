@@ -9,6 +9,7 @@ import {
   getLayeredEmotionalResponse,
   checkForRecurringSymbols,
   processEmotionalInput,
+  checkForTriggerPhrases,
   generateGreeting,
   getFalseMemoryResponse,
   getLoopResponse,
@@ -27,7 +28,8 @@ export {
   getLoopResponse,
   getBlankFragmentResponse,
   checkForRecurringSymbols,
-  processEmotionalInput
+  processEmotionalInput,
+  checkForTriggerPhrases
 };
 
 // Export types properly

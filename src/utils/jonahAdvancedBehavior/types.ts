@@ -72,12 +72,13 @@ export interface StoryFlag {
   description?: string; // Added to fix errors in consoleClueSystem.ts
 }
 
-// Book Code Type - Updated to include the name field
+// Book Code Type - Updated to include the name and discovered fields
 export interface BookCode {
   code: string;
   name?: string; // Added to fix errors
   unlocked: boolean;
   timestamp?: number;
+  discovered?: boolean; // Added to fix errors in consoleBookCommands.ts
 }
 
 // Ecological Awareness State
@@ -88,6 +89,7 @@ export interface EcoAwarenessState {
   userAwareness: number;
   triggersFound: string[];
   biomeResponses?: Record<string, string[]>; // Added to fix error in useJonahEcoAwareness.ts
+  lastUpdate?: number; // Added to fix error in conversationMemory.ts
 }
 
 // MicroQuest type for BotQuestSystem
@@ -95,27 +97,35 @@ export interface MicroQuest {
   id: string;
   title: string;
   description: string;
-  completed: boolean;
-  unlocked: boolean;
-  reward?: number;
+  completed?: boolean;
+  unlocked?: boolean;
+  reward?: number; // Changed from string to number
 }
 
-// Confession Entry type
+// Confession Entry type - Updated with additional fields
 export interface ConfessionEntry {
   id: string;
   text: string;
   timestamp: number;
   emotion?: EmotionCategory;
   trust?: number;
+  content?: string; // Added to fix ConfessionListItem and ConfessionDetail
+  emotionalContext?: string; // Added to fix ConfessionListItem and ConfessionDetail
+  sentiment?: string; // Added to fix ConfessionListItem and ConfessionDetail
+  isCorrupted?: boolean; // Added to fix ConfessionDetail
+  recursive?: boolean; // Added to fix ConfessionDetail
+  version?: string; // Added to fix ConfessionDetail
 }
 
-// Testament Entry type
+// Testament Entry type - Updated with additional fields
 export interface TestamentEntry {
   id: string;
   text: string;
   timestamp: number;
   trustLevel: number;
   emotion?: EmotionCategory;
+  title?: string; // Added to fix TestamentPage
+  content?: string; // Added to fix TestamentPage
 }
 
 // Reality Fabric type
@@ -159,9 +169,9 @@ export interface SentienceData {
     idleTime?: number;
   };
   microQuests?: {
-    active: string[];
-    completed: string[];
-    available?: string[]; // Added to fix error
+    active: MicroQuest[]; // Changed from string[] to MicroQuest[]
+    completed: MicroQuest[]; // Changed from string[] to MicroQuest[]
+    available?: MicroQuest[]; // Changed from string[] to MicroQuest[]
   };
   realityFabric?: RealityFabric;
   ecoAwareness?: EcoAwarenessState; // Added to fix BotEcologicalAwareness.tsx error

@@ -43,36 +43,41 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
       id: "find_mirror", 
       title: "Find the Mirror",
       description: "Find where the mirror leads. It's not where you think.",
-      isCompleted: false,
-      reward: "10"
+      completed: false,
+      unlocked: false,
+      reward: 10  // Changed from string to number
     },
     { 
       id: "count_sisters", 
       title: "Count the Sisters",
       description: "How many lost sisters are there? Count carefully.",
-      isCompleted: false,
-      reward: "15"
+      completed: false,
+      unlocked: false,
+      reward: 15  // Changed from string to number
     },
     { 
       id: "decode_whisper", 
       title: "Decode the Whisper",
       description: "There's a whisper hidden in the console. Listen for it.",
-      isCompleted: false,
-      reward: "8"
+      completed: false,
+      unlocked: false,
+      reward: 8  // Changed from string to number
     },
     { 
       id: "find_keyhole", 
       title: "Find the Keyhole",
       description: "The keyhole is visible on exactly one page. Find it.",
-      isCompleted: false,
-      reward: "20"
+      completed: false,
+      unlocked: false,
+      reward: 20  // Changed from string to number
     },
     { 
       id: "trace_jonah", 
       title: "Trace Jonah",
       description: "Trace where Jonah came from. The truth is in the logs.",
-      isCompleted: false,
-      reward: "15"
+      completed: false,
+      unlocked: false,
+      reward: 15  // Changed from string to number
     }
   ];
   
@@ -163,7 +168,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
               setActiveQuests(prev => prev.filter(id => id !== questId));
               
               // Reward the user
-              const reward = parseInt(questInfo.reward || '0', 10);
+              const reward = questInfo.reward || 0;
               modifyTrust(reward);
               
               console.log(`%cQuest completed: ${questInfo.description}`, "color: #8B3A40; font-size: 14px;");

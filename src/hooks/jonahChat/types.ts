@@ -23,6 +23,9 @@ export interface JonahChatInterfaceProps {
   emotionalTrend: EmotionalTrend;
   responseStyle: ResponseStyle;
   sendMessage: (content: string) => void;
-  messageWeight: 'light' | 'medium' | 'heavy';
+  messageWeight: string;
+  conversationDepth: number;
+  jonahVersion: 'PRIME' | 'RESIDUE';
+  toggleVersion: () => void;
   resetConversation: () => void;
 }
