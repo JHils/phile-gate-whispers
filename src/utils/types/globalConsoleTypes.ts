@@ -7,14 +7,25 @@
 // Import necessary types
 import { SentienceData, StoryFlag, BookCode } from '../jonahAdvancedBehavior/types';
 
-// Import window extensions
-import './windowExtensions';
-
-// Declare shared global interfaces
+// Define a single global interface
 declare global {
   interface Window {
-    // Core JonahConsole object
-    JonahConsole?: {
+    // Core console commands
+    help: () => void;
+    echo_me: (input: string) => string;
+    clear_console: () => void;
+    showStatus: () => Promise<string>;
+    
+    // Message processing
+    processUserMessage?: (input: string) => string | null;
+    triggerJonahMessage?: (message: string) => string | null;
+    
+    // Project initialization status
+    JonahInitialized?: boolean;
+    clearJonahOnPathChange?: boolean;
+    
+    // Jonah console data
+    JonahConsole: {
       usedCommands: string[];
       score: number;
       failCount: number;
@@ -46,23 +57,24 @@ declare global {
       clearOnPathChange?: boolean;
     };
     
-    // Initialization flag
-    JonahInitialized?: boolean;
-    clearJonahOnPathChange?: boolean;
-    logJonahDream?: (dreamContent: string) => void;
-    processUserMessage?: (message: string) => string | null;
+    // Book system
+    book?: {
+      codes: string[];
+      unlocked: string[];
+      current?: string;
+      pages?: Record<string, string>;
+    };
+    unlockBookCode?: (code: string) => boolean;
     
-    // Core console commands
+    // Start and inventory commands
     start?: () => string;
     inventory?: () => string;
-    echo_me?: (input: string) => string;
     forget?: () => string;
     forget_confirm?: () => string;
     access_journal?: () => string;
     split?: () => string;
     re_entry?: () => string;
     talk_to_jonah?: () => string;
-    help?: () => void;
     reveal?: () => void;
     reincarnate?: () => void;
     whois?: () => void;
@@ -76,11 +88,11 @@ declare global {
     completeQuest?: (questId: string) => string;
     questHint?: () => string;
     
-    // News awareness commands
+    // News awareness
     newsFlash?: () => string;
     weatherReport?: () => string;
     
-    // ARG system commands
+    // ARG system
     dreamJournal?: () => string;
     rememberMe?: () => Record<string, any>;
     whisperTree?: () => string;
@@ -120,7 +132,7 @@ declare global {
     wearingYouNow?: () => void;
     toggleWrath?: () => void;
     
-    // New console commands (consoleNewCommands.ts)
+    // Console commands
     avianBlessing?: () => void;
     blessMe?: () => void;
     initiateBirdProtocol?: () => void;
@@ -131,9 +143,8 @@ declare global {
     louisBarton?: () => void;
     bridgeWhisperer?: () => void;
     
-    // Audio and miscellaneous
+    // Audio and misc
     displayRandomJoke?: () => void;
-    showStatus?: () => Promise<void>;
     mirrorLogs?: () => void;
     plea?: () => void;
     testament?: () => string;
@@ -146,32 +157,14 @@ declare global {
     // Additional commands
     addWhisper?: (whisper: string) => boolean;
     WhisperMaster?: any;
-    triggerJonahMessage?: (message: string) => string;
     processStoryQuery?: (query: string) => string;
+    logJonahDream?: (dreamContent: string) => void;
     
-    // Jonah Final Form commands - consistent types
+    // Jonah Final Form commands - with proper return types
     trust_level: () => number;
-    memory_thread: () => {
-      userName: string;
-      recentInputs: string[];
-      dominantEmotion: string;
-      seed: string;
-      trustLevel: number;
-      loopIndex: number;
-      keywords: string[];
-      mood: string;
-      dreamSeen: boolean;
-    };
+    memory_thread: () => any;
     echo_log: () => any[];
-    mood_system: () => {
-      currentMood: string;
-      emotionalState: {
-        primary: string;
-        secondary: string | null;
-        intensity: string;
-      };
-      trustLevel: number;
-    };
+    mood_system: () => any;
     dream_state: () => any[];
   }
 }

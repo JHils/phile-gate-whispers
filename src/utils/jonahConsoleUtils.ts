@@ -4,8 +4,8 @@
  * Provides helper functions for console interactions
  */
 
-import { generateDreamParable, addJournalEntry } from './jonahRealityFabric';
 import { getTrustLevel } from './jonahAdvancedBehavior/trustSystem';
+import { generateDreamParable, addJournalEntry } from './jonahRealityFabric';
 
 // Log a dream to the console
 export function logDream(): string {

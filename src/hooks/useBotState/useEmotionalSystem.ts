@@ -1,35 +1,57 @@
 
-import { EmotionalState } from '@/utils/jonahAdvancedBehavior/types';
-import { 
-  analyzeEmotion,
-  getLayeredEmotionalResponse,
-  checkForRecurringSymbols 
-} from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/analyzer';
+import { useState, useCallback } from 'react';
+import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
-// Re-export the functions for API compatibility
-export { 
-  analyzeEmotion as processEmotionalInput,
-  getLayeredEmotionalResponse,
-  checkForRecurringSymbols 
-};
+export interface PatternAnalysis {
+  found: boolean;
+  pattern: string;
+}
 
-// Hook to use the emotional system
 export function useEmotionalSystem() {
-  const analyzeEmotion = (input: string): EmotionalState => {
-    return analyzeEmotion(input);
-  };
+  const [currentEmotion, setCurrentEmotion] = useState<EmotionCategory>('neutral');
+  const [emotionalIntensity, setEmotionalIntensity] = useState<'low' | 'medium' | 'high'>('medium');
+  const [emotionHistory, setEmotionHistory] = useState<EmotionCategory[]>([]);
   
-  const getResponse = (emotionalState: EmotionalState, trustLevel: string): string => {
-    return getLayeredEmotionalResponse(emotionalState, trustLevel);
-  };
-  
-  const checkSymbols = (input: string): string | null => {
-    return checkForRecurringSymbols(input);
-  };
+  // Record a new emotion
+  const recordEmotion = useCallback((emotion: EmotionCategory, intensity?: 'low' | 'medium' | 'high') => {
+    setCurrentEmotion(emotion);
+    if (intensity) {
+      setEmotionalIntensity(intensity);
+    }
+    setEmotionHistory(prev => [...prev.slice(-9), emotion]);
+  }, []);
+
+  // Analyze patterns in emotion history
+  const analyzeEmotionalPatterns = useCallback((): string => {
+    if (emotionHistory.length < 3) {
+      return "Not enough data for pattern analysis";
+    }
+    
+    // Check for repetition
+    const lastEmotion = emotionHistory[emotionHistory.length - 1];
+    const isRepeating = emotionHistory.slice(-3).every(e => e === lastEmotion);
+    
+    if (isRepeating) {
+      return `Consistent ${lastEmotion} pattern detected`;
+    }
+    
+    // Check for oscillation
+    const oscillating = emotionHistory.slice(-4);
+    if (oscillating.length >= 4 && 
+        oscillating[0] === oscillating[2] && 
+        oscillating[1] === oscillating[3] && 
+        oscillating[0] !== oscillating[1]) {
+      return `Oscillating between ${oscillating[0]} and ${oscillating[1]}`;
+    }
+    
+    return "No clear pattern detected";
+  }, [emotionHistory]);
   
   return {
-    analyzeEmotion,
-    getResponse,
-    checkSymbols
+    currentEmotion,
+    emotionalIntensity,
+    emotionHistory,
+    recordEmotion,
+    analyzeEmotionalPatterns
   };
 }

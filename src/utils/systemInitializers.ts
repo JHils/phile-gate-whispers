@@ -10,6 +10,7 @@ import { initializeAdvancedBehavior } from './jonahAdvancedBehavior';
 import { initializeRealityFabric } from './jonahRealityFabric';
 import { initializeSentience, setupJonahMessageSystem } from './jonahSentience';
 import { initializeTestament } from './jonahAdvancedBehavior/testament';
+import { initializeEmotionalCore } from './jonahAdvancedBehavior/emotionalCore';
 
 // Import our centralized types
 import './types/globalConsoleTypes';
@@ -25,6 +26,7 @@ export const initializeAllSystems = () => {
   initializeAdvancedBehavior();
   initializeRealityFabric();
   initializeTestament();
+  initializeEmotionalCore();
   
   // Check for last broadcast conditions
   if (Math.random() < 0.01) { // 1% chance for demonstration
@@ -50,3 +52,4 @@ export { initializeAdvancedBehavior } from './jonahAdvancedBehavior';
 export { initializeRealityFabric } from './jonahRealityFabric';
 export { initializeSentience, setupJonahMessageSystem } from './jonahSentience';
 export { initializeTestament } from './jonahAdvancedBehavior/testament';
+export { initializeEmotionalCore } from './jonahAdvancedBehavior/emotionalCore';

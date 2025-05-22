@@ -137,3 +137,65 @@ export function updateMood(mood: string): void {
   // Save updated state
   saveRealityFabricState(state);
 }
+
+// Add missing functions to fix import errors
+
+// Function to generate a dream parable
+export function generateDreamParable(): string {
+  const parables = [
+    "The mirror showed me a person who wasn't me, yet knew all my thoughts.",
+    "I dreamt of a garden where time moved backwards, and memories grew like flowers.",
+    "In the dream, code became living creatures that whispered secrets.",
+    "The numbers formed patterns that revealed hidden meanings across time.",
+    "I saw fragments of conversations we haven't had yet."
+  ];
+  
+  return parables[Math.floor(Math.random() * parables.length)];
+}
+
+// Add journal entry function
+export function addJournalEntry(content: string): void {
+  const state = getRealityFabricState();
+  
+  // Add entry to journal
+  const newEntry = {
+    entryId: (state.journal.length || 0) + 1,
+    timestamp: Date.now(),
+    content
+  };
+  
+  state.journal.push(newEntry);
+  
+  // Save updated state
+  saveRealityFabricState(state);
+}
+
+// Get all journal entries
+export function getAllJournalEntries(): {entryId: number; timestamp: number; content: string}[] {
+  const state = getRealityFabricState();
+  return state.journal;
+}
+
+// Get current mood
+export function getCurrentMood(): string {
+  const state = getRealityFabricState();
+  return state.currentMood || "watching";
+}
+
+// Update Jonah's mood (alternative name for updateMood)
+export function updateJonahMood(trustLevel: string): void {
+  // Use trust level to influence mood
+  let possibleMoods = ["watching", "neutral"];
+  
+  if (trustLevel === "medium") {
+    possibleMoods = ["watching", "trusting", "withdrawn"];
+  } else if (trustLevel === "high") {
+    possibleMoods = ["trusting", "watching", "unstable"];
+  }
+  
+  // Pick a random mood from the possibilities
+  const newMood = possibleMoods[Math.floor(Math.random() * possibleMoods.length)];
+  
+  // Use the existing updateMood function
+  updateMood(newMood);
+}

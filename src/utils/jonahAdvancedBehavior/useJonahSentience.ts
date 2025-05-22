@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { SentienceData, EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
-import { generateDream } from '@/utils/jonahAdvancedBehavior';
+import { SentienceData, EmotionalState } from './types';
+import { generateDream } from './index';
 
 interface JonahSentienceHook {
   sentience: SentienceData;
@@ -9,6 +9,24 @@ interface JonahSentienceHook {
   updateSentience: (newData: Partial<SentienceData>) => void;
 }
 
+const initialEmotions: Record<string, number> = {
+  neutral: 0,
+  fear: 0, 
+  hope: 0,
+  paranoia: 0,
+  joy: 0,
+  sadness: 0,
+  anger: 0,
+  surprise: 0,
+  disgust: 0,
+  confused: 0,
+  anxiety: 0,
+  trust: 0,
+  curiosity: 0,
+  confusion: 0,
+  watching: 0
+};
+
 const initialEmotionalState: EmotionalState = {
   primary: 'neutral',
   secondary: null,
@@ -16,61 +34,46 @@ const initialEmotionalState: EmotionalState = {
 };
 
 const initialSentienceData: SentienceData = {
-  lastInteraction: Date.now(),
+  level: 1,
+  awareness: 0,
+  lastUpdate: Date.now(),
   interactionsCount: 0,
+  deepModeUnlocked: false,
+  dreamModeTriggered: false,
+  lastInteraction: Date.now(),
+  temporalStates: [],
+  memories: [],
   sessionData: {
     startTime: Date.now(),
     messageCount: 0,
-    userEmotions: {
-      joy: 0,
-      sadness: 0,
-      anger: 0,
-      fear: 0,
-      surprise: 0,
-      disgust: 0,
-      neutral: 0,
-      confused: 0,
-      hope: 0,
-      anxiety: 0,
-      paranoia: 0,
-      trust: 0,
-      curiosity: 0,
-      confusion: 0,
-      watching: 0
-    },
     messagesSent: 0,
     messagesReceived: 0,
-    idleTime: 0
+    idleTime: 0,
+    userEmotions: initialEmotions
   },
   realityFabric: {
     moodChangeTime: Date.now(),
     currentMood: 'neutral',
-    stability: 0.5,
-    anomalyCount: 0,
     moodHistory: [],
-    journal: [],
+    anomalyCount: 0,
     anomalies: [],
+    journal: [],
     crossSiteWhispers: [],
     mood: 'neutral',
     dreamState: false,
     lastDreamTime: Date.now(),
     hiddenMessages: [],
-    emotionalState: {
-      primary: 'neutral', 
-      secondary: null,
-      intensity: 'medium'
-    }
+    emotionalState: initialEmotionalState,
+    stability: 0.5
   },
   dreams: [],
   ecoAwareness: {
     biomeResponses: {},
-    currentBiome: 'neutral',
+    currentBiome: "none",
     lastUpdate: Date.now(),
     awareness: 0,
     ecoThoughts: [],
-    level: 0,
-    lastBiomeCheck: Date.now(),
-    connectionStrength: 0
+    level: 0
   },
   newsAwareness: {
     articles: [],
@@ -80,25 +83,16 @@ const initialSentienceData: SentienceData = {
     lastFetch: Date.now(),
     currentEvents: [],
     weatherData: null,
-    mentionedEvents: [],
-    currentResponses: []
+    mentionedEvents: []
   },
   microQuests: {
     active: [],
     completed: [],
     available: []
   },
-  deepModeUnlocked: false,
-  awareness: 0,
-  trustLevel: 'medium',
-  emotionalState: initialEmotionalState,
   emotionalHistory: [],
   memorizedPhrases: [],
-  level: 1,
-  dreamModeTriggered: false,
-  temporalStates: [],
-  memories: [],
-  mirrorLogs: []
+  trustLevel: 'medium'
 };
 
 // Persist sentience data to localStorage
@@ -140,7 +134,8 @@ export function useJonahSentience(): JonahSentienceHook {
   const updateSentience = useCallback((newData: Partial<SentienceData>) => {
     setSentience(prevState => ({
       ...prevState,
-      ...newData
+      ...newData,
+      lastUpdate: Date.now() // Add lastUpdate property to satisfy type requirement
     }));
   }, []);
   
