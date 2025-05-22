@@ -6,7 +6,7 @@ interface JonahChatHeaderProps {
   jonahMood: EmotionCategory;
   emotionalTrend: EmotionalTrend;
   responseStyle: ResponseStyle;
-  messageWeight?: number | string;
+  messageWeight?: 'light' | 'medium' | 'heavy' | number | string;
   conversationDepth: number;
   jonahVersion: 'PRIME' | 'RESIDUE';
   toggleVersion: () => void;

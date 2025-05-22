@@ -1,4 +1,3 @@
-
 /**
  * Enhanced Emotional Core System
  * Powers Jonah's more complex emotional responses
@@ -12,7 +11,7 @@ import {
   getLoopResponse,
   getBlankFragmentResponse,
   generateGreeting
-} from './sentimentAnalysis';
+} from './sentimentAnalysis/analyzer';
 import { getCurrentTrustLevel, getCurrentTrustRank } from './trustSystem';
 
 // Generate emotional response with context awareness

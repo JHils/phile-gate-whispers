@@ -1,10 +1,88 @@
-
 /**
- * Jonah Mirror Site
- * Handles interactions with the mirror version of Jonah
+ * Mirror Site System
+ * Manages the mirror site logs and interactions
  */
+import { MirrorEvent } from './jonahAdvancedBehavior/types';
 
-import { SentienceData } from './jonahAdvancedBehavior/types';
+// Initialize mirror logs
+export function initializeMirror(): void {
+  if (!localStorage.getItem('jonahMirrorLogs')) {
+    localStorage.setItem('jonahMirrorLogs', JSON.stringify([]));
+  }
+}
+
+// Log mirror event
+export function logMirrorEvent(event: string): string {
+  // Create event record
+  const mirrorEvent: MirrorEvent = {
+    id: generateEventId(),
+    timestamp: Date.now(),
+    event: event
+  };
+  
+  // Add to logs
+  const logs = getMirrorLogs();
+  logs.push(mirrorEvent);
+  
+  // Keep logs at reasonable size
+  if (logs.length > 50) {
+    logs.shift();
+  }
+  
+  // Save to storage
+  saveMirrorLogs(logs);
+  
+  // Return the event ID
+  return mirrorEvent.id;
+}
+
+// Respond to mirror event
+export function respondToMirrorEvent(eventId: string, response: string): boolean {
+  const logs = getMirrorLogs();
+  const eventIndex = logs.findIndex(event => event.id === eventId);
+  
+  if (eventIndex >= 0) {
+    logs[eventIndex] = {
+      ...logs[eventIndex],
+      response
+    };
+    
+    saveMirrorLogs(logs);
+    return true;
+  }
+  
+  return false;
+}
+
+// Get mirror logs
+export function getMirrorLogs(): MirrorEvent[] {
+  try {
+    const logs = localStorage.getItem('jonahMirrorLogs');
+    return logs ? JSON.parse(logs) : [];
+  } catch (e) {
+    console.error("Error retrieving mirror logs:", e);
+    return [];
+  }
+}
+
+// Save mirror logs
+function saveMirrorLogs(logs: MirrorEvent[]): void {
+  localStorage.setItem('jonahMirrorLogs', JSON.stringify(logs));
+}
+
+// Generate unique ID for events
+function generateEventId(): string {
+  return Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15);
+}
+
+// Check for mirror site completion
+export function checkMirrorProgress(): number {
+  const logs = getMirrorLogs();
+  const responseCount = logs.filter(event => event.response).length;
+  
+  return logs.length > 0 ? Math.floor((responseCount / logs.length) * 100) : 0;
+}
 
 // Initialize mirror site awareness in sentience data
 export function initializeMirrorSiteAwareness(sentience: SentienceData): SentienceData {

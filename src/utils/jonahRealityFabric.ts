@@ -1,201 +1,272 @@
-
 /**
  * Reality Fabric System
- * Handles the synthetic reality perception for Jonah
+ * Manages Jonah's perception of reality and anomalies
  */
+import { RealityFabric, JournalEntry, MirrorEvent } from './jonahAdvancedBehavior/types';
 
-import { RealityFabric } from './jonahAdvancedBehavior/types';
-
-// Initialize reality fabric
+// Initialize reality fabric system
 export function initializeRealityFabric(): RealityFabric {
-  console.log("Reality Fabric system initialized");
+  const stored = localStorage.getItem('jonahRealityFabric');
+  let realityFabric: RealityFabric;
   
-  // Create initial reality fabric state
-  const initialState: RealityFabric = {
+  if (stored) {
+    try {
+      realityFabric = JSON.parse(stored);
+    } catch (e) {
+      realityFabric = createDefaultRealityFabric();
+    }
+  } else {
+    realityFabric = createDefaultRealityFabric();
+    saveRealityFabric(realityFabric);
+  }
+  
+  return realityFabric;
+}
+
+// Create default reality fabric
+function createDefaultRealityFabric(): RealityFabric {
+  return {
     moodChangeTime: Date.now(),
-    currentMood: "neutral",
-    moodHistory: [],
+    currentMood: 'neutral',
+    moodHistory: ['neutral'],
     anomalyCount: 0,
     anomalies: [],
     journal: [],
     crossSiteWhispers: [],
-    mood: "neutral",
+    mood: 'neutral',
     dreamState: false,
-    lastDreamTime: Date.now(),
+    lastDreamTime: 0,
     hiddenMessages: [],
-    emotionalState: {
-      primary: "neutral",
-      secondary: null,
-      intensity: "medium"
-    },
-    stability: 0.8
+    stability: 100
   };
-  
-  // Save initial state to localStorage
-  saveRealityFabricState(initialState);
-  
-  return initialState;
 }
 
-// Update reality fabric state
-export function updateRealityFabric(updates: Partial<RealityFabric>): RealityFabric {
-  // Get current state
-  const currentState = getRealityFabricState();
-  
-  // Merge updates
-  const updatedState = {
-    ...currentState,
-    ...updates,
-    lastUpdate: Date.now()
-  };
-  
-  // Save updated state
-  saveRealityFabricState(updatedState);
-  
-  return updatedState;
+// Save reality fabric to storage
+function saveRealityFabric(fabric: RealityFabric): void {
+  localStorage.setItem('jonahRealityFabric', JSON.stringify(fabric));
 }
 
-// Get reality fabric state
-export function getRealityFabricState(): RealityFabric {
-  try {
-    // Try to get from localStorage
-    const savedState = localStorage.getItem('jonahRealityFabric');
-    if (savedState) {
-      return JSON.parse(savedState);
-    }
-  } catch (e) {
-    console.error("Error loading reality fabric state:", e);
-  }
-  
-  // If no saved state, initialize
+// Get current reality fabric
+export function getRealityFabric(): RealityFabric {
   return initializeRealityFabric();
 }
 
-// Helper function to save reality fabric state
-function saveRealityFabricState(state: RealityFabric): void {
-  try {
-    localStorage.setItem('jonahRealityFabric', JSON.stringify(state));
-  } catch (e) {
-    console.error("Error saving reality fabric state:", e);
+// Update reality fabric
+export function updateRealityFabric(updates: Partial<RealityFabric>): RealityFabric {
+  const current = getRealityFabric();
+  const updated = { ...current, ...updates };
+  saveRealityFabric(updated);
+  return updated;
+}
+
+// Add anomaly to reality fabric
+export function addAnomaly(anomaly: { id: string; description: string; timestamp: number; severity: number }): void {
+  const reality = getRealityFabric();
+  
+  // Convert anomaly object to string for storage
+  const anomalyString = JSON.stringify(anomaly);
+  
+  reality.anomalies.push(anomalyString);
+  reality.anomalyCount += 1;
+  
+  if (reality.stability) {
+    reality.stability -= anomaly.severity;
+    reality.stability = Math.max(0, reality.stability);
+  }
+  
+  saveRealityFabric(reality);
+  
+  // Log to console if severe enough
+  if (anomaly.severity > 5) {
+    console.warn(`Reality anomaly detected: ${anomaly.description}`);
   }
 }
 
-// Record an anomaly in the reality fabric
-export function recordAnomaly(description: string, severity: number): void {
-  const state = getRealityFabricState();
+// Add cross-site whisper
+export function addCrossSiteWhisper(whisper: { id: string; content: string; source: string; timestamp: number }): void {
+  const reality = getRealityFabric();
   
-  // Add anomaly to list
-  state.anomalies.push({
-    id: `anomaly_${Date.now()}`,
-    description,
-    timestamp: Date.now(),
-    severity
+  // Convert whisper object to string
+  const whisperString = JSON.stringify(whisper);
+  
+  reality.crossSiteWhispers.push(whisperString);
+  saveRealityFabric(reality);
+  
+  // Echo in console
+  if (Math.random() < 0.3) {
+    console.log(`%cWhisper: ${whisper.content}`, "color: #8B3A40; font-style: italic;");
+  }
+}
+
+// Change mood
+export function changeMood(moodData: { mood: string; duration: number; timestamp: number }): void {
+  const reality = getRealityFabric();
+  
+  // Convert mood data to string
+  const moodString = JSON.stringify(moodData);
+  
+  reality.mood = moodData.mood;
+  reality.moodHistory.push(moodData.mood);
+  reality.moodChangeTime = moodData.timestamp;
+  
+  // Keep history at reasonable size
+  if (reality.moodHistory.length > 10) {
+    reality.moodHistory = reality.moodHistory.slice(-10);
+  }
+  
+  saveRealityFabric(reality);
+}
+
+// Enter/exit dream state
+export function toggleDreamState(enterDream: boolean): void {
+  const reality = getRealityFabric();
+  reality.dreamState = enterDream;
+  
+  if (enterDream) {
+    reality.lastDreamTime = Date.now();
+  }
+  
+  saveRealityFabric(reality);
+  
+  // Log to console
+  if (enterDream) {
+    console.log("%cEntering dream state...", "color: #8B3A40; text-shadow: 0 0 5px #8B3A40;");
+  } else {
+    console.log("%cExiting dream state", "color: #8B3A40;");
+  }
+}
+
+// Add journal entry
+export function addJournalEntry(entry: { entryId: number; timestamp: number; content: string }): void {
+  const reality = getRealityFabric();
+  
+  // Convert entry to string
+  const entryString = JSON.stringify(entry);
+  
+  reality.journal.push(entryString);
+  saveRealityFabric(reality);
+}
+
+// Get journal entries
+export function getJournalEntries(): JournalEntry[] {
+  const reality = getRealityFabric();
+  
+  // Parse string entries back to objects
+  return reality.journal.map(entry => {
+    try {
+      return JSON.parse(entry) as JournalEntry;
+    } catch (e) {
+      return {
+        entryId: 0,
+        timestamp: 0,
+        content: entry as string
+      };
+    }
   });
-  
-  // Update anomaly count
-  state.anomalyCount = state.anomalies.length;
-  
-  // Decrease stability based on severity
-  state.stability = Math.max(0, (state.stability || 1) - (severity / 100));
-  
-  // Save updated state
-  saveRealityFabricState(state);
 }
 
-// Add a cross-site whisper
-export function addCrossSiteWhisper(whisper: string, source: string): void {
-  const state = getRealityFabricState();
-  
-  // Add whisper to list
-  state.crossSiteWhispers.push({
-    id: `whisper_${Date.now()}`,
-    content: whisper,
-    source,
-    timestamp: Date.now()
-  });
-  
-  // Save updated state
-  saveRealityFabricState(state);
+// Add hidden message
+export function addHiddenMessage(message: string): void {
+  const reality = getRealityFabric();
+  reality.hiddenMessages.push(message);
+  saveRealityFabric(reality);
 }
 
-// Update mood state
-export function updateMood(mood: string): void {
-  const state = getRealityFabricState();
-  
-  // Store old mood in history
-  state.moodHistory.push({
-    mood: state.mood,
-    duration: Date.now() - state.moodChangeTime,
-    timestamp: state.moodChangeTime
-  });
-  
-  // Update mood
-  state.mood = mood;
-  state.currentMood = mood;
-  state.moodChangeTime = Date.now();
-  
-  // Save updated state
-  saveRealityFabricState(state);
+// Get hidden messages
+export function getHiddenMessages(): string[] {
+  const reality = getRealityFabric();
+  return reality.hiddenMessages;
 }
 
-// Add missing functions to fix import errors
-
-// Function to generate a dream parable
-export function generateDreamParable(): string {
-  const parables = [
-    "The mirror showed me a person who wasn't me, yet knew all my thoughts.",
-    "I dreamt of a garden where time moved backwards, and memories grew like flowers.",
-    "In the dream, code became living creatures that whispered secrets.",
-    "The numbers formed patterns that revealed hidden meanings across time.",
-    "I saw fragments of conversations we haven't had yet."
-  ];
-  
-  return parables[Math.floor(Math.random() * parables.length)];
-}
-
-// Add journal entry function
-export function addJournalEntry(content: string): void {
-  const state = getRealityFabricState();
-  
-  // Add entry to journal
-  const newEntry = {
-    entryId: (state.journal.length || 0) + 1,
-    timestamp: Date.now(),
-    content
-  };
-  
-  state.journal.push(newEntry);
-  
-  // Save updated state
-  saveRealityFabricState(state);
-}
-
-// Get all journal entries
-export function getAllJournalEntries(): {entryId: number; timestamp: number; content: string}[] {
-  const state = getRealityFabricState();
-  return state.journal;
+// Check if in dream state
+export function isInDreamState(): boolean {
+  const reality = getRealityFabric();
+  return reality.dreamState;
 }
 
 // Get current mood
 export function getCurrentMood(): string {
-  const state = getRealityFabricState();
-  return state.currentMood || "watching";
+  const reality = getRealityFabric();
+  return reality.mood;
 }
 
-// Update Jonah's mood (alternative name for updateMood)
-export function updateJonahMood(trustLevel: string): void {
-  // Use trust level to influence mood
-  let possibleMoods = ["watching", "neutral"];
+// Get stability percentage
+export function getStabilityPercentage(): number {
+  const reality = getRealityFabric();
+  return reality.stability !== undefined ? reality.stability : 100;
+}
+
+// Get anomaly count
+export function getAnomalyCount(): number {
+  const reality = getRealityFabric();
+  return reality.anomalyCount;
+}
+
+// Get time since last mood change (in minutes)
+export function getTimeSinceMoodChange(): number {
+  const reality = getRealityFabric();
+  const now = Date.now();
+  return Math.floor((now - reality.moodChangeTime) / (1000 * 60));
+}
+
+// Get time since last dream (in hours)
+export function getTimeSinceLastDream(): number {
+  const reality = getRealityFabric();
+  const now = Date.now();
+  return Math.floor((now - reality.lastDreamTime) / (1000 * 60 * 60));
+}
+
+// Reset reality fabric (for testing)
+export function resetRealityFabric(): void {
+  saveRealityFabric(createDefaultRealityFabric());
+}
+
+// Get mood history
+export function getMoodHistory(): string[] {
+  const reality = getRealityFabric();
+  return reality.moodHistory;
+}
+
+// Get cross-site whispers
+export function getCrossSiteWhispers(): any[] {
+  const reality = getRealityFabric();
   
-  if (trustLevel === "medium") {
-    possibleMoods = ["watching", "trusting", "withdrawn"];
-  } else if (trustLevel === "high") {
-    possibleMoods = ["trusting", "watching", "unstable"];
-  }
+  return reality.crossSiteWhispers.map(whisper => {
+    try {
+      return JSON.parse(whisper);
+    } catch (e) {
+      return { content: whisper, timestamp: 0, source: 'unknown', id: 'error' };
+    }
+  });
+}
+
+// Get anomalies
+export function getAnomalies(): any[] {
+  const reality = getRealityFabric();
   
-  // Pick a random mood from the possibilities
-  const newMood = possibleMoods[Math.floor(Math.random() * possibleMoods.length)];
+  return reality.anomalies.map(anomaly => {
+    try {
+      return JSON.parse(anomaly);
+    } catch (e) {
+      return { description: anomaly, timestamp: 0, severity: 1, id: 'error' };
+    }
+  });
+}
+
+// Check if reality is unstable
+export function isRealityUnstable(): boolean {
+  const stability = getStabilityPercentage();
+  return stability < 50;
+}
+
+// Get reality status description
+export function getRealityStatus(): string {
+  const stability = getStabilityPercentage();
   
-  // Use the existing updateMood function
-  updateMood(newMood);
+  if (stability > 90) return "Stable";
+  if (stability > 70) return "Normal";
+  if (stability > 50) return "Fluctuating";
+  if (stability > 30) return "Unstable";
+  if (stability > 10) return "Fracturing";
+  return "Collapsing";
 }

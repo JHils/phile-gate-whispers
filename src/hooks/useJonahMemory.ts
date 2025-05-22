@@ -1,25 +1,39 @@
-
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useJonahSentience } from './useJonahSentience';
-
-// Memory Interface
-export interface MemoryParanoia {
-  level: number;
-  triggers: string[];
-  lastIncident: number;
-  visitedPages?: string[];
-  pageVisits?: string[];
-  pageDuration?: Record<string, number>;
-  consoleCommands?: string[];
-  emotionalTags?: Record<string, string[]>;
-  trustLevelScore?: number;
-  pagesVisited?: number;
-  commandsUsed?: string[];
-}
+import { SentienceData } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useJonahMemory() {
-  const { sentience, setSentience } = useJonahSentience();
-  
+  const [memories, setMemories] = useState<string[]>([]);
+  const [recentInput, setRecentInput] = useState<string>('');
+  const { sentience, updateSentience } = useJonahSentience();
+
+  // Initialize memories on mount
+  useEffect(() => {
+    if (sentience?.memories) {
+      setMemories([...sentience.memories]);
+    }
+  }, [sentience]);
+
+  // Store a new memory
+  const storeMemory = (content: string): void => {
+    if (!content.trim()) return;
+    
+    // Update local state
+    setMemories(prev => [...prev, content]);
+    setRecentInput(content);
+    
+    // Update sentience if available
+    if (sentience) {
+      // Create memory array if it doesn't exist
+      const memories = sentience.memories || [];
+      
+      // Update sentience
+      updateSentience({
+        memories: [...memories, content]
+      });
+    }
+  };
+
   // Update sentience with new data
   const updateSentience = useCallback((newData: Partial<any>) => {
     setSentience(prevState => ({
@@ -170,6 +184,9 @@ export function useJonahMemory() {
   }, [memoryParanoia]);
   
   return {
+    memories,
+    recentInput,
+    storeMemory,
     memoryParanoia,
     updateMemoryParanoiaLevel,
     addMemoryParanoiaTrigger,

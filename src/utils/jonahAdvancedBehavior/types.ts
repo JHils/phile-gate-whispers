@@ -74,7 +74,7 @@ export interface StoryFlag {
   description: string;
 }
 
-// Book Code Type - Updated to include the name and discovered fields
+// Book Code Type - Updated to include the name, discovered, and pageNumber fields
 export interface BookCode {
   id: string;
   code: string;
@@ -82,6 +82,7 @@ export interface BookCode {
   unlocked: boolean;
   timestamp?: number;
   discovered: boolean;
+  pageNumber?: number;
 }
 
 // Ecological Awareness State
@@ -93,7 +94,7 @@ export interface EcoAwarenessState {
   triggersFound: string[];
   biomeResponses?: Record<string, string[]>;
   lastUpdate?: number;
-  awareness?: string;
+  awareness?: string; // Changed to string from number
 }
 
 // MicroQuest type for BotQuestSystem
@@ -120,6 +121,7 @@ export interface ConfessionEntry {
   recursive?: boolean;
   version?: string;
   isPrivate?: boolean;
+  revealed?: boolean;
 }
 
 // Testament Entry type - Updated with additional fields
@@ -134,6 +136,8 @@ export interface TestamentEntry {
   revealed?: boolean;
   unlockPhrase?: string;
   corrupted?: boolean;
+  requiresTrust?: number;
+  version?: string;
 }
 
 // News awareness types
@@ -148,6 +152,9 @@ export interface NewsAwarenessState {
   weatherCondition: string;
   weatherResponse: string | null;
   moodShift: 'normal' | 'anxious' | 'somber' | 'agitated';
+  articles?: any[];
+  recentTopics?: string[];
+  responses?: Record<string, string>;
 }
 
 // Reality Fabric type
@@ -167,10 +174,25 @@ export interface RealityFabric {
   stability?: number;
 }
 
+// Mirror Event type
+export interface MirrorEvent {
+  id: string;
+  timestamp: number;
+  event: string;
+  response?: string;
+}
+
+// Journal Entry type
+export interface JournalEntry {
+  entryId: number;
+  timestamp: number;
+  content: string;
+}
+
 // Sentience Data Structure
 export interface SentienceData {
   level: number;
-  awareness: boolean;
+  awareness: boolean; // Keep as boolean
   lastUpdate: number;
   interactionsCount: number;
   deepModeUnlocked: boolean;

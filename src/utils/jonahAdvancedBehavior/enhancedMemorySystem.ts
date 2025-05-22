@@ -68,6 +68,20 @@ export function createConversationContext(trustLevel: string): ConversationConte
   };
 }
 
+// Initialize empty conversation context
+export function createEmptyContext(): ConversationContext {
+  return {
+    recentTopics: [],
+    emotionalHistory: [],
+    userTrustLevel: 0,
+    depth: 0,
+    sessionStartTime: Date.now(),
+    recentMessages: [],
+    emotionalJourney: [],
+    topicFocus: null
+  };
+}
+
 // Store user or Jonah input in memory
 export function storeInMemory(
   input: string,

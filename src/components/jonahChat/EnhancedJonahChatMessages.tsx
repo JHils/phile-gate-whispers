@@ -1,75 +1,53 @@
-
-import React from 'react';
-import { EmotionCategory, EmotionalTrend } from '@/utils/jonahAdvancedBehavior/types';
+import React, { useEffect } from 'react';
 import { ChatMessage } from '@/hooks/jonahChat/types';
+import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
 
-interface EnhancedJonahChatMessagesProps {
+interface EnhancedJonahChatMessageProps {
   messages: ChatMessage[];
   isTyping: boolean;
+  messageWeight: 'light' | 'medium' | 'heavy' | string;
+  responseStyle: ResponseStyle;
   jonahMood: EmotionCategory;
   emotionalTrend: EmotionalTrend;
-  messageWeight: string;
-  responseStyle: string;
   messagesEndRef: React.RefObject<HTMLDivElement>;
 }
 
-const EnhancedJonahChatMessages: React.FC<EnhancedJonahChatMessagesProps> = ({ 
-  messages, 
-  isTyping, 
-  jonahMood, 
-  emotionalTrend,
+const EnhancedJonahChatMessages: React.FC<EnhancedJonahChatMessageProps> = ({
+  messages,
+  isTyping,
   messageWeight,
   responseStyle,
-  messagesEndRef 
+  jonahMood,
+  emotionalTrend,
+  messagesEndRef
 }) => {
-  const getTrendIndicator = () => {
-    if (emotionalTrend === 'stable') {
-      return <span className="text-gray-400 text-xs ml-1">→</span>;
-    } else if (emotionalTrend === 'improving' || emotionalTrend === 'intensifying') {
-      return <span className="text-green-400 text-xs ml-1">↑</span>;
-    } else if (emotionalTrend === 'deteriorating' || emotionalTrend === 'diminishing') {
-      return <span className="text-red-400 text-xs ml-1">↓</span>;
-    } else { // fluctuating
-      return <span className="text-yellow-400 text-xs ml-1">↔</span>;
-    }
-  };
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping, messagesEndRef]);
   
   return (
-    <div className="flex flex-col overflow-y-auto p-4 space-y-2 bg-gray-900 h-80">
-      {messages.map((message) => (
-        <div key={message.id} className={`
-          flex items-start my-2
-          ${message.isJonah ? 'justify-start' : 'justify-end'}
-        `}>
-          <div className={`
-            rounded-lg p-3 text-sm max-w-2xl
-            ${message.isJonah ? 'bg-gray-700 text-white ml-2' : 'bg-purple-200 text-gray-800 mr-2'}
-          `}>
-            <div className="flex items-center">
-              {message.isJonah && (
-                <span className="text-xs text-gray-400 mr-2">
-                  Jonah ({jonahMood})
-                  {getTrendIndicator()}
-                </span>
-              )}
-              <span className="whitespace-pre-line">{message.content}</span>
-            </div>
-            <div className="text-xs text-gray-500 mt-1">
-              {new Date(message.timestamp).toLocaleTimeString()}
-            </div>
-          </div>
+    <div className="flex-1 overflow-auto p-4 bg-gray-900">
+      {messages.map(message => (
+        <div 
+          key={message.id} 
+          className={`mb-4 ${message.isJonah ? 'text-blue-300' : 'text-white'}`}
+        >
+          <p className={`${message.isJonah ? 'bg-gray-800' : 'bg-gray-700'} p-3 rounded-md`}>
+            {message.content}
+          </p>
         </div>
       ))}
       
       {isTyping && (
-        <div className="flex items-start my-2 justify-start">
-          <div className="bg-gray-700 text-white rounded-lg p-3 text-sm max-w-2xl ml-2">
-            <div className="flex space-x-1">
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
-            </div>
-          </div>
+        <div className="mb-4 text-blue-300">
+          <p className="bg-gray-800 p-3 rounded-md">
+            <span className="typing-indicator">
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </span>
+          </p>
         </div>
       )}
       

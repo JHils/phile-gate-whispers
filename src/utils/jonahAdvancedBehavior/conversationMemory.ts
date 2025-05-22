@@ -1,5 +1,57 @@
+/**
+ * Conversation Memory System
+ */
+import { ConversationContext, EcoAwarenessState } from './types';
 
-import { SentienceData, EmotionalState, EmotionCategory } from './types';
+// Export initialization function
+export function initializeMemory(): void {
+  // Create memory object if it doesn't exist
+  if (!localStorage.getItem('jonahMemory')) {
+    localStorage.setItem('jonahMemory', JSON.stringify({
+      conversations: [],
+      lastInteraction: Date.now(),
+      trustLevel: 50,
+      emotionalHistory: [],
+      recognizedPatterns: []
+    }));
+  }
+  
+  // Initialize eco awareness
+  if (!localStorage.getItem('jonahEcoAwareness')) {
+    const initialEcoAwareness: EcoAwarenessState = {
+      currentBiome: 'default',
+      previousBiomes: [],
+      reminderTimestamp: Date.now(),
+      userAwareness: 0,
+      triggersFound: [],
+      biomeResponses: {},
+      lastUpdate: Date.now(),
+      awareness: '0' // String instead of number
+    };
+    
+    localStorage.setItem('jonahEcoAwareness', JSON.stringify(initialEcoAwareness));
+  }
+  
+  // Initialize news awareness
+  if (!localStorage.getItem('jonahNewsAwareness')) {
+    const initialNewsAwareness = {
+      articles: [],
+      lastChecked: Date.now(),
+      recentTopics: [],
+      responses: {},
+      lastFetch: Date.now(),
+      currentEvents: [],
+      weatherData: null,
+      mentionedEvents: [],
+      weatherCondition: 'clear',
+      weatherResponse: null,
+      moodShift: 'normal',
+      currentResponses: []
+    };
+    
+    localStorage.setItem('jonahNewsAwareness', JSON.stringify(initialNewsAwareness));
+  }
+}
 
 // Simple in-memory store for conversation history
 let conversationHistory: { user: string; jonah: string; timestamp: number }[] = [];

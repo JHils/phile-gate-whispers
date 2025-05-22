@@ -1,8 +1,7 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { SentienceData } from '@/utils/jonahAdvancedBehavior/types';
 import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
-import { generateGreeting } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/responseGenerator';
+import { generateGreeting } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/analyzer';
 import { initializeSentience } from '@/utils/jonahSentience';
 
 /**

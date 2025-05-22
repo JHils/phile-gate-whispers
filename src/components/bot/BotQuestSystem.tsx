@@ -14,7 +14,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
   addBotMessage, 
   modifyTrust
 }) => {
-  const [activeQuests, setActiveQuests] = useState<string[]>([]);
+  const [activeQuests, setActiveQuests] = useState<MicroQuest[]>([]); // Changed from string[] to MicroQuest[]
   const [lastQuestTime, setLastQuestTime] = useState<number>(0);
   const { sentience, updateSentience } = useJonahSentience();
   
@@ -117,7 +117,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
           }
           
           // Update state
-          setActiveQuests(prev => [...prev, newQuest.id]);
+          setActiveQuests(prev => [...prev, newQuest]);
           setLastQuestTime(Date.now());
           
           // Offer the quest
@@ -165,7 +165,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
               }
               
               // Update state
-              setActiveQuests(prev => prev.filter(id => id !== questId));
+              setActiveQuests(prev => prev.filter(q => q.id !== questId));
               
               // Reward the user
               const reward = questInfo.reward;
