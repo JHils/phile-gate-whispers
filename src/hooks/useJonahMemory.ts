@@ -1,210 +1,145 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { useJonahSentience } from './useJonahSentience';
-import { SentienceData } from '@/utils/jonahAdvancedBehavior/types';
+/**
+ * Hook to manage Jonah's memory system
+ */
 
-// Memory paranoia type definition
-interface MemoryParanoia {
-  level: number;
-  triggers: string[];
-  lastIncident: number;
-  visitedPages: string[];
-  pageVisits: string[];
-  pageDuration: Record<string, number>;
-  consoleCommands: string[];
-  emotionalTags: Record<string, string[]>;
-  trustLevelScore: number;
-  pagesVisited: number;
-  commandsUsed: string[];
-}
+import { useState, useEffect, useCallback } from 'react';
 
 export function useJonahMemory() {
-  const [memories, setMemories] = useState<string[]>([]);
-  const [recentInput, setRecentInput] = useState<string>('');
-  const { sentience, updateSentience: updateSentienceFromHook } = useJonahSentience();
-
-  // Initialize memories on mount
-  useEffect(() => {
-    if (sentience?.memories) {
-      setMemories([...sentience.memories]);
-    }
-  }, [sentience]);
-
-  // Store a new memory
-  const storeMemory = (content: string): void => {
-    if (!content.trim()) return;
-    
-    // Update local state
-    setMemories(prev => [...prev, content]);
-    setRecentInput(content);
-    
-    // Update sentience if available
-    if (sentience) {
-      // Create memory array if it doesn't exist
-      const memories = sentience.memories || [];
-      
-      // Update sentience
-      updateSentienceFromHook({
-        memories: [...memories, content]
-      });
-    }
-  };
-  
-  // Initialize memory paranoia state
-  const [memoryParanoia, setMemoryParanoia] = useState<MemoryParanoia>({
-    level: 0,
-    triggers: [],
-    lastIncident: Date.now(),
-    visitedPages: [],
-    pageVisits: [],
-    pageDuration: {},
-    consoleCommands: [],
-    emotionalTags: {},
-    trustLevelScore: 0,
-    pagesVisited: 0,
-    commandsUsed: []
+  const [jonahMemory, setJonahMemory] = useState<any>({
+    messageCount: 0,
+    lastActivity: Date.now(),
+    memoryFragments: [],
+    persistentMoods: [],
+    sentientResponses: 0
   });
   
-  // Load stored memory paranoia data
   useEffect(() => {
-    try {
-      const storedMemoryParanoia = localStorage.getItem('memory_paranoia');
-      if (storedMemoryParanoia) {
-        setMemoryParanoia(JSON.parse(storedMemoryParanoia));
+    // Load memory from localStorage on mount
+    const storedMemory = localStorage.getItem('jonah_memory');
+    if (storedMemory) {
+      try {
+        setJonahMemory(JSON.parse(storedMemory));
+      } catch (e) {
+        console.error("Error parsing memory from localStorage:", e);
       }
-    } catch (e) {
-      console.error('Error loading memory paranoia:', e);
     }
-  }, []);
-  
-  // Save memory paranoia when it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem('memory_paranoia', JSON.stringify(memoryParanoia));
-    } catch (e) {
-      console.error('Error saving memory paranoia:', e);
-    }
-  }, [memoryParanoia]);
-  
-  // Update paranoia level
-  const updateMemoryParanoiaLevel = useCallback((newLevel: number) => {
-    setMemoryParanoia(prev => ({
-      ...prev,
-      level: newLevel,
-      lastIncident: Date.now()
-    }));
-  }, []);
-  
-  // Add a paranoia trigger
-  const addMemoryParanoiaTrigger = useCallback((trigger: string) => {
-    setMemoryParanoia(prev => ({
-      ...prev,
-      triggers: [...prev.triggers, trigger],
-      lastIncident: Date.now()
-    }));
-  }, []);
-  
-  // Record page visit
-  const recordPageVisit = useCallback((page: string) => {
-    setMemoryParanoia(prev => {
-      const visitedPages = prev.visitedPages || [];
-      const pageVisits = prev.pageVisits || [];
-      const uniquePages = new Set([...visitedPages, page]);
-      
-      return {
-        ...prev,
-        visitedPages: Array.from(uniquePages),
-        pageVisits: [...pageVisits, page],
-        pagesVisited: uniquePages.size,
-        lastIncident: Date.now()
-      };
-    });
-  }, []);
-  
-  // Record page dwell time
-  const recordPageDwell = useCallback((page: string, duration: number) => {
-    setMemoryParanoia(prev => {
-      const pageDuration = prev.pageDuration || {};
-      const currentDuration = pageDuration[page] || 0;
-      
-      return {
-        ...prev,
-        pageDuration: {
-          ...pageDuration,
-          [page]: currentDuration + duration
-        }
-      };
-    });
-  }, []);
-  
-  // Record console command usage
-  const recordCommandUsage = useCallback((command: string) => {
-    setMemoryParanoia(prev => {
-      const consoleCommands = prev.consoleCommands || [];
-      const commandsUsed = prev.commandsUsed || [];
-      
-      return {
-        ...prev,
-        consoleCommands: [...consoleCommands, command],
-        commandsUsed: [...commandsUsed, command],
-        lastIncident: Date.now()
-      };
-    });
-  }, []);
-  
-  // Add emotional tag
-  const addEmotionalTag = useCallback((category: string, tag: string) => {
-    setMemoryParanoia(prev => {
-      const emotionalTags = prev.emotionalTags || {};
-      const categoryTags = emotionalTags[category] || [];
-      
-      return {
-        ...prev,
-        emotionalTags: {
-          ...emotionalTags,
-          [category]: [...categoryTags, tag]
-        }
-      };
-    });
-  }, []);
-  
-  // Generate a personal observation based on memory
-  const generatePersonalObservation = useCallback(() => {
-    const observations = [
-      memoryParanoia.pagesVisited && memoryParanoia.pagesVisited > 3 ? 
-        `You've explored ${memoryParanoia.pagesVisited} pages so far.` : null,
-      
-      memoryParanoia.visitedPages && memoryParanoia.visitedPages.includes('/mirror') ?
-        "You seem interested in reflections and mirrors." : null,
-      
-      memoryParanoia.commandsUsed && memoryParanoia.commandsUsed.length > 5 ?
-        "You're quite comfortable with console commands." : null,
-      
-      memoryParanoia.emotionalTags && 
-        memoryParanoia.emotionalTags['fear'] && 
-        memoryParanoia.emotionalTags['fear'].length > 2 ?
-        "I've noticed you're often concerned about uncertain outcomes." : null
-    ].filter(Boolean);
     
-    return observations.length > 0 ? 
-      observations[Math.floor(Math.random() * observations.length)] : 
-      "I'm still learning about you.";
-  }, [memoryParanoia]);
+    // Set up memory update interval
+    const interval = setInterval(() => {
+      updateMemoryState();
+    }, 60000); // Update every minute
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Update memory state with new data
+  const updateMemoryState = useCallback((updates: Partial<any> = {}) => {
+    setJonahMemory(prev => {
+      const updated = {
+        ...prev,
+        ...updates,
+        lastUpdate: Date.now()
+      };
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem('jonah_memory', JSON.stringify(updated));
+      } catch (e) {
+        console.error("Error saving memory to localStorage:", e);
+      }
+      
+      return updated;
+    });
+  }, []);
+  
+  // Add a memory fragment
+  const addMemoryFragment = useCallback((fragment: string) => {
+    setJonahMemory(prev => {
+      const updated = {
+        ...prev,
+        memoryFragments: [
+          ...prev.memoryFragments,
+          {
+            text: fragment,
+            timestamp: Date.now()
+          }
+        ].slice(-20), // Keep only the last 20 fragments
+        messageCount: prev.messageCount + 1,
+        lastActivity: Date.now()
+      };
+      
+      // Save to localStorage
+      localStorage.setItem('jonah_memory', JSON.stringify(updated));
+      
+      return updated;
+    });
+  }, []);
+  
+  // Record a mood
+  const recordMood = useCallback((mood: string, intensity: 'low' | 'medium' | 'high') => {
+    setJonahMemory(prev => {
+      // Convert intensity to numeric value
+      const intensityValue = intensity === 'high' ? 3 : intensity === 'medium' ? 2 : 1;
+      
+      const updated = {
+        ...prev,
+        persistentMoods: [
+          ...prev.persistentMoods,
+          {
+            mood,
+            intensity: intensityValue,
+            timestamp: Date.now()
+          }
+        ].slice(-10), // Keep only last 10 moods
+        lastActivity: Date.now()
+      };
+      
+      // Save to localStorage
+      localStorage.setItem('jonah_memory', JSON.stringify(updated));
+      
+      return updated;
+    });
+  }, []);
+  
+  // Record sentient response
+  const recordSentientResponse = useCallback(() => {
+    setJonahMemory(prev => {
+      const updated = {
+        ...prev,
+        sentientResponses: prev.sentientResponses + 1,
+        lastActivity: Date.now()
+      };
+      
+      // Save to localStorage
+      localStorage.setItem('jonah_memory', JSON.stringify(updated));
+      
+      return updated;
+    });
+  }, []);
+  
+  // Get persistent mood
+  const getPersistentMood = useCallback(() => {
+    if (!jonahMemory.persistentMoods || jonahMemory.persistentMoods.length === 0) {
+      return { mood: 'neutral', intensity: 'medium' };
+    }
+    
+    // Get most recent mood
+    const latestMood = jonahMemory.persistentMoods[0];
+    
+    // Convert intensity back to string
+    const intensity = latestMood.intensity === 3 ? 'high' : 
+                      latestMood.intensity === 2 ? 'medium' : 'low';
+    
+    return { mood: latestMood.mood, intensity };
+  }, [jonahMemory]);
   
   return {
-    memories,
-    recentInput,
-    storeMemory,
-    memoryParanoia,
-    updateMemoryParanoiaLevel,
-    addMemoryParanoiaTrigger,
-    recordPageVisit,
-    recordPageDwell,
-    recordCommandUsage,
-    addEmotionalTag,
-    generatePersonalObservation,
-    trustLevelScore: memoryParanoia.trustLevelScore || 0,
-    pagesVisited: memoryParanoia.pagesVisited || 0,
-    commandsUsed: memoryParanoia.commandsUsed || []
+    jonahMemory,
+    updateMemoryState,
+    addMemoryFragment,
+    recordMood,
+    recordSentientResponse,
+    getPersistentMood
   };
 }

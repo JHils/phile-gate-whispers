@@ -1,10 +1,10 @@
+
 /**
  * Enhanced Memory System
  * Advanced memory functionality for Jonah
  */
 
-import { ConversationContext } from './types';
-import { EmotionCategory } from './types';
+import { ConversationContext, EmotionCategory } from './types';
 
 // Find memories relevant to current input
 export function findRelevantMemories(input: string, context: ConversationContext): string[] {
@@ -64,7 +64,11 @@ export function createConversationContext(trustLevel: string): ConversationConte
     recentMessages: [],
     emotionalJourney: [],
     topicFocus: null,
-    depth: 0
+    depth: 0,
+    recentTopics: [],
+    emotionalHistory: [],
+    userTrustLevel: parseInt(trustLevel) || 50,
+    sessionStartTime: Date.now()
   };
 }
 

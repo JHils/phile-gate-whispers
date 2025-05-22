@@ -1,9 +1,10 @@
+
 /**
  * Enhanced Emotional Core System
  * Powers Jonah's more complex emotional responses
  */
 
-import { EmotionalState, EmotionCategory, EmotionalTrend, ResponseStyle } from './types';
+import { EmotionalState, EmotionCategory, EmotionalTrend, ResponseStyle, TrustLevel } from './types';
 import { 
   getEmotionalResponse, 
   getLayeredEmotionalResponse,
@@ -17,7 +18,7 @@ import { getCurrentTrustLevel, getCurrentTrustRank } from './trustSystem';
 // Generate emotional response with context awareness
 export function generateFullEmotionalResponse(
   emotionalState: EmotionalState,
-  trustLevel: string,
+  trustLevel: TrustLevel,
   useFallback: boolean = false,
   previousResponses: string[] = []
 ): string {
@@ -123,7 +124,7 @@ function logConsoleMessage(emotion: EmotionCategory, trustScore: number): void {
 }
 
 // Fallback responses when primary system fails
-function getFallbackResponse(emotion: EmotionCategory, trustLevel: string): string {
+function getFallbackResponse(emotion: EmotionCategory, trustLevel: TrustLevel): string {
   const fallbacks: Record<EmotionCategory, string[]> = {
     joy: ["That brings me happiness.", "I feel positive about this."],
     sadness: ["This makes me feel sad.", "That's unfortunate to hear."],

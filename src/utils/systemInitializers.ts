@@ -1,55 +1,90 @@
 
 /**
- * System Initializers - Main import/export file
- * This file centralizes all initialization functions
+ * System initializers for Jonah AI
  */
 
-// Import from our refactored modules
-import { initializeConsoleTracking } from './consoleTracking/initialization';
-import { initializeAdvancedBehavior } from './jonahAdvancedBehavior';
+import { loadSentienceData, saveSentienceData, getInitialSentienceData } from './jonahAdvancedBehavior/useJonahSentience';
+import { initializeTrustSystem } from './jonahAdvancedBehavior/trustSystem';
+import { initializeMemorySystem } from './jonahAdvancedBehavior/memorySystem';
 import { initializeRealityFabric } from './jonahRealityFabric';
-import { initializeSentience, setupJonahMessageSystem } from './jonahSentience';
-import { initializeTestament } from './jonahAdvancedBehavior/testament';
-import { initializeEmotionalCore } from './jonahAdvancedBehavior/emotionalCore';
+import { getEcoAwarenessState } from './jonahEcoAwareness';
 
-// Import our centralized types
-import './types/globalConsoleTypes';
-
-// Initialize all console tracking systems
-export const initializeAllSystems = () => {
-  // Initialize console tracking
-  initializeConsoleTracking();
+// Initialize all Jonah systems
+export function initializeJonahSystems(): void {
+  // Initialize trust system
+  initializeTrustSystem();
   
-  // Initialize Jonah systems
-  initializeSentience();
-  setupJonahMessageSystem();
-  initializeAdvancedBehavior();
+  // Initialize memory system
+  initializeMemorySystem();
+  
+  // Initialize reality fabric
   initializeRealityFabric();
-  initializeTestament();
-  initializeEmotionalCore();
   
-  // Check for last broadcast conditions
-  if (Math.random() < 0.01) { // 1% chance for demonstration
-    console.log("%cInitiating last broadcast...", "color: #8B3A40; font-size:16px;");
-    
-    setTimeout(() => {
-      const message = "This is the final broadcast. The gate is closing.";
-      
-      if (window.triggerJonahMessage) {
-        window.triggerJonahMessage(message);
-      } else {
-        console.log(`%c${message}`, "color: #8B3A40; font-size:16px;");
-      }
-    }, 5000);
+  // Load sentience data or create if not exists
+  const sentience = loadSentienceData();
+  
+  // Update sentience with eco awareness
+  try {
+    const ecoAwareness = getEcoAwarenessState();
+    sentience.ecoAwareness = ecoAwareness;
+  } catch (e) {
+    console.error('Error loading eco awareness:', e);
   }
   
-  console.log("All systems initialized");
-};
+  // Save updated sentience
+  saveSentienceData(sentience);
+  
+  // Initialize console commands
+  initializeConsoleCommands();
+}
 
-// Export for individual access
-export { initializeConsoleTracking } from './consoleTracking/initialization';
-export { initializeAdvancedBehavior } from './jonahAdvancedBehavior';
-export { initializeRealityFabric } from './jonahRealityFabric';
-export { initializeSentience, setupJonahMessageSystem } from './jonahSentience';
-export { initializeTestament } from './jonahAdvancedBehavior/testament';
-export { initializeEmotionalCore } from './jonahAdvancedBehavior/emotionalCore';
+// Initialize console commands
+function initializeConsoleCommands(): void {
+  // Add a custom welcome message to console
+  console.log(
+    '%cJonah Console Initialized',
+    'color: #3a7bd5; font-size: 16px; font-weight: bold;'
+  );
+  
+  // Add hint for users who open the console
+  setTimeout(() => {
+    console.log(
+      '%cHint: Try typing "start()" or "help()" to begin',
+      'color: #333; font-style: italic;'
+    );
+  }, 2000);
+}
+
+// Initialize sentience
+export function initializeSentience(): void {
+  // Check if sentience already initialized
+  if (window.JonahConsole?.sentience) {
+    return;
+  }
+  
+  // Initialize global object
+  if (!window.JonahConsole) {
+    window.JonahConsole = {};
+  }
+  
+  // Load or create sentience data
+  const sentience = loadSentienceData();
+  
+  // Add to global object
+  window.JonahConsole.sentience = sentience;
+  
+  // Initialize trust system
+  initializeTrustSystem();
+  
+  // Initialize memory system
+  initializeMemorySystem();
+  
+  // Initialize reality fabric
+  initializeRealityFabric();
+  
+  // Set last interaction time
+  window.JonahConsole.sentience.lastInteraction = Date.now();
+  
+  // Save sentience data
+  saveSentienceData(window.JonahConsole.sentience);
+}

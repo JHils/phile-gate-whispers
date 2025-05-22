@@ -1,5 +1,7 @@
 
-import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
+/**
+ * Type definitions for Jonah Chat
+ */
 
 export interface ChatMessage {
   id: string;
@@ -8,24 +10,7 @@ export interface ChatMessage {
   timestamp: number;
 }
 
-export interface JonahContext {
-  inputs: string[];
-  emotions: EmotionCategory[];
-  timestamp: number;
-}
-
-export interface JonahChatInterfaceProps {
+export interface JonahChatProps {
   messages: ChatMessage[];
-  input: string;
-  setInput: React.Dispatch<React.SetStateAction<string>>;
   isTyping: boolean;
-  jonahMood: EmotionCategory;
-  emotionalTrend: EmotionalTrend;
-  responseStyle: ResponseStyle;
-  sendMessage: (content: string) => void;
-  messageWeight: string;
-  conversationDepth: number;
-  jonahVersion: 'PRIME' | 'RESIDUE';
-  toggleVersion: () => void;
-  resetConversation: () => void;
 }

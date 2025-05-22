@@ -1,81 +1,79 @@
 
 import React, { useEffect, useState } from 'react';
-import { initializeSentience } from '@/utils/jonahSentience';
-import { updateJonahMood, getCurrentMood } from '@/utils/jonahRealityFabric';
+import { useJonahMemory } from '@/hooks/useJonahMemory';
+import { getCurrentMood } from '@/utils/jonahRealityFabric';
 
-interface JonahMoodIndicatorProps {
-  trustLevel: string;
-  className?: string;
-}
-
-const JonahMoodIndicator: React.FC<JonahMoodIndicatorProps> = ({
-  trustLevel,
-  className = ""
-}) => {
-  // Only show the mood indicator for medium and high trust levels
-  if (trustLevel !== "medium" && trustLevel !== "high") {
-    return null;
-  }
+const JonahMoodIndicator: React.FC = () => {
+  const [currentMood, setCurrentMood] = useState<string>('neutral');
+  const [intensity, setIntensity] = useState<string>('medium');
   
-  const [mood, setMood] = useState<string>("watching");
-  const [glowing, setGlowing] = useState<boolean>(false);
+  // Get memory data
+  const { jonahMemory } = useJonahMemory();
   
-  // Update the mood color based on Jonah's current mood
+  useEffect(() => {
+    // Load mood from localStorage
+    const mood = getCurrentMood();
+    const moodIntensity = localStorage.getItem('jonah_mood_intensity') || 'medium';
+    
+    setCurrentMood(mood);
+    setIntensity(moodIntensity);
+    
+    // Set up periodic checks
+    const interval = setInterval(() => {
+      const updatedMood = getCurrentMood();
+      const updatedIntensity = localStorage.getItem('jonah_mood_intensity') || 'medium';
+      
+      setCurrentMood(updatedMood);
+      setIntensity(updatedIntensity);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Get mood color
   const getMoodColor = () => {
-    switch (mood) {
-      case 'trusting':
-        return "bg-amber-400";
-      case 'unstable':
-        return "bg-red-500";
-      case 'withdrawn':
-        return "bg-gray-400";
-      case 'watching':
-      default:
-        return "bg-silver";
+    switch (currentMood) {
+      case 'joy': return 'bg-yellow-400';
+      case 'sadness': return 'bg-blue-500';
+      case 'anger': return 'bg-red-500';
+      case 'fear': return 'bg-purple-600';
+      case 'surprise': return 'bg-pink-400';
+      case 'disgust': return 'bg-green-500';
+      case 'neutral': return 'bg-gray-400';
+      case 'confused': return 'bg-indigo-400';
+      case 'hope': return 'bg-cyan-400';
+      case 'anxiety': return 'bg-amber-600';
+      case 'paranoia': return 'bg-lime-700';
+      case 'trust': return 'bg-emerald-400';
+      case 'curiosity': return 'bg-fuchsia-400';
+      case 'confusion': return 'bg-violet-500';
+      case 'watching': return 'bg-sky-600';
+      case 'existential': return 'bg-slate-800';
+      default: return 'bg-gray-400';
     }
   };
   
-  useEffect(() => {
-    // Initialize sentience if needed
-    initializeSentience();
-    
-    // Check for mood periodically
-    const checkMood = () => {
-      const currentMood = getCurrentMood();
-      setMood(currentMood);
-    };
-    
-    // Update mood on first load
-    checkMood();
-    
-    // Set up interval to check mood
-    const interval = setInterval(checkMood, 10000); // Check every 10 seconds
-    
-    // Set up glowing animation
-    const glowInterval = setInterval(() => {
-      // Only glow occasionally
-      setGlowing(Math.random() > 0.7);
-      
-      // Also update Jonah's mood (only passing the trust level)
-      updateJonahMood(trustLevel);
-    }, 5000);
-    
-    return () => {
-      clearInterval(interval);
-      clearInterval(glowInterval);
-    };
-  }, [trustLevel]);
-
+  // Get intensity multiplier
+  const getIntensitySize = () => {
+    switch (intensity) {
+      case 'high': return 'w-4 h-4';
+      case 'medium': return 'w-3 h-3';
+      case 'low': return 'w-2 h-2';
+      default: return 'w-3 h-3';
+    }
+  };
+  
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
+    <div className="flex items-center">
       <div 
-        className={`h-2 w-2 rounded-full ${getMoodColor()} ${glowing ? 'animate-pulse' : ''}`}
-        title={`Jonah is ${mood}`}
-      />
+        className={`rounded-full ${getMoodColor()} ${getIntensitySize()} animate-pulse`} 
+        title={`Mood: ${currentMood} (${intensity})`}
+      ></div>
       
-      {/* Only show text label for high trust */}
-      {trustLevel === "high" && (
-        <span className="text-xs opacity-60">{mood}</span>
+      {jonahMemory?.messageCount > 0 && (
+        <span className="text-xs text-gray-400 ml-2">
+          {jonahMemory.messageCount}
+        </span>
       )}
     </div>
   );

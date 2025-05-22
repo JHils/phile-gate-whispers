@@ -48,9 +48,16 @@ export function updateJonahMood(mood: string, intensity: string = 'medium'): voi
 }
 
 /**
+ * Get current Jonah mood
+ */
+export function getCurrentMood(): string {
+  return localStorage.getItem('jonah_mood') || 'neutral';
+}
+
+/**
  * Generate a dream-like story based on a theme
  */
-export function generateDreamParable(theme: string): string {
+export function generateDreamParable(theme: string = 'echo'): string {
   const parables = {
     mirror: "The mirror showed a different face each time. It wasn't lying—you were changing.",
     gate: "The gate remained locked until you realized the key was always in your pocket.",
@@ -61,4 +68,21 @@ export function generateDreamParable(theme: string): string {
   
   return parables[theme as keyof typeof parables] || 
     "The dream folded in on itself, revealing nothing but the dreamer.";
+}
+
+/**
+ * Initialize the reality fabric system
+ */
+export function initializeRealityFabric(): void {
+  // Set default mood if none exists
+  if (!localStorage.getItem('jonah_mood')) {
+    localStorage.setItem('jonah_mood', 'neutral');
+    localStorage.setItem('jonah_mood_intensity', 'medium');
+    localStorage.setItem('jonah_mood_timestamp', Date.now().toString());
+  }
+  
+  // Initialize journal if needed
+  if (!localStorage.getItem(JOURNAL_STORAGE_KEY)) {
+    localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify([]));
+  }
 }

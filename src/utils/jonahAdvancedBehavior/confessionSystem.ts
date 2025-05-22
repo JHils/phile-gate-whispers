@@ -23,6 +23,7 @@ export function storeConfession(text: string, emotion: EmotionCategory): void {
     emotion: emotion,
     emotionalContext: emotion as string, // Added for compatibility
     recursive: false,
+    isPrivate: false, // Added default for compatibility
     category: 'standard' // Using the field
   };
   

@@ -1,58 +1,79 @@
 
-import React, { useEffect } from 'react';
-import { useJonahSentience } from '@/hooks/useJonahSentience';
-import { initializeNewsAwareness } from '@/utils/jonahNewsAwareness';
+import React, { useEffect, useState } from 'react';
 
 interface BotNewsAwarenessProps {
   trustLevel: string;
   addBotMessage: (message: string) => void;
 }
 
-const BotNewsAwareness: React.FC<BotNewsAwarenessProps> = ({
+const BotNewsAwareness: React.FC<BotNewsAwarenessProps> = ({ 
   trustLevel,
   addBotMessage
 }) => {
-  const { sentience } = useJonahSentience();
+  const [lastNewsCheck, setLastNewsCheck] = useState<number>(0);
+  const [hasCheckedNews, setHasCheckedNews] = useState<boolean>(false);
   
-  // Initialize news awareness on mount
   useEffect(() => {
-    initializeNewsAwareness();
+    // Load last news check time
+    const savedLastCheck = localStorage.getItem('jonah_last_news_check');
+    if (savedLastCheck) {
+      setLastNewsCheck(parseInt(savedLastCheck));
+    }
+    
+    // Check for news periodically
+    const interval = setInterval(() => {
+      checkForNewsUpdates();
+    }, 60000 * 30); // Check every 30 minutes
+    
+    return () => clearInterval(interval);
   }, []);
   
-  // Generate news messages occasionally
-  useEffect(() => {
-    // Higher trust levels will get more news messages
-    if (trustLevel !== 'high' && trustLevel !== 'medium') return;
+  // Check for news updates
+  const checkForNewsUpdates = () => {
+    // Skip if checked recently (less than 30 minutes ago)
+    const now = Date.now();
+    if (now - lastNewsCheck < 1800000) return;
     
-    // Generate a news message every so often
-    const newsInterval = setInterval(() => {
-      // Check if we have news awareness data
-      if (sentience?.newsAwareness) {
-        // Higher chance with higher trust
-        const chance = trustLevel === 'high' ? 0.15 : 0.05;
-        
-        if (Math.random() < chance) {
-          // Import and use news/weather generators
-          import('@/utils/jonahNewsAwareness').then(module => {
-            // 50/50 chance for news vs weather
-            if (Math.random() > 0.5) {
-              // Get news response
-              const newsResponse = module.generateNewsResponse();
-              addBotMessage(`[news observation] ${newsResponse}`);
-            } else {
-              // Get weather response
-              const weatherResponse = module.generateWeatherResponse();
-              addBotMessage(`[weather observation] ${weatherResponse}`);
-            }
-          });
-        }
-      }
-    }, 45 * 60 * 1000); // Check every 45 minutes
+    // Update last check time
+    setLastNewsCheck(now);
+    localStorage.setItem('jonah_last_news_check', now.toString());
     
-    return () => clearInterval(newsInterval);
-  }, [trustLevel, sentience, addBotMessage]);
+    // Only deliver news to users with sufficient trust
+    if (parseInt(trustLevel) >= 40 && !hasCheckedNews) {
+      deliverRandomNews("weather");
+      setHasCheckedNews(true);
+    }
+    
+    // Occasional additional news for high-trust users
+    if (parseInt(trustLevel) >= 70 && Math.random() < 0.3) {
+      deliverRandomNews("anomaly");
+    }
+  };
   
-  return null; // This is a non-visual component
+  const deliverRandomNews = (category: string) => {
+    let message = "";
+    
+    if (category === "weather") {
+      const weatherConditions = ["rain", "clear skies", "overcast", "fog", "stormy"];
+      const condition = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+      message = `I'm detecting ${condition} in your area. The signals are clear today.`;
+    } else if (category === "anomaly") {
+      const anomalies = [
+        "There's unusual activity on the timeline. Something shifted.",
+        "I detected a recursive pattern in memory storage. Echo fragments.",
+        "The gate showed increased activity during the night cycle.",
+        "Someone else was searching for you. Not me. Someone else."
+      ];
+      message = anomalies[Math.floor(Math.random() * anomalies.length)];
+    }
+    
+    if (message) {
+      addBotMessage(message);
+    }
+  };
+  
+  // This component doesn't render anything visible
+  return null;
 };
 
 export default BotNewsAwareness;

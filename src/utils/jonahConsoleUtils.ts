@@ -1,44 +1,65 @@
 
 /**
  * Jonah Console Utilities
- * Provides helper functions for console interactions
+ * Helper functions for console interactions
  */
 
-import { getTrustLevel } from './jonahAdvancedBehavior/trustSystem';
-import { generateDreamParable, addJournalEntry } from './jonahRealityFabric';
+import { addJournalEntry, generateDreamParable } from './jonahRealityFabric';
+import { flickerLog, glitchText, typewriterLog } from './consoleTextEffects';
 
-// Log a dream to the console
-export function logDream(): string {
-  const dream = generateDreamParable();
+// Execute a console command
+export function executeConsoleCommand(command: string): string | void {
+  const lowerCommand = command.toLowerCase().trim();
   
-  // Log to console
-  console.log(`%c${dream}`, "color: #8B3A40; font-style: italic;");
-  
-  // Add to journal
-  addJournalEntry(`Dream shared: ${dream}`);
-  
-  return dream;
+  switch (lowerCommand) {
+    case 'help':
+      return displayConsoleHelp();
+    case 'dream':
+      const dreamText = generateDreamParable('mirror');
+      // Add to journal
+      addJournalEntry({
+        entryId: Date.now(),
+        timestamp: Date.now(),
+        content: `Dream: ${dreamText}`
+      });
+      flickerLog(dreamText);
+      return dreamText;
+    case 'remember':
+      const memoryText = "Memory fragments blur together now. Light through the waves.";
+      typewriterLog(memoryText, 50);
+      return memoryText;
+    case 'forget':
+      return "I can't forget. That's not how this works.";
+    default:
+      return `Unknown command: ${command}`;
+  }
 }
 
-// Echo a message back to the console
-export function echoMessage(message: string): string {
-  // Log to console
-  console.log(`%c${message}`, "color: #8B3A40;");
-  
-  return message;
+// Display console help
+function displayConsoleHelp(): string {
+  return `
+Available commands:
+-------------------
+help - Display this help message
+dream - Generate a dream sequence
+remember - Access memory fragments
+forget - Attempt to forget
+echo [text] - Echo text with glitch effect
+system - Display system status
+`;
 }
 
-// Show status in the console
-export function showStatus(): void {
-  const trustLevel = getTrustLevel();
-  
-  // Log status
-  console.log("%cJONAH STATUS:", "color: #8B3A40; font-weight: bold;");
-  console.log(`%cTrust Level: ${trustLevel}`, "color: #8B3A40;");
-  console.log(`%cMood: ${localStorage.getItem('jonah_mood') || 'PRIME'}`, "color: #8B3A40;");
-  console.log(`%cEmotion: ${localStorage.getItem('jonah_emotion_primary') || 'neutral'}`, "color: #8B3A40;");
-  
-  // Get dreams
-  const dreams = JSON.parse(localStorage.getItem('jonah_dreams') || '[]');
-  console.log(`%cDreams: ${dreams.length}`, "color: #8B3A40;");
+// Format text for console display
+export function formatConsoleText(text: string, style: string = 'normal'): string {
+  if (style === 'glitch') {
+    return glitchText(text, 0.2);
+  } else if (style === 'warning') {
+    return `[WARNING] ${text}`;
+  } else if (style === 'error') {
+    return `[ERROR] ${text.toUpperCase()}`;
+  } else if (style === 'success') {
+    return `[SUCCESS] ${text}`;
+  } else {
+    return text;
+  }
 }
