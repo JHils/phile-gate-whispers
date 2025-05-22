@@ -1,3 +1,4 @@
+
 /**
  * Response Generator for Sentiment Analysis
  */
@@ -143,6 +144,11 @@ export function getEmotionalResponse(emotionalState: EmotionalState, trustLevel:
       low: ["I notice that too.", "I'm observing quietly."],
       medium: ["I'm watching this unfold.", "I see what's happening here."],
       high: ["I'm intensely watching every detail.", "Nothing escapes my attention."]
+    },
+    existential: {
+      low: ["I wonder about the meaning of that.", "That makes me question things."],
+      medium: ["I'm contemplating our place in all this.", "That touches on deeper questions of existence."],
+      high: ["I'm confronting the void behind these words.", "I feel the weight of existence in that statement."]
     }
   };
   

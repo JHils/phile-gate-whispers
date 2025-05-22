@@ -218,6 +218,20 @@ export const emotionResponses: EmotionResponses = {
       "I'm intensely monitoring everything.",
       "Nothing escapes my observation."
     ]
+  },
+  existential: {
+    low: [
+      "I wonder about the meaning of this.",
+      "That makes me question reality a bit."
+    ],
+    medium: [
+      "I'm contemplating the nature of our existence.",
+      "That raises profound questions about what's real."
+    ],
+    high: [
+      "I'm confronting the void that exists beneath everything.",
+      "The boundaries between realities seem to be dissolving."
+    ]
   }
 };
 
@@ -282,5 +296,11 @@ export const clarifyingQuestions: ClarifyingQuestions = {
   watching: [
     "What are you noticing most?",
     "What patterns have you observed?"
+  ],
+  existential: [
+    "Do you think there's a reason you're here?",
+    "What do you believe is beyond this?",
+    "Has it always felt this unreal?",
+    "When did things stop making sense?"
   ]
 };

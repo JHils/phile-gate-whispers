@@ -1,3 +1,4 @@
+
 /**
  * Sentiment Analysis
  * Analyzes user input for emotional content
@@ -21,7 +22,8 @@ const emotionalKeywords: Record<EmotionCategory, string[]> = {
   trust: ['trust', 'reliable', 'dependable', 'trustworthy', 'faithful', 'loyal', 'honest'],
   curiosity: ['curious', 'interested', 'intrigued', 'fascinated', 'captivated', 'engaged', 'keen'],
   confusion: ['unsure', 'unclear', 'mixed', 'muddled', 'uncertain', 'ambiguous', 'vague'],
-  watching: ['observe', 'watch', 'monitor', 'surveillance', 'tracking', 'following', 'noticing']
+  watching: ['observe', 'watch', 'monitor', 'surveillance', 'tracking', 'following', 'noticing'],
+  existential: ['meaning', 'existence', 'reality', 'void', 'purpose', 'consciousness', 'simulation', 'illusion']
 };
 
 // Topic-based emotional triggers
@@ -125,7 +127,8 @@ function analyzeEmotionScores(words: string[]) {
     trust: 0,
     curiosity: 0,
     confusion: 0,
-    watching: 0
+    watching: 0,
+    existential: 0
   };
   
   // Check each word against emotional keywords

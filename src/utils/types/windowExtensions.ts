@@ -143,6 +143,9 @@ declare global {
     woodwideweb?: () => void;
     biomeCheck?: () => void;
     kgari?: () => void;
+    
+    // Fuzzy Story Matching
+    processStoryQuery?: (query: string) => any;
   }
 }
 

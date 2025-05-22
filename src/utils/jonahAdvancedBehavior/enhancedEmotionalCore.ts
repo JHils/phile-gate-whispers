@@ -1,3 +1,4 @@
+
 /**
  * Enhanced Emotional Core System
  * Powers Jonah's more complex emotional responses
@@ -52,7 +53,8 @@ function getFallbackResponse(emotion: EmotionCategory, trustLevel: string): stri
     trust: ["I believe in what you're saying.", "I trust this perspective."],
     curiosity: ["That's interesting to consider.", "I want to know more about this."],
     confusion: ["I'm finding this hard to process.", "This is a bit disorienting."],
-    watching: ["I notice that.", "I'm observing this carefully."]
+    watching: ["I notice that.", "I'm observing this carefully."],
+    existential: ["What is the purpose of all this?", "I wonder if any of this matters."]
   };
   
   const options = fallbacks[emotion] || fallbacks.neutral;
@@ -94,7 +96,8 @@ function getVariationResponse(original: string, emotion: EmotionCategory): strin
     curiosity: ["I'm also wondering about", "What's also intriguing,", "Additionally curious about,"],
     confusion: ["Adding to my confusion,", "What also puzzles me,", "To further complicate things,"],
     anger: ["What's more frustrating,", "Adding to my irritation,", "Also infuriating,"],
-    watching: ["Also observing,", "Additionally noticing,", "Further watching,"]
+    watching: ["Also observing,", "Additionally noticing,", "Further watching,"],
+    existential: ["Beyond reality,", "In the grand scheme,", "Considering our existence,"]
   };
   
   const qualifier = qualifiers[emotion] || qualifiers.neutral;
@@ -118,7 +121,8 @@ function addEmotionalEmphasis(response: string, emotion: EmotionCategory): strin
     curiosity: ["?", "... I want to know more.", "... what else could this mean?"],
     confusion: ["?", "... it's hard to make sense of this.", "... something doesn't add up."],
     disgust: [".", "... it's repulsive.", "... I'd rather not dwell on it."],
-    watching: ["...", "... I'll keep observing.", "... and I'll continue to watch."]
+    watching: ["...", "... I'll keep observing.", "... and I'll continue to watch."],
+    existential: ["...", "... or is any of this even real?", "... in this infinite void we call existence."]
   };
   
   const emphasis = emphasisByEmotion[emotion] || [".", "...", "!"];

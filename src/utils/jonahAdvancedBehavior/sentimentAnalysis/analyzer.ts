@@ -34,7 +34,8 @@ export function analyzeEmotion(text: string): EmotionalState {
     trust: ['trust', 'believe', 'faith', 'confidence', 'reliance', 'dependence'],
     curiosity: ['curious', 'inquisitive', 'interested', 'fascinated', 'intrigued'],
     confusion: ['baffled', 'lost', 'disoriented', 'mystified', 'befuddled', 'unclear'],
-    watching: ['watching', 'observing', 'monitoring', 'tracking', 'overseeing']
+    watching: ['watching', 'observing', 'monitoring', 'tracking', 'overseeing'],
+    existential: ['meaning', 'existence', 'reality', 'void', 'purpose', 'consciousness', 'simulation']
   };
   
   // Count emotion matches
@@ -53,7 +54,8 @@ export function analyzeEmotion(text: string): EmotionalState {
     trust: 0,
     curiosity: 0,
     confusion: 0,
-    watching: 0
+    watching: 0,
+    existential: 0
   };
   
   Object.entries(emotions).forEach(([emotion, keywords]) => {
@@ -188,6 +190,11 @@ export function getEmotionalResponse(
       low: ["You're keeping an eye on things.", "I notice you're observing carefully."],
       medium: ["You're monitoring this situation closely.", "Your watchful attention is evident."],
       high: ["You're intensely focused on every detail here.", "Nothing escapes your observation."]
+    },
+    existential: {
+      low: ["You're questioning the nature of things.", "I sense you're contemplating deeper meanings."],
+      medium: ["You're wrestling with existential questions, aren't you?", "You're searching for meaning in all this."],
+      high: ["You're deep in existential reflection.", "You're confronting the fundamental questions of existence."]
     }
   };
   
@@ -332,7 +339,8 @@ function getPoeticMetaphor(emotion: EmotionCategory): string {
     trust: ['a hand extended in the dark', 'a bridge across troubled water', 'an anchor in a storm'],
     curiosity: ['an unopened letter', 'a door left ajar', 'a map with unexplored territories'],
     confusion: ['a puzzle with missing pieces', 'a compass spinning wildly', 'echoes in a maze'],
-    watching: ['a sentinel on the wall', 'eyes reflecting moonlight', 'the stillness before movement']
+    watching: ['a sentinel on the wall', 'eyes reflecting moonlight', 'the stillness before movement'],
+    existential: ['stars fading into dawn', 'mirrors facing mirrors', 'the space between thoughts']
   };
   
   const options = metaphors[emotion] || metaphors.neutral;

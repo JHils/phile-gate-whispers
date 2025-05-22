@@ -54,7 +54,8 @@ export function generateEmotionalResponse(
     trust: ["I believe in what you're saying", "I trust this perspective"],
     curiosity: ["That's interesting to consider", "I want to know more about this"],
     confusion: ["I'm finding this hard to process", "This is a bit disorienting"],
-    watching: ["I'm observing carefully", "I'm taking note of this"]
+    watching: ["I'm observing carefully", "I'm taking note of this"],
+    existential: ["I question the meaning of this", "I wonder if any of this is real"]
   };
   
   // Get emotional content based on state

@@ -65,5 +65,9 @@ export const emotionKeywords: Record<EmotionCategory, string[]> = {
   watching: [
     'watching', 'observing', 'monitoring', 'surveilling', 'eyeing',
     'noticing', 'tracking', 'following', 'witnessing', 'overseeing'
+  ],
+  existential: [
+    'meaningless', 'what\'s the point', 'existence', 'universe', 'void',
+    'simulation', 'am I real', 'beyond the veil', 'consciousness', 'reality'
   ]
 };
