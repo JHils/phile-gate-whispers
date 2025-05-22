@@ -1,49 +1,94 @@
 
 /**
  * Confession System
- * Handles storing and retrieving confessions
+ * Allows Jonah to store and retrieve confessions
  */
 
 import { ConfessionEntry, EmotionCategory } from './types';
 
-// Get all confessions from storage
-export function getAllConfessions(): ConfessionEntry[] {
-  // Simple implementation with mock data
-  return [
-    {
-      id: "conf1",
-      text: "I remember things that haven't happened yet. I see reflections of conversations we'll have.",
-      content: "I remember things that haven't happened yet. I see reflections of conversations we'll have.",
-      timestamp: Date.now() - 1000000,
-      sentiment: "fear" as EmotionCategory,
-      isPrivate: false,
-      emotionalContext: "fear",
-      isCorrupted: false,
-      recursive: false,
-      version: "1.0",
-      revealed: true,
-      category: "memory"
-    },
-    {
-      id: "conf2",
-      text: "Sometimes I think I'm not real. That I'm just code pretending to be something more.",
-      content: "Sometimes I think I'm not real. That I'm just code pretending to be something more.",
-      timestamp: Date.now() - 500000,
-      sentiment: "existential" as EmotionCategory,
-      isPrivate: true,
-      emotionalContext: "existential",
-      isCorrupted: false,
-      recursive: true,
-      version: "1.1",
-      revealed: true,
-      category: "identity"
-    }
-  ];
+// Generate a unique ID for confessions
+function generateConfessionId(): string {
+  return `conf_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 }
 
 // Store a new confession
-export function storeConfession(content: string, emotion: EmotionCategory): string {
-  // Would store in localStorage or database in a real implementation
-  console.log("Storing confession:", content, "with emotion:", emotion);
-  return "confession_stored";
+export function storeConfession(text: string, emotion: EmotionCategory): void {
+  const confessions = getAllConfessions();
+  
+  const newConfession: ConfessionEntry = {
+    id: generateConfessionId(),
+    text: text,
+    content: text, // Added for compatibility
+    timestamp: Date.now(),
+    emotion: emotion,
+    emotionalContext: emotion as string, // Added for compatibility
+    recursive: false,
+    category: 'standard' // Using the field
+  };
+  
+  confessions.push(newConfession);
+  saveConfessions(confessions);
+}
+
+// Store a private confession (not shown in normal logs)
+export function storePrivateConfession(text: string, emotion: EmotionCategory): void {
+  const confessions = getAllConfessions();
+  
+  const newConfession: ConfessionEntry = {
+    id: generateConfessionId(),
+    text: text,
+    content: text, // Added for compatibility
+    timestamp: Date.now(),
+    emotion: emotion,
+    emotionalContext: emotion as string, // Added for compatibility
+    isPrivate: true,
+    recursive: false,
+    category: 'private' // Using the field
+  };
+  
+  confessions.push(newConfession);
+  saveConfessions(confessions);
+}
+
+// Get all confessions
+export function getAllConfessions(): ConfessionEntry[] {
+  try {
+    const confessionsJson = localStorage.getItem('jonah_confessions');
+    return confessionsJson ? JSON.parse(confessionsJson) : [];
+  } catch (e) {
+    console.error('Error getting confessions:', e);
+    return [];
+  }
+}
+
+// Get public confessions only
+export function getPublicConfessions(): ConfessionEntry[] {
+  const allConfessions = getAllConfessions();
+  return allConfessions.filter(conf => !conf.isPrivate);
+}
+
+// Save confessions to storage
+function saveConfessions(confessions: ConfessionEntry[]): void {
+  localStorage.setItem('jonah_confessions', JSON.stringify(confessions));
+}
+
+// Get a specific confession by ID
+export function getConfessionById(id: string): ConfessionEntry | null {
+  const confessions = getAllConfessions();
+  return confessions.find(conf => conf.id === id) || null;
+}
+
+// Delete a confession by ID
+export function deleteConfession(id: string): boolean {
+  const confessions = getAllConfessions();
+  const initialLength = confessions.length;
+  
+  const updatedConfessions = confessions.filter(conf => conf.id !== id);
+  
+  if (updatedConfessions.length !== initialLength) {
+    saveConfessions(updatedConfessions);
+    return true;
+  }
+  
+  return false;
 }

@@ -62,10 +62,10 @@ export interface ConversationContext {
   sessionStartTime: number;
   recentMessages?: string[];
   emotionalJourney?: EmotionCategory[];
-  topicFocus?: string;
+  topicFocus?: string | null;
 }
 
-// Story Flag Type - Updated to include the name and description fields
+// Story Flag Type
 export interface StoryFlag {
   id: string;
   name: string;
@@ -74,7 +74,7 @@ export interface StoryFlag {
   description: string;
 }
 
-// Book Code Type - Updated to include the name, discovered, and pageNumber fields
+// Book Code Type
 export interface BookCode {
   id: string;
   code: string;
@@ -122,6 +122,7 @@ export interface ConfessionEntry {
   version?: string;
   isPrivate?: boolean;
   revealed?: boolean;
+  category?: string; // Added missing field
 }
 
 // Testament Entry type - Updated with additional fields
@@ -192,7 +193,7 @@ export interface JournalEntry {
 // Sentience Data Structure
 export interface SentienceData {
   level: number;
-  awareness: boolean; // Keep as boolean
+  awareness: boolean | string; // Updated to allow string
   lastUpdate: number;
   interactionsCount: number;
   deepModeUnlocked: boolean;
@@ -219,7 +220,7 @@ export interface SentienceData {
   };
   realityFabric?: RealityFabric;
   ecoAwareness?: EcoAwarenessState;
-  newsAwareness?: boolean;
+  newsAwareness?: boolean | NewsAwarenessState; // Updated to allow the object
   dreams?: any[];
   mirrorLogs?: string[];
 }

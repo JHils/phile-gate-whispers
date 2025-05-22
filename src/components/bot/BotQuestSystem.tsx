@@ -144,7 +144,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
         
         if (microQuests && microQuests.active) {
           // Find active quest with this id
-          const activeQuest = microQuests.active.find(q => q.id === questId);
+          const activeQuest = microQuests.active.find((q: MicroQuest) => q.id === questId);
           
           if (activeQuest) {
             // Find quest info from available quests
@@ -155,7 +155,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
               if (window.JonahConsole?.sentience?.microQuests) {
                 // Remove from active
                 window.JonahConsole.sentience.microQuests.active = 
-                  window.JonahConsole.sentience.microQuests.active.filter(q => q.id !== questId);
+                  window.JonahConsole.sentience.microQuests.active.filter((q: MicroQuest) => q.id !== questId);
                 
                 // Add to completed
                 if (!window.JonahConsole.sentience.microQuests.completed) {
@@ -195,7 +195,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
         }
         
         // Pick a random active quest
-        const randomQuest = active[Math.floor(Math.random() * active.length)];
+        const randomQuest = active[Math.floor(Math.random() * active.length)] as MicroQuest;
         const questInfo = availableQuests.find(q => q.id === randomQuest.id);
         
         if (questInfo) {

@@ -1,11 +1,12 @@
+
 import { useState, useCallback, useEffect } from 'react';
 import { EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
+import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
 import { 
-  analyzeEmotion, 
   checkForTriggerPhrases,
-  processEmotionalInput
+  processEmotionalInput,
+  generateGreeting
 } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/analyzer';
-import { generateGreeting } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/responseGenerator';
 import { modifyTrustLevel } from '@/utils/jonahAdvancedBehavior/trustSystem';
 
 export function useResponseGeneration(addBotMessage: (message: string) => void, trustLevel: string) {

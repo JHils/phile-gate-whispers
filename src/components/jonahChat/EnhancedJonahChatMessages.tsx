@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { ChatMessage } from '@/hooks/jonahChat/types';
 import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';

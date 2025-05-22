@@ -1,11 +1,27 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { useJonahSentience } from './useJonahSentience';
 import { SentienceData } from '@/utils/jonahAdvancedBehavior/types';
+
+// Memory paranoia type definition
+interface MemoryParanoia {
+  level: number;
+  triggers: string[];
+  lastIncident: number;
+  visitedPages: string[];
+  pageVisits: string[];
+  pageDuration: Record<string, number>;
+  consoleCommands: string[];
+  emotionalTags: Record<string, string[]>;
+  trustLevelScore: number;
+  pagesVisited: number;
+  commandsUsed: string[];
+}
 
 export function useJonahMemory() {
   const [memories, setMemories] = useState<string[]>([]);
   const [recentInput, setRecentInput] = useState<string>('');
-  const { sentience, updateSentience } = useJonahSentience();
+  const { sentience, updateSentience: updateSentienceFromHook } = useJonahSentience();
 
   // Initialize memories on mount
   useEffect(() => {
@@ -28,19 +44,11 @@ export function useJonahMemory() {
       const memories = sentience.memories || [];
       
       // Update sentience
-      updateSentience({
+      updateSentienceFromHook({
         memories: [...memories, content]
       });
     }
   };
-
-  // Update sentience with new data
-  const updateSentience = useCallback((newData: Partial<any>) => {
-    setSentience(prevState => ({
-      ...prevState,
-      ...newData
-    }));
-  }, [setSentience]);
   
   // Initialize memory paranoia state
   const [memoryParanoia, setMemoryParanoia] = useState<MemoryParanoia>({

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { EcoAwarenessState } from '@/utils/jonahAdvancedBehavior/types';
 
@@ -22,7 +23,7 @@ export function useJonahEcoAwareness() {
         
         // Ensure awareness is a string
         if (typeof parsedEcoAwareness.awareness === 'number') {
-          parsedEcoAwareness.awareness = parsedEcoAwareness.awareness.toString();
+          parsedEcoAwareness.awareness = String(parsedEcoAwareness.awareness);
         }
         
         setEcoAwareness(parsedEcoAwareness);
@@ -42,7 +43,7 @@ export function useJonahEcoAwareness() {
     
     // Ensure awareness is a string
     if (typeof updatedEcoAwareness.awareness === 'number') {
-      updatedEcoAwareness.awareness = updatedEcoAwareness.awareness.toString();
+      updatedEcoAwareness.awareness = String(updatedEcoAwareness.awareness);
     }
     
     setEcoAwareness(updatedEcoAwareness);
