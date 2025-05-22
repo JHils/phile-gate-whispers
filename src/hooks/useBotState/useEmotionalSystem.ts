@@ -22,9 +22,12 @@ export function useEmotionalSystem() {
   }, []);
 
   // Analyze patterns in emotion history
-  const analyzeEmotionalPatterns = useCallback((): string => {
+  const analyzeEmotionalPatterns = useCallback((): PatternAnalysis => {
     if (emotionHistory.length < 3) {
-      return "Not enough data for pattern analysis";
+      return {
+        found: false,
+        pattern: "Not enough data for pattern analysis"
+      };
     }
     
     // Check for repetition
@@ -32,7 +35,10 @@ export function useEmotionalSystem() {
     const isRepeating = emotionHistory.slice(-3).every(e => e === lastEmotion);
     
     if (isRepeating) {
-      return `Consistent ${lastEmotion} pattern detected`;
+      return {
+        found: true,
+        pattern: `Consistent ${lastEmotion} pattern detected`
+      };
     }
     
     // Check for oscillation
@@ -41,10 +47,16 @@ export function useEmotionalSystem() {
         oscillating[0] === oscillating[2] && 
         oscillating[1] === oscillating[3] && 
         oscillating[0] !== oscillating[1]) {
-      return `Oscillating between ${oscillating[0]} and ${oscillating[1]}`;
+      return {
+        found: true,
+        pattern: `Oscillating between ${oscillating[0]} and ${oscillating[1]}`
+      };
     }
     
-    return "No clear pattern detected";
+    return {
+      found: false,
+      pattern: "No clear pattern detected"
+    };
   }, [emotionHistory]);
   
   return {
