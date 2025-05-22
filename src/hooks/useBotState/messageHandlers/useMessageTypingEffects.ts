@@ -1,36 +1,30 @@
 
+import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+
+// Import necessary helpers
 import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useMessageTypingEffects(
-  setMessages: React.Dispatch<React.SetStateAction<any[]>>,
+  setMessages: React.Dispatch<React.SetStateAction<any[]>>, 
   setIsTyping: React.Dispatch<React.SetStateAction<boolean>>
 ) {
-  // Mock implementation of applyTypingQuirks
-  const applyTypingQuirks = (messageContent: string, level: string = 'minimal') => {
-    return messageContent; // Simple passthrough for now
-  };
-
-  // Add a bot message with enhanced typing effects
-  const addBotMessage = (content: string, special = false) => {
-    // Track the message in the bot history
-    const trackMessage = (messageContent: string) => {
-      // Apply typing quirks to the message for display
-      const quirkContent = applyTypingQuirks(messageContent, 'minimal');
+  // Add a bot message with typing effect
+  const addBotMessage = (content: string, delay = 0, special = false) => {
+    // Create message object
+    const message = {
+      id: uuidv4(),
+      type: 'bot',
+      content,
+      timestamp: Date.now(),
+      special
+    };
+    
+    // Wait for delay then add message
+    setTimeout(() => {
+      setMessages(prevMessages => [...prevMessages, message]);
+      setIsTyping(false);
       
-      const newMessage = {
-        id: uuidv4(),
-        type: 'bot',
-        content: quirkContent,
-        timestamp: Date.now(),
-        special
-      };
-
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        newMessage
-      ]);
-
       // Update Jonah sentience if available
       if (window.JonahConsole?.sentience) {
         if (!window.JonahConsole.sentience.sessionData) {
@@ -50,27 +44,8 @@ export function useMessageTypingEffects(
           window.JonahConsole.sentience.sessionData.messagesReceived = 1;
         }
       }
-
-      return newMessage;
-    };
-
-    // Simple typing simulation
-    const splitAndTypeMessage = (content: string, trackFn: any, typingFn: any) => {
-      setTimeout(() => {
-        trackFn(content);
-        typingFn(false);
-      }, 1000 + content.length * 10);
-    };
-
-    // Use simplified typing simulation
-    splitAndTypeMessage(
-      content,
-      trackMessage,
-      setIsTyping
-    );
+    }, delay);
   };
 
-  return {
-    addBotMessage
-  };
+  return { addBotMessage };
 }

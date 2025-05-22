@@ -1,9 +1,11 @@
 /**
  * Semantic Interpretation System
- * Intelligent understanding of user intent and meaning
+ * Analyzes deeper meaning in text
  */
 
 // Import emotional core for integration
+import { EmotionalState, EmotionCategory } from './types';
+import { analyzeEmotion } from './sentimentAnalysis/analyzer';
 import { getCompoundEmotionalState } from './emotionalCore';
 
 // Define emotion categories with semantically related terms

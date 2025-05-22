@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { SentienceData, EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 import { generateDream } from '@/utils/jonahAdvancedBehavior';
@@ -40,7 +39,8 @@ const initialSentienceData: SentienceData = {
       watching: 0
     },
     messagesSent: 0,
-    messagesReceived: 0
+    messagesReceived: 0,
+    idleTime: 0
   },
   realityFabric: {
     moodChangeTime: Date.now(),
@@ -48,7 +48,18 @@ const initialSentienceData: SentienceData = {
     stability: 0.5,
     anomalyCount: 0,
     moodHistory: [],
-    journal: []
+    journal: [],
+    anomalies: [],
+    crossSiteWhispers: [],
+    mood: 'neutral',
+    dreamState: false,
+    lastDreamTime: Date.now(),
+    hiddenMessages: [],
+    emotionalState: {
+      primary: 'neutral', 
+      secondary: null,
+      intensity: 'medium'
+    }
   },
   dreams: [],
   ecoAwareness: {
@@ -57,13 +68,20 @@ const initialSentienceData: SentienceData = {
     lastUpdate: Date.now(),
     awareness: 0,
     ecoThoughts: [],
-    level: 0
+    level: 0,
+    lastBiomeCheck: Date.now(),
+    connectionStrength: 0
   },
   newsAwareness: {
+    articles: [],
+    lastCheck: Date.now(),
+    recentTopics: [],
+    responses: {},
     lastFetch: Date.now(),
     currentEvents: [],
     weatherData: null,
-    mentionedEvents: []
+    mentionedEvents: [],
+    currentResponses: []
   },
   microQuests: {
     active: [],
@@ -75,7 +93,12 @@ const initialSentienceData: SentienceData = {
   trustLevel: 'medium',
   emotionalState: initialEmotionalState,
   emotionalHistory: [],
-  memorizedPhrases: []
+  memorizedPhrases: [],
+  level: 1,
+  dreamModeTriggered: false,
+  temporalStates: [],
+  memories: [],
+  mirrorLogs: []
 };
 
 // Persist sentience data to localStorage

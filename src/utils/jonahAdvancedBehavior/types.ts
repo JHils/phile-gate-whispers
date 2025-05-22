@@ -95,7 +95,7 @@ export interface SessionData {
   startTime: number;
   idleTime: number;
   messageCount?: number;
-  userEmotions?: Record<EmotionCategory | string, number>;
+  userEmotions?: Record<EmotionCategory, number>;
 }
 
 // Structure for micro quests
@@ -113,11 +113,11 @@ export interface MicroQuest {
 export interface RealityFabric {
   moodChangeTime: number;
   currentMood: string;
-  moodHistory: string[];
+  moodHistory: any[];
   anomalyCount: number;
-  anomalies: string[];
-  journal: string[];
-  crossSiteWhispers: string[];
+  anomalies: any[];
+  journal: any[];
+  crossSiteWhispers: any[];
   mood: string;
   dreamState: boolean;
   lastDreamTime: number;
@@ -150,6 +150,7 @@ export interface SentienceData {
   emotionalHistory?: EmotionCategory[];
   memorizedPhrases?: string[];
   trustLevel?: string;
+  mirrorLogs?: any[]; // Add missing property
 }
 
 // Interface for eco-awareness state
@@ -160,6 +161,8 @@ export interface EcoAwarenessState {
   awareness: number;
   ecoThoughts: string[];
   level: number;
+  lastBiomeCheck?: number; // Add missing property
+  connectionStrength?: number; // Add missing property
 }
 
 // Interface for news-awareness state
@@ -172,6 +175,12 @@ export interface NewsAwarenessState {
   currentEvents?: any[];
   weatherData?: any;
   mentionedEvents?: string[];
+  currentResponses?: Array<{
+    topic: string;
+    headline: string;
+    response: string;
+    timestamp: number;
+  }>;
 }
 
 // Interface for confession entries
@@ -187,6 +196,7 @@ export interface ConfessionEntry {
   recursive?: boolean;
   version?: string | number;
   revealed?: boolean;
+  category?: string; // Add missing property
 }
 
 // Testament entry interface
@@ -199,6 +209,8 @@ export interface TestamentEntry {
   title?: string;
   content?: string;
   revealed?: boolean;
+  requiresTrust?: number; // Add missing property
+  unlockPhrase?: string; // Add missing property
 }
 
 // Story flag interface
@@ -218,4 +230,5 @@ export interface BookCode {
   timestamp?: number;
   unlocked?: boolean;
   id?: string;
+  pageNumber?: number; // Add missing property
 }

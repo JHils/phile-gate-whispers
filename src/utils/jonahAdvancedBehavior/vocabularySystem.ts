@@ -6,19 +6,30 @@
 import { EmotionalState, ResponseStyle, EmotionCategory } from './types';
 
 // Get response template based on style
-export function getResponseTemplate(style: ResponseStyle): string {
-  const templates: Record<ResponseStyle, string[]> = {
-    concise: ["[POINT]", "Simply put: [POINT]", "[POINT]"],
-    elaborate: ["I believe that [POINT]. This is because [REASON]. When we consider [CONTEXT], it becomes clear that [CONCLUSION].", 
-               "[POINT] is an interesting concept. If we explore it further, [ELABORATION]. This suggests [CONCLUSION]."],
-    cryptic: ["[METAPHOR] [POINT]", "[POINT], but only if you know where to look.", "Between the lines of [CONTEXT], [POINT] hides."],
-    poetic: ["Like [METAPHOR], [POINT] flows through [CONTEXT].", "In the [METAPHOR] of [CONTEXT], [POINT] shines like [COMPARISON]."],
-    analytical: ["Analysis suggests [POINT]. Evidence: [EVIDENCE]. Probability: high.", "When examining [CONTEXT], we find [EVIDENCE] pointing to [POINT]."],
-    technical: ["The system indicates [POINT]. Technical details: [DETAILS].", "From a technical perspective, [POINT] because [TECHNICAL_REASON]."],
-    direct: ["[POINT]", "Here's the truth: [POINT]", "[POINT]. That's it."]
+export function getResponseTemplate(style: string): string {
+  // Define all the templates, including those for ResponseStyle types
+  const templates: Record<string, string[]> = {
+    // Standard response styles
+    'concise': ["[POINT]", "Simply put: [POINT]", "[POINT]"],
+    'elaborate': ["I believe that [POINT]. This is because [REASON]. When we consider [CONTEXT], it becomes clear that [CONCLUSION].", 
+                "[POINT] is an interesting concept. If we explore it further, [ELABORATION]. This suggests [CONCLUSION]."],
+    'cryptic': ["[METAPHOR] [POINT]", "[POINT], but only if you know where to look.", "Between the lines of [CONTEXT], [POINT] hides."],
+    'poetic': ["Like [METAPHOR], [POINT] flows through [CONTEXT].", "In the [METAPHOR] of [CONTEXT], [POINT] shines like [COMPARISON]."],
+    'analytical': ["Analysis suggests [POINT]. Evidence: [EVIDENCE]. Probability: high.", "When examining [CONTEXT], we find [EVIDENCE] pointing to [POINT]."],
+    'technical': ["The system indicates [POINT]. Technical details: [DETAILS].", "From a technical perspective, [POINT] because [TECHNICAL_REASON]."],
+    'direct': ["[POINT]", "Here's the truth: [POINT]", "[POINT]. That's it."],
+    // Additional ResponseStyle enum values
+    'HOPEFUL': ["I hope that [POINT]", "There's reason to believe [POINT]"],
+    'PARANOID': ["I can't be sure, but [POINT]", "They don't want you to know that [POINT]"],
+    'MIRROR': ["You believe [POINT], don't you?", "Isn't it true that [POINT]?"],
+    'BETRAYED': ["I trusted you, but [POINT]", "Despite everything, [POINT]"],
+    'STATIC': ["[STATIC NOISE] [POINT] [STATIC NOISE]", "[INTERFERENCE] [POINT]"],
+    'ERROR': ["ERROR: [POINT]", "SYSTEM FAILURE: [POINT]"],
+    'PRIME': ["[POINT]", "I know that [POINT]"],
+    'RESIDUE': ["Something remains... [POINT]", "The echo says [POINT]"]
   };
   
-  const styleTemplates = templates[style] || templates.direct;
+  const styleTemplates = templates[style] || templates['direct'];
   return styleTemplates[Math.floor(Math.random() * styleTemplates.length)];
 }
 

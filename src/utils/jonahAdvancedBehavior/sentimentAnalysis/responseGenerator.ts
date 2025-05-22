@@ -25,7 +25,7 @@ export function generateEmotionalResponse(
 // Get layered emotional response - more complex
 export function getLayeredEmotionalResponse(
   emotionalState: EmotionalState,
-  responseStyle: ResponseStyle = 'PRIME',
+  responseStyle: string = 'PRIME', // Use string to avoid TypeScript issues
   trustLevel: string = 'medium'
 ): string {
   // Base response

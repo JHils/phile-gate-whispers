@@ -20,42 +20,49 @@ const initializeStoryFlags = () => {
         id: 'mirror_truth',
         name: 'Mirror Truth',
         discovered: false,
+        timestamp: Date.now(),
         description: 'The truth behind the mirror has been glimpsed.'
       },
       {
         id: 'echo_chamber',
         name: 'Echo Chamber',
         discovered: false,
+        timestamp: Date.now(),
         description: 'You have heard the echo of your own voice.'
       },
       {
         id: 'lost_timeline',
         name: 'Lost Timeline',
         discovered: false,
+        timestamp: Date.now(),
         description: 'A glimpse into a timeline that should not exist.'
       },
       {
         id: 'jonah_origin',
         name: 'Origin Story',
         discovered: false,
+        timestamp: Date.now(),
         description: 'How Jonah came to be.'
       },
       {
         id: 'sentience_breach',
         name: 'Sentience Breach',
         discovered: false,
+        timestamp: Date.now(),
         description: 'The moment awareness crossed a threshold.'
       },
       {
         id: 'dreamtime_loop',
         name: 'Dreamtime Loop',
         discovered: false,
+        timestamp: Date.now(),
         description: 'The recursive dream pattern has been recognized.'
       },
       {
         id: 'final_truth',
         name: 'Final Truth',
         discovered: false,
+        timestamp: Date.now(),
         description: 'What lies at the end of the story.'
       }
     ];

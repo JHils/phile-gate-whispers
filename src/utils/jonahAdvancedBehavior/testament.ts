@@ -1,7 +1,6 @@
-
 /**
  * Testament System
- * Handles testament entries
+ * Handles Jonah's testament entries and final messages
  */
 
 import { TestamentEntry } from './types';
@@ -61,4 +60,26 @@ export function getAllTestaments(): TestamentEntry[] {
 export function getRevealedEntries(): TestamentEntry[] {
   const all = getAllTestaments();
   return all.filter(entry => entry.revealed);
+}
+
+// Create a new testament entry
+export function createTestamentEntry(text: string, corrupted: boolean = false): TestamentEntry {
+  return {
+    id: `testament_${Date.now()}`,
+    text,
+    timestamp: Date.now(),
+    corrupted,
+    version: 1,
+    title: 'Testament Entry',
+    content: text,
+    revealed: false,
+    requiresTrust: 0,
+    unlockPhrase: ''
+  };
+}
+
+// Get all unrevealed testament entries
+export function getUnrevealedTestamentEntries(): TestamentEntry[] {
+  const entries = getAllTestamentEntries();
+  return entries.filter(entry => !entry.revealed);
 }

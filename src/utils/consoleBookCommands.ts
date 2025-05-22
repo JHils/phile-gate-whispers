@@ -1,10 +1,53 @@
 /**
  * Console Book Commands
- * Handles book-related console commands
+ * Handles book codes and pages for the Jonah ARG
  */
 
 // Import necessary types
 import { BookCode } from './jonahAdvancedBehavior/types';
+
+// Local storage key for book codes
+const BOOK_CODES_KEY = 'jonah_book_codes';
+
+// Initialize book codes
+const initializeBookCodes = () => {
+  // Check if book codes already exist in localStorage
+  const existingCodes = localStorage.getItem(BOOK_CODES_KEY);
+  if (!existingCodes) {
+    // Initialize with default codes if none exist
+    const defaultCodes: BookCode[] = [
+      {
+        code: 'MAGNETIC',
+        name: 'Island Testament',
+        discovered: false,
+        timestamp: Date.now(),
+        id: 'book_magnetic',
+        pageNumber: 1
+      },
+      {
+        code: 'REFLECTION',
+        name: 'Mirror Pages',
+        discovered: false,
+        timestamp: Date.now(),
+        id: 'book_reflection',
+        pageNumber: 1
+      },
+      {
+        code: 'SENTINEL',
+        name: 'Watcher\'s Log',
+        discovered: false,
+        timestamp: Date.now(),
+        id: 'book_sentinel',
+        pageNumber: 1
+      }
+    ];
+    
+    localStorage.setItem(BOOK_CODES_KEY, JSON.stringify(defaultCodes));
+    return defaultCodes;
+  }
+  
+  return JSON.parse(existingCodes) as BookCode[];
+};
 
 // Add proper window.book initialization without the window declaration
 // We'll initialize the object but not redeclare the global type
@@ -160,4 +203,17 @@ export const addPage = (pageNumber: number, content: string): string => {
   
   console.log(`%cAdded page ${pageNumber} to the book.`, "color: #3F51B5;");
   return `Added page ${pageNumber} to the book.`;
+};
+
+// Check if a book code is unlocked
+export const isBookCodeUnlocked = (codeStr: string): boolean => {
+  const codes = getBookCodes();
+  const code = codes.find(c => c.code === codeStr);
+  return code ? (code.unlocked || false) : false;
+};
+
+// Function to get all book codes
+export const getBookCodes = (): BookCode[] => {
+  const codes = initializeBookCodes();
+  return codes;
 };

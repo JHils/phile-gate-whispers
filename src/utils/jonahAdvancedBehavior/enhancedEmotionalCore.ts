@@ -1,11 +1,11 @@
-
 /**
- * Enhanced Emotional Core
- * Advanced emotion processing and response generation
+ * Enhanced Emotional Core System
+ * Powers Jonah's more complex emotional responses
  */
 
-import { EmotionalState, EmotionCategory } from './types';
-import { getEmotionalResponse } from './sentimentAnalysis';
+import { EmotionalState, EmotionCategory, EmotionalTrend } from './types';
+// Import from analyzer directly since index.ts re-export was problematic
+import { getEmotionalResponse } from './sentimentAnalysis/analyzer';
 
 // Generate emotional response with context awareness
 export function generateFullEmotionalResponse(

@@ -1,6 +1,6 @@
 /**
- * Conversation Memory
- * Tracks and persists conversation memory
+ * Conversation Memory System
+ * Tracks and analyzes conversation patterns and emotional states
  */
 
 import { EmotionCategory } from './types';
@@ -23,6 +23,27 @@ const initialEmotionState: Record<EmotionCategory, number> = {
   trust: 0,
   watching: 0
 };
+
+// Function to initialize emotion scores
+function initializeEmotionScores() {
+  return {
+    joy: 0,
+    sadness: 0,
+    anger: 0,
+    fear: 0,
+    surprise: 0,
+    disgust: 0,
+    neutral: 0,
+    confused: 0,
+    curiosity: 0,
+    confusion: 0,
+    hope: 0,
+    anxiety: 0,
+    paranoia: 0,
+    trust: 0,
+    watching: 0
+  };
+}
 
 // Types
 interface ConversationMemory {

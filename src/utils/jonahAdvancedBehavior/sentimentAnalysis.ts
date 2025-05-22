@@ -1,4 +1,3 @@
-
 /**
  * Sentiment Analysis
  * Analyzes user input for emotional content
@@ -47,32 +46,7 @@ export function analyzeEmotion(input: string): EmotionalState {
   const words = lowercaseInput.split(/\s+/);
   
   // Count emotional keyword matches
-  const emotionScores: Record<EmotionCategory, number> = {
-    joy: 0,
-    sadness: 0,
-    anger: 0,
-    fear: 0,
-    surprise: 0,
-    disgust: 0,
-    neutral: 0,
-    confused: 0,
-    hope: 0,
-    anxiety: 0,
-    paranoia: 0,
-    trust: 0,
-    curiosity: 0,
-    confusion: 0,
-    watching: 0
-  };
-  
-  // Check each word against emotional keywords
-  words.forEach(word => {
-    Object.entries(emotionalKeywords).forEach(([emotion, keywords]) => {
-      if (keywords.some(keyword => word.includes(keyword))) {
-        emotionScores[emotion as EmotionCategory] += 1;
-      }
-    });
-  });
+  const emotionScores: Record<EmotionCategory, number> = analyzeEmotionScores(words);
   
   // Check for topic-based emotions
   Object.entries(emotionalTopics).forEach(([topic, emotion]) => {
@@ -132,4 +106,36 @@ export function initializeSentimentAnalysis(): void {
 
 export function defaultAnalyzeEmotion(input: string): EmotionalState {
   return analyzeEmotion(input);
+}
+
+// Check each word against emotional keywords
+function analyzeEmotionScores(words: string[]) {
+  const emotionScores: Record<EmotionCategory, number> = {
+    joy: 0,
+    sadness: 0,
+    anger: 0,
+    fear: 0,
+    surprise: 0,
+    disgust: 0,
+    neutral: 0,
+    confused: 0,
+    hope: 0,
+    anxiety: 0,
+    paranoia: 0,
+    trust: 0,
+    curiosity: 0,
+    confusion: 0,
+    watching: 0
+  };
+  
+  // Check each word against emotional keywords
+  words.forEach(word => {
+    Object.entries(emotionalKeywords).forEach(([emotion, keywords]) => {
+      if (keywords.some(keyword => word.includes(keyword))) {
+        emotionScores[emotion as EmotionCategory] += 1;
+      }
+    });
+  });
+  
+  return emotionScores;
 }

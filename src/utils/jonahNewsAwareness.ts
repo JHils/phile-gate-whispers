@@ -1,10 +1,28 @@
-
 /**
  * Jonah News Awareness System
- * Simulates Jonah's awareness of external news and events
+ * Allows Jonah to be aware of current news events
  */
 
 import { SentienceData } from './jonahAdvancedBehavior/types';
+
+// Initialize news awareness data
+function initializeNewsAwareness() {
+  const data = {
+    articles: [],
+    lastCheck: Date.now(), // Use lastCheck consistently
+    recentTopics: [],
+    responses: {},
+    currentResponses: [],
+    weatherCondition: '',
+    weatherResponse: null,
+    moodShift: 'normal',
+    currentEvents: [],
+    weatherData: null,
+    mentionedEvents: []
+  };
+  
+  return data;
+}
 
 // Initialize the news awareness system
 export function initializeNewsAwareness() {
@@ -13,13 +31,7 @@ export function initializeNewsAwareness() {
   // Create initial news awareness state if it doesn't exist
   if (window.JonahConsole?.sentience) {
     if (!window.JonahConsole.sentience.newsAwareness) {
-      window.JonahConsole.sentience.newsAwareness = {
-        lastChecked: Date.now(),
-        currentResponses: [],
-        weatherCondition: getRandomWeatherCondition(),
-        weatherResponse: null,
-        moodShift: 'normal'
-      };
+      window.JonahConsole.sentience.newsAwareness = initializeNewsAwareness();
     }
   }
   
@@ -39,11 +51,11 @@ export function generateNewsResponse(): string {
   
   // Check when the last news update was performed
   const now = Date.now();
-  const hoursSinceLastCheck = (now - newsAwareness.lastChecked) / (1000 * 60 * 60);
+  const hoursSinceLastCheck = (now - newsAwareness.lastCheck) / (1000 * 60 * 60);
   
   // Generate new responses if it's been more than 4 hours
   if (hoursSinceLastCheck > 4 || newsAwareness.currentResponses.length === 0) {
-    newsAwareness.lastChecked = now;
+    newsAwareness.lastCheck = now; // Use lastCheck consistently
     
     // Generate new topics and responses
     const topics = [
@@ -237,4 +249,41 @@ function setupNewsCommands() {
       return generateWeatherResponse();
     };
   }
+}
+
+// Update news awareness
+export function checkForNewsAwareness(): string | null {
+  try {
+    // Get sentience data
+    if (window.JonahConsole?.sentience) {
+      // Initialize news awareness if needed
+      if (!window.JonahConsole.sentience.newsAwareness) {
+        window.JonahConsole.sentience.newsAwareness = initializeNewsAwareness();
+      }
+      
+      const newsData = window.JonahConsole.sentience.newsAwareness;
+      
+      // Only check occasionally to avoid constant news references
+      const now = Date.now();
+      const hoursSinceLastCheck = (now - newsData.lastCheck) / (1000 * 60 * 60);
+      
+      if (hoursSinceLastCheck < 4) {
+        return null;
+      }
+      
+      // Update last check time
+      newsData.lastCheck = now; // Use lastCheck consistently
+      
+      // Return a previously generated response if available
+      if (newsData.currentResponses && newsData.currentResponses.length > 0) {
+        const response = newsData.currentResponses[Math.floor(Math.random() * newsData.currentResponses.length)];
+        return `I read that ${response.headline}. ${response.response}`;
+      }
+    }
+  }
+  catch (e) {
+    console.error("Error in news awareness check:", e);
+  }
+  
+  return null;
 }

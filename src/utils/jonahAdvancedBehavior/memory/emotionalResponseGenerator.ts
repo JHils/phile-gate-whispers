@@ -1,18 +1,99 @@
-
-// Update paths to trustLevel and lastInteractionTime
-
 /**
  * Emotional Response Generator
- * Generates contextual emotional responses based on memory and current state
+ * Generates responses based on emotional state
  */
 
-import { EmotionCategory, EmotionalState, EmotionIntensity } from '../types';
+import { EmotionalState, EmotionCategory, EmotionIntensity, ResponseStyle } from '../types';
 import { MemoryContext } from './memoryContext';
 
 // Helper function to select a random item from an array
 const getRandomItem = <T>(items: T[]): T => {
   return items[Math.floor(Math.random() * items.length)];
 };
+
+// Generate response templates based on emotions and intensity
+export function generateTemplatesForAllEmotions() {
+  // Define complete response template set for all emotions
+  const templates: Record<EmotionCategory, Record<EmotionIntensity, string[]>> = {
+    joy: {
+      low: ["That's nice.", "That seems good."],
+      medium: ["I'm happy to hear that!", "That's really good to know."],
+      high: ["That's fantastic news!", "I'm thrilled about that!"]
+    },
+    sadness: {
+      low: ["That's a bit unfortunate.", "That's somewhat sad."],
+      medium: ["I'm sorry to hear that.", "That makes me feel sad."],
+      high: ["I'm deeply saddened by that.", "That's truly heartbreaking."]
+    },
+    anger: {
+      low: ["That's a bit frustrating.", "That's somewhat annoying."],
+      medium: ["That makes me feel upset.", "That's quite irritating."],
+      high: ["That's absolutely infuriating!", "That makes me really angry!"]
+    },
+    fear: {
+      low: ["That's slightly concerning.", "That's a bit worrying."],
+      medium: ["That makes me feel anxious.", "That's quite concerning."],
+      high: ["That's truly terrifying!", "That fills me with dread!"]
+    },
+    surprise: {
+      low: ["That's a bit unexpected.", "That's somewhat surprising."],
+      medium: ["That's quite surprising!", "I didn't expect that."],
+      high: ["That's absolutely shocking!", "I'm completely astonished!"]
+    },
+    disgust: {
+      low: ["That's somewhat unpleasant.", "That's a bit distasteful."],
+      medium: ["That's quite revolting.", "That makes me feel disgusted."],
+      high: ["That's absolutely sickening!", "That's completely repulsive!"]
+    },
+    neutral: {
+      low: ["I see.", "Okay."],
+      medium: ["I understand.", "That makes sense."],
+      high: ["I completely understand.", "That's perfectly clear."]
+    },
+    confused: {
+      low: ["That's a bit puzzling.", "I'm slightly confused."],
+      medium: ["I'm confused by that.", "That doesn't make much sense to me."],
+      high: ["I'm completely lost.", "That makes no sense at all!"]
+    },
+    hope: {
+      low: ["There's a small chance.", "Maybe things will work out."],
+      medium: ["I'm hopeful about that.", "I believe things will improve."],
+      high: ["I'm very optimistic!", "I have great hope for the future!"]
+    },
+    anxiety: {
+      low: ["I'm a bit worried.", "That makes me slightly uneasy."],
+      medium: ["I feel quite anxious about that.", "That gives me significant worry."],
+      high: ["I'm extremely anxious!", "That fills me with intense worry!"]
+    },
+    paranoia: {
+      low: ["Something feels off.", "I'm a bit suspicious."],
+      medium: ["I don't trust that situation.", "That seems suspicious to me."],
+      high: ["I'm extremely paranoid!", "I don't trust any of this!"]
+    },
+    trust: {
+      low: ["I think I can trust that.", "That seems somewhat reliable."],
+      medium: ["I trust that information.", "I have confidence in that."],
+      high: ["I have complete trust in that.", "I absolutely believe that."]
+    },
+    curiosity: {
+      low: ["That's somewhat interesting.", "I'm a bit curious about that."],
+      medium: ["I'm quite curious about that.", "That really interests me."],
+      high: ["I'm fascinated by that!", "I'm extremely curious to learn more!"]
+    },
+    confusion: {
+      low: ["I'm slightly confused.", "That's a bit unclear."],
+      medium: ["I'm quite confused by that.", "That's rather perplexing."],
+      high: ["I'm completely bewildered!", "That's utterly confusing!"]
+    },
+    watching: {
+      low: ["I notice that.", "I'm observing that."],
+      medium: ["I'm watching that carefully.", "I'm paying attention to that."],
+      high: ["I'm intensely focused on that!", "I'm monitoring every detail!"]
+    }
+  };
+  
+  return templates;
+}
 
 // Generate a contextual emotional response based on memory and current state
 export const generateContextualResponse = (
