@@ -1,3 +1,4 @@
+
 import { SentienceData, EmotionalState, EmotionCategory } from './types';
 
 // Simple in-memory store for conversation history
@@ -37,7 +38,7 @@ const initializeSentienceData = (): SentienceData => {
         anxiety: 0,
         paranoia: 0,
         trust: 0,
-        watching: 0 // Adding 'watching' to fix the Record<EmotionCategory> type error
+        watching: 0
       }
     },
     realityFabric: {
