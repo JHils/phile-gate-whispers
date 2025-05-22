@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookCode } from '@/utils/jonahAdvancedBehavior/types';
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 // Simple mock AuthContext for now
 const useAuth = () => {
@@ -19,6 +21,7 @@ const Landing: React.FC = () => {
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
   const [bookCodes, setBookCodes] = useState<BookCode[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Load book codes from localStorage
@@ -30,7 +33,10 @@ const Landing: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
   };
 
   const someFunction = (input: string) => {
@@ -66,22 +72,22 @@ const Landing: React.FC = () => {
             )}
           </div>
 
-          <button
+          <Button
             onClick={() => navigate('/TalkToJonah')}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Talk to Jonah
-          </button>
+          </Button>
         </>
       ) : (
         <>
           <p className="text-lg mb-4">You are not logged in.</p>
-          <button
+          <Button
             onClick={() => navigate('/login')}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Login
-          </button>
+          </Button>
         </>
       )}
       {/* We need to return null or a valid React node here, not void */}

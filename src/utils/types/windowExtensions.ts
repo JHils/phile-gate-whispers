@@ -56,14 +56,14 @@ declare global {
     };
     
     // Book system
-    book?: {
+    book: {
       codes: string[];
       unlocked: string[];
       current?: string;
       pages?: Record<string, string>;
     };
     
-    unlockBookCode?: (code: string) => boolean;
+    unlockBookCode: (code: string) => boolean;
     
     // Advanced sentience commands
     trust_level?: () => number;

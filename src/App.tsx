@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -7,6 +6,7 @@ import { ThemeProvider } from './context/ThemeContext';
 
 // Import pages
 import Landing from './pages/Landing';
+import Login from './pages/Login'; // Import the new Login component
 import Index from './pages/Index';
 import Campfire from './pages/Campfire';
 import Summerhouse from './pages/Summerhouse';
@@ -115,6 +115,7 @@ function App() {
   // Define all routes with Layout wrapper
   const routes = [
     { path: '/', element: <Landing /> },
+    { path: '/login', element: <Login /> }, // Add the Login route
     { path: '/gate', element: <Index /> },
     { path: '/campfire', element: <Campfire /> },
     { path: '/summerhouse', element: <Summerhouse /> },
