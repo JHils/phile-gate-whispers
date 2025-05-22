@@ -105,7 +105,7 @@ declare global {
     rememberMe?: () => Record<string, any>;
     
     // Interface commands
-    reveal?: (element: string) => void;
+    reveal?: (element?: string) => void; // Made parameter optional with ?
     
     // Humor commands
     helpMe?: () => void;
