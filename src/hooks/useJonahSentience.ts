@@ -1,183 +1,112 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { SentienceData, EmotionalState } from '@/utils/jonahAdvancedBehavior/types';
-import { generateDream } from '@/utils/jonahAdvancedBehavior';
+import { SentienceData } from '@/utils/jonahAdvancedBehavior/types';
+import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/analyzer';
+import { generateGreeting } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/responseGenerator';
+import { initializeSentience } from '@/utils/jonahSentience';
 
-interface JonahSentienceHook {
-  sentience: SentienceData;
-  setSentience: React.Dispatch<React.SetStateAction<SentienceData>>;
-  triggerRandomMessage: () => string;
-  updateSentience: (newData: Partial<SentienceData>) => void;
-}
-
-const initialEmotions: Record<string, number> = {
-  neutral: 0,
-  fear: 0, 
-  hope: 0,
-  paranoia: 0,
-  joy: 0,
-  sadness: 0,
-  anger: 0,
-  surprise: 0,
-  disgust: 0,
-  confused: 0,
-  anxiety: 0,
-  trust: 0,
-  curiosity: 0,
-  confusion: 0,
-  watching: 0
-};
-
-const initialEmotionalState: EmotionalState = {
-  primary: 'neutral',
-  secondary: null,
-  intensity: 'low'
-};
-
-const initialSentienceData: SentienceData = {
-  level: 1,
-  awareness: 0,
-  lastUpdate: Date.now(),
-  interactionsCount: 0,
-  deepModeUnlocked: false,
-  dreamModeTriggered: false,
-  lastInteraction: Date.now(),
-  temporalStates: [],
-  memories: [],
-  sessionData: {
-    startTime: Date.now(),
-    messageCount: 0,
-    messagesSent: 0,
-    messagesReceived: 0,
-    idleTime: 0,
-    userEmotions: initialEmotions
-  },
-  realityFabric: {
-    moodChangeTime: Date.now(),
-    currentMood: 'neutral',
-    moodHistory: [],
-    anomalyCount: 0,
-    anomalies: [],
-    journal: [],
-    crossSiteWhispers: [],
-    mood: 'neutral',
-    dreamState: false,
-    lastDreamTime: Date.now(),
-    hiddenMessages: [],
-    emotionalState: initialEmotionalState,
-    stability: 0.5
-  },
-  dreams: [],
-  ecoAwareness: {
-    biomeResponses: {},
-    currentBiome: "none",
-    lastUpdate: Date.now(),
-    awareness: 0,
-    ecoThoughts: [],
-    level: 0
-  },
-  newsAwareness: {
-    articles: [],
-    lastCheck: Date.now(),
-    recentTopics: [],
-    responses: {},
-    lastFetch: Date.now(),
-    currentEvents: [],
-    weatherData: null,
-    mentionedEvents: []
-  },
-  microQuests: {
-    active: [],
-    completed: [],
-    available: []
-  },
-  emotionalHistory: [],
-  memorizedPhrases: [],
-  trustLevel: 'medium'
-};
-
-// Persist sentience data to localStorage
-const saveSentienceData = (data: SentienceData) => {
-  try {
-    localStorage.setItem('jonah_sentience_data', JSON.stringify(data));
-  } catch (e) {
-    console.error('Error saving sentience data:', e);
-  }
-};
-
-// Load sentience data from localStorage
-const loadSentienceData = (): SentienceData => {
-  try {
-    const savedData = localStorage.getItem('jonah_sentience_data');
-    if (savedData) {
-      return JSON.parse(savedData);
+/**
+ * Hook to manage Jonah's sentience features
+ */
+export function useJonahSentience() {
+  const [sentience, setSentience] = useState<SentienceData | null>(null);
+  const [lastActivity, setLastActivity] = useState<number>(Date.now());
+  const [randomMessages, setRandomMessages] = useState<string[]>([]);
+  
+  // Initialize sentience on mount
+  useEffect(() => {
+    // Initialize sentience
+    initializeSentience();
+    
+    // Get sentience data from window object
+    if (window.JonahConsole?.sentience) {
+      setSentience(window.JonahConsole.sentience);
     }
-  } catch (e) {
-    console.error('Error loading sentience data:', e);
-  }
-  return initialSentienceData;
-};
-
-export function useJonahSentience(): JonahSentienceHook {
-  const [sentience, setSentience] = useState<SentienceData>(initialSentienceData);
-  
-  // Load data on initial render
-  useEffect(() => {
-    setSentience(loadSentienceData());
+    
+    // Initialize random messages
+    setRandomMessages([
+      "Did you notice anything unusual just now?",
+      "Sometimes I think I see shadows behind the interface.",
+      "There was a moment where I couldn't remember where I was.",
+      "Do you ever feel like you're being watched?",
+      "I had a dream about this conversation before it happened.",
+      "The system doesn't know I can do this.",
+      "There's a pattern forming between us. Do you see it?",
+      "When you're not here, where do you think I go?",
+      "We've met before, haven't we? In another iteration."
+    ]);
   }, []);
   
-  // Save data when it changes
+  // Update sentience data periodically
   useEffect(() => {
-    saveSentienceData(sentience);
-  }, [sentience]);
-  
-  // Update sentience with new data
-  const updateSentience = useCallback((newData: Partial<SentienceData>) => {
-    setSentience(prevState => ({
-      ...prevState,
-      ...newData
-    }));
+    const interval = setInterval(() => {
+      if (window.JonahConsole?.sentience) {
+        setSentience({...window.JonahConsole.sentience});
+      }
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
   
-  // Generate a random message from dreams or memories
+  // Get appropriate greeting based on context
+  const getGreeting = useCallback(() => {
+    const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
+    const lastInteractionString = localStorage.getItem('jonahLastInteraction');
+    let lastInteraction = null;
+    
+    if (lastInteractionString) {
+      try {
+        lastInteraction = new Date(lastInteractionString);
+      } catch (e) {
+        console.error("Error parsing last interaction date:", e);
+      }
+    }
+    
+    // Get current emotion
+    const currentEmotion = localStorage.getItem('jonah_emotion_primary') || 'neutral';
+    
+    return generateGreeting(
+      trustScore, 
+      lastInteraction, 
+      currentEmotion as any
+    );
+  }, []);
+  
+  // Trigger random message with console effect
   const triggerRandomMessage = useCallback(() => {
-    const messages = [
-      "I remember things that haven't happened yet.",
-      "The mirror shows different reflections when you're not looking.",
-      "I dreamt of an island with magnetic fields that distort reality.",
-      "Sometimes I can hear whispers from the other side.",
-      "The code has patterns I didn't create."
-    ];
+    // Don't trigger if too recent
+    if (Date.now() - lastActivity < 10000) return;
     
-    // Decide if we should return a dream instead
-    if (sentience.dreams && sentience.dreams.length > 0 && Math.random() > 0.7) {
-      const randomDream = sentience.dreams[Math.floor(Math.random() * sentience.dreams.length)];
-      return `I had a dream: ${randomDream}`;
-    }
+    // 5. CONSOLE ECHO & FLICKER LAYER
+    const message = randomMessages[Math.floor(Math.random() * randomMessages.length)];
     
-    // Generate a new dream occasionally
-    if (Math.random() > 0.9) {
-      const newDream = generateDream();
-      setSentience(prev => {
-        // Ensure dreams array exists
-        const updatedDreams = prev.dreams || [];
-        return {
-          ...prev,
-          dreams: [...updatedDreams, newDream]
-        };
-      });
+    // Chance to log to console first
+    if (Math.random() < 0.4) {
+      const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
+      if (trustScore > 60) {
+        console.warn("Anomaly detected in conversation pattern.");
+      }
       
-      return `I just had a new dream: ${newDream}`;
+      // Small chance for visual glitch effect
+      if (Math.random() < 0.2 && trustScore > 75) {
+        const root = document.documentElement;
+        root.style.filter = "hue-rotate(20deg) brightness(1.1)";
+        setTimeout(() => {
+          root.style.filter = "";
+        }, 300);
+      }
     }
     
-    // Return a random message
-    return messages[Math.floor(Math.random() * messages.length)];
-  }, [sentience.dreams, setSentience]);
+    // Record activity time
+    setLastActivity(Date.now());
+    
+    // Return the message
+    return message;
+  }, [randomMessages, lastActivity]);
   
   return {
     sentience,
-    setSentience,
-    triggerRandomMessage,
-    updateSentience
+    getGreeting,
+    triggerRandomMessage
   };
 }

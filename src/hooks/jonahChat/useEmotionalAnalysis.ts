@@ -13,6 +13,9 @@ export function useEmotionalAnalysis() {
     // Set new mood
     setJonahMood(newMood);
     
+    // Store in localStorage for persistence
+    localStorage.setItem('jonah_emotion_primary', newMood);
+    
     // Update emotion history
     setEmotionHistory(prev => {
       const updated = [...prev, newMood].slice(-5); // Keep last 5 emotions
@@ -31,14 +34,27 @@ export function useEmotionalAnalysis() {
       const negativeCount = recentEmotions.filter(e => negativeEmotions.includes(e)).length;
       
       // Determine trend
+      let newTrend: EmotionalTrend = 'stable';
+      
       if (positiveCount >= 2 && positiveEmotions.includes(newMood)) {
-        setEmotionalTrend('improving');
+        newTrend = 'improving';
       } else if (negativeCount >= 2 && negativeEmotions.includes(newMood)) {
-        setEmotionalTrend('deteriorating');
+        newTrend = 'deteriorating';
       } else if (recentEmotions[0] === recentEmotions[1] && recentEmotions[1] === recentEmotions[2]) {
-        setEmotionalTrend('stable');
+        newTrend = 'stable';
       } else {
-        setEmotionalTrend('fluctuating');
+        newTrend = 'fluctuating';
+      }
+      
+      setEmotionalTrend(newTrend);
+      localStorage.setItem('jonah_emotional_trend', newTrend);
+      
+      // 5. CONSOLE ECHO & FLICKER LAYER - Show mood transitions in console
+      if (newTrend !== 'stable') {
+        const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
+        if (trustScore > 50 && Math.random() < 0.3) {
+          console.log(`%cEmotional shift detected: ${newTrend}`, "color: #8B3A40; font-style: italic;");
+        }
       }
     }
   }, [emotionHistory]);

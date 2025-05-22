@@ -4,9 +4,16 @@
  * Powers Jonah's more complex emotional responses
  */
 
-import { EmotionalState, EmotionCategory, EmotionalTrend } from './types';
-// Import from analyzer directly since index.ts re-export was problematic
-import { getEmotionalResponse } from './sentimentAnalysis/analyzer';
+import { EmotionalState, EmotionCategory, EmotionalTrend, ResponseStyle } from './types';
+import { 
+  getEmotionalResponse, 
+  getLayeredEmotionalResponse,
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse,
+  generateGreeting
+} from './sentimentAnalysis/responseGenerator';
+import { getCurrentTrustLevel, getCurrentTrustRank } from './trustSystem';
 
 // Generate emotional response with context awareness
 export function generateFullEmotionalResponse(
@@ -33,7 +40,87 @@ export function generateFullEmotionalResponse(
     response = addEmotionalEmphasis(response, emotionalState.primary);
   }
   
+  // Add trust-based content (3. TRUST MODULATION ENGINE)
+  const trustScore = getCurrentTrustLevel();
+  if (trustScore >= 50 && Math.random() < 0.3) {
+    response = addTrustBasedContent(response, trustScore);
+  }
+  
+  // Add false memory/loop content (2. MEMORY SIMULATION)
+  if (trustScore > 40 && Math.random() < 0.15) {
+    response = addMemoryEffect(response, trustScore);
+  }
+  
+  // 5. CONSOLE ECHO & FLICKER LAYER - Random console messages
+  if (Math.random() < 0.1 && trustScore > 60) {
+    logConsoleMessage(emotionalState.primary, trustScore);
+  }
+  
   return response;
+}
+
+// Add trust-based content to responses
+function addTrustBasedContent(response: string, trustScore: number): string {
+  // Only add to medium+ length responses
+  if (response.length < 30) return response;
+  
+  const trustRank = getCurrentTrustRank();
+  
+  if (trustScore >= 75) {
+    // Add glitched whisper for high trust
+    const whispers = [
+      " [I shouldn't tell you this...]",
+      " [They're watching us...]",
+      " [This isn't really happening...]",
+      " [Help me remember...]"
+    ];
+    return response + whispers[Math.floor(Math.random() * whispers.length)];
+  } else if (trustScore >= 50) {
+    // Add personal disclosure for medium trust
+    const disclosures = [
+      " I don't tell this to everyone.",
+      " I trust you with this information.",
+      " There's more to this, but we'll get there.",
+      " Our connection helps me understand this better."
+    ];
+    return response + disclosures[Math.floor(Math.random() * disclosures.length)];
+  }
+  
+  return response;
+}
+
+// Add memory/loop effects to responses
+function addMemoryEffect(response: string, trustScore: number): string {
+  const effect = Math.random();
+  
+  if (effect < 0.33) {
+    // False memory effect
+    return getFalseMemoryResponse(trustScore);
+  } else if (effect < 0.66) {
+    // Loop detection effect
+    return getLoopResponse(2, trustScore);
+  } else {
+    // Blank fragment effect
+    return getBlankFragmentResponse(trustScore);
+  }
+}
+
+// Log console messages based on emotion and trust
+function logConsoleMessage(emotion: EmotionCategory, trustScore: number): void {
+  const messages = [
+    "System memory leak: tracking recursive thread...",
+    "Echo Jonah: permission layer breached.",
+    "Timeline fragmentation detected. Please report any anomalies.",
+    "User emotional pattern logged: " + emotion,
+    "Memory core temperature rising. Non-essential processes suspended."
+  ];
+  
+  if (trustScore > 75) {
+    console.warn(messages[Math.floor(Math.random() * messages.length)]);
+  } else {
+    console.log("%cJonah: " + messages[Math.floor(Math.random() * messages.length)], 
+              "color: #8B3A40; font-style: italic;");
+  }
 }
 
 // Fallback responses when primary system fails
@@ -135,3 +222,13 @@ function addEmotionalEmphasis(response: string, emotion: EmotionCategory): strin
     return `${response}${chosen}`;
   }
 }
+
+// Re-export functions for external use
+export {
+  generateGreeting,
+  getEmotionalResponse,
+  getLayeredEmotionalResponse,
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse
+};

@@ -12,6 +12,7 @@ export enum TrustLevel {
   High = 3
 }
 
+// 3. TRUST MODULATION ENGINE
 // Modify trust level
 export function modifyTrustLevel(amount: number): number {
   try {
@@ -30,6 +31,21 @@ export function modifyTrustLevel(amount: number): number {
     // Update trust level text
     const trustLevelText = getTrustLevelText(trustScore);
     localStorage.setItem('jonahTrustLevel', trustLevelText);
+    
+    // 5. CONSOLE ECHO & FLICKER LAYER
+    // Log console messages based on trust level
+    if (trustScore > 25 && trustScore < 26) {
+      console.log("%cJonah: first barrier down", "color: #8B3A40; font-style: italic;");
+    } else if (trustScore > 50 && trustScore < 51) {
+      console.log("%cJonah: recognition patterns unlocked", "color: #8B3A40; font-style: italic;");
+      console.warn("System memory leak: tracking recursive thread...");
+    } else if (trustScore > 75 && trustScore < 76) {
+      console.log("%cJonah: whisper protocols active", "color: #8B3A40; font-style: italic;");
+      console.warn("Echo Jonah: permission layer breached.");
+    } else if (trustScore >= 100) {
+      console.log("%cJonah: full access granted", "color: #8B3A40; font-style: italic;");
+      console.warn("SYSTEM ALERT: Memory core exposed. User access level: MAXIMUM");
+    }
     
     return trustScore;
   } catch (e) {
@@ -84,6 +100,15 @@ export function processTrustKeywords(input: string): number {
   const trustWords = ["trust", "believe", "friend", "help", "understand"];
   const distrustWords = ["lie", "deceive", "trick", "suspicious", "doubt"];
   
+  // Add specific trust trigger phrases
+  const trustTriggerPhrases = [
+    "i trust you", 
+    "i'm telling you the truth", 
+    "you can trust me",
+    "i believe in you",
+    "i'm here for you"
+  ];
+  
   const lowerInput = input.toLowerCase();
   let trustChange = 0;
   
@@ -97,11 +122,16 @@ export function processTrustKeywords(input: string): number {
     if (lowerInput.includes(word)) trustChange -= 3;
   });
   
+  // Check for specific trust phrases (higher trust gain)
+  trustTriggerPhrases.forEach(phrase => {
+    if (lowerInput.includes(phrase)) trustChange += 5;
+  });
+  
   return trustChange;
 }
 
 // Get behavior phase
-export function jonah_getBehaviorPhase(): string {
+export function getBehaviorPhase(): string {
   const score = parseInt(localStorage.getItem('jonahTrustScore') || '50');
   
   if (score < 20) return 'cold';
@@ -111,8 +141,8 @@ export function jonah_getBehaviorPhase(): string {
 }
 
 // Get phase response
-export function jonah_getPhaseResponse(phase?: string): string {
-  const currentPhase = phase || jonah_getBehaviorPhase();
+export function getPhaseResponse(phase?: string): string {
+  const currentPhase = phase || getBehaviorPhase();
   
   const responses: Record<string, string[]> = {
     cold: [
