@@ -23,6 +23,19 @@ export function getAllTestaments(): TestamentEntry[] {
 }
 
 /**
+ * Get all revealed testament entries
+ */
+export function getRevealedEntries(): TestamentEntry[] {
+  try {
+    const testaments = getAllTestaments();
+    return testaments.filter(testament => testament.revealed === true);
+  } catch (e) {
+    console.error('Error fetching revealed testaments:', e);
+    return [];
+  }
+}
+
+/**
  * Unlock a testament by phrase
  */
 export function unlockTestamentByPhrase(phrase: string): TestamentEntry | null {
@@ -79,4 +92,3 @@ export function generateTestamentResponse(testament: TestamentEntry): string {
   
   return `${chosen} ${testament.content}`;
 }
-

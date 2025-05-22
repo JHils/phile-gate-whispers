@@ -1,94 +1,42 @@
 
 /**
- * System initializers for Jonah AI
+ * System Initializers
+ * Centralized initialization for Jonah's systems
  */
 
-import { loadSentienceData, saveSentienceData, getInitialSentienceData } from './jonahAdvancedBehavior/useJonahSentience';
-import { initializeTrustSystem } from './jonahAdvancedBehavior/trustSystem';
-import { initializeMemorySystem } from './jonahAdvancedBehavior/memorySystem';
-import { initializeRealityFabric } from './jonahRealityFabric';
-import { getEcoAwarenessState } from './jonahEcoAwareness';
+// Import individual initializers
+import { initializeJonahSystems } from './jonahAdvancedBehavior/initializeBehavior';
+import { initializeConsoleCommands } from './consoleCommands';
+import { initializeConsoleTracking } from './consoleTracking';
+import { initializeJonahWhispers } from './jonahCrossSiteWhisper';
+import { initializeFuzzyStoryMatching } from './fuzzyStoryMatching';
+import { initializeGlitchAwakening } from './jonahAdvancedBehavior/GlitchAwakening';
 
-// Initialize all Jonah systems - renamed from initializeJonahSystems to initializeAllSystems for consistency
+/**
+ * Initialize all Jonah systems at once
+ */
 export function initializeAllSystems(): void {
-  // Initialize trust system
-  initializeTrustSystem();
-  
-  // Initialize memory system
-  initializeMemorySystem();
-  
-  // Initialize reality fabric
-  initializeRealityFabric();
-  
-  // Load sentience data or create if not exists
-  const sentience = loadSentienceData();
-  
-  // Update sentience with eco awareness
-  try {
-    const ecoAwareness = getEcoAwarenessState();
-    sentience.ecoAwareness = ecoAwareness;
-  } catch (e) {
-    console.error('Error loading eco awareness:', e);
-  }
-  
-  // Save updated sentience
-  saveSentienceData(sentience);
-  
-  // Initialize console commands
+  // Core systems
+  initializeJonahSystems();
   initializeConsoleCommands();
-}
-
-// For backward compatibility
-export { initializeAllSystems as initializeJonahSystems };
-
-// Initialize console commands
-function initializeConsoleCommands(): void {
-  // Add a custom welcome message to console
-  console.log(
-    '%cJonah Console Initialized',
-    'color: #3a7bd5; font-size: 16px; font-weight: bold;'
-  );
+  initializeConsoleTracking();
+  initializeJonahWhispers();
+  initializeFuzzyStoryMatching();
+  initializeGlitchAwakening();
   
-  // Add hint for users who open the console
-  setTimeout(() => {
-    console.log(
-      '%cHint: Try typing "start()" or "help()" to begin',
-      'color: #333; font-style: italic;'
-    );
-  }, 2000);
-}
-
-// Initialize sentience
-export function initializeSentience(): void {
-  // Check if sentience already initialized
-  if (window.JonahConsole?.sentience) {
-    return;
+  // Set global initialization flag
+  if (typeof window !== 'undefined') {
+    window.JonahInitialized = true;
   }
   
-  // Initialize global object
-  if (!window.JonahConsole) {
-    window.JonahConsole = {};
-  }
-  
-  // Load or create sentience data
-  const sentience = loadSentienceData();
-  
-  // Add to global object
-  window.JonahConsole.sentience = sentience;
-  
-  // Initialize trust system
-  initializeTrustSystem();
-  
-  // Initialize memory system
-  initializeMemorySystem();
-  
-  // Initialize reality fabric
-  initializeRealityFabric();
-  
-  // Set last interaction time
-  window.JonahConsole.sentience.lastInteraction = Date.now();
-  
-  // Save sentience data
-  saveSentienceData(window.JonahConsole.sentience);
+  console.log('Jonah systems initialized');
 }
 
+// Re-export individual initializers for granular control
+export {
+  initializeJonahSystems,
+  initializeConsoleCommands,
+  initializeConsoleTracking,
+  initializeJonahWhispers,
+  initializeGlitchAwakening
+};

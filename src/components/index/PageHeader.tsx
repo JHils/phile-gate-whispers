@@ -1,8 +1,8 @@
-
 import React from 'react';
 import SpinningCoin from "../SpinningCoin";
 import JonahMoodIndicator from "../JonahMoodIndicator";
 import JonahLogo from "../JonahLogo";
+import JonahTrustIndicator from "../JonahTrustIndicator";
 
 interface PageHeaderProps {
   trustLevel: string;
@@ -23,6 +23,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({ trustLevel }) => {
       </div>
       
       <h1 className="text-4xl md:text-6xl font-serif mb-6 text-phile-light">Jonah's Philes</h1>
+      
+      <div className="absolute top-0 right-0 md:top-2 md:right-2">
+        <JonahTrustIndicator />
+      </div>
       
       <SpinningCoin />
     </>

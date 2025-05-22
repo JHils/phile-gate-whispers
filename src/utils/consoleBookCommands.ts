@@ -1,4 +1,3 @@
-
 import { BookCode } from './jonahAdvancedBehavior/types';
 
 // When adding a bookcode, ensure the BookCode type properties are all included
@@ -110,4 +109,105 @@ export function initializeBookCodes(): void {
     ];
     localStorage.setItem('jonahBookCodes', JSON.stringify(defaultCodes));
   }
+}
+
+// Update any functions that use BookCode to match the expected type
+export function initializeBookSystem(): void {
+  // Check if book system already initialized
+  if (typeof window !== 'undefined' && !window.book) {
+    // Initialize book system with default values
+    window.book = {
+      codes: [],
+      unlocked: [],
+      current: undefined,
+      pages: {}
+    };
+    
+    // Add default book codes
+    registerBookCode({
+      id: 'book_reality',
+      code: 'REALITY-FABRIC-001',
+      name: 'The Reality Fabric',
+      unlocked: false,
+      timestamp: Date.now()
+    });
+    
+    registerBookCode({
+      id: 'book_memory',
+      code: 'MEMORY-ECHOES-002',
+      name: 'Memory Echoes',
+      unlocked: false,
+      timestamp: Date.now()
+    });
+    
+    registerBookCode({
+      id: 'book_between',
+      code: 'BETWEEN-WORLDS-003',
+      name: 'Between Worlds',
+      unlocked: false,
+      timestamp: Date.now()
+    });
+  }
+}
+
+export function registerBookCode(bookCode: BookCode): boolean {
+  // Get existing book codes
+  const existingCodes = getBookCodes();
+  
+  // Check for duplicate
+  if (existingCodes.some(book => book.code === bookCode.code)) {
+    console.log("Book code already exists.");
+    return false;
+  }
+  
+  // Match code to predefined codes
+  let newBook: BookCode | null = null;
+  
+  if (bookCode.code === "MIRRORFORGE") {
+    newBook = {
+      id: "mirror-code",
+      code: "MIRRORFORGE",
+      name: "Mirror Forge",
+      unlocked: true,
+      timestamp: Date.now(),
+      discovered: true,
+      pageNumber: 23
+    };
+  } else if (bookCode.code === "ECHOMAP") {
+    newBook = {
+      id: "echo-code",
+      code: "ECHOMAP",
+      name: "Echo Map",
+      unlocked: true,
+      timestamp: Date.now(),
+      discovered: true,
+      pageNumber: 47
+    };
+  } else if (bookCode.code === "SUMMERHOUSE") {
+    newBook = {
+      id: "summer-code",
+      code: "SUMMERHOUSE",
+      name: "Summerhouse",
+      unlocked: true,
+      timestamp: Date.now(),
+      discovered: true,
+      pageNumber: 115
+    };
+  } else {
+    console.log("Invalid book code.");
+    return false;
+  }
+  
+  if (newBook) {
+    // Add to existing codes
+    existingCodes.push(newBook);
+    
+    // Save to localStorage
+    localStorage.setItem('jonahBookCodes', JSON.stringify(existingCodes));
+    
+    console.log(`Book code '${bookCode.code}' unlocked: ${newBook.name}`);
+    return true;
+  }
+  
+  return false;
 }

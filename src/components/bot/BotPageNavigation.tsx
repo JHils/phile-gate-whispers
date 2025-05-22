@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { addJournalEntry } from '@/utils/jonahRealityFabric';
@@ -47,13 +46,15 @@ const BotPageNavigation: React.FC<BotPageNavigationProps> = ({
   
   // Log path visit to journal
   const logPathVisit = (path: string, isFirstVisit: boolean) => {
-    const content = {
+    const currentPath = location.pathname;
+    
+    const journalEntry = {
       entryId: Date.now(),
       timestamp: Date.now(),
-      content: `User visited ${path}${isFirstVisit ? ' for the first time' : ''}`
+      content: `User navigated to ${currentPath}`
     };
     
-    addJournalEntry(content);
+    addJournalEntry(journalEntry);
   };
   
   // Generate comment based on path

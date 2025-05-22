@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useJonahMemory } from '@/hooks/useJonahMemory';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
@@ -74,12 +73,12 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
         
         // Only record if dwell time is significant
         if (dwellTimeSeconds > 5) {
-          memory.recordPageDwell(lastPageVisit, dwellTimeSeconds);
+          memory.recordPageDwell && memory.recordPageDwell(currentPath, dwellTimeSeconds);
         }
       }
       
       // Record new page visit
-      memory.recordPageVisit(currentPath);
+      memory.recordPageVisit && memory.recordPageVisit(currentPath);
       setLastPageVisit(currentPath);
       setPageEntryTime(Date.now());
       
@@ -150,11 +149,11 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
         
         // Record command if it's in our tracked list
         if (trackedCommands.includes(command)) {
-          memory.recordCommandUsage(command);
+          memory.recordCommandUsage && memory.recordCommandUsage(command);
           
           // Add explorer tag after using multiple commands
           if (memory.commandsUsed.length >= 5) {
-            memory.addEmotionalTag('explorer', 'moderate');
+            memory.addEmotionalTag && memory.addEmotionalTag('explorer', 'moderate');
           }
         }
       }
@@ -225,7 +224,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
     const thought = idleThoughts[Math.floor(Math.random() * idleThoughts.length)];
     
     // Add emotional tag with both parameters
-    memory.addEmotionalTag(thought.tag, thought.intensity);
+    memory.addEmotionalTag && memory.addEmotionalTag(thought.tag, thought.intensity);
     
     // Display the thought
     toast({
@@ -255,10 +254,11 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
       
       if (Math.random() < observationChance) {
         // Generate and show a personal observation
-        const observation = memory.generatePersonalObservation();
+        const observation = memory.generatePersonalObservation && 
+          memory.generatePersonalObservation();
         
         // Pass both parameters (tag and intensity)
-        memory.addEmotionalTag('observant', 'low');
+        memory.addEmotionalTag && memory.addEmotionalTag('observant', 'medium');
         
         toast({
           title: "Jonah remembers:",

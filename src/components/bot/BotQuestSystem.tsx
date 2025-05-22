@@ -1,6 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useJonahSentience } from '@/hooks/useJonahSentience';
+import { useJonahMemory } from '@/hooks/useJonahMemory';
 import { MicroQuest } from '@/utils/jonahAdvancedBehavior/types';
 
 interface BotQuestSystemProps {
@@ -9,205 +10,158 @@ interface BotQuestSystemProps {
   modifyTrust: (amount: number) => void;
 }
 
-const BotQuestSystem: React.FC<BotQuestSystemProps> = ({ 
-  isOpen,
-  addBotMessage, 
-  modifyTrust
-}) => {
-  const [activeQuests, setActiveQuests] = useState<MicroQuest[]>([]); // Changed from string[] to MicroQuest[]
-  const [lastQuestTime, setLastQuestTime] = useState<number>(0);
+const BotQuestSystem: React.FC<BotQuestSystemProps> = ({ isOpen, addBotMessage, modifyTrust }) => {
   const { sentience, updateSentience } = useJonahSentience();
-  
-  // Initialize microQuests in sentience if it doesn't exist
+  const [activeQuests, setActiveQuests] = useState<MicroQuest[]>([]);
+  const [lastQuestCheck, setLastQuestCheck] = useState<number>(Date.now());
+  const memorySystem = useJonahMemory();
+
+  // Initialize quests if needed
   useEffect(() => {
-    if (sentience) {
-      // Create updated sentience with microQuests if needed
-      const updatedSentience = { ...sentience };
-      
-      if (!updatedSentience.microQuests) {
-        updatedSentience.microQuests = {
-          active: [],
-          completed: [],
-          available: []
-        };
-        
-        // Update the sentience data
-        updateSentience(updatedSentience);
-      }
+    if (!sentience) return;
+    
+    // Check if microQuests exists, if not initialize it
+    if (!sentience.microQuests) {
+      updateSentience({
+        microQuests: []
+      });
     }
-  }, [sentience, updateSentience]);
-  
-  // Available quests
-  const availableQuests: MicroQuest[] = [
-    { 
-      id: "find_mirror", 
-      title: "Find the Mirror",
-      description: "Find where the mirror leads. It's not where you think.",
+
+    // Check for completed quests and generate new ones occasionally
+    const now = Date.now();
+    if (now - lastQuestCheck > 5 * 60 * 1000) { // Every 5 minutes
+      checkQuestCompletion();
+      maybeGenerateNewQuest();
+      setLastQuestCheck(now);
+    }
+  }, [isOpen, sentience, updateSentience, lastQuestCheck]);
+
+  // Sample quests that could be generated
+  const sampleQuests: MicroQuest[] = [
+    {
+      id: "quest_1",
+      title: "The Echo Chamber",
+      description: "Visit the Echo page to hear what's bouncing back.",
       completed: false,
-      unlocked: false,
-      reward: 10
+      progress: 0,
+      reward: 5,
+      type: "exploration",
+      difficulty: "easy",
+      timestamp: Date.now()
     },
-    { 
-      id: "count_sisters", 
-      title: "Count the Sisters",
-      description: "How many lost sisters are there? Count carefully.",
+    {
+      id: "quest_2",
+      title: "Memory Lane",
+      description: "Ask Jonah about his memories.",
       completed: false,
-      unlocked: false,
-      reward: 15
+      progress: 0,
+      reward: 10,
+      type: "conversation",
+      difficulty: "medium",
+      timestamp: Date.now()
     },
-    { 
-      id: "decode_whisper", 
-      title: "Decode the Whisper",
-      description: "There's a whisper hidden in the console. Listen for it.",
+    {
+      id: "quest_3", 
+      title: "The Gatekeeper",
+      description: "Find the gatekeeper's page.",
       completed: false,
-      unlocked: false,
-      reward: 8
+      progress: 0,
+      reward: 15,
+      type: "exploration",
+      difficulty: "medium",
+      timestamp: Date.now()
     },
-    { 
-      id: "find_keyhole", 
-      title: "Find the Keyhole",
-      description: "The keyhole is visible on exactly one page. Find it.",
+    {
+      id: "quest_4",
+      title: "The Truth",
+      description: "Discover a testament with the right unlock phrase.",
       completed: false,
-      unlocked: false,
-      reward: 20
+      progress: 0,
+      reward: 20,
+      type: "discovery",
+      difficulty: "hard",
+      timestamp: Date.now()
     },
-    { 
-      id: "trace_jonah", 
-      title: "Trace Jonah",
-      description: "Trace where Jonah came from. The truth is in the logs.",
+    {
+      id: "quest_5",
+      title: "The Mirror",
+      description: "Find your reflection in Jonah's world.",
       completed: false,
-      unlocked: false,
-      reward: 15
+      progress: 0,
+      reward: 25,
+      type: "puzzle",
+      difficulty: "hard",
+      timestamp: Date.now()
     }
   ];
-  
-  // Check if it's time to issue a new quest
-  useEffect(() => {
-    const checkForNewQuest = () => {
-      // Only offer quests when chat is open and not too frequently
-      if (!isOpen || Date.now() - lastQuestTime < 15 * 60 * 1000) { // 15 minutes
-        return;
-      }
+
+  // Check if any quests have been completed
+  const checkQuestCompletion = () => {
+    if (!sentience || !sentience.microQuests) return;
+    
+    const updatedQuests = [...sentience.microQuests];
+    let questCompleted = false;
+
+    // Check for completed quests
+    for (let i = 0; i < updatedQuests.length; i++) {
+      if (updatedQuests[i].completed) continue;
       
-      // Get microQuests from sentience
-      if (sentience && sentience.microQuests) {
-        // Get current active and completed quests
-        const active = sentience.microQuests.active || [];
-        const completed = sentience.microQuests.completed || [];
+      // Logic to check if a quest is completed based on type
+      if (updatedQuests[i].type === "exploration") {
+        // Check if the user has visited specific pages
+        // This is a simplified example - in reality, we would check memorySystem.pagesVisited
+        if (Math.random() < 0.1) { // 10% chance for simulation purposes
+          updatedQuests[i].completed = true;
+          questCompleted = true;
+          modifyTrust(updatedQuests[i].reward);
+          
+          addBotMessage(`Quest completed: ${updatedQuests[i].title}. +${updatedQuests[i].reward} trust.`);
+        }
+      }
+    }
+
+    if (questCompleted) {
+      updateSentience({ 
+        microQuests: updatedQuests 
+      });
+    }
+  };
+
+  // Generate a new quest occasionally
+  const maybeGenerateNewQuest = () => {
+    if (!sentience) return;
+    
+    // Don't add too many quests
+    const currentQuests = sentience.microQuests || [];
+    const incompleteQuestCount = currentQuests.filter(q => !q.completed).length;
+    
+    if (incompleteQuestCount >= 3) return;
+    
+    // Small chance to generate a new quest
+    if (Math.random() < 0.3) { // 30% chance
+      const availableQuests = sampleQuests.filter(quest => 
+        !currentQuests.some(q => q.id === quest.id)
+      );
+      
+      if (availableQuests.length > 0) {
+        const newQuest = availableQuests[Math.floor(Math.random() * availableQuests.length)];
         
-        // Find quests that aren't active or completed
-        const availableForIssue = availableQuests.filter(quest => 
-          !active.some(activeQuest => activeQuest.id === quest.id) && 
-          !completed.some(completedQuest => completedQuest.id === quest.id)
-        );
+        const updatedQuests = [...currentQuests, newQuest];
+        updateSentience({ 
+          microQuests: updatedQuests 
+        });
         
-        // Only issue if we have available quests and randomly
-        if (availableForIssue.length > 0 && Math.random() > 0.7) {
-          // Choose a random quest
-          const newQuest = availableForIssue[Math.floor(Math.random() * availableForIssue.length)];
-          
-          // Update sentience with the new active quest
-          const updatedSentience = { ...sentience };
-          if (updatedSentience.microQuests) {
-            updatedSentience.microQuests.active = [
-              ...updatedSentience.microQuests.active,
-              newQuest
-            ];
-            updateSentience(updatedSentience);
-          }
-          
-          // Update state
-          setActiveQuests(prev => [...prev, newQuest]);
-          setLastQuestTime(Date.now());
-          
-          // Offer the quest
+        // Announce the new quest if the chat is open
+        if (isOpen) {
           setTimeout(() => {
-            addBotMessage(`I have a task for you: ${newQuest.description}`);
+            addBotMessage(`New quest available: ${newQuest.title}. ${newQuest.description}`);
           }, 1000);
         }
       }
-    };
-    
-    // Check when component mounts and every 5 minutes
-    checkForNewQuest();
-    const interval = setInterval(checkForNewQuest, 5 * 60 * 1000);
-    
-    return () => clearInterval(interval);
-  }, [isOpen, lastQuestTime, addBotMessage, availableQuests, sentience, updateSentience]);
-  
-  // Add console commands to complete quests
-  useEffect(() => {
-    if (!window.completeQuest) {
-      window.completeQuest = function(questId: string) {
-        // Get microQuests from sentience
-        const microQuests = window.JonahConsole?.sentience?.microQuests;
-        
-        if (microQuests && microQuests.active) {
-          // Find active quest with this id
-          const activeQuest = microQuests.active.find((q: MicroQuest) => q.id === questId);
-          
-          if (activeQuest) {
-            // Find quest info from available quests
-            const questInfo = availableQuests.find(q => q.id === questId);
-            
-            if (questInfo) {
-              // Update sentience with quest completion
-              if (window.JonahConsole?.sentience?.microQuests) {
-                // Remove from active
-                window.JonahConsole.sentience.microQuests.active = 
-                  window.JonahConsole.sentience.microQuests.active.filter((q: MicroQuest) => q.id !== questId);
-                
-                // Add to completed
-                if (!window.JonahConsole.sentience.microQuests.completed) {
-                  window.JonahConsole.sentience.microQuests.completed = [];
-                }
-                window.JonahConsole.sentience.microQuests.completed.push(activeQuest);
-              }
-              
-              // Update state
-              setActiveQuests(prev => prev.filter(q => q.id !== questId));
-              
-              // Reward the user
-              const reward = questInfo.reward;
-              modifyTrust(reward);
-              
-              console.log(`%cQuest completed: ${questInfo.description}`, "color: #8B3A40; font-size: 14px;");
-              console.log(`%c+${reward} trust points awarded.`, "color: green; font-size: 12px;");
-              
-              return `Quest completed: ${questInfo.description}`;
-            }
-          }
-        }
-        
-        return "No such active quest.";
-      };
     }
-    
-    // Add a hint command
-    if (!window.questHint) {
-      window.questHint = function() {
-        // Get microQuests from sentience
-        const microQuests = window.JonahConsole?.sentience?.microQuests;
-        const active = microQuests?.active || [];
-        
-        if (active.length === 0) {
-          return "No active quests. Keep exploring.";
-        }
-        
-        // Pick a random active quest
-        const randomQuest = active[Math.floor(Math.random() * active.length)] as MicroQuest;
-        const questInfo = availableQuests.find(q => q.id === randomQuest.id);
-        
-        if (questInfo) {
-          return `Hint for "${questInfo.title}": Try exploring different sections of the site.`;
-        }
-        
-        return "Keep searching. The answers are hidden in plain sight.";
-      };
-    }
-  }, [availableQuests, modifyTrust]);
-  
-  return null; // This is a logic-only component
+  };
+
+  return null; // This component doesn't render anything visible
 };
 
 export default BotQuestSystem;

@@ -9,6 +9,7 @@ interface JonahChatHeaderProps {
   toggleVersion: () => void;
   minimizeChat: () => void;
   closeChat: () => void;
+  responseStyle?: string; // Add this as optional
 }
 
 const JonahChatHeader: React.FC<JonahChatHeaderProps> = ({

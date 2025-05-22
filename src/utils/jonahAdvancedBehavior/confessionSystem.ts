@@ -1,125 +1,157 @@
-
 /**
- * Confession System for Jonah AI
+ * Confession System
+ * Manages Jonah's confession entries
  */
 
 import { ConfessionEntry, generateUniqueId } from './types';
 
-// Storage key for confessions
-const CONFESSIONS_KEY = 'jonah_confessions';
+// Storage key
+const CONFESSION_STORAGE_KEY = 'jonah_confessions';
 
-// Get all confessions
-export function getAllConfessions(): ConfessionEntry[] {
+/**
+ * Initialize the confession system
+ */
+export function initializeConfessionSystem(): void {
+  // Check if we already have confessions
+  if (!localStorage.getItem(CONFESSION_STORAGE_KEY)) {
+    // If not, set initial confessions
+    localStorage.setItem(CONFESSION_STORAGE_KEY, JSON.stringify([]));
+  }
+}
+
+/**
+ * Get all confession entries
+ */
+export function getConfessions(): ConfessionEntry[] {
   try {
-    const data = localStorage.getItem(CONFESSIONS_KEY);
+    const data = localStorage.getItem(CONFESSION_STORAGE_KEY);
     return data ? JSON.parse(data) : [];
   } catch (e) {
-    console.error('Error retrieving confessions:', e);
+    console.error('Error fetching confessions:', e);
     return [];
   }
 }
 
-// Add a new confession
-export function addConfession(
-  title: string,
-  content: string,
-  author: string = 'anonymous'
-): ConfessionEntry {
-  const confession: ConfessionEntry = {
-    id: generateUniqueId(),
-    title,
-    content,
-    timestamp: Date.now(),
-    author,
-    sentiment: getSentiment(content),
-    isCorrupted: Math.random() < 0.1,
-    category: 'general',
-    version: '1.0'
-  };
-  
-  // Get existing confessions
-  const confessions = getAllConfessions();
-  
-  // Add new confession
-  confessions.push(confession);
-  
-  // Save back to storage
+/**
+ * Add a new confession entry
+ */
+export function addConfession(confession: Partial<ConfessionEntry>): ConfessionEntry {
   try {
-    localStorage.setItem(CONFESSIONS_KEY, JSON.stringify(confessions));
+    const confessions = getConfessions();
+    
+    // Create new confession with required fields
+    const newConfession: ConfessionEntry = {
+      id: generateUniqueId(),
+      title: confession.title || 'Untitled Confession',
+      content: confession.content || '',
+      timestamp: Date.now(),
+      author: confession.author || 'Anonymous',
+      isAnonymous: confession.isAnonymous || true,
+      emotionalContext: confession.emotionalContext || 'neutral',
+      sentiment: confession.sentiment || 'neutral',
+      isCorrupted: confession.isCorrupted || false,
+      recursive: confession.recursive || false,
+      version: confession.version || '1.0'
+    };
+    
+    // Add to array
+    confessions.push(newConfession);
+    
+    // Save to storage
+    localStorage.setItem(CONFESSION_STORAGE_KEY, JSON.stringify(confessions));
+    
+    return newConfession;
   } catch (e) {
-    console.error('Error saving confession:', e);
+    console.error('Error adding confession:', e);
+    
+    // Return minimal valid confession on error
+    return {
+      id: generateUniqueId(),
+      title: 'Error Confession',
+      content: 'An error occurred while recording this confession.',
+      timestamp: Date.now(),
+      author: 'System',
+      isAnonymous: true,
+      emotionalContext: 'error',
+      sentiment: 'negative',
+      isCorrupted: true,
+      recursive: false,
+      version: 'error'
+    };
   }
-  
-  return confession;
 }
 
-// Get a specific confession
-export function getConfession(id: string): ConfessionEntry | undefined {
-  return getAllConfessions().find(c => c.id === id);
+/**
+ * Get a confession by ID
+ */
+export function getConfessionById(id: string): ConfessionEntry | null {
+  const confessions = getConfessions();
+  return confessions.find(confession => confession.id === id) || null;
 }
 
-// Corrupt a confession (for narrative purposes)
-export function corruptConfession(id: string): ConfessionEntry | undefined {
-  const confessions = getAllConfessions();
-  const index = confessions.findIndex(c => c.id === id);
-  
-  if (index === -1) return undefined;
-  
-  // Apply corruption
-  const corrupted: ConfessionEntry = {
-    ...confessions[index],
-    content: applyCorruption(confessions[index].content),
-    isCorrupted: true,
-    sentiment: 'corrupted',
-    category: 'corrupted',
-    version: '0.0'
-  };
-  
-  // Update confession
-  confessions[index] = corrupted;
-  
-  // Save back to storage
-  localStorage.setItem(CONFESSIONS_KEY, JSON.stringify(confessions));
-  
-  return corrupted;
-}
-
-// Helper function to apply text corruption
-function applyCorruption(text: string): string {
-  // Replace some characters with glitch characters
-  const glitchChars = '¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉ';
-  let result = '';
-  
-  for (let i = 0; i < text.length; i++) {
-    if (Math.random() < 0.1) {
-      result += glitchChars[Math.floor(Math.random() * glitchChars.length)];
-    } else {
-      result += text[i];
+/**
+ * Update an existing confession
+ */
+export function updateConfession(id: string, updates: Partial<ConfessionEntry>): ConfessionEntry | null {
+  try {
+    const confessions = getConfessions();
+    const index = confessions.findIndex(confession => confession.id === id);
+    
+    if (index === -1) {
+      return null;
     }
+    
+    // Merge updates
+    confessions[index] = { ...confessions[index], ...updates };
+    
+    // Save to storage
+    localStorage.setItem(CONFESSION_STORAGE_KEY, JSON.stringify(confessions));
+    
+    return confessions[index];
+  } catch (e) {
+    console.error('Error updating confession:', e);
+    return null;
   }
-  
-  return result;
 }
 
-// Helper function to determine sentiment
-function getSentiment(text: string): string {
-  const positive = ['hope', 'happy', 'joy', 'love', 'glad', 'good', 'nice'];
-  const negative = ['sad', 'fear', 'anger', 'hate', 'bad', 'terrible', 'awful'];
-  
-  let positiveCount = 0;
-  let negativeCount = 0;
-  
-  const lowerText = text.toLowerCase();
-  
-  positive.forEach(word => {
-    if (lowerText.includes(word)) positiveCount++;
-  });
-  
-  negative.forEach(word => {
-    if (lowerText.includes(word)) negativeCount++;
-  });
-  
-  if (positiveCount > negativeCount) return 'positive';
-  if (negativeCount > positiveCount) return 'negative';
-  return 'neutral';
+/**
+ * Delete a confession by ID
+ */
+export function deleteConfession(id: string): boolean {
+  try {
+    let confessions = getConfessions();
+    confessions = confessions.filter(confession => confession.id !== id);
+    
+    // Save to storage
+    localStorage.setItem(CONFESSION_STORAGE_KEY, JSON.stringify(confessions));
+    
+    return true;
+  } catch (e) {
+    console.error('Error deleting confession:', e);
+    return false;
+  }
+}
+
+/**
+ * Get confessions by author
+ */
+export function getConfessionsByAuthor(author: string): ConfessionEntry[] {
+  const confessions = getConfessions();
+  return confessions.filter(confession => confession.author === author);
+}
+
+/**
+ * Get corrupted confessions
+ */
+export function getCorruptedConfessions(): ConfessionEntry[] {
+  const confessions = getConfessions();
+  return confessions.filter(confession => confession.isCorrupted === true);
+}
+
+/**
+ * Get anonymous confessions
+ */
+export function getAnonymousConfessions(): ConfessionEntry[] {
+  const confessions = getConfessions();
+  return confessions.filter(confession => confession.isAnonymous === true);
 }
