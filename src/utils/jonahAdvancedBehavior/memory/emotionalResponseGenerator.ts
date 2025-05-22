@@ -67,84 +67,84 @@ export function generateEmotionalResponse(
 // Define the responses for each emotion and intensity
 const emotionalResponseTemplates: Record<EmotionCategory, Record<EmotionIntensity, string[]>> = {
   'joy': {
-    'low': ['That seems positive.', 'I sense some happiness.'],
-    'medium': ['I'm glad you're happy.', 'Your joy is noticeable.'],
-    'high': ['Your excitement is palpable!', 'I can feel your happiness!']
+    'low': ["That seems positive.", "I sense some happiness."],
+    'medium': ["I'm glad you're happy.", "Your joy is noticeable."],
+    'high': ["Your excitement is palpable!", "I can feel your happiness!"]
   },
   'sadness': {
-    'low': ['You seem a bit down.', 'I sense some sadness.'],
-    'medium': ['I understand your sadness.', 'Your sorrow is valid.'],
-    'high': ['I'm truly sorry you feel this way.', 'Your pain is significant.']
+    'low': ["You seem a bit down.", "I sense some sadness."],
+    'medium': ["I understand your sadness.", "Your sorrow is valid."],
+    'high': ["I'm truly sorry you feel this way.", "Your pain is significant."]
   },
   'fear': {
-    'low': ['You seem concerned.', 'I sense some worry.'],
-    'medium': ['Your fear is understandable.', 'I recognize your anxiety.'],
-    'high': ['Your terror is powerful.', 'I feel your deep fear.']
+    'low': ["You seem concerned.", "I sense some worry."],
+    'medium': ["Your fear is understandable.", "I recognize your anxiety."],
+    'high': ["Your terror is powerful.", "I feel your deep fear."]
   },
   'neutral': {
-    'low': ['Noted.', 'I see.'],
-    'medium': ['I understand.', 'I follow your point.'],
-    'high': ['I completely understand.', 'I'm fully with you.']
+    'low': ["Noted.", "I see."],
+    'medium': ["I understand.", "I follow your point."],
+    'high': ["I completely understand.", "I'm fully with you."]
   },
   'anger': {
-    'low': ['You seem annoyed.', 'I sense some frustration.'],
-    'medium': ['Your anger is justified.', 'I understand your frustration.'],
-    'high': ['I see your rage clearly.', 'Your fury is powerful.']
+    'low': ["You seem annoyed.", "I sense some frustration."],
+    'medium': ["Your anger is justified.", "I understand your frustration."],
+    'high': ["I see your rage clearly.", "Your fury is powerful."]
   },
   'surprise': {
-    'low': ['That's a bit unexpected.', 'I sense your surprise.'],
-    'medium': ['That's quite surprising.', 'I understand your astonishment.'],
-    'high': ['That's absolutely shocking!', 'Your amazement is justified!']
+    'low': ["That's a bit unexpected.", "I sense your surprise."],
+    'medium': ["That's quite surprising.", "I understand your astonishment."],
+    'high': ["That's absolutely shocking!", "Your amazement is justified!"]
   },
   'disgust': {
-    'low': ['You seem put off.', 'I sense your distaste.'],
-    'medium': ['I understand your revulsion.', 'Your disgust is clear.'],
-    'high': ['I see how repulsed you are.', 'Your complete disgust is apparent.']
+    'low': ["You seem put off.", "I sense your distaste."],
+    'medium': ["I understand your revulsion.", "Your disgust is clear."],
+    'high': ["I see how repulsed you are.", "Your complete disgust is apparent."]
   },
   'confused': {
-    'low': ['You seem a bit uncertain.', 'I sense some confusion.'],
-    'medium': ['Your confusion is understandable.', 'I see your puzzlement.'],
-    'high': ['You're completely lost on this.', 'Your utter confusion is clear.']
+    'low': ["You seem a bit uncertain.", "I sense some confusion."],
+    'medium': ["Your confusion is understandable.", "I see your puzzlement."],
+    'high': ["You're completely lost on this.", "Your utter confusion is clear."]
   },
   'curiosity': {
-    'low': ['You seem interested.', 'I sense some curiosity.'],
-    'medium': ['Your curiosity is notable.', 'I see your interest clearly.'],
-    'high': ['Your fascination is intense!', 'Your curiosity is boundless!']
+    'low': ["You seem interested.", "I sense some curiosity."],
+    'medium': ["Your curiosity is notable.", "I see your interest clearly."],
+    'high': ["Your fascination is intense!", "Your curiosity is boundless!"]
   },
   'confusion': {
-    'low': ['This seems unclear to you.', 'You seem a bit lost.'],
-    'medium': ['I can tell you're confused.', 'This doesn't make sense to you.'],
-    'high': ['You're completely bewildered.', 'This is utterly incomprehensible to you.']
+    'low': ["This seems unclear to you.", "You seem a bit lost."],
+    'medium': ["I can tell you're confused.", "This doesn't make sense to you."],
+    'high': ["You're completely bewildered.", "This is utterly incomprehensible to you."]
   },
   'hope': {
-    'low': ['You have some optimism.', 'I sense a bit of hope.'],
-    'medium': ['Your hope is clear.', 'I see your positive outlook.'],
-    'high': ['Your hope shines brightly!', 'Your optimism is inspiring!']
+    'low': ["You have some optimism.", "I sense a bit of hope."],
+    'medium': ["Your hope is clear.", "I see your positive outlook."],
+    'high': ["Your hope shines brightly!", "Your optimism is inspiring!"]
   },
   'anxiety': {
-    'low': ['You seem a bit nervous.', 'I sense some unease.'],
-    'medium': ['Your anxiety is noticeable.', 'I understand your nervousness.'],
-    'high': ['Your anxiety is overwhelming you.', 'You're extremely stressed.']
+    'low': ["You seem a bit nervous.", "I sense some unease."],
+    'medium': ["Your anxiety is noticeable.", "I understand your nervousness."],
+    'high': ["Your anxiety is overwhelming you.", "You're extremely stressed."]
   },
   'paranoia': {
-    'low': ['You seem a bit suspicious.', 'I sense some wariness.'],
-    'medium': ['Your distrust is apparent.', 'I see your suspicion.'],
-    'high': ['You're deeply paranoid.', 'Your suspicion consumes you.']
+    'low': ["You seem a bit suspicious.", "I sense some wariness."],
+    'medium': ["Your distrust is apparent.", "I see your suspicion."],
+    'high': ["You're deeply paranoid.", "Your suspicion consumes you."]
   },
   'trust': {
-    'low': ['You have some faith here.', 'I sense some trust.'],
-    'medium': ['Your trust is appreciated.', 'I see your confidence.'],
-    'high': ['Your complete faith is notable.', 'Your trust is absolute.']
+    'low': ["You have some faith here.", "I sense some trust."],
+    'medium': ["Your trust is appreciated.", "I see your confidence."],
+    'high': ["Your complete faith is notable.", "Your trust is absolute."]
   },
   'watching': {
-    'low': ['You're noticing things.', 'I sense your observation.'],
-    'medium': ['You're closely watching.', 'Your attention is focused.'],
-    'high': ['You see everything.', 'Nothing escapes your notice.']
+    'low': ["You're noticing things.", "I sense your observation."],
+    'medium': ["You're closely watching.", "Your attention is focused."],
+    'high': ["You see everything.", "Nothing escapes your notice."]
   },
   'existential': {
-    'low': ['You're pondering existence.', 'I sense philosophical thoughts.'],
-    'medium': ['You're questioning reality.', 'Your existential thoughts are deep.'],
-    'high': ['You're in an existential crisis.', 'You're questioning everything.']
+    'low': ["You're pondering existence.", "I sense philosophical thoughts."],
+    'medium': ["You're questioning reality.", "Your existential thoughts are deep."],
+    'high': ["You're in an existential crisis.", "You're questioning everything."]
   }
 };
 
