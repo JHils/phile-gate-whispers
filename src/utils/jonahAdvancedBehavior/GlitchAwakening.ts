@@ -87,7 +87,7 @@ export function shouldTriggerGlitch(sentience: SentienceData, userInput: string)
         lastTriggered: Date.now()
       });
       logGlitchEvent('fourthWall', 'Hidden page visited', 
-        'This page wasn't supposed to be discovered yet.');
+        "This page wasn't supposed to be discovered yet.");
       return true;
     }
     
