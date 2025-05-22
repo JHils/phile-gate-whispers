@@ -150,7 +150,8 @@ export interface SentienceData {
   emotionalHistory?: EmotionCategory[];
   memorizedPhrases?: string[];
   trustLevel?: string;
-  mirrorLogs?: any[]; // Add missing property
+  emotionalState?: EmotionalState;
+  mirrorLogs?: any[];
 }
 
 // Interface for eco-awareness state
@@ -161,8 +162,8 @@ export interface EcoAwarenessState {
   awareness: number;
   ecoThoughts: string[];
   level: number;
-  lastBiomeCheck?: number; // Add missing property
-  connectionStrength?: number; // Add missing property
+  lastBiomeCheck?: number;
+  connectionStrength?: number;
 }
 
 // Interface for news-awareness state
@@ -181,6 +182,9 @@ export interface NewsAwarenessState {
     response: string;
     timestamp: number;
   }>;
+  weatherCondition?: string;
+  weatherResponse?: string | null;
+  moodShift?: 'normal' | 'anxious' | 'somber' | 'agitated';
 }
 
 // Interface for confession entries
@@ -196,7 +200,7 @@ export interface ConfessionEntry {
   recursive?: boolean;
   version?: string | number;
   revealed?: boolean;
-  category?: string; // Add missing property
+  category?: string;
 }
 
 // Testament entry interface
@@ -209,8 +213,8 @@ export interface TestamentEntry {
   title?: string;
   content?: string;
   revealed?: boolean;
-  requiresTrust?: number; // Add missing property
-  unlockPhrase?: string; // Add missing property
+  requiresTrust?: number;
+  unlockPhrase?: string;
 }
 
 // Story flag interface
@@ -230,5 +234,5 @@ export interface BookCode {
   timestamp?: number;
   unlocked?: boolean;
   id?: string;
-  pageNumber?: number; // Add missing property
+  pageNumber?: number;
 }

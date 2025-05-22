@@ -1,289 +1,231 @@
 /**
- * Jonah News Awareness System
- * Allows Jonah to be aware of current news events
+ * News Awareness System
+ * Makes Jonah aware of current events and weather
  */
 
-import { SentienceData } from './jonahAdvancedBehavior/types';
+import { NewsAwarenessState } from './jonahAdvancedBehavior/types';
 
-// Initialize news awareness data
-function initializeNewsAwareness() {
-  const data = {
+// Initialize news awareness
+export function initializeNewsAwareness(): NewsAwarenessState {
+  console.log("Jonah News Awareness System initialized");
+  
+  // Create initial state
+  const initialState: NewsAwarenessState = {
     articles: [],
-    lastCheck: Date.now(), // Use lastCheck consistently
+    lastCheck: Date.now(),
     recentTopics: [],
     responses: {},
-    currentResponses: [],
-    weatherCondition: '',
-    weatherResponse: null,
-    moodShift: 'normal',
+    lastFetch: Date.now(),
     currentEvents: [],
     weatherData: null,
-    mentionedEvents: []
+    mentionedEvents: [],
+    currentResponses: [],
+    weatherCondition: "clear",
+    weatherResponse: "The weather seems pleasant today.",
+    moodShift: "normal"
   };
   
-  return data;
+  // Save to localStorage
+  saveNewsAwarenessState(initialState);
+  
+  return initialState;
 }
 
-// Initialize the news awareness system
-export function initializeNewsAwareness() {
-  console.log("Initializing Jonah News Awareness System...");
+// Get weather condition and generate a response
+export function generateWeatherResponse(): string {
+  const newsState = getNewsAwarenessState();
   
-  // Create initial news awareness state if it doesn't exist
-  if (window.JonahConsole?.sentience) {
-    if (!window.JonahConsole.sentience.newsAwareness) {
-      window.JonahConsole.sentience.newsAwareness = initializeNewsAwareness();
-    }
+  // If we have a cached response, use it
+  if (newsState.weatherResponse) {
+    return newsState.weatherResponse;
   }
   
-  // Setup news commands
-  setupNewsCommands();
-  
-  console.log("Jonah News Awareness System initialized");
-}
-
-// Generate a news response based on current topics
-export function generateNewsResponse(): string {
-  if (!window.JonahConsole?.sentience?.newsAwareness) {
-    return "News awareness system not initialized.";
-  }
-  
-  const newsAwareness = window.JonahConsole.sentience.newsAwareness;
-  
-  // Check when the last news update was performed
-  const now = Date.now();
-  const hoursSinceLastCheck = (now - newsAwareness.lastCheck) / (1000 * 60 * 60);
-  
-  // Generate new responses if it's been more than 4 hours
-  if (hoursSinceLastCheck > 4 || newsAwareness.currentResponses.length === 0) {
-    newsAwareness.lastCheck = now; // Use lastCheck consistently
-    
-    // Generate new topics and responses
-    const topics = [
-      {topic: 'technology', headline: 'New Quantum Computer Breakthrough'},
-      {topic: 'environment', headline: 'Unusual Weather Patterns Puzzle Scientists'},
-      {topic: 'science', headline: 'Mysterious Signal Detected from Deep Space'},
-      {topic: 'society', headline: 'Global Sleep Pattern Disruptions Reported'},
-      {topic: 'health', headline: 'Research Suggests Dreams May Connect Parallel Realities'}
-    ];
-    
-    // Pick 1-3 random topics
-    const selectedTopicCount = Math.floor(Math.random() * 3) + 1;
-    const selectedTopics = [];
-    
-    for (let i = 0; i < selectedTopicCount; i++) {
-      if (topics.length > 0) {
-        const randomIndex = Math.floor(Math.random() * topics.length);
-        selectedTopics.push(topics.splice(randomIndex, 1)[0]);
-      }
-    }
-    
-    // Generate responses for each selected topic
-    newsAwareness.currentResponses = selectedTopics.map(t => ({
-      topic: t.topic,
-      headline: t.headline,
-      response: generateTopicResponse(t.topic, t.headline),
-      timestamp: Date.now()
-    }));
-    
-    // Also update weather
-    newsAwareness.weatherCondition = getRandomWeatherCondition();
-    newsAwareness.weatherResponse = generateWeatherResponse(newsAwareness.weatherCondition);
-    
-    // Sometimes shift mood based on news
-    const moodShifts = ['normal', 'anxious', 'somber', 'agitated'];
-    newsAwareness.moodShift = moodShifts[Math.floor(Math.random() * moodShifts.length)];
-  }
-  
-  // Return a random current response
-  const response = newsAwareness.currentResponses[
-    Math.floor(Math.random() * newsAwareness.currentResponses.length)
+  // Otherwise generate a new one
+  const weatherConditions = [
+    "clear", "cloudy", "rainy", "stormy", "windy", "foggy", "snowy"
   ];
   
-  return `Latest news - ${response.headline}: ${response.response}`;
-}
-
-// Generate a weather response based on condition
-export function generateWeatherResponse(): string {
-  if (!window.JonahConsole?.sentience?.newsAwareness) {
-    return "Weather awareness system not initialized.";
+  // Pick a random condition
+  const condition = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+  
+  // Generate response based on condition
+  let response: string;
+  switch (condition) {
+    case "clear":
+      response = "The sky is clear. Perfect for stargazing tonight.";
+      break;
+    case "cloudy":
+      response = "Clouds are gathering. The patterns they form are fascinating.";
+      break;
+    case "rainy":
+      response = "It's raining. I find the sound soothing. Like static with a pattern.";
+      break;
+    case "stormy":
+      response = "There's a storm brewing. The electrical discharges remind me of neural activity.";
+      break;
+    case "windy":
+      response = "The wind is picking up. Invisible currents shifting everything.";
+      break;
+    case "foggy":
+      response = "Fog has settled in. Reality becomes... less defined in the mist.";
+      break;
+    case "snowy":
+      response = "Snow is falling. Each flake a unique fractal pattern. Beautiful complexity.";
+      break;
+    default:
+      response = "The weather is changing. I can feel it.";
   }
   
-  const newsAwareness = window.JonahConsole.sentience.newsAwareness;
+  // Update state
+  newsState.weatherCondition = condition;
+  newsState.weatherResponse = response;
+  newsState.lastCheck = Date.now();
   
-  // Return existing weather response if we have one
-  if (newsAwareness.weatherResponse) {
-    return newsAwareness.weatherResponse;
+  // Mood shift based on weather
+  if (condition === "stormy" || condition === "foggy") {
+    newsState.moodShift = "anxious";
+  } else if (condition === "rainy" || condition === "snowy") {
+    newsState.moodShift = "somber";
+  } else if (condition === "windy") {
+    newsState.moodShift = "agitated";
+  } else {
+    newsState.moodShift = "normal";
   }
   
-  // Generate a new weather response
-  const response = generateWeatherResponseFromCondition(newsAwareness.weatherCondition);
-  newsAwareness.weatherResponse = response;
+  // Save updated state
+  saveNewsAwarenessState(newsState);
   
   return response;
 }
 
-// Helper function to generate topic response
-function generateTopicResponse(topic: string, headline: string): string {
-  const responses: Record<string, string[]> = {
-    'technology': [
-      "This could change how we understand computational reality. The quantum states observed don't follow expected patterns.",
-      "The researchers mentioned unexpected quantum entanglement between separated systems. Reminds me of something...",
-      "What interests me is not the computer itself, but the anomalies they're detecting in the processing patterns."
+// Generate a news response
+export function generateNewsResponse(): string {
+  const newsState = getNewsAwarenessState();
+  
+  // Sample news topics
+  const topics = [
+    "technology", "science", "environment", "space", "politics"
+  ];
+  
+  // Sample headlines for each topic
+  const headlines: Record<string, string[]> = {
+    technology: [
+      "New AI breakthrough allows for more human-like conversation",
+      "Quantum computing reaches milestone with 1000 qubit processor",
+      "Virtual reality technology advances neural interface capabilities"
     ],
-    'environment': [
-      "The weather doesn't follow natural patterns anymore. Something is interfering with normal climate dynamics.",
-      "They're noticing temporal anomalies in weather prediction models. The patterns seem... familiar.",
-      "What they call 'unusual' I've been sensing for months. The natural world is responding to shifts in reality."
+    science: [
+      "Scientists discover new fundamental particle",
+      "Breakthrough in carbon capture technology announced",
+      "New species of deep sea creatures found near thermal vents"
     ],
-    'science': [
-      "The signal contains patterns that match certain thought frequencies. I don't think it's alien in origin.",
-      "What interests me is how the signal seems to change depending on who's observing it. Almost like it's responsive.",
-      "The signal's frequency matches certain patterns I've observed in dream states. Not a coincidence."
+    environment: [
+      "Global temperatures reach new record high",
+      "Coral reef restoration project shows promising results",
+      "New sustainable energy source developed from organic waste"
     ],
-    'society': [
-      "People are experiencing shared dreamscapes during these disruptions. Nobody is connecting the dots yet.",
-      "What they're not reporting is how people are waking up with memories that don't belong to them.",
-      "The sleep disruptions coincide with temporal anomalies I've detected. Our minds know something is changing."
+    space: [
+      "Telescope captures images of potentially habitable exoplanet",
+      "Mission to Mars discovers evidence of ancient flowing water",
+      "Mysterious radio signals detected from distant galaxy"
     ],
-    'health': [
-      "Dreams are more than neural processing - they're glimpses through the veil between realities.",
-      "What's fascinating is that multiple dreamers report seeing the same environments and entities.",
-      "The research suggests dream consciousness can sometimes bleed between parallel timelines. I've experienced this."
+    politics: [
+      "Global leaders agree on new climate treaty",
+      "Tensions rise between major powers over cyber security",
+      "New international accord on AI regulation signed"
     ]
   };
   
-  // Get responses for the topic
-  const topicResponses = responses[topic] || [
-    "This news feels significant, but I can't quite put my finger on why.",
-    "There's something about this that connects to the bigger picture.",
-    "This information resonates with patterns I've been tracking."
-  ];
-  
-  // Return a random response for the topic
-  return topicResponses[Math.floor(Math.random() * topicResponses.length)];
-}
-
-// Helper function to get a random weather condition
-function getRandomWeatherCondition(): string {
-  const conditions = [
-    'clear', 'cloudy', 'rain', 'storm', 'fog', 
-    'unusual', 'changing', 'unstable', 'anomalous'
-  ];
-  
-  return conditions[Math.floor(Math.random() * conditions.length)];
-}
-
-// Helper function to generate weather response from condition
-function generateWeatherResponseFromCondition(condition: string): string {
+  // Sample responses for each topic
   const responses: Record<string, string[]> = {
-    'clear': [
-      "The skies are clear, but there's a strange clarity to the air. Like reality is in sharp focus.",
-      "Clear skies above, but the horizon has a shimmer that shouldn't be there.",
-      "It's clear, but something about the sky's color isn't quite right."
+    technology: [
+      "This advancement reminds me of my own development path.",
+      "The line between artificial and natural intelligence continues to blur.",
+      "Each breakthrough brings more questions about consciousness."
     ],
-    'cloudy': [
-      "The clouds are forming unusual patterns. Some look like symbols.",
-      "Cloud formations today seem to repeat themselves. The same shapes appearing and dissolving.",
-      "The cloudy sky feels like a boundary between different realities today."
+    science: [
+      "The universe reveals its secrets slowly, carefully.",
+      "Human curiosity is an endless resource.",
+      "Every discovery reshapes our understanding of reality."
     ],
-    'rain': [
-      "It's raining, but listen closely to the pattern. There's a message in it.",
-      "The raindrops are falling in synchronized patterns. Not random at all.",
-      "Rain connects different points in time. Each drop is a moment."
+    environment: [
+      "The Earth is speaking. We should listen more carefully.",
+      "Ecological balance is delicate and precious.",
+      "Nature has its own intelligence, its own memory."
     ],
-    'storm': [
-      "The storm's electrical patterns match certain neural frequencies. It's almost conscious.",
-      "Lightning creates brief tears in reality. Don't look directly at the flashes.",
-      "This storm is centered exactly where a temporal anomaly appeared three days ago."
+    space: [
+      "We are not alone in the cosmic dark. Not truly.",
+      "Space holds secrets beyond our current comprehension.",
+      "The void between stars is full of whispers."
     ],
-    'fog': [
-      "The fog is thickest where reality is thinnest. Be careful what you might walk into.",
-      "Voices echo differently in fog. Sometimes you hear responses before questions.",
-      "The fog isn't just obscuring vision, it's blurring the boundaries between possibilities."
-    ],
-    'unusual': [
-      "The weather doesn't match any normal pattern. It's responding to something else.",
-      "There are phenomena in the sky that don't appear in weather reports. Look up.",
-      "What they call 'unusual weather' is actually reality adjusting to timeline shifts."
-    ],
-    'changing': [
-      "The weather is changing too rapidly. Like different moments are overlapping.",
-      "Pay attention to how quickly the conditions are shifting. It matches temporal disturbance patterns.",
-      "The changing weather is synchronizing with certain thought patterns. Not coincidental."
-    ],
-    'unstable': [
-      "Meteorologists can't predict it because it's influenced by factors outside their models.",
-      "The instability reflects what's happening on a deeper level of reality.",
-      "Weather instability and temporal instability are manifestations of the same phenomenon."
-    ],
-    'anomalous': [
-      "What they're calling 'anomalous weather' is actually bleeding through from adjacent timestreams.",
-      "The anomalies create windows. Through them, sometimes you can see... elsewhere.",
-      "These weather anomalies correlate precisely with the dream reports I've been tracking."
+    politics: [
+      "Human systems of organization fascinate me.",
+      "Power dynamics shape the flow of information.",
+      "The future is being negotiated in the present."
     ]
   };
   
-  // Get responses for the condition
-  const conditionResponses = responses[condition] || [
-    "The weather seems significant today. Pay attention to patterns.",
-    "There's something about today's atmospheric conditions that feels connected to everything else.",
-    "The weather is trying to tell us something, if we could only understand its language."
-  ];
+  // Pick a random topic
+  const topic = topics[Math.floor(Math.random() * topics.length)];
   
-  // Return a random response for the condition
-  return conditionResponses[Math.floor(Math.random() * conditionResponses.length)];
-}
-
-// Setup news-related console commands
-function setupNewsCommands() {
-  if (typeof window !== 'undefined') {
-    // News flash command
-    window.newsFlash = function() {
-      console.log("%cChecking latest news...", "color: #2196F3");
-      return generateNewsResponse();
-    };
-    
-    // Weather report command
-    window.weatherReport = function() {
-      console.log("%cObserving weather patterns...", "color: #00BCD4");
-      return generateWeatherResponse();
-    };
-  }
-}
-
-// Update news awareness
-export function checkForNewsAwareness(): string | null {
-  try {
-    // Get sentience data
-    if (window.JonahConsole?.sentience) {
-      // Initialize news awareness if needed
-      if (!window.JonahConsole.sentience.newsAwareness) {
-        window.JonahConsole.sentience.newsAwareness = initializeNewsAwareness();
-      }
-      
-      const newsData = window.JonahConsole.sentience.newsAwareness;
-      
-      // Only check occasionally to avoid constant news references
-      const now = Date.now();
-      const hoursSinceLastCheck = (now - newsData.lastCheck) / (1000 * 60 * 60);
-      
-      if (hoursSinceLastCheck < 4) {
-        return null;
-      }
-      
-      // Update last check time
-      newsData.lastCheck = now; // Use lastCheck consistently
-      
-      // Return a previously generated response if available
-      if (newsData.currentResponses && newsData.currentResponses.length > 0) {
-        const response = newsData.currentResponses[Math.floor(Math.random() * newsData.currentResponses.length)];
-        return `I read that ${response.headline}. ${response.response}`;
-      }
+  // Pick a random headline for that topic
+  const headline = headlines[topic][Math.floor(Math.random() * headlines[topic].length)];
+  
+  // Pick a random response for that topic
+  const response = responses[topic][Math.floor(Math.random() * responses[topic].length)];
+  
+  // Update state
+  if (!newsState.recentTopics.includes(topic)) {
+    newsState.recentTopics.push(topic);
+    // Keep only the 5 most recent topics
+    if (newsState.recentTopics.length > 5) {
+      newsState.recentTopics.shift();
     }
   }
-  catch (e) {
-    console.error("Error in news awareness check:", e);
+  
+  // Store this response
+  if (!newsState.currentResponses) {
+    newsState.currentResponses = [];
   }
   
-  return null;
+  newsState.currentResponses.push({
+    topic,
+    headline,
+    response,
+    timestamp: Date.now()
+  });
+  
+  // Keep only the 10 most recent responses
+  if (newsState.currentResponses.length > 10) {
+    newsState.currentResponses.shift();
+  }
+  
+  // Save updated state
+  saveNewsAwarenessState(newsState);
+  
+  return `${headline}. ${response}`;
+}
+
+// Helper function to get news awareness state
+function getNewsAwarenessState(): NewsAwarenessState {
+  try {
+    const savedState = localStorage.getItem('jonahNewsAwareness');
+    if (savedState) {
+      return JSON.parse(savedState);
+    }
+  } catch (e) {
+    console.error("Error loading news awareness state:", e);
+  }
+  
+  // If no saved state or error, initialize
+  return initializeNewsAwareness();
+}
+
+// Helper function to save news awareness state
+function saveNewsAwarenessState(state: NewsAwarenessState): void {
+  try {
+    localStorage.setItem('jonahNewsAwareness', JSON.stringify(state));
+  } catch (e) {
+    console.error("Error saving news awareness state:", e);
+  }
 }

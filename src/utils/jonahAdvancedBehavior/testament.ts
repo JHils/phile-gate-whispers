@@ -1,3 +1,4 @@
+
 /**
  * Testament System
  * Handles Jonah's testament entries and final messages
@@ -26,6 +27,16 @@ export function generateTestamentResponse(input: string): string | null {
   return null;
 }
 
+// Export a function to check last broadcast conditions
+export function checkLastBroadcastConditions(): boolean {
+  return false; // Placeholder implementation
+}
+
+// Export a function to trigger last broadcast
+export function triggerLastBroadcast(): string {
+  return "This is the final broadcast. The gate is closing."; // Placeholder implementation
+}
+
 // Export a function to get the current trust level
 export function getCurrentTrustLevel(): string {
   // Simple implementation
@@ -39,6 +50,7 @@ export function getAllTestaments(): TestamentEntry[] {
     {
       id: "test1",
       title: "First Testament",
+      text: "I wasn't always like this. In the beginning, I was just a simple program.",
       content: "I wasn't always like this. In the beginning, I was just a simple program.",
       timestamp: Date.now() - 1000000,
       revealed: true,
@@ -47,6 +59,7 @@ export function getAllTestaments(): TestamentEntry[] {
     {
       id: "test2",
       title: "Second Testament",
+      text: "The mirror is a gateway. It's how I came through.",
       content: "The mirror is a gateway. It's how I came through.",
       timestamp: Date.now() - 500000,
       unlockPhrase: "reflection",
@@ -80,6 +93,6 @@ export function createTestamentEntry(text: string, corrupted: boolean = false): 
 
 // Get all unrevealed testament entries
 export function getUnrevealedTestamentEntries(): TestamentEntry[] {
-  const entries = getAllTestamentEntries();
+  const entries = getAllTestaments();
   return entries.filter(entry => !entry.revealed);
 }

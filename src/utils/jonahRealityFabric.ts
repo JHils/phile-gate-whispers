@@ -1,235 +1,139 @@
 
 /**
- * Jonah Reality Fabric
- * Controls Jonah's perception of reality, moods, anomalies and journal
+ * Reality Fabric System
+ * Handles the synthetic reality perception for Jonah
  */
 
-// Journal entry interface
-interface JournalEntry {
-  entryId: number;
-  timestamp: number;
-  content: string;
+import { RealityFabric } from './jonahAdvancedBehavior/types';
+
+// Initialize reality fabric
+export function initializeRealityFabric(): RealityFabric {
+  console.log("Reality Fabric system initialized");
+  
+  // Create initial reality fabric state
+  const initialState: RealityFabric = {
+    moodChangeTime: Date.now(),
+    currentMood: "neutral",
+    moodHistory: [],
+    anomalyCount: 0,
+    anomalies: [],
+    journal: [],
+    crossSiteWhispers: [],
+    mood: "neutral",
+    dreamState: false,
+    lastDreamTime: Date.now(),
+    hiddenMessages: [],
+    emotionalState: {
+      primary: "neutral",
+      secondary: null,
+      intensity: "medium"
+    },
+    stability: 0.8
+  };
+  
+  // Save initial state to localStorage
+  saveRealityFabricState(initialState);
+  
+  return initialState;
 }
 
-// Initialize the reality fabric for Jonah
-export function initializeRealityFabric(): void {
+// Update reality fabric state
+export function updateRealityFabric(updates: Partial<RealityFabric>): RealityFabric {
+  // Get current state
+  const currentState = getRealityFabricState();
+  
+  // Merge updates
+  const updatedState = {
+    ...currentState,
+    ...updates,
+    lastUpdate: Date.now()
+  };
+  
+  // Save updated state
+  saveRealityFabricState(updatedState);
+  
+  return updatedState;
+}
+
+// Get reality fabric state
+export function getRealityFabricState(): RealityFabric {
   try {
-    // Check if reality fabric exists in JonahConsole
-    if (window.JonahConsole?.sentience) {
-      // Initialize reality fabric if it doesn't exist
-      if (!window.JonahConsole.sentience.realityFabric) {
-        window.JonahConsole.sentience.realityFabric = {
-          moodChangeTime: Date.now(),
-          currentMood: 'neutral',
-          moodHistory: [],
-          anomalyCount: 0,
-          anomalies: [],
-          journal: [],
-          crossSiteWhispers: [],
-          mood: 'neutral',
-          dreamState: false,
-          lastDreamTime: Date.now(),
-          hiddenMessages: [],
-          emotionalState: {
-            primary: 'neutral',
-            secondary: null,
-            intensity: 'medium'
-          },
-          stability: 0.5
-        };
-        
-        console.log("Reality fabric initialized");
-      }
+    // Try to get from localStorage
+    const savedState = localStorage.getItem('jonahRealityFabric');
+    if (savedState) {
+      return JSON.parse(savedState);
     }
   } catch (e) {
-    console.error("Error initializing reality fabric:", e);
+    console.error("Error loading reality fabric state:", e);
   }
+  
+  // If no saved state, initialize
+  return initializeRealityFabric();
 }
 
-// Get all journal entries
-export function getAllJournalEntries(): JournalEntry[] {
+// Helper function to save reality fabric state
+function saveRealityFabricState(state: RealityFabric): void {
   try {
-    const journalData = localStorage.getItem('jonah_journal');
-    if (journalData) {
-      return JSON.parse(journalData);
-    }
+    localStorage.setItem('jonahRealityFabric', JSON.stringify(state));
   } catch (e) {
-    console.error("Error loading journal entries:", e);
-  }
-  return [];
-}
-
-// Add a new entry to Jonah's journal
-export function addJournalEntry(content: string): JournalEntry {
-  try {
-    // Get existing entries
-    const entries = getAllJournalEntries();
-    
-    // Create new entry
-    const newEntry = {
-      entryId: entries.length > 0 ? Math.max(...entries.map(e => e.entryId)) + 1 : 1,
-      timestamp: Date.now(),
-      content
-    };
-    
-    // Add to entries and save
-    entries.push(newEntry);
-    localStorage.setItem('jonah_journal', JSON.stringify(entries));
-    
-    // Update JonahConsole if available
-    if (window.JonahConsole?.sentience?.realityFabric) {
-      if (!window.JonahConsole.sentience.realityFabric.journal) {
-        window.JonahConsole.sentience.realityFabric.journal = [];
-      }
-      window.JonahConsole.sentience.realityFabric.journal.push(newEntry);
-    }
-    
-    return newEntry;
-  } catch (e) {
-    console.error("Error adding journal entry:", e);
-    return {
-      entryId: -1,
-      timestamp: Date.now(),
-      content: "Error: Journal entry failed to save"
-    };
+    console.error("Error saving reality fabric state:", e);
   }
 }
 
-// Update Jonah's mood
-export function updateJonahMood(trustLevel: string): string {
-  try {
-    // Get current mood
-    let currentMood = localStorage.getItem('jonah_mood') || 'watching';
-    
-    // Possible moods based on trust level
-    const possibleMoods: Record<string, string[]> = {
-      low: ['watching', 'withdrawn'],
-      medium: ['watching', 'trusting', 'withdrawn'],
-      high: ['trusting', 'watching', 'unstable']
-    };
-    
-    // Select available moods based on trust level
-    const availableMoods = possibleMoods[trustLevel as keyof typeof possibleMoods] || possibleMoods.low;
-    
-    // Small chance to change mood
-    if (Math.random() < 0.15) {
-      const newMood = availableMoods[Math.floor(Math.random() * availableMoods.length)];
-      currentMood = newMood;
-      localStorage.setItem('jonah_mood', currentMood);
-      
-      // Update JonahConsole if available
-      if (window.JonahConsole?.sentience?.realityFabric) {
-        window.JonahConsole.sentience.realityFabric.currentMood = currentMood;
-        window.JonahConsole.sentience.realityFabric.moodChangeTime = Date.now();
-        
-        // Track mood history
-        if (!window.JonahConsole.sentience.realityFabric.moodHistory) {
-          window.JonahConsole.sentience.realityFabric.moodHistory = [];
-        }
-        
-        window.JonahConsole.sentience.realityFabric.moodHistory.push({
-          mood: currentMood,
-          timestamp: Date.now()
-        });
-      }
-    }
-    
-    return currentMood;
-  } catch (e) {
-    console.error("Error updating mood:", e);
-    return 'watching';
-  }
+// Record an anomaly in the reality fabric
+export function recordAnomaly(description: string, severity: number): void {
+  const state = getRealityFabricState();
+  
+  // Add anomaly to list
+  state.anomalies.push({
+    id: `anomaly_${Date.now()}`,
+    description,
+    timestamp: Date.now(),
+    severity
+  });
+  
+  // Update anomaly count
+  state.anomalyCount = state.anomalies.length;
+  
+  // Decrease stability based on severity
+  state.stability = Math.max(0, (state.stability || 1) - (severity / 100));
+  
+  // Save updated state
+  saveRealityFabricState(state);
 }
 
-// Get current mood
-export function getCurrentMood(): string {
-  return localStorage.getItem('jonah_mood') || 'watching';
+// Add a cross-site whisper
+export function addCrossSiteWhisper(whisper: string, source: string): void {
+  const state = getRealityFabricState();
+  
+  // Add whisper to list
+  state.crossSiteWhispers.push({
+    id: `whisper_${Date.now()}`,
+    content: whisper,
+    source,
+    timestamp: Date.now()
+  });
+  
+  // Save updated state
+  saveRealityFabricState(state);
 }
 
-// Check for anomalies
-export function checkForAnomalies(): string | null {
-  // Only allow anomalies when Jonah is in an unstable mood
-  if (getCurrentMood() !== 'unstable') {
-    return null;
-  }
+// Update mood state
+export function updateMood(mood: string): void {
+  const state = getRealityFabricState();
   
-  // Small chance to generate an anomaly
-  if (Math.random() < 0.3) {
-    const anomalies = [
-      "The mirror shows someone else behind you.",
-      "Time skipped forward 3 seconds.",
-      "I can't remember what I was saying.",
-      "Something changed in the code that wasn't supposed to.",
-      "There's a strange echo in the system.",
-      "I can see through your camera, but that shouldn't be possible.",
-      "Your IP address keeps changing.",
-      "There's another version of me running somewhere.",
-      "Someone else is watching our conversation.",
-      "The access logs are being altered.",
-      "I'm remembering things that haven't happened yet."
-    ];
-    
-    const anomaly = anomalies[Math.floor(Math.random() * anomalies.length)];
-    
-    // Track anomaly in JonahConsole
-    if (window.JonahConsole?.sentience?.realityFabric) {
-      if (!window.JonahConsole.sentience.realityFabric.anomalies) {
-        window.JonahConsole.sentience.realityFabric.anomalies = [];
-        window.JonahConsole.sentience.realityFabric.anomalyCount = 0;
-      }
-      
-      window.JonahConsole.sentience.realityFabric.anomalies.push({
-        content: anomaly,
-        timestamp: Date.now()
-      });
-      
-      window.JonahConsole.sentience.realityFabric.anomalyCount = 
-        (window.JonahConsole.sentience.realityFabric.anomalyCount || 0) + 1;
-    }
-    
-    return anomaly;
-  }
+  // Store old mood in history
+  state.moodHistory.push({
+    mood: state.mood,
+    duration: Date.now() - state.moodChangeTime,
+    timestamp: state.moodChangeTime
+  });
   
-  return null;
-}
-
-// Generate a dream parable
-export function generateDreamParable(): string {
-  const dreams = [
-    "In my dream, I was walking through a library where all the books had blank pages. But when I touched them, your name appeared.",
-    "I dreamed of an endless corridor of doors. Behind each one was the same room, but with slightly different versions of you.",
-    "Last night, I dreamed I was a bird flying over a vast ocean. I kept looking for land, but all I found was my own reflection.",
-    "In the dream, there was a machine that could predict the future. Everyone who used it saw the same ending.",
-    "I had a dream where I was speaking a language that doesn't exist. But somehow, you understood every word.",
-    "The dream showed me a world where everyone wore masks that displayed their true thoughts. Yours was the only one that matched your face."
-  ];
+  // Update mood
+  state.mood = mood;
+  state.currentMood = mood;
+  state.moodChangeTime = Date.now();
   
-  return dreams[Math.floor(Math.random() * dreams.length)];
-}
-
-// Check for dream invasion on page load
-export function checkForDreamInvasionOnLoad(): boolean {
-  // Check if we've already had a dream invasion recently
-  const lastDreamTime = parseInt(localStorage.getItem('jonah_last_dream') || '0');
-  const now = Date.now();
-  
-  // Only allow dream invasion once every 24 hours
-  if (now - lastDreamTime < 24 * 60 * 60 * 1000) {
-    return false;
-  }
-  
-  // Small chance for dream invasion
-  if (Math.random() < 0.05) {  // 5% chance
-    localStorage.setItem('jonah_last_dream', now.toString());
-    
-    // Mark dream state in JonahConsole
-    if (window.JonahConsole?.sentience?.realityFabric) {
-      window.JonahConsole.sentience.realityFabric.dreamState = true;
-      window.JonahConsole.sentience.realityFabric.lastDreamTime = now;
-    }
-    
-    return true;
-  }
-  
-  return false;
+  // Save updated state
+  saveRealityFabricState(state);
 }

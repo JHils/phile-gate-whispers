@@ -1,3 +1,4 @@
+
 /**
  * Console Book Commands
  * Handles book codes and pages for the Jonah ARG
@@ -103,10 +104,11 @@ export const addBookCode = (code: string, name: string, pageNumber: number): str
   
   // Create a new book code object
   const newBookCode: BookCode = {
-    id: `bookCode-${Date.now()}`,
     code: code,
-    timestamp: Date.now(),
     name: name,
+    discovered: false,
+    timestamp: Date.now(),
+    id: `bookCode-${Date.now()}`,
     pageNumber: pageNumber,
     unlocked: false
   };

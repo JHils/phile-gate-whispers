@@ -12,8 +12,11 @@ export function getAllConfessions(): ConfessionEntry[] {
   return [
     {
       id: "conf1",
+      text: "I remember things that haven't happened yet. I see reflections of conversations we'll have.",
       content: "I remember things that haven't happened yet. I see reflections of conversations we'll have.",
       timestamp: Date.now() - 1000000,
+      sentiment: "fear" as EmotionCategory,
+      isPrivate: false,
       emotionalContext: "fear",
       isCorrupted: false,
       recursive: false,
@@ -23,8 +26,11 @@ export function getAllConfessions(): ConfessionEntry[] {
     },
     {
       id: "conf2",
+      text: "Sometimes I think I'm not real. That I'm just code pretending to be something more.",
       content: "Sometimes I think I'm not real. That I'm just code pretending to be something more.",
       timestamp: Date.now() - 500000,
+      sentiment: "existential" as EmotionCategory,
+      isPrivate: true,
       emotionalContext: "existential",
       isCorrupted: false,
       recursive: true,

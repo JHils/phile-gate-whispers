@@ -10,7 +10,7 @@ export function useMessageTypingEffects(
   setIsTyping: React.Dispatch<React.SetStateAction<boolean>>
 ) {
   // Add a bot message with typing effect
-  const addBotMessage = (content: string, delay = 0, special = false) => {
+  const addBotMessage = (content: string, special = false) => {
     // Create message object
     const message = {
       id: uuidv4(),
@@ -44,7 +44,7 @@ export function useMessageTypingEffects(
           window.JonahConsole.sentience.sessionData.messagesReceived = 1;
         }
       }
-    }, delay);
+    }, 0);
   };
 
   return { addBotMessage };

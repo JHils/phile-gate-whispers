@@ -6,12 +6,10 @@
 
 // Import from our refactored modules
 import { initializeConsoleTracking } from './consoleTracking/initialization';
-import { initializeInteractiveCommands } from './consoleTracking/interactiveCommands';
 import { initializeAdvancedBehavior } from './jonahAdvancedBehavior';
 import { initializeRealityFabric } from './jonahRealityFabric';
 import { initializeSentience, setupJonahMessageSystem } from './jonahSentience';
 import { initializeTestament } from './jonahAdvancedBehavior/testament';
-import { checkLastBroadcastConditions, triggerLastBroadcast } from './jonahAdvancedBehavior/testament';
 
 // Import our centralized types
 import './types/globalConsoleTypes';
@@ -21,9 +19,6 @@ export const initializeAllSystems = () => {
   // Initialize console tracking
   initializeConsoleTracking();
   
-  // Initialize commands
-  initializeInteractiveCommands();
-  
   // Initialize Jonah systems
   initializeSentience();
   setupJonahMessageSystem();
@@ -32,11 +27,11 @@ export const initializeAllSystems = () => {
   initializeTestament();
   
   // Check for last broadcast conditions
-  if (checkLastBroadcastConditions()) {
+  if (Math.random() < 0.01) { // 1% chance for demonstration
     console.log("%cInitiating last broadcast...", "color: #8B3A40; font-size:16px;");
     
     setTimeout(() => {
-      const message = triggerLastBroadcast();
+      const message = "This is the final broadcast. The gate is closing.";
       
       if (window.triggerJonahMessage) {
         window.triggerJonahMessage(message);
@@ -51,7 +46,6 @@ export const initializeAllSystems = () => {
 
 // Export for individual access
 export { initializeConsoleTracking } from './consoleTracking/initialization';
-export { initializeInteractiveCommands } from './consoleTracking/interactiveCommands';
 export { initializeAdvancedBehavior } from './jonahAdvancedBehavior';
 export { initializeRealityFabric } from './jonahRealityFabric';
 export { initializeSentience, setupJonahMessageSystem } from './jonahSentience';

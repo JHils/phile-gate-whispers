@@ -6,6 +6,11 @@
 
 import { EmotionalState, EmotionCategory } from './types';
 
+// Initialize emotional core
+export function initializeEmotionalCore(): void {
+  console.log("Emotional core system initialized");
+}
+
 // Get a compound emotional state from multiple emotions
 export function getCompoundEmotionalState(
   primaryEmotion: EmotionCategory,
