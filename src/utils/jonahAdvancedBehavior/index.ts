@@ -36,7 +36,7 @@ export {
   getLayeredEmotionalResponse,
   checkForRecurringSymbols,
   processEmotionalInput
-} from './sentimentAnalysis';
+} from './sentimentAnalysis/index';
 
 // Re-export functions from the adaptive learning system
 export {

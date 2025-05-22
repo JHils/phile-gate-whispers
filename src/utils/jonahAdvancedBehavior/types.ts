@@ -68,7 +68,10 @@ export type ResponseStyle =
   | 'poetic'
   | 'technical'
   | 'elaborate'
-  | 'concise';
+  | 'concise'
+  | 'cryptic'
+  | 'direct'
+  | 'analytical';
 
 // System for conversation context tracking
 export interface ConversationContext {
@@ -92,7 +95,7 @@ export interface SessionData {
   startTime: number;
   idleTime: number;
   messageCount?: number;
-  userEmotions?: Record<EmotionCategory | string, number>; // Added missing property
+  userEmotions?: Record<EmotionCategory | string, number>;
 }
 
 // Structure for micro quests
@@ -183,6 +186,7 @@ export interface ConfessionEntry {
   isCorrupted?: boolean;
   recursive?: boolean;
   version?: string | number;
+  revealed?: boolean;
 }
 
 // Testament entry interface
@@ -192,6 +196,9 @@ export interface TestamentEntry {
   timestamp: number;
   corrupted?: boolean;
   version?: number;
+  title?: string;
+  content?: string;
+  revealed?: boolean;
 }
 
 // Story flag interface
@@ -200,6 +207,7 @@ export interface StoryFlag {
   name: string;
   discovered: boolean;
   timestamp: number;
+  description?: string;
 }
 
 // Book code interface
@@ -208,4 +216,6 @@ export interface BookCode {
   name: string;
   discovered: boolean;
   timestamp?: number;
+  unlocked?: boolean;
+  id?: string;
 }

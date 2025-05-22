@@ -21,7 +21,8 @@ const emotionalKeywords: Record<EmotionCategory, string[]> = {
   paranoia: ['suspicious', 'paranoid', 'distrustful', 'doubtful', 'skeptical', 'wary', 'guarded'],
   trust: ['trust', 'reliable', 'dependable', 'trustworthy', 'faithful', 'loyal', 'honest'],
   curiosity: ['curious', 'interested', 'intrigued', 'fascinated', 'captivated', 'engaged', 'keen'],
-  confusion: ['unsure', 'unclear', 'mixed', 'muddled', 'uncertain', 'ambiguous', 'vague']
+  confusion: ['unsure', 'unclear', 'mixed', 'muddled', 'uncertain', 'ambiguous', 'vague'],
+  watching: ['observe', 'watch', 'monitor', 'surveillance', 'tracking', 'following', 'noticing']
 };
 
 // Topic-based emotional triggers
@@ -60,7 +61,8 @@ export function analyzeEmotion(input: string): EmotionalState {
     paranoia: 0,
     trust: 0,
     curiosity: 0,
-    confusion: 0
+    confusion: 0,
+    watching: 0
   };
   
   // Check each word against emotional keywords

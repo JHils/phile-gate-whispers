@@ -39,7 +39,8 @@ export function useMessageTypingEffects(
             messageCount: 0,
             userEmotions: {} as Record<EmotionCategory, number>,
             messagesSent: 0,
-            messagesReceived: 0
+            messagesReceived: 0,
+            idleTime: 0
           };
         }
         

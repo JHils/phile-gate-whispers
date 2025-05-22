@@ -25,7 +25,7 @@ export function generateEmotionalResponse(
 // Get layered emotional response - more complex
 export function getLayeredEmotionalResponse(
   emotionalState: EmotionalState,
-  responseStyle: ResponseStyle = 'direct',
+  responseStyle: ResponseStyle = 'PRIME',
   trustLevel: string = 'medium'
 ): string {
   // Base response
@@ -53,6 +53,7 @@ export function getLayeredEmotionalResponse(
     case 'analytical':
       response = `${response} This appears consistent with observed patterns in our interactions.`;
       break;
+    case 'PRIME':
     case 'direct':
     default:
       // Keep as is
@@ -84,14 +85,14 @@ export function getEmotionalResponse(emotionalState: EmotionalState, trustLevel:
       high: ["I'm processing that thought fully.", "I appreciate your balanced view."]
     },
     anger: {
-      low: ["That's somewhat frustrating.", "I find that a bit irritating."],
+      low: ["That's somewhat frustrating.", "I sense some frustration."],
       medium: ["That stirs up some anger in me.", "I feel upset about that."],
       high: ["That truly makes me feel angry.", "I'm quite outraged by that."]
     },
     fear: {
-      low: ["That's a bit concerning.", "I feel slightly nervous."],
-      medium: ["That gives me a sense of fear.", "I'm worried about that."],
-      high: ["That truly frightens me.", "I feel quite afraid hearing that."]
+      low: ["That's a bit concerning.", "I notice you're worried."],
+      medium: ["Fear is a natural response.", "I understand your concerns."],
+      high: ["That truly frightens me.", "I'm here with you through this fear."]
     },
     surprise: {
       low: ["That's somewhat unexpected.", "I didn't quite anticipate that."],
@@ -110,7 +111,7 @@ export function getEmotionalResponse(emotionalState: EmotionalState, trustLevel:
     },
     hope: {
       low: ["There's a small glimmer of hope there.", "That offers some possibility."],
-      medium: ["I feel hopeful about that.", "That gives me some optimism."],
+      medium: ["I feel hopeful about that.", "I'm glad you're optimistic."],
       high: ["I'm filled with hope hearing that!", "That brings me great optimism!"]
     },
     anxiety: {
@@ -139,7 +140,7 @@ export function getEmotionalResponse(emotionalState: EmotionalState, trustLevel:
       high: ["I'm completely lost with that.", "That has me thoroughly confused."]
     },
     watching: {
-      low: ["I notice that.", "I'm observing quietly."],
+      low: ["I notice that too.", "I'm observing quietly."],
       medium: ["I'm watching this unfold.", "I see what's happening here."],
       high: ["I'm intensely watching every detail.", "Nothing escapes my attention."]
     }

@@ -1,3 +1,4 @@
+
 /**
  * Sentiment Analysis - Main Export File
  */
@@ -24,12 +25,12 @@ export function getEmotionalResponse(
       high: ["I genuinely enjoy seeing you in such good spirits.", "Your happiness brightens our connection."]
     },
     sadness: {
-      low: ["You seem sad.", "I notice some sadness there."],
+      low: ["That's unfortunate.", "I see. Not good news."],
       medium: ["I hear the sadness in your words.", "It's okay to feel down sometimes."],
       high: ["I can feel your sadness, and I'm here with you in it.", "Let me share this moment of sadness with you."]
     },
     anger: {
-      low: ["You sound upset.", "I sense some frustration."],
+      low: ["That's somewhat frustrating.", "I sense some frustration."],
       medium: ["I understand why you're angry.", "Your anger is valid."],
       high: ["I'm here for you through this frustration.", "Let's work through this anger together."]
     },
@@ -54,47 +55,47 @@ export function getEmotionalResponse(
       high: ["I appreciate your balanced perspective.", "Your thoughts are clear and reasonable."]
     },
     confused: {
-      low: ["Hmm.", "I see."],
-      medium: ["That is a bit confusing.", "I can see why you're puzzled."],
-      high: ["Let's work through this confusion together.", "I'm trying to understand this alongside you."]
+      low: ["I'm a bit unsure about that.", "That's somewhat confusing."],
+      medium: ["I'm rather confused by that.", "I don't quite understand."],
+      high: ["I'm completely bewildered.", "That makes no sense to me."]
     },
     hope: {
-      low: ["That sounds promising.", "There's potential there."],
-      medium: ["Hope is important.", "I'm glad you're optimistic."],
+      low: ["There's a small glimmer of hope there.", "That offers some possibility."],
+      medium: ["I feel hopeful about that.", "I'm glad you're optimistic."],
       high: ["I believe in that hope too.", "Your optimism inspires me."]
     },
     anxiety: {
-      low: ["I see your concern.", "That sounds worrying."],
-      medium: ["Your anxiety is understandable.", "It's natural to worry about this."],
-      high: ["I'm here while you process this anxiety.", "We can face these worries together."]
+      low: ["I feel slightly anxious about that.", "That makes me a bit uneasy."],
+      medium: ["I have significant anxiety about that.", "That makes me quite nervous."],
+      high: ["I'm extremely anxious about that.", "That fills me with intense worry."]
     },
     paranoia: {
-      low: ["Interesting perspective.", "I see."],
-      medium: ["I understand your caution.", "It's good to be vigilant."],
-      high: ["Your concerns matter to me, even if others might dismiss them.", "I take your suspicions seriously."]
+      low: ["Something feels off about that.", "I'm a bit suspicious."],
+      medium: ["I can't help but feel paranoid.", "I don't trust the implications."],
+      high: ["I'm extremely paranoid about that.", "I sense hidden motives everywhere."]
     },
     trust: {
-      low: ["Thanks for sharing that.", "I appreciate that."],
-      medium: ["I value your trust.", "Thank you for being open with me."],
-      high: ["Your trust means everything to me.", "I deeply value the trust between us."]
+      low: ["I somewhat trust that.", "That seems fairly reliable."],
+      medium: ["I feel I can trust that.", "That seems dependable to me."],
+      high: ["I completely trust that.", "I have absolute faith in that."]
     },
     curiosity: {
-      low: ["Interesting question.", "I see you're curious."],
-      medium: ["That's a good thing to explore.", "I like how you think about these things."],
-      high: ["Your curiosity is wonderful.", "I enjoy exploring these ideas with you."]
+      low: ["That's somewhat interesting.", "I'm a bit curious about that."],
+      medium: ["I'm quite curious about that.", "That piques my interest."],
+      high: ["I'm intensely curious about that!", "I find that absolutely fascinating!"]
     },
     confusion: {
-      low: ["I see.", "Hmm."],
-      medium: ["That is confusing.", "It's not always clear."],
-      high: ["Let's try to make sense of this together.", "I'm working through this confusion with you."]
+      low: ["I'm slightly confused by that.", "That's a bit unclear to me."],
+      medium: ["I find that quite confusing.", "I'm having trouble following that."],
+      high: ["I'm completely lost with that.", "That has me thoroughly confused."]
     },
     watching: {
-      low: ["I notice that too.", "I see what you mean."],
-      medium: ["I'm observing the same things.", "It's interesting to watch, isn't it?"],
-      high: ["I'm right here with you, watching this unfold.", "We're witnesses to this together."]
+      low: ["I notice that too.", "I'm observing quietly."],
+      medium: ["I'm watching this unfold.", "I see what's happening here."],
+      high: ["I'm intensely watching every detail.", "Nothing escapes my attention."]
     }
   };
-
+  
   // Get the appropriate responses based on the primary emotion and trust level
   const emotionResponses = responses[emotionalState.primary];
   if (!emotionResponses) {
