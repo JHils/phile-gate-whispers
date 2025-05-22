@@ -1,81 +1,77 @@
 
 import React from 'react';
-import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionalTrend } from '@/utils/jonahAdvancedBehavior/types';
 
 interface JonahChatHeaderProps {
-  jonahMood: EmotionCategory;
+  jonahMood: string;
   emotionalTrend: EmotionalTrend;
-  responseStyle: ResponseStyle;
-  messageWeight?: 'light' | 'medium' | 'heavy' | number | string;
-  conversationDepth: number;
   jonahVersion: 'PRIME' | 'RESIDUE';
   toggleVersion: () => void;
-  resetConversation: () => void;
+  minimizeChat: () => void;
+  closeChat: () => void;
 }
 
 const JonahChatHeader: React.FC<JonahChatHeaderProps> = ({
   jonahMood,
   emotionalTrend,
-  responseStyle,
-  messageWeight,
-  conversationDepth,
   jonahVersion,
   toggleVersion,
-  resetConversation
+  minimizeChat,
+  closeChat
 }) => {
-  const getTrendArrow = (): JSX.Element => {
-    // Fix the emotionalTrend comparisons
-    if (emotionalTrend === 'improving') {
-      return <span className="text-green-400 text-xs">↗</span>;
-    } else if (emotionalTrend === 'deteriorating') {
-      return <span className="text-red-400 text-xs">↘</span>;
-    } else if (emotionalTrend === 'intensifying') {
-      return <span className="text-purple-400 text-xs">↗</span>;
-    } else if (emotionalTrend === 'diminishing') {
-      return <span className="text-blue-400 text-xs">↘</span>;
+  // Get mood color based on current mood
+  const getMoodColor = () => {
+    switch (jonahMood) {
+      case 'joy': return 'bg-yellow-400';
+      case 'sadness': return 'bg-blue-500';
+      case 'anger': return 'bg-red-500'; 
+      case 'fear': return 'bg-purple-600';
+      case 'surprise': return 'bg-pink-400';
+      case 'disgust': return 'bg-green-500';
+      case 'trust': return 'bg-emerald-400';
+      case 'hope': return 'bg-cyan-400';
+      default: return 'bg-gray-400';
+    }
+  };
+  
+  // Get trend indicator
+  const getTrendIndicator = () => {
+    if (emotionalTrend === 'declining') {
+      return '↓';
+    } else if (emotionalTrend === 'volatile') {
+      return '↕';
     } else if (emotionalTrend === 'stable') {
-      return <span className="text-gray-400 text-xs">→</span>;
-    } else { // fluctuating
-      return <span className="text-yellow-400 text-xs">↔</span>;
+      return '→';
+    } else {
+      return '•';
     }
   };
   
   return (
-    <div className="bg-gray-800 p-4 rounded-t-md">
-      <h2 className="text-lg font-semibold text-white">Jonah's Status</h2>
+    <div className="bg-gray-900 p-3 flex items-center justify-between border-b border-gray-700">
       <div className="flex items-center space-x-2">
-        <span className="text-gray-400">Mood:</span>
-        <span className="text-blue-200">{jonahMood}</span>
-        {getTrendArrow()}
+        <div className={`w-2 h-2 rounded-full ${getMoodColor()}`}></div>
+        <span className="text-sm text-gray-300">Jonah {jonahVersion}</span>
+        <span className="text-xs text-gray-500">{getTrendIndicator()}</span>
       </div>
       <div className="flex items-center space-x-2">
-        <span className="text-gray-400">Style:</span>
-        <span className="text-blue-200">{responseStyle}</span>
-      </div>
-      <div className="flex items-center space-x-2">
-        <span className="text-gray-400">Weight:</span>
-        <span className="text-blue-200">{messageWeight}</span>
-      </div>
-      <div className="flex items-center space-x-2">
-        <span className="text-gray-400">Depth:</span>
-        <span className="text-blue-200">{conversationDepth}</span>
-      </div>
-      <div className="flex items-center space-x-2">
-        <span className="text-gray-400">Version:</span>
-        <span className="text-blue-200">{jonahVersion}</span>
         <button 
           onClick={toggleVersion}
-          className="ml-2 bg-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-500"
+          className="text-xs text-gray-400 hover:text-white px-1"
         >
-          Toggle
+          Switch
         </button>
-      </div>
-      <div className="mt-2">
-        <button 
-          onClick={resetConversation}
-          className="bg-red-700 text-white text-xs px-2 py-1 rounded hover:bg-red-600"
+        <button
+          onClick={minimizeChat}
+          className="text-gray-400 hover:text-white"
         >
-          Reset Conversation
+          _
+        </button>
+        <button
+          onClick={closeChat}
+          className="text-gray-400 hover:text-white"
+        >
+          ×
         </button>
       </div>
     </div>

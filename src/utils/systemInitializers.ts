@@ -9,8 +9,8 @@ import { initializeMemorySystem } from './jonahAdvancedBehavior/memorySystem';
 import { initializeRealityFabric } from './jonahRealityFabric';
 import { getEcoAwarenessState } from './jonahEcoAwareness';
 
-// Initialize all Jonah systems
-export function initializeJonahSystems(): void {
+// Initialize all Jonah systems - renamed from initializeJonahSystems to initializeAllSystems for consistency
+export function initializeAllSystems(): void {
   // Initialize trust system
   initializeTrustSystem();
   
@@ -37,6 +37,9 @@ export function initializeJonahSystems(): void {
   // Initialize console commands
   initializeConsoleCommands();
 }
+
+// For backward compatibility
+export { initializeAllSystems as initializeJonahSystems };
 
 // Initialize console commands
 function initializeConsoleCommands(): void {
@@ -88,3 +91,4 @@ export function initializeSentience(): void {
   // Save sentience data
   saveSentienceData(window.JonahConsole.sentience);
 }
+

@@ -1,59 +1,87 @@
-/**
- * Testament System Hook
- * Manages access to Jonah's testament entries
- */
 
+/**
+ * Hook for managing the testament system
+ */
+import { useState, useCallback } from 'react';
+import { TestamentEntry } from '@/utils/jonahAdvancedBehavior/types';
+
+// Import from testament module
 import { 
-  unlockTestamentByPhrase,
-  getTestamentTeaser as getTeaser,
-  generateTestamentResponse as generateResponse
+  getAllTestaments
 } from '@/utils/jonahAdvancedBehavior/testament';
 
-/**
- * Checks if content contains a phrase that could unlock a testament entry
- * @param content The user input to check
- * @returns true if a testament entry was unlocked
- */
-export function checkForTestamentUnlock(content: string): boolean {
-  if (!content || typeof content !== 'string') return false;
+// Local implementations for missing functions
+const unlockTestamentByPhrase = (phrase: string): TestamentEntry | null => {
+  const testaments = getAllTestaments();
+  const lowerPhrase = phrase.toLowerCase().trim();
   
-  // Try to unlock a testament entry with the phrase
-  return unlockTestamentByPhrase(content);
-}
-
-/**
- * Generates a testament response based on user input
- * @param content The user input to check
- * @returns A testament-related response or null
- */
-export function generateTestamentResponse(content: string): string | null {
-  if (!content || typeof content !== 'string') return null;
-  
-  // Keep track of testament-related questions
-  const testamentKeywords = ['testament', 'truth', 'story', 'what happened'];
-  const isTestamentQuery = testamentKeywords.some(keyword => 
-    content.toLowerCase().includes(keyword)
+  // Find testament with matching unlock phrase
+  const testament = testaments.find(t => 
+    t.unlockPhrase && t.unlockPhrase.toLowerCase() === lowerPhrase && !t.revealed
   );
   
-  if (isTestamentQuery) {
-    // Call the imported function and return its string result directly
-    const response = generateResponse(content);
-    return response || null;
+  if (testament) {
+    return { ...testament, revealed: true };
   }
   
   return null;
-}
+};
 
-/**
- * Gets a testament teaser to inject occasionally into responses
- * @returns A testament teaser or null
- */
-export function getTestamentTeaser(): string | null {
-  // Only show a teaser rarely
-  if (Math.random() > 0.2) {
-    return null;
-  }
+const getTestamentTeaser = (): string => {
+  const teasers = [
+    "There's a message waiting to be unlocked.",
+    "The testament remains sealed until the right words are spoken.",
+    "Something remains hidden behind the right phrase.",
+    "Words hold power to reveal what's concealed.",
+    "The truth waits behind a coded phrase."
+  ];
   
-  // Use the imported function directly
-  return getTeaser() || null;
+  return teasers[Math.floor(Math.random() * teasers.length)];
+};
+
+const generateTestamentResponse = (testament: TestamentEntry): string => {
+  const prefix = [
+    "From the testament:",
+    "It was written:",
+    "The record states:",
+    "The testament reveals:"
+  ];
+  
+  const chosen = prefix[Math.floor(Math.random() * prefix.length)];
+  
+  return `${chosen} ${testament.content}`;
+};
+
+export function useTestamentSystem() {
+  const [activeTestament, setActiveTestament] = useState<TestamentEntry | null>(null);
+  
+  const checkPhraseForTestament = useCallback((phrase: string): boolean => {
+    const testament = unlockTestamentByPhrase(phrase);
+    
+    if (testament) {
+      setActiveTestament(testament);
+      return true;
+    }
+    
+    return false;
+  }, []);
+  
+  const generateResponse = useCallback((): string => {
+    if (activeTestament) {
+      return generateTestamentResponse(activeTestament);
+    } else {
+      return getTestamentTeaser();
+    }
+  }, [activeTestament]);
+  
+  const clearActiveTestament = useCallback(() => {
+    setActiveTestament(null);
+  }, []);
+  
+  return {
+    activeTestament,
+    checkPhraseForTestament,
+    generateResponse,
+    clearActiveTestament
+  };
 }

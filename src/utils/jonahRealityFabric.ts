@@ -1,5 +1,5 @@
 
-import { JournalEntry, JournalEntryContent, createJournalEntry } from './types/journalTypes';
+import { JournalEntry, JournalEntryContent } from './types/journalTypes';
 
 // Store entries in localStorage
 const JOURNAL_STORAGE_KEY = 'jonah_journal_entries';
@@ -7,8 +7,15 @@ const JOURNAL_STORAGE_KEY = 'jonah_journal_entries';
 /**
  * Add an entry to Jonah's journal
  */
-export function addJournalEntry(content: JournalEntryContent): JournalEntry {
-  const entry = createJournalEntry(content);
+export function addJournalEntry(content: JournalEntryContent | string): JournalEntry {
+  // Handle string content for backwards compatibility
+  const entryContent = typeof content === 'string'
+    ? { content, timestamp: Date.now(), entryId: Date.now() }
+    : content;
+    
+  const entry = typeof content === 'string'
+    ? { content, timestamp: Date.now(), entryId: Date.now() }
+    : content;
   
   // Get existing entries
   const entries = getJournalEntries();

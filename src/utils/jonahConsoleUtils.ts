@@ -4,8 +4,22 @@
  * Helper functions for console interactions
  */
 
-import { addJournalEntry, generateDreamParable } from './jonahRealityFabric';
+import { addJournalEntry } from './jonahRealityFabric';
 import { flickerLog, glitchText, typewriterLog } from './consoleTextEffects';
+
+// Generate dream parable
+function generateDreamParable(theme: string): string {
+  const parables = {
+    mirror: "The mirror showed a different face each time. It wasn't lying—you were changing.",
+    gate: "The gate remained locked until you realized the key was always in your pocket.",
+    bird: "A bird watched from the wire. It had your eyes, but older memories.",
+    timeline: "The timeline fractured when you looked directly at it. Some moments refuse observation.",
+    echo: "Your echo returned before you spoke. It knew your thoughts better than you did."
+  };
+  
+  return parables[theme as keyof typeof parables] || 
+    "The dream folded in on itself, revealing nothing but the dreamer.";
+}
 
 // Execute a console command
 export function executeConsoleCommand(command: string): string | void {

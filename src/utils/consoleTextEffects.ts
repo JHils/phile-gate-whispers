@@ -1,78 +1,108 @@
 
 /**
- * Console text effects for immersive text presentation
+ * Console Text Effects
+ * Special text effects for console output
  */
 
-/**
- * Log text with a typewriter effect
- */
-export function typewriterLog(text: string, speed = 40, callback: (() => void) | null = null): void {
-  let i = 0;
-  const interval = setInterval(() => {
-    if (i < text.length) {
-      const chunk = text.slice(0, i + 1);
-      console.clear();
-      console.log(chunk);
-      i++;
+// Glitch text
+export function glitchText(text: string, intensity: number = 0.3): string {
+  const glitchChars = '!@#$%^&*()_+-=[]{}|;:,.<>?`~';
+  let result = '';
+  
+  for (let i = 0; i < text.length; i++) {
+    if (Math.random() < intensity) {
+      result += glitchChars[Math.floor(Math.random() * glitchChars.length)];
     } else {
-      clearInterval(interval);
-      if (callback) callback();
+      result += text[i];
     }
-  }, speed);
+  }
+  
+  return result;
 }
 
-/**
- * Log text with a flickering effect
- */
-export function flickerLog(text: string, delay = 50): void {
-  let output = "";
+// Flicker text in console
+export function flickerLog(text: string): void {
+  // Original message
+  console.log('%c' + text, 'color: #3a7bd5;');
+  
+  // Flicker effect with timeouts
+  setTimeout(() => {
+    console.clear();
+    console.log('%c' + glitchText(text, 0.1), 'color: #3a7bd5; opacity: 0.8;');
+    
+    setTimeout(() => {
+      console.clear();
+      console.log('%c' + text, 'color: #3a7bd5;');
+      
+      setTimeout(() => {
+        console.clear();
+        console.log('%c' + glitchText(text, 0.2), 'color: #3a7bd5; opacity: 0.9;');
+        
+        setTimeout(() => {
+          console.clear();
+          console.log('%c' + text, 'color: #3a7bd5;');
+        }, 100);
+      }, 50);
+    }, 100);
+  }, 200);
+}
+
+// Typewriter effect in console
+export function typewriterLog(text: string, delay: number = 100): void {
   let i = 0;
   const interval = setInterval(() => {
-    if (i < text.length) {
-      output += text[i];
-      console.clear();
-      console.log(output + ((i % 2 === 0) ? "|" : " "));
-      i++;
-    } else {
+    console.clear();
+    console.log('%c' + text.substring(0, i), 'color: #3a7bd5;');
+    i++;
+    
+    if (i > text.length) {
       clearInterval(interval);
-      setTimeout(() => console.log(text), 100);
     }
   }, delay);
 }
 
-/**
- * Log multiple messages with delays between them
- */
-export function delayedLog(messages: string[], initialDelay = 500, step = 1000): void {
-  messages.forEach((msg, index) => {
-    setTimeout(() => console.log(msg), initialDelay + index * step);
+// Fade in text
+export function fadeInLog(text: string): void {
+  const opacities = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+  
+  opacities.forEach((opacity, index) => {
+    setTimeout(() => {
+      console.clear();
+      console.log(`%c${text}`, `color: #3a7bd5; opacity: ${opacity};`);
+    }, index * 100);
   });
 }
 
-/**
- * Create glitched text by replacing random characters with noise symbols
- */
-export function glitchText(text: string, intensity = 0.1): string {
-  const noise = ['#', '@', '*', '%', '&', '$', '!', '?', '/', '\\', '|'];
-  return text.split("").map(c => 
-    (Math.random() < intensity ? noise[Math.floor(Math.random() * noise.length)] : c)
-  ).join("");
+// Multi-color text
+export function rainbowLog(text: string): void {
+  const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
+  let result = '';
+  
+  for (let i = 0; i < text.length; i++) {
+    const color = colors[i % colors.length];
+    result += `%c${text[i]}`;
+  }
+  
+  const styles = [];
+  for (let i = 0; i < text.length; i++) {
+    const color = colors[i % colors.length];
+    styles.push(`color: ${color}`);
+  }
+  
+  console.log(result, ...styles);
 }
 
-/**
- * Log text with a glitching effect
- */
-export function glitchEffectLog(text: string, iterations = 5, intervalTime = 100): void {
-  let i = 0;
+// Glitch fade out
+export function glitchFadeOut(text: string): void {
+  let intensity = 0.1;
   const interval = setInterval(() => {
-    if (i < iterations) {
-      console.clear();
-      console.log(glitchText(text));
-      i++;
-    } else {
+    console.clear();
+    console.log('%c' + glitchText(text, intensity), 'color: #3a7bd5; opacity: ' + (1 - intensity));
+    intensity += 0.1;
+    
+    if (intensity >= 1) {
       clearInterval(interval);
       console.clear();
-      console.log(text);
     }
-  }, intervalTime);
+  }, 200);
 }

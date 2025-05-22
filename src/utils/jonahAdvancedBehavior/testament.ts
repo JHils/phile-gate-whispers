@@ -1,123 +1,82 @@
 
 /**
  * Testament System
- * Core module for Jonah's testament functionality
+ * Manages Jonah's testament entries
  */
 
-import { TestamentEntry } from './types';
+import { TestamentEntry, generateUniqueId } from './types';
 
-// Storage constants
-const TESTAMENT_STORAGE_KEY = 'jonah_testament_entries';
+// Storage key
+const TESTAMENT_STORAGE_KEY = 'jonah_testaments';
 
-// Load testament entries from storage
-export function loadTestamentEntries(): TestamentEntry[] {
+/**
+ * Get all testament entries
+ */
+export function getAllTestaments(): TestamentEntry[] {
   try {
-    const entriesJson = localStorage.getItem(TESTAMENT_STORAGE_KEY);
-    return entriesJson ? JSON.parse(entriesJson) : [];
+    const data = localStorage.getItem(TESTAMENT_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
   } catch (e) {
-    console.error('Error loading testament entries:', e);
+    console.error('Error fetching testaments:', e);
     return [];
   }
 }
 
-// Save testament entries to storage
-export function saveTestamentEntries(entries: TestamentEntry[]): void {
-  try {
-    localStorage.setItem(TESTAMENT_STORAGE_KEY, JSON.stringify(entries));
-  } catch (e) {
-    console.error('Error saving testament entries:', e);
-  }
-}
-
-// Add a new testament entry
-export function addTestamentEntry(
-  title: string,
-  content: string,
-  requiresTrust: number = 0,
-  revealed: boolean = false
-): TestamentEntry {
-  const entries = loadTestamentEntries();
+/**
+ * Unlock a testament by phrase
+ */
+export function unlockTestamentByPhrase(phrase: string): TestamentEntry | null {
+  const testaments = getAllTestaments();
+  const lowerPhrase = phrase.toLowerCase().trim();
   
-  const newEntry: TestamentEntry = {
-    id: `testament_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-    title,
-    text: content,
-    content,
-    timestamp: Date.now(),
-    revealed,
-    requiresTrust,
-    trustLevel: requiresTrust > 70 ? 'high' : requiresTrust > 30 ? 'medium' : 'low'
-  };
-  
-  // Add to entries and save
-  entries.push(newEntry);
-  saveTestamentEntries(entries);
-  
-  return newEntry;
-}
-
-// Add a locked testament entry
-export function addLockedTestamentEntry(
-  title: string,
-  content: string,
-  unlockPhrase: string,
-  requiresTrust: number = 50
-): TestamentEntry {
-  const entries = loadTestamentEntries();
-  
-  const newEntry: TestamentEntry = {
-    id: `testament_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-    title,
-    text: content,
-    content,
-    timestamp: Date.now(),
-    unlockPhrase,
-    revealed: false,
-    requiresTrust,
-    trustLevel: requiresTrust > 70 ? 'high' : requiresTrust > 30 ? 'medium' : 'low'
-  };
-  
-  // Add to entries and save
-  entries.push(newEntry);
-  saveTestamentEntries(entries);
-  
-  return newEntry;
-}
-
-// Check if a testament can be unlocked with a phrase
-export function attemptUnlockTestament(phrase: string): TestamentEntry | null {
-  const entries = loadTestamentEntries();
-  
-  // Find entry with matching unlock phrase
-  const entry = entries.find(e => 
-    e.unlockPhrase && 
-    e.unlockPhrase.toLowerCase() === phrase.toLowerCase() && 
-    !e.revealed
+  // Find testament with matching unlock phrase
+  const testament = testaments.find(t => 
+    t.unlockPhrase && t.unlockPhrase.toLowerCase() === lowerPhrase && !t.revealed
   );
   
-  if (entry) {
-    // Check if user has required trust level
-    const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
+  if (testament) {
+    // Reveal the testament
+    const updatedTestaments = testaments.map(t => 
+      t.id === testament.id ? { ...t, revealed: true } : t
+    );
     
-    if (trustScore >= (entry.requiresTrust || 0)) {
-      // Unlock the entry
-      entry.revealed = true;
-      saveTestamentEntries(entries);
-      return entry;
-    }
+    // Save updated testaments
+    localStorage.setItem(TESTAMENT_STORAGE_KEY, JSON.stringify(updatedTestaments));
+    
+    return { ...testament, revealed: true };
   }
   
   return null;
 }
 
-// Get all visible testament entries
-export function getVisibleTestamentEntries(): TestamentEntry[] {
-  const entries = loadTestamentEntries();
-  const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
+/**
+ * Get a teaser for unrevealed testament
+ */
+export function getTestamentTeaser(): string {
+  const teasers = [
+    "There's a message waiting to be unlocked.",
+    "The testament remains sealed until the right words are spoken.",
+    "Something remains hidden behind the right phrase.",
+    "Words hold power to reveal what's concealed.",
+    "The truth waits behind a coded phrase."
+  ];
   
-  // Return entries that are revealed or meet trust requirements
-  return entries.filter(entry => 
-    entry.revealed || 
-    (entry.requiresTrust !== undefined && trustScore >= entry.requiresTrust)
-  );
+  return teasers[Math.floor(Math.random() * teasers.length)];
 }
+
+/**
+ * Generate a response based on a testament
+ */
+export function generateTestamentResponse(testament: TestamentEntry): string {
+  const prefix = [
+    "From the testament:",
+    "It was written:",
+    "The record states:",
+    "The testament reveals:"
+  ];
+  
+  const chosen = prefix[Math.floor(Math.random() * prefix.length)];
+  
+  return `${chosen} ${testament.content}`;
+}
+

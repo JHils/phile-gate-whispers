@@ -1,23 +1,24 @@
 
 /**
- * Journal Entry Type Definitions
+ * Journal entry types for Jonah's reality fabric
  */
 
-export interface JournalEntry {
-  entryId: number;
-  timestamp: number;
+export interface JournalEntryContent {
   content: string;
+  timestamp: number;
+  entryId: number;
 }
 
-export type JournalEntryContent = string;
+export interface JournalEntry {
+  content: string;
+  timestamp: number;
+  entryId: number;
+}
 
-/**
- * Convert a simple string content to a full journal entry
- */
 export function createJournalEntry(content: JournalEntryContent): JournalEntry {
   return {
-    entryId: Date.now(),
-    timestamp: Date.now(),
-    content
+    content: content.content,
+    timestamp: content.timestamp,
+    entryId: content.entryId
   };
 }

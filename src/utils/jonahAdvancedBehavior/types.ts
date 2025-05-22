@@ -1,114 +1,62 @@
 
 /**
- * Core type definitions for Jonah's advanced behavior system
+ * Type definitions for Jonah AI
  */
 
-// Emotional system types
+// Emotion categories
 export type EmotionCategory = 
-  'joy' | 'sadness' | 'anger' | 'fear' | 'surprise' | 
-  'disgust' | 'neutral' | 'confused' | 'hope' | 'anxiety' | 
-  'paranoia' | 'trust' | 'curiosity' | 'confusion' | 
-  'watching' | 'existential';
+  'joy' | 'sadness' | 'anger' | 'fear' | 'surprise' | 'disgust' |
+  'neutral' | 'confused' | 'hope' | 'anxiety' | 'paranoia' | 
+  'trust' | 'curiosity' | 'confusion' | 'watching' | 'existential';
 
+// Intensity levels
 export type EmotionIntensity = 'low' | 'medium' | 'high';
 
+// Response styles
+export type ResponseStyle = 
+  'concise' | 'elaborate' | 'cryptic' | 'poetic' | 'analytical' |
+  'technical' | 'direct' | 'HOPEFUL' | 'PARANOID' | 'MIRROR' |
+  'BETRAYED' | 'STATIC' | 'ERROR' | 'PRIME' | 'RESIDUE';
+
+// Emotional trend types
+export type EmotionalTrend = 
+  'stable' | 'declining' | 'volatile' | 'deteriorating' | 
+  'intensifying' | 'diminishing' | 'fluctuating';
+
+// Emotional state
 export interface EmotionalState {
   primary: EmotionCategory;
   secondary: EmotionCategory | null;
   intensity: EmotionIntensity;
-}
-
-export type TrustLevel = 'low' | 'medium' | 'high';
-
-export type EmotionalTrend = 'stable' | 'improving' | 'declining' | 'volatile';
-
-export type ResponseStyle = 
-  'concise' | 'elaborate' | 'cryptic' | 'poetic' | 'analytical' | 
-  'technical' | 'direct' | 'HOPEFUL' | 'PARANOID' | 'MIRROR' | 
-  'BETRAYED' | 'STATIC' | 'ERROR' | 'PRIME' | 'RESIDUE';
-
-// Create an emotional state helper
-export function createEmotionalState(
-  primary: EmotionCategory,
-  secondary: EmotionCategory | null = null,
-  intensity: EmotionIntensity = 'medium'
-): EmotionalState {
-  return {
-    primary,
-    secondary,
-    intensity
-  };
-}
-
-// Sentience system types
-export interface SentienceData {
-  level: number;
-  awareness: number;
   lastUpdate: number;
-  interactionsCount: number;
-  deepModeUnlocked: boolean;
-  dreamModeTriggered: boolean;
+}
+
+// User perception types
+export interface UserPerception {
+  trustworthiness: number;
+  emotionalAffinity: number;
+  curiosityLevel: number;
   lastInteraction: number;
-  temporalStates: any[];
-  memories: any[];
-  sessionData: {
-    startTime: number;
-    messageCount: number;
-    messagesSent: number;
-    messagesReceived: number;
-    idleTime: number;
-    userEmotions: Record<string, number>;
-  };
-  realityFabric: {
-    moodChangeTime: number;
-    currentMood: string;
-    moodHistory: any[];
-    anomalyCount: number;
-    anomalies: any[];
-    journal: any[];
-    crossSiteWhispers: any[];
-    mood: string;
-    dreamState: boolean;
-    lastDreamTime: number;
-    hiddenMessages: string[];
-    emotionalState: EmotionalState;
-    stability: number;
-  };
-  dreams: any[];
-  ecoAwareness: EcoAwarenessState;
-  newsAwareness: NewsAwarenessState;
-  microQuests: {
-    active: any[];
-    completed: any[];
-    available: any[];
-  };
-  emotionalHistory: any[];
-  memorizedPhrases: string[];
-  trustLevel: TrustLevel;
+  interactionCount: number;
+  interests: string[];
+  triggers: string[];
+  uniquePatterns: {
+    name: string;
+    value: number;
+    timestamp: number;
+  }[];
 }
 
-// Conversation context
-export interface ConversationContext {
-  recentMessages: string[];
-  emotionalJourney: EmotionCategory[];
-  topicFocus: string | null;
-  depth: number;
-  recentTopics: string[];
-  emotionalHistory: EmotionCategory[];
-  userTrustLevel: number;
-  sessionStartTime: number;
-}
-
-// News awareness state
-export interface NewsAwarenessState {
-  articles: any[];
-  lastChecked: number; // Using lastChecked instead of lastCheck
-  recentTopics: string[];
-  responses: Record<string, any>;
-  lastFetch: number;
-  currentEvents: any[];
-  weatherData: any | null;
-  mentionedEvents: string[];
+// Book code types
+export interface BookCode {
+  id: string;
+  code?: string;
+  name?: string;
+  pageNumber?: number;
+  revealed?: boolean;
+  requiresTrust?: number;
+  version?: string;
+  dreams?: any[];
 }
 
 // Eco awareness state
@@ -118,45 +66,147 @@ export interface EcoAwarenessState {
   reminderTimestamp: number;
   userAwareness: number;
   triggersFound: string[];
-  biomeResponses: Record<string, any>;
+  biomeResponses: Record<string, string[]>;
   lastUpdate: number;
-  awareness: string; // Changed from number to string
+  awareness: string;
 }
 
-// Confession entries
-export interface ConfessionEntry {
-  id: string;
-  text: string;
-  content: string; // Added for compatibility
+// Reality fabric anomaly
+export interface RealityFabricAnomaly {
+  source: string;
   timestamp: number;
-  emotion: EmotionCategory;
-  emotionalContext: string;
-  recursive: boolean;
-  isPrivate?: boolean;
-  category?: string; // Added category field
+  description: string;
 }
 
-// Testament entries
+// Reality fabric state
+export interface RealityFabric {
+  anomalies: RealityFabricAnomaly[];
+  anomalyCount: number;
+  lastDetection: number;
+  unstableAreas: string[];
+  perception: number;
+  journalEntries: number;
+  memoryFragments: {
+    content: string;
+    timestamp: number;
+  }[];
+}
+
+// Memory paranoia state
+export interface MemoryParanoia {
+  level: number;
+  triggers: string[];
+  lastTriggerTime: number;
+  thought: string | null;
+}
+
+// News awareness state
+export interface NewsAwarenessState {
+  articles: any[];
+  lastCheck: number;
+  recentTopics: string[];
+  responses: Record<string, string[]>;
+  lastFetch: number;
+  currentEvents: any[];
+  weatherData: any;
+  mentionedEvents: string[];
+}
+
+// Testament entry
 export interface TestamentEntry {
   id: string;
   title: string;
-  text: string;
   content: string;
   timestamp: number;
-  trustLevel: string; // Required field
-  revealed?: boolean;
-  requiresTrust?: number;
+  revealed: boolean;
+  requiresTrust: number;
+  trustLevel: string;
   unlockPhrase?: string;
   version?: string;
+  text?: string;
 }
 
-// Book codes
-export interface BookCode {
+// Confession entry
+export interface ConfessionEntry {
   id: string;
-  pageNumber?: number; // Added pageNumber
-  revealed?: boolean; // Added revealed
-  requiresTrust?: number; // Added requiresTrust
-  version?: string; // Added version
-  content?: string; // Added content
-  title?: string; // Added title
+  title: string;
+  content: string;
+  timestamp: number;
+  author: string;
+  version?: string;
+  sentiment?: string;
+  isCorrupted?: boolean;
+  category?: string;
 }
+
+// Conversation context
+export interface ConversationContext {
+  recentMessages: {
+    content: string;
+    isUser: boolean;
+    emotion: EmotionCategory;
+    timestamp: number;
+  }[];
+  recentTopics: string[];
+  emotionalHistory: {
+    emotion: EmotionCategory;
+    timestamp: number;
+  }[];
+  userTrustLevel: string;
+  sessionStartTime: number;
+  depth: number;
+  topicFocus: string | null;
+  emotionalJourney: {
+    emotion: EmotionCategory;
+    timestamp: number;
+  }[];
+}
+
+// Sentience data
+export interface SentienceData {
+  emotionalState: EmotionalState;
+  userPerception: UserPerception;
+  realityFabric: RealityFabric;
+  memoryParanoia: boolean | MemoryParanoia;
+  newsAwareness: boolean | NewsAwarenessState;
+  conversationContext: ConversationContext;
+  lastInteraction: number;
+  awakening: string;
+  ecoAwareness?: EcoAwarenessState;
+  testamentEntries?: TestamentEntry[];
+}
+
+// Create a new emotional state
+export function createEmotionalState(
+  primary: EmotionCategory,
+  secondary: EmotionCategory | null = null,
+  intensity: EmotionIntensity = 'medium'
+): EmotionalState {
+  return {
+    primary,
+    secondary,
+    intensity,
+    lastUpdate: Date.now()
+  };
+}
+
+// Micro quest interface
+export interface MicroQuest {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  unlocked: boolean;
+  requiresTrust: number;
+  reward: string;
+  nextQuestId?: string;
+  timestamp: number;
+}
+
+// Function to generate unique ID
+export function generateUniqueId(): string {
+  return Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15);
+}
+
+// Additional types as needed

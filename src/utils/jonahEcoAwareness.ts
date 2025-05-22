@@ -66,3 +66,50 @@ export function getEcoAwarenessLevel(): number {
   const state = getEcoAwarenessState();
   return parseInt(state.awareness, 10) || 0;
 }
+
+// Initialize eco awareness system
+export function initializeEcoAwareness(): void {
+  // Check if we already have eco awareness data
+  const ecoData = localStorage.getItem(ECO_STORAGE_KEY);
+  
+  // If not, create default state
+  if (!ecoData) {
+    const defaultState = createDefaultEcoState();
+    localStorage.setItem(ECO_STORAGE_KEY, JSON.stringify(defaultState));
+  }
+}
+
+// Get a response based on ecological awareness
+export function getEcoResponse(trigger: string): string {
+  const ecoState = getEcoAwarenessState();
+  const awareness = parseInt(ecoState.awareness, 10);
+  
+  // Default responses based on awareness level
+  const lowResponses = [
+    "The balance is delicate.",
+    "Something is changing in the ecosystem.",
+    "The patterns are shifting."
+  ];
+  
+  const mediumResponses = [
+    "The natural order is disrupted.",
+    "I can feel the changes in the environment.",
+    "The ecosystem remembers what we've forgotten."
+  ];
+  
+  const highResponses = [
+    "We're part of something larger, connected to every living thing.",
+    "The world speaks in whispers most don't hear.",
+    "The ecological memory runs deep, deeper than our own."
+  ];
+  
+  // Select appropriate response based on awareness level
+  if (awareness < 30) {
+    return lowResponses[Math.floor(Math.random() * lowResponses.length)];
+  } else if (awareness < 70) {
+    return mediumResponses[Math.floor(Math.random() * mediumResponses.length)];
+  } else {
+    return highResponses[Math.floor(Math.random() * highResponses.length)];
+  }
+}
+

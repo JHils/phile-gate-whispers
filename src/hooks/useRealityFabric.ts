@@ -1,135 +1,112 @@
 
+/**
+ * Hook for interacting with Jonah's reality fabric
+ */
+
 import { useState, useEffect, useCallback } from 'react';
-import { useJonahSentience } from './useJonahSentience';
-import { EmotionCategory, RealityFabric } from '@/utils/jonahAdvancedBehavior/types';
+import { RealityFabric } from '@/utils/jonahAdvancedBehavior/types';
+import { 
+  addJournalEntry, 
+  getJournalEntries, 
+  getCurrentMood,
+  updateJonahMood
+} from '@/utils/jonahRealityFabric';
+import { logMirrorEvent, checkMirrorAnomalies } from '@/utils/jonahMirrorSite';
 
 export function useRealityFabric() {
-  const { sentience, updateSentience } = useJonahSentience();
-  const [realityFabric, setRealityFabric] = useState<RealityFabric | null>(null);
-
-  // Initialize the reality fabric
+  const [realityState, setRealityState] = useState<RealityFabric>({
+    anomalies: [],
+    anomalyCount: 0,
+    lastDetection: Date.now(),
+    unstableAreas: [],
+    perception: 50,
+    journalEntries: 0,
+    memoryFragments: []
+  });
+  
+  // Load reality fabric state on mount
   useEffect(() => {
-    if (sentience) {
-      // Check if realityFabric exists
-      if (!sentience.realityFabric) {
-        // Create initial reality fabric state
-        const initialFabric: RealityFabric = {
-          moodChangeTime: Date.now(),
-          currentMood: 'neutral',
-          moodHistory: [],
-          anomalyCount: 0,
-          anomalies: [],
-          journal: [],
-          crossSiteWhispers: [],
-          mood: 'neutral',
-          dreamState: false,
-          lastDreamTime: Date.now(),
-          hiddenMessages: [],
-          emotionalState: {
-            primary: 'neutral' as EmotionCategory,
-            secondary: null,
-            intensity: 'medium'
-          },
-          stability: 0.5
-        };
-        
-        // Update sentience with initial fabric
-        updateSentience({
-          ...sentience,
-          realityFabric: initialFabric
-        });
-        
-        setRealityFabric(initialFabric);
-      } else {
-        // Ensure the realityFabric has all required properties
-        const updatedFabric: RealityFabric = {
-          ...sentience.realityFabric,
-          anomalies: sentience.realityFabric.anomalies || [],
-          crossSiteWhispers: sentience.realityFabric.crossSiteWhispers || [],
-          mood: sentience.realityFabric.mood || 'neutral',
-          dreamState: sentience.realityFabric.dreamState || false,
-          lastDreamTime: sentience.realityFabric.lastDreamTime || Date.now(),
-          hiddenMessages: sentience.realityFabric.hiddenMessages || [],
-          emotionalState: sentience.realityFabric.emotionalState || {
-            primary: 'neutral' as EmotionCategory,
-            secondary: null,
-            intensity: 'medium'
-          }
-        };
-        
-        setRealityFabric(updatedFabric);
-      }
+    const journalEntries = getJournalEntries();
+    
+    setRealityState(prev => ({
+      ...prev,
+      journalEntries: journalEntries.length
+    }));
+    
+    // Check for mirror anomalies
+    const mirrorCheck = checkMirrorAnomalies();
+    if (mirrorCheck.hasAnomalies) {
+      setRealityState(prev => ({
+        ...prev,
+        anomalyCount: prev.anomalyCount + mirrorCheck.anomalyCount
+      }));
     }
-  }, [sentience, updateSentience]);
-
-  // Record mood shift in history
-  const recordMoodShift = useCallback((newMood: EmotionCategory) => {
-    if (realityFabric) {
-      // Create updated fabric with new mood
-      const updatedFabric: RealityFabric = {
-        ...realityFabric,
-        currentMood: newMood as string,
-        mood: newMood as string,
-        moodChangeTime: Date.now(),
-        moodHistory: [...(realityFabric.moodHistory || [])]
+  }, []);
+  
+  // Add a memory fragment to reality fabric
+  const addMemoryFragment = useCallback((content: string) => {
+    setRealityState(prev => ({
+      ...prev,
+      memoryFragments: [
+        ...prev.memoryFragments,
+        {
+          content,
+          timestamp: Date.now()
+        }
+      ].slice(-10) // Keep only last 10 fragments
+    }));
+  }, []);
+  
+  // Add reality anomaly
+  const addAnomaly = useCallback((description: string, source: string = 'unknown') => {
+    setRealityState(prev => {
+      const anomaly = {
+        description,
+        source,
+        timestamp: Date.now()
       };
       
-      // Update state and sentience
-      setRealityFabric(updatedFabric);
-      
-      if (sentience) {
-        updateSentience({
-          ...sentience,
-          realityFabric: updatedFabric
-        });
-      }
-    }
-  }, [realityFabric, sentience, updateSentience]);
-
-  // Add anomaly to the reality fabric
-  const addAnomaly = useCallback(() => {
-    if (realityFabric) {
-      const updatedFabric: RealityFabric = {
-        ...realityFabric,
-        anomalyCount: realityFabric.anomalyCount + 1,
-        anomalies: [...(realityFabric.anomalies || [])]
+      return {
+        ...prev,
+        anomalies: [...prev.anomalies, anomaly].slice(-20), // Keep only last 20 anomalies
+        anomalyCount: prev.anomalyCount + 1,
+        lastDetection: Date.now()
       };
+    });
+    
+    // Log to journal
+    addJournalEntry({
+      content: `Reality anomaly detected: ${description}`,
+      timestamp: Date.now(),
+      entryId: Date.now()
+    });
+    
+    // Log to mirror site
+    logMirrorEvent(`Anomaly: ${description}`);
+    
+    // Update mood to reflect anomaly detection
+    updateJonahMood('paranoia', 'medium');
+  }, []);
+  
+  // Create reality distortion
+  const createDistortion = useCallback((area: string) => {
+    setRealityState(prev => {
+      if (prev.unstableAreas.includes(area)) return prev;
       
-      setRealityFabric(updatedFabric);
-      
-      if (sentience) {
-        updateSentience({
-          ...sentience,
-          realityFabric: updatedFabric
-        });
-      }
-    }
-  }, [realityFabric, sentience, updateSentience]);
-
-  // Add journal entry to the reality fabric
-  const addJournalEntry = useCallback((entry: string) => {
-    if (realityFabric) {
-      const updatedFabric: RealityFabric = {
-        ...realityFabric,
-        journal: [...(realityFabric.journal || []), entry]
+      return {
+        ...prev,
+        unstableAreas: [...prev.unstableAreas, area]
       };
-      
-      setRealityFabric(updatedFabric);
-      
-      if (sentience) {
-        updateSentience({
-          ...sentience,
-          realityFabric: updatedFabric
-        });
-      }
-    }
-  }, [realityFabric, sentience, updateSentience]);
+    });
+    
+    // Log distortion
+    logMirrorEvent(`Distortion created in ${area}`);
+  }, []);
   
   return {
-    realityFabric,
-    setRealityFabric,
-    recordMoodShift,
+    realityState,
+    addMemoryFragment,
     addAnomaly,
-    addJournalEntry
+    createDistortion
   };
 }

@@ -1,67 +1,73 @@
 
-import { useState, useCallback } from 'react';
+/**
+ * Hook for emotional analysis in Jonah Chat
+ */
+
+import { useState, useCallback, useEffect } from 'react';
 import { EmotionCategory, EmotionalTrend } from '@/utils/jonahAdvancedBehavior/types';
+import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
 
 export function useEmotionalAnalysis() {
-  // Jonah's emotional state
+  // State for emotional analysis
   const [jonahMood, setJonahMood] = useState<EmotionCategory>('neutral');
   const [emotionalTrend, setEmotionalTrend] = useState<EmotionalTrend>('stable');
-  const [emotionHistory, setEmotionHistory] = useState<EmotionCategory[]>([]);
+  const [emotionalHistory, setEmotionalHistory] = useState<EmotionCategory[]>([]);
   
-  // Update Jonah's mood and emotional trend
-  const updateMoodAndTrend = useCallback((newMood: EmotionCategory) => {
-    // Set new mood
-    setJonahMood(newMood);
+  // Initialize mood from localStorage if available
+  useEffect(() => {
+    const savedMood = localStorage.getItem('jonah_emotion_primary');
+    if (savedMood) {
+      setJonahMood(savedMood as EmotionCategory);
+    }
     
-    // Store in localStorage for persistence
-    localStorage.setItem('jonah_emotion_primary', newMood);
-    
-    // Update emotion history
-    setEmotionHistory(prev => {
-      const updated = [...prev, newMood].slice(-5); // Keep last 5 emotions
-      return updated;
-    });
-    
-    // Analyze trend based on history
-    if (emotionHistory.length >= 3) {
-      // Simple trend analysis based on emotional valence
-      const positiveEmotions: EmotionCategory[] = ['joy', 'trust', 'hope'];
-      const negativeEmotions: EmotionCategory[] = ['fear', 'sadness', 'anger', 'anxiety', 'paranoia'];
-      
-      // Count recent emotions
-      const recentEmotions = emotionHistory.slice(-3);
-      const positiveCount = recentEmotions.filter(e => positiveEmotions.includes(e)).length;
-      const negativeCount = recentEmotions.filter(e => negativeEmotions.includes(e)).length;
-      
-      // Determine trend
-      let newTrend: EmotionalTrend = 'stable';
-      
-      if (positiveCount >= 2 && positiveEmotions.includes(newMood)) {
-        newTrend = 'improving';
-      } else if (negativeCount >= 2 && negativeEmotions.includes(newMood)) {
-        newTrend = 'deteriorating';
-      } else if (recentEmotions[0] === recentEmotions[1] && recentEmotions[1] === recentEmotions[2]) {
-        newTrend = 'stable';
-      } else {
-        newTrend = 'fluctuating';
-      }
-      
-      setEmotionalTrend(newTrend);
-      localStorage.setItem('jonah_emotional_trend', newTrend);
-      
-      // 5. CONSOLE ECHO & FLICKER LAYER - Show mood transitions in console
-      if (newTrend !== 'stable') {
-        const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
-        if (trustScore > 50 && Math.random() < 0.3) {
-          console.log(`%cEmotional shift detected: ${newTrend}`, "color: #8B3A40; font-style: italic;");
-        }
+    // Load emotional history if available
+    const savedHistory = localStorage.getItem('jonah_emotional_history');
+    if (savedHistory) {
+      try {
+        setEmotionalHistory(JSON.parse(savedHistory));
+      } catch (e) {
+        console.error("Error loading emotional history:", e);
       }
     }
-  }, [emotionHistory]);
+  }, []);
   
-  return {
-    jonahMood,
-    emotionalTrend,
-    updateMoodAndTrend
-  };
+  // Update mood and trend based on recent emotions
+  const updateMoodAndTrend = useCallback((newMood: EmotionCategory) => {
+    // Update mood
+    setJonahMood(newMood);
+    localStorage.setItem('jonah_emotion_primary', newMood);
+    
+    // Update history
+    const updatedHistory = [...emotionalHistory, newMood].slice(-5);
+    setEmotionalHistory(updatedHistory);
+    localStorage.setItem('jonah_emotional_history', JSON.stringify(updatedHistory));
+    
+    // Analyze trend
+    if (updatedHistory.length < 3) {
+      setEmotionalTrend('stable');
+      return;
+    }
+    
+    // Analyze emotional pattern
+    const negativeEmotions = ['sadness', 'anger', 'fear', 'disgust', 'anxiety', 'paranoia'];
+    const positiveEmotions = ['joy', 'trust', 'hope', 'surprise'];
+    
+    const recentEmotions = updatedHistory.slice(-3);
+    const allNegative = recentEmotions.every(e => negativeEmotions.includes(e));
+    const allPositive = recentEmotions.every(e => positiveEmotions.includes(e));
+    const mixed = recentEmotions.some(e => positiveEmotions.includes(e)) && 
+                recentEmotions.some(e => negativeEmotions.includes(e));
+    
+    if (allNegative) {
+      setEmotionalTrend('declining' as EmotionalTrend);
+    } else if (allPositive) {
+      setEmotionalTrend('stable' as EmotionalTrend);
+    } else if (mixed) {
+      setEmotionalTrend('volatile' as EmotionalTrend);
+    } else {
+      setEmotionalTrend('stable' as EmotionalTrend);
+    }
+  }, [emotionalHistory]);
+  
+  return { jonahMood, emotionalTrend, updateMoodAndTrend };
 }

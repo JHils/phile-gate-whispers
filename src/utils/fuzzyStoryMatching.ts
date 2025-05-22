@@ -1,45 +1,73 @@
 
 /**
- * Fuzzy Story Matching System
- * Matches user queries to story elements with fuzzy logic
+ * Fuzzy story matching system for Jonah AI
+ * Helps match user input to appropriate narrative paths
  */
 
-// Initialize the fuzzy story matching system
+// Initialize fuzzy story matching system
 export function initializeFuzzyStoryMatching(): void {
-  if (typeof window !== 'undefined') {
-    // Add processStoryQuery to window
-    window.processStoryQuery = (query: string) => {
-      return processQuery(query);
-    };
+  // Initialize story patterns if needed
+  if (!localStorage.getItem('jonah_story_patterns')) {
+    localStorage.setItem('jonah_story_patterns', JSON.stringify({
+      mirror: ['reflection', 'double', 'looking glass', 'self', 'doppelganger'],
+      gate: ['entrance', 'portal', 'doorway', 'threshold', 'passage'],
+      echo: ['repeat', 'resonate', 'reverberate', 'bounce', 'mirror sound'],
+      memory: ['remember', 'forget', 'past', 'recollection', 'nostalgia'],
+      reality: ['simulation', 'real', 'false', 'perception', 'existence']
+    }));
+  }
+}
+
+// Match input text to story pattern
+export function matchStoryPattern(input: string): string | null {
+  try {
+    const patterns = JSON.parse(localStorage.getItem('jonah_story_patterns') || '{}');
+    const lowerInput = input.toLowerCase();
     
-    console.log('Fuzzy story matching system initialized');
+    for (const [pattern, keywords] of Object.entries(patterns)) {
+      for (const keyword of keywords as string[]) {
+        if (lowerInput.includes(keyword)) {
+          return pattern;
+        }
+      }
+    }
+    
+    return null;
+  } catch (e) {
+    console.error('Error matching story pattern:', e);
+    return null;
   }
 }
 
-// Process a user query for story elements
-function processQuery(query: string): any {
-  // Basic implementation
-  const lowerQuery = query.toLowerCase();
-  
-  // Sample matching logic
-  if (lowerQuery.includes('jonah') && lowerQuery.includes('origin')) {
-    return {
-      match: true,
-      topic: 'origin',
-      confidence: 0.85,
-      response: "Jonah's origins are complex and multi-layered."
-    };
+// Add a new pattern match
+export function addStoryPattern(pattern: string, keywords: string[]): void {
+  try {
+    const patterns = JSON.parse(localStorage.getItem('jonah_story_patterns') || '{}');
+    patterns[pattern] = keywords;
+    localStorage.setItem('jonah_story_patterns', JSON.stringify(patterns));
+  } catch (e) {
+    console.error('Error adding story pattern:', e);
   }
-  
-  // Default response
-  return {
-    match: false,
-    confidence: 0,
-    response: null
-  };
 }
 
-// Export the function for direct use
-export function matchStoryQuery(query: string): any {
-  return processQuery(query);
+// Get matching confidence score
+export function getMatchConfidence(input: string, pattern: string): number {
+  try {
+    const patterns = JSON.parse(localStorage.getItem('jonah_story_patterns') || '{}');
+    const lowerInput = input.toLowerCase();
+    let matches = 0;
+    
+    if (patterns[pattern]) {
+      for (const keyword of patterns[pattern] as string[]) {
+        if (lowerInput.includes(keyword)) {
+          matches++;
+        }
+      }
+    }
+    
+    return matches / (patterns[pattern]?.length || 1);
+  } catch (e) {
+    console.error('Error getting match confidence:', e);
+    return 0;
+  }
 }
