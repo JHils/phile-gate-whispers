@@ -1,14 +1,14 @@
 
 import { EmotionalState } from '@/utils/jonahAdvancedBehavior/types';
 import { 
-  analyzeEmotion as processEmotion,
+  analyzeEmotion,
   getLayeredEmotionalResponse,
   checkForRecurringSymbols 
-} from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/index';
+} from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/analyzer';
 
 // Re-export the functions for API compatibility
 export { 
-  processEmotion as processEmotionalInput,
+  analyzeEmotion as processEmotionalInput,
   getLayeredEmotionalResponse,
   checkForRecurringSymbols 
 };
@@ -16,7 +16,7 @@ export {
 // Hook to use the emotional system
 export function useEmotionalSystem() {
   const analyzeEmotion = (input: string): EmotionalState => {
-    return processEmotion(input);
+    return analyzeEmotion(input);
   };
   
   const getResponse = (emotionalState: EmotionalState, trustLevel: string): string => {

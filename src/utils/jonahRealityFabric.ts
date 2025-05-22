@@ -11,6 +11,41 @@ interface JournalEntry {
   content: string;
 }
 
+// Initialize the reality fabric for Jonah
+export function initializeRealityFabric(): void {
+  try {
+    // Check if reality fabric exists in JonahConsole
+    if (window.JonahConsole?.sentience) {
+      // Initialize reality fabric if it doesn't exist
+      if (!window.JonahConsole.sentience.realityFabric) {
+        window.JonahConsole.sentience.realityFabric = {
+          moodChangeTime: Date.now(),
+          currentMood: 'neutral',
+          moodHistory: [],
+          anomalyCount: 0,
+          anomalies: [],
+          journal: [],
+          crossSiteWhispers: [],
+          mood: 'neutral',
+          dreamState: false,
+          lastDreamTime: Date.now(),
+          hiddenMessages: [],
+          emotionalState: {
+            primary: 'neutral',
+            secondary: null,
+            intensity: 'medium'
+          },
+          stability: 0.5
+        };
+        
+        console.log("Reality fabric initialized");
+      }
+    }
+  } catch (e) {
+    console.error("Error initializing reality fabric:", e);
+  }
+}
+
 // Get all journal entries
 export function getAllJournalEntries(): JournalEntry[] {
   try {

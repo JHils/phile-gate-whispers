@@ -29,14 +29,14 @@ export * from './emotionalCore';
 
 // Re-export all functions from sentiment analysis
 export {
+  analyzeEmotion as analyze,
   analyzeEmotion,
-  analyze,
   generateEmotionalResponse,
   getEmotionalResponse,
   getLayeredEmotionalResponse,
   checkForRecurringSymbols,
   processEmotionalInput
-} from './sentimentAnalysis/index';
+} from './sentimentAnalysis/analyzer';
 
 // Re-export functions from the adaptive learning system
 export {
