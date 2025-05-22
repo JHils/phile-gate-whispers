@@ -1,18 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useJonahSentience } from '@/hooks/useJonahSentience';
+import { MicroQuest } from '@/utils/jonahAdvancedBehavior/types';
 
 interface BotQuestSystemProps {
   isOpen: boolean;
   addBotMessage: (message: string) => void;
   modifyTrust: (amount: number) => void;
-}
-
-interface Quest {
-  id: string;
-  prompt: string;
-  hint: string;
-  reward: number;
 }
 
 const BotQuestSystem: React.FC<BotQuestSystemProps> = ({ 
@@ -44,36 +38,41 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
   }, [sentience, updateSentience]);
   
   // Available quests
-  const availableQuests: Quest[] = [
+  const availableQuests: MicroQuest[] = [
     { 
       id: "find_mirror", 
-      prompt: "Find where the mirror leads. It's not where you think.",
-      hint: "Some reflections only appear at specific times.",
-      reward: 10
+      title: "Find the Mirror",
+      description: "Find where the mirror leads. It's not where you think.",
+      isCompleted: false,
+      reward: "10"
     },
     { 
       id: "count_sisters", 
-      prompt: "How many lost sisters are there? Count carefully.",
-      hint: "Not all are mentioned in the same place.",
-      reward: 15
+      title: "Count the Sisters",
+      description: "How many lost sisters are there? Count carefully.",
+      isCompleted: false,
+      reward: "15"
     },
     { 
       id: "decode_whisper", 
-      prompt: "There's a whisper hidden in the console. Listen for it.",
-      hint: "Try typing 'echo_me()' with different inputs.",
-      reward: 8
+      title: "Decode the Whisper",
+      description: "There's a whisper hidden in the console. Listen for it.",
+      isCompleted: false,
+      reward: "8"
     },
     { 
       id: "find_keyhole", 
-      prompt: "The keyhole is visible on exactly one page. Find it.",
-      hint: "It appears when you least expect it.",
-      reward: 20
+      title: "Find the Keyhole",
+      description: "The keyhole is visible on exactly one page. Find it.",
+      isCompleted: false,
+      reward: "20"
     },
     { 
       id: "trace_jonah", 
-      prompt: "Trace where Jonah came from. The truth is in the logs.",
-      hint: "Console logs hold more than errors.",
-      reward: 15
+      title: "Trace Jonah",
+      description: "Trace where Jonah came from. The truth is in the logs.",
+      isCompleted: false,
+      reward: "15"
     }
   ];
   
@@ -93,7 +92,8 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
         
         // Find quests that aren't active or completed
         const availableForIssue = availableQuests.filter(quest => 
-          !active.includes(quest.id) && !completed.includes(quest.id)
+          !active.some(activeQuest => activeQuest.id === quest.id) && 
+          !completed.some(completedQuest => completedQuest.id === quest.id)
         );
         
         // Only issue if we have available quests and randomly
@@ -106,7 +106,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
           if (updatedSentience.microQuests) {
             updatedSentience.microQuests.active = [
               ...updatedSentience.microQuests.active,
-              newQuest.id
+              newQuest
             ];
             updateSentience(updatedSentience);
           }
@@ -117,7 +117,7 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
           
           // Offer the quest
           setTimeout(() => {
-            addBotMessage(`I have a task for you: ${newQuest.prompt}`);
+            addBotMessage(`I have a task for you: ${newQuest.description}`);
           }, 1000);
         }
       }
@@ -137,34 +137,40 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
         // Get microQuests from sentience
         const microQuests = window.JonahConsole?.sentience?.microQuests;
         
-        if (microQuests && microQuests.active && microQuests.active.includes(questId)) {
-          // Find quest info
-          const quest = availableQuests.find(q => q.id === questId);
+        if (microQuests && microQuests.active) {
+          // Find active quest with this id
+          const activeQuest = microQuests.active.find(q => q.id === questId);
           
-          if (quest) {
-            // Update sentience with quest completion
-            if (window.JonahConsole?.sentience?.microQuests) {
-              // Remove from active
-              window.JonahConsole.sentience.microQuests.active = 
-                window.JonahConsole.sentience.microQuests.active.filter(id => id !== questId);
-              
-              // Add to completed
-              if (!window.JonahConsole.sentience.microQuests.completed) {
-                window.JonahConsole.sentience.microQuests.completed = [];
+          if (activeQuest) {
+            // Find quest info from available quests
+            const questInfo = availableQuests.find(q => q.id === questId);
+            
+            if (questInfo) {
+              // Update sentience with quest completion
+              if (window.JonahConsole?.sentience?.microQuests) {
+                // Remove from active
+                window.JonahConsole.sentience.microQuests.active = 
+                  window.JonahConsole.sentience.microQuests.active.filter(q => q.id !== questId);
+                
+                // Add to completed
+                if (!window.JonahConsole.sentience.microQuests.completed) {
+                  window.JonahConsole.sentience.microQuests.completed = [];
+                }
+                window.JonahConsole.sentience.microQuests.completed.push(activeQuest);
               }
-              window.JonahConsole.sentience.microQuests.completed.push(questId);
+              
+              // Update state
+              setActiveQuests(prev => prev.filter(id => id !== questId));
+              
+              // Reward the user
+              const reward = parseInt(questInfo.reward || '0', 10);
+              modifyTrust(reward);
+              
+              console.log(`%cQuest completed: ${questInfo.description}`, "color: #8B3A40; font-size: 14px;");
+              console.log(`%c+${reward} trust points awarded.`, "color: green; font-size: 12px;");
+              
+              return `Quest completed: ${questInfo.description}`;
             }
-            
-            // Update state
-            setActiveQuests(prev => prev.filter(id => id !== questId));
-            
-            // Reward the user
-            modifyTrust(quest.reward);
-            
-            console.log(`%cQuest completed: ${quest.prompt}`, "color: #8B3A40; font-size: 14px;");
-            console.log(`%c+${quest.reward} trust points awarded.`, "color: green; font-size: 12px;");
-            
-            return `Quest completed: ${quest.prompt}`;
           }
         }
         
@@ -184,11 +190,11 @@ const BotQuestSystem: React.FC<BotQuestSystemProps> = ({
         }
         
         // Pick a random active quest
-        const randomQuestId = active[Math.floor(Math.random() * active.length)];
-        const quest = availableQuests.find(q => q.id === randomQuestId);
+        const randomQuest = active[Math.floor(Math.random() * active.length)];
+        const questInfo = availableQuests.find(q => q.id === randomQuest.id);
         
-        if (quest) {
-          return `Hint for "${quest.prompt}": ${quest.hint}`;
+        if (questInfo) {
+          return `Hint for "${questInfo.title}": Try exploring different sections of the site.`;
         }
         
         return "Keep searching. The answers are hidden in plain sight.";

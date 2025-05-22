@@ -1,7 +1,7 @@
 
 import { EmotionalState } from '@/utils/jonahAdvancedBehavior/types';
 import { 
-  processEmotionalInput,
+  analyzeEmotion as processEmotionalInput,
   getLayeredEmotionalResponse,
   checkForRecurringSymbols 
 } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';

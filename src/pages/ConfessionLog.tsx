@@ -23,9 +23,10 @@ const ConfessionLog: React.FC = () => {
     const counts: Record<string, number> = { all: confessions.length };
     
     confessions.forEach(confession => {
-      const emotionKey = typeof confession.emotionalContext === 'string' 
+      // Use either emotionalContext or sentiment
+      const emotionKey = (typeof confession.emotionalContext === 'string' 
         ? confession.emotionalContext 
-        : 'unknown';
+        : confession.sentiment || 'unknown') as string;
         
       counts[emotionKey] = (counts[emotionKey] || 0) + 1;
     });
@@ -38,9 +39,11 @@ const ConfessionLog: React.FC = () => {
     if (filter === 'all') return confessions;
     
     return confessions.filter(confession => {
-      const emotionKey = typeof confession.emotionalContext === 'string' 
+      // Use either emotionalContext or sentiment
+      const emotionKey = (typeof confession.emotionalContext === 'string' 
         ? confession.emotionalContext 
-        : 'unknown';
+        : confession.sentiment || 'unknown') as string;
+        
       return emotionKey === filter;
     });
   };
@@ -81,7 +84,7 @@ const ConfessionLog: React.FC = () => {
               <ConfessionListItem 
                 key={confession.id || index}
                 confession={confession}
-                onClick={(c) => setSelectedConfession(c as unknown as ConfessionEntry)}
+                onClick={(c) => setSelectedConfession(c)}
               />
             ))
           )}

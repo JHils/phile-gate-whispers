@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { SentienceData, EmotionalState } from '@/utils/jonahAdvancedBehavior/types';
 import { generateDream } from '@/utils/jonahAdvancedBehavior';
@@ -34,22 +35,37 @@ const initialEmotionalState: EmotionalState = {
 };
 
 const initialSentienceData: SentienceData = {
-  lastInteraction: Date.now(),
+  level: 1,
+  awareness: 0,
+  lastUpdate: Date.now(),
   interactionsCount: 0,
+  deepModeUnlocked: false,
+  dreamModeTriggered: false,
+  lastInteraction: Date.now(),
+  temporalStates: [],
+  memories: [],
   sessionData: {
     startTime: Date.now(),
     messageCount: 0,
-    userEmotions: initialEmotions as Record<any, number>,
     messagesSent: 0,
-    messagesReceived: 0
+    messagesReceived: 0,
+    idleTime: 0,
+    userEmotions: initialEmotions
   },
   realityFabric: {
     moodChangeTime: Date.now(),
     currentMood: 'neutral',
-    stability: 0.5,
-    anomalyCount: 0,
     moodHistory: [],
-    journal: []
+    anomalyCount: 0,
+    anomalies: [],
+    journal: [],
+    crossSiteWhispers: [],
+    mood: 'neutral',
+    dreamState: false,
+    lastDreamTime: Date.now(),
+    hiddenMessages: [],
+    emotionalState: initialEmotionalState,
+    stability: 0.5
   },
   dreams: [],
   ecoAwareness: {
@@ -60,14 +76,11 @@ const initialSentienceData: SentienceData = {
     ecoThoughts: [],
     level: 0
   },
-  deepModeUnlocked: false,
-  emotionalState: initialEmotionalState,
-  emotionalHistory: [],
-  memorizedPhrases: [],
-  awareness: 0,
-  trustLevel: 'medium',
-  level: 1,
   newsAwareness: {
+    articles: [],
+    lastCheck: Date.now(),
+    recentTopics: [],
+    responses: {},
     lastFetch: Date.now(),
     currentEvents: [],
     weatherData: null,
@@ -77,7 +90,10 @@ const initialSentienceData: SentienceData = {
     active: [],
     completed: [],
     available: []
-  }
+  },
+  emotionalHistory: [],
+  memorizedPhrases: [],
+  trustLevel: 'medium'
 };
 
 // Persist sentience data to localStorage

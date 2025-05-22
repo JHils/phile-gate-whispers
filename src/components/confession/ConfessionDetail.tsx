@@ -39,14 +39,17 @@ const ConfessionDetail: React.FC<ConfessionDetailProps> = ({ confession, onClose
     return 'Unknown';
   };
 
+  // Use either emotionalContext or sentiment as the emotion
+  const emotionToDisplay = confession.emotionalContext || confession.sentiment;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <span className={`px-3 py-1 rounded-full text-sm ${getEmotionColor(confession.emotionalContext)}`}>
-                {getEmotionDisplayName(confession.emotionalContext)}
+              <span className={`px-3 py-1 rounded-full text-sm ${getEmotionColor(emotionToDisplay)}`}>
+                {getEmotionDisplayName(emotionToDisplay)}
               </span>
               
               {confession.isCorrupted && (
@@ -67,7 +70,7 @@ const ConfessionDetail: React.FC<ConfessionDetailProps> = ({ confession, onClose
           </div>
           
           <div className="mb-6">
-            <p className="text-lg text-gray-200 whitespace-pre-wrap">{confession.content}</p>
+            <p className="text-lg text-gray-200 whitespace-pre-wrap">{confession.content || confession.text}</p>
           </div>
           
           <div className="text-sm text-gray-400">

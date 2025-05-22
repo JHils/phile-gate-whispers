@@ -37,6 +37,10 @@ const ConfessionListItem: React.FC<ConfessionListItemProps> = ({ confession, onC
     return 'bg-gray-700 text-white';
   };
 
+  // Use either emotionalContext or sentiment as the emotion
+  const emotionToDisplay = confession.emotionalContext || confession.sentiment;
+  const displayContent = confession.content || confession.text;
+
   return (
     <div 
       className="p-4 border-b border-gray-700 cursor-pointer hover:bg-gray-800 transition-colors"
@@ -44,8 +48,8 @@ const ConfessionListItem: React.FC<ConfessionListItemProps> = ({ confession, onC
     >
       <div className="flex justify-between items-start mb-2">
         <div>
-          <span className={`inline-block px-2 py-0.5 rounded-full text-xs ${getEmotionColor(confession.emotionalContext)}`}>
-            {typeof confession.emotionalContext === 'string' ? confession.emotionalContext : 'unknown'}
+          <span className={`inline-block px-2 py-0.5 rounded-full text-xs ${getEmotionColor(emotionToDisplay)}`}>
+            {typeof emotionToDisplay === 'string' ? emotionToDisplay : 'unknown'}
           </span>
           
           {confession.isCorrupted && (
@@ -61,7 +65,7 @@ const ConfessionListItem: React.FC<ConfessionListItemProps> = ({ confession, onC
       </div>
       
       <p className="text-gray-300 text-sm">
-        {getPreview(confession.content)}
+        {getPreview(displayContent)}
       </p>
     </div>
   );

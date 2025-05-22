@@ -91,7 +91,8 @@ export interface SessionData {
   messagesSent: number;
   startTime: number;
   idleTime: number;
-  messageCount?: number; // Added to fix compatibility issues
+  messageCount?: number;
+  userEmotions?: Record<EmotionCategory | string, number>; // Added missing property
 }
 
 // Structure for micro quests
@@ -119,13 +120,13 @@ export interface RealityFabric {
   lastDreamTime: number;
   hiddenMessages: string[];
   emotionalState: EmotionalState;
-  stability?: number; // Added to fix compatibility issues
+  stability?: number;
 }
 
 // Interface for sentience data
 export interface SentienceData {
   level: number;
-  awareness: boolean | number; // Allow number for compatibility
+  awareness: boolean | number;
   lastUpdate: number;
   interactionsCount: number;
   deepModeUnlocked: boolean;
@@ -137,12 +138,15 @@ export interface SentienceData {
   microQuests: {
     active: MicroQuest[];
     completed: MicroQuest[];
-    available?: MicroQuest[]; // Added to fix compatibility issues
+    available?: MicroQuest[];
   };
   realityFabric?: RealityFabric;
   ecoAwareness?: EcoAwarenessState;
-  newsAwareness?: NewsAwarenessState; // Added to fix compatibility issues
-  dreams?: string[]; // Added for dream storage
+  newsAwareness?: NewsAwarenessState;
+  dreams?: string[];
+  emotionalHistory?: EmotionCategory[];
+  memorizedPhrases?: string[];
+  trustLevel?: string;
 }
 
 // Interface for eco-awareness state
@@ -161,6 +165,10 @@ export interface NewsAwarenessState {
   lastCheck: number;
   recentTopics: string[];
   responses: Record<string, string[]>;
+  lastFetch?: number;
+  currentEvents?: any[];
+  weatherData?: any;
+  mentionedEvents?: string[];
 }
 
 // Interface for confession entries
@@ -170,4 +178,34 @@ export interface ConfessionEntry {
   timestamp: number;
   sentiment: EmotionCategory;
   isPrivate: boolean;
+  content: string;
+  emotionalContext: EmotionCategory | string;
+  isCorrupted?: boolean;
+  recursive?: boolean;
+  version?: string | number;
+}
+
+// Testament entry interface
+export interface TestamentEntry {
+  id: string;
+  text: string;
+  timestamp: number;
+  corrupted?: boolean;
+  version?: number;
+}
+
+// Story flag interface
+export interface StoryFlag {
+  id: string;
+  name: string;
+  discovered: boolean;
+  timestamp: number;
+}
+
+// Book code interface
+export interface BookCode {
+  code: string;
+  name: string;
+  discovered: boolean;
+  timestamp?: number;
 }

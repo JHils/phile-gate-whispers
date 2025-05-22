@@ -4,8 +4,7 @@
  * Extends the Window interface with Jonah-specific properties
  */
 
-import { SentienceData } from '../jonahAdvancedBehavior/types';
-import { StoryFlag, BookCode } from '../consoleTypes';
+import { SentienceData, StoryFlag, BookCode } from '../jonahAdvancedBehavior/types';
 
 declare global {
   interface Window {
@@ -35,6 +34,8 @@ declare global {
       bookCodes: BookCode[];
       simba: {
         encountered: boolean;
+        lastSeen?: string;
+        interactions?: number;
       };
       argData: {
         keyholeClicks: number;
@@ -45,9 +46,11 @@ declare global {
         hiddenFilesDownloaded: string[];
         idleTriggers: Record<string, number>;
         lastInteractionTime: Date;
+        lastIdleTime?: Date;
       };
       sentience?: SentienceData;
       clearOnPathChange?: boolean;
+      lastCommand?: string;
     };
     
     // Advanced sentience commands
