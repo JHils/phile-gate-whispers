@@ -3,10 +3,9 @@
  * Analyzes emotional content in text
  */
 
-import { EmotionalState, EmotionCategory, EmotionIntensity } from '../types';
+import { EmotionalState, EmotionCategory, EmotionIntensity, ResponseStyle } from '../types';
 import { emotionKeywords } from './keywords';
-import { getEmotionalResponse, getFalseMemoryResponse, getLoopResponse, getBlankFragmentResponse } from './responseGenerator';
-import { processTrustKeywords } from '../trustSystem';
+import { generateGreeting } from './responseGenerator';
 
 // Function to analyze emotional content in text
 export function analyzeEmotion(text: string): EmotionalState {
@@ -133,6 +132,41 @@ export function checkForTriggerPhrases(text: string): {
   };
 }
 
+// Process trust keywords in user input
+function processTrustKeywords(input: string): number {
+  const trustWords = ["trust", "believe", "friend", "help", "understand"];
+  const distrustWords = ["lie", "deceive", "trick", "suspicious", "doubt"];
+  
+  // Add specific trust trigger phrases
+  const trustTriggerPhrases = [
+    "i trust you", 
+    "i'm telling you the truth", 
+    "you can trust me",
+    "i believe in you",
+    "i'm here for you"
+  ];
+  
+  const lowerInput = input.toLowerCase();
+  let trustChange = 0;
+  
+  // Check for trust keywords
+  trustWords.forEach(word => {
+    if (lowerInput.includes(word)) trustChange += 2;
+  });
+  
+  // Check for distrust keywords
+  distrustWords.forEach(word => {
+    if (lowerInput.includes(word)) trustChange -= 3;
+  });
+  
+  // Check for specific trust phrases (higher trust gain)
+  trustTriggerPhrases.forEach(phrase => {
+    if (lowerInput.includes(phrase)) trustChange += 5;
+  });
+  
+  return trustChange;
+}
+
 // Check for recurring symbols or patterns in text
 export function checkForRecurringSymbols(text: string): { found: boolean; pattern: string | null } {
   if (!text || text.length < 5) return { found: false, pattern: null };
@@ -200,6 +234,9 @@ export function processEmotionalInput(
   // Check for trigger phrases
   const triggerCheck = checkForTriggerPhrases(input);
   
+  // Get emotional response from the response generator
+  const { getEmotionalResponse, getFalseMemoryResponse, getLoopResponse, getBlankFragmentResponse } = require('./responseGenerator');
+  
   // Generate base response based on emotional state
   let response = getEmotionalResponse(emotionalState, getTrustLevelText(trustLevel));
   
@@ -258,3 +295,14 @@ function getTrustLevelText(score: number): 'low' | 'medium' | 'high' {
   if (score < 70) return 'medium';
   return 'high';
 }
+
+// Export all the necessary functions from responseGenerator
+export { 
+  generateEmotionalResponse,
+  getEmotionalResponse,
+  getLayeredEmotionalResponse,
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse,
+  generateGreeting
+} from './responseGenerator';

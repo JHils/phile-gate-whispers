@@ -1,247 +1,48 @@
-import React, { useRef, useEffect } from 'react';
-import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
+import React from 'react';
+import { ChatMessage } from '@/hooks/useJonahChat/types';
+import { EmotionCategory, EmotionalTrend } from '@/utils/jonahAdvancedBehavior/types';
 
-interface Message {
-  id: string;
-  content: string;
-  isJonah: boolean;
-  timestamp: number;
-}
-
-interface EnhancedJonahChatMessagesProps {
-  messages: Message[];
-  isTyping: boolean;
-  messageWeight: 'light' | 'medium' | 'heavy';
-  responseStyle: ResponseStyle;
+interface EnhancedJonahChatMessageProps {
+  message: ChatMessage;
   jonahMood: EmotionCategory;
   emotionalTrend: EmotionalTrend;
-  messagesEndRef: React.RefObject<HTMLDivElement>;
 }
 
-const EnhancedJonahChatMessages: React.FC<EnhancedJonahChatMessagesProps> = ({
-  messages,
-  isTyping,
-  messageWeight,
-  responseStyle,
-  jonahMood,
-  emotionalTrend,
-  messagesEndRef
-}) => {
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, messagesEndRef]);
-
-  // Get mood class for styling
-  const getMoodClass = (mood: EmotionCategory): string => {
-    switch(mood) {
-      case 'fear': return 'text-purple-400 border-purple-800';
-      case 'sadness': return 'text-blue-400 border-blue-700';
-      case 'anger': return 'text-red-400 border-red-800';
-      case 'joy': return 'text-amber-400 border-amber-700';
-      case 'hope': return 'text-green-400 border-green-700';
-      case 'anxiety': return 'text-orange-400 border-orange-800';
-      case 'paranoia': return 'text-pink-400 border-pink-800';
-      case 'trust': return 'text-cyan-400 border-cyan-700';
-      case 'curiosity': return 'text-indigo-400 border-indigo-700';
-      case 'confusion': return 'text-teal-400 border-teal-700';
-      default: return 'text-green-400 border-green-800';
+const EnhancedJonahChatMessages: React.FC<EnhancedJonahChatMessageProps> = ({ message, jonahMood, emotionalTrend }) => {
+  const getTrendIndicator = () => {
+    if (emotionalTrend === 'stable') {
+      return <span className="text-gray-400 text-xs ml-1">→</span>;
+    } else if (emotionalTrend === 'improving' || emotionalTrend === 'intensifying') {
+      return <span className="text-green-400 text-xs ml-1">↑</span>;
+    } else if (emotionalTrend === 'deteriorating' || emotionalTrend === 'diminishing') {
+      return <span className="text-red-400 text-xs ml-1">↓</span>;
+    } else { // fluctuating
+      return <span className="text-yellow-400 text-xs ml-1">↔</span>;
     }
   };
-
-  // Get style class based on response style
-  const getStyleClass = (style: ResponseStyle): string => {
-    switch(style) {
-      case 'poetic': return 'italic font-light';
-      case 'technical': return 'font-mono text-sm';
-      case 'elaborate': return 'leading-relaxed';
-      default: return '';
-    }
-  };
-
-  // Get weight class
-  const getWeightClass = (weight: 'light' | 'medium' | 'heavy'): string => {
-    switch(weight) {
-      case 'light': return 'font-light';
-      case 'heavy': return 'font-medium';
-      default: return '';
-    }
-  };
-
-  // Format timestamp
-  const formatTime = (timestamp: number): string => {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  // Apply text effects based on emotion and trend
-  const applyTextEffects = (content: string, mood: EmotionCategory, trend: EmotionalTrend): React.ReactNode => {
-    // Simple processing for now - in a full implementation, this would be more advanced
-    if (mood === 'paranoia' || mood === 'fear') {
-      return content.split('\n').map((line, i) => (
-        <React.Fragment key={i}>
-          <span className={trend === 'deteriorating' || trend === 'intensifying' ? 'animate-pulse' : ''}>{line}</span>
-          {i < content.split('\n').length - 1 && <br />}
-        </React.Fragment>
-      ));
-    }
-    
-    if (mood === 'confusion') {
-      return content.split('\n').map((line, i) => (
-        <React.Fragment key={i}>
-          <span className="opacity-90">{line}</span>
-          {i < content.split('\n').length - 1 && <br />}
-        </React.Fragment>
-      ));
-    }
-    
-    return content;
-  };
-
-  const getEmotionalTrendDisplay = () => {
-    if (emotionalTrend === "improving") {
-      return (
-        <div className="text-xs text-green-400 flex items-center mt-1">
-          <svg 
-            className="w-3 h-3 mr-1" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-          </svg>
-          Emotional connection strengthening
-        </div>
-      );
-    } else if (emotionalTrend === "deteriorating") {
-      return (
-        <div className="text-xs text-red-400 flex items-center mt-1">
-          <svg 
-            className="w-3 h-3 mr-1" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-          Emotional connection weakening
-        </div>
-      );
-    } else if (emotionalTrend === "fluctuating") {
-      return (
-        <div className="text-xs text-yellow-400 flex items-center mt-1">
-          <svg 
-            className="w-3 h-3 mr-1" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-          </svg>
-          Emotional connection unstable
-        </div>
-      );
-    } else {
-      return (
-        <div className="text-xs text-blue-400 flex items-center mt-1">
-          <svg 
-            className="w-3 h-3 mr-1" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14" />
-          </svg>
-          Emotional connection stable
-        </div>
-      );
-    }
-  };
-
+  
   return (
-    <div className="flex-grow overflow-auto mb-4 space-y-4 p-4">
-      {messages.length === 0 && (
-        <div className="text-center text-gray-500 mt-10">
-          <p>This is a direct channel to Jonah.</p>
-          <p className="text-sm mt-2">What would you like to ask?</p>
+    <div className={`
+      flex items-start my-2
+      ${message.isJonah ? 'justify-start' : 'justify-end'}
+    `}>
+      <div className={`
+        rounded-lg p-3 text-sm max-w-2xl
+        ${message.isJonah ? 'bg-gray-700 text-white ml-2' : 'bg-purple-200 text-gray-800 mr-2'}
+      `}>
+        <div className="flex items-center">
+          {message.isJonah && (
+            <span className="text-xs text-gray-400 mr-2">
+              Jonah ({jonahMood})
+              {getTrendIndicator()}
+            </span>
+          )}
+          <span className="whitespace-pre-line">{message.content}</span>
         </div>
-      )}
-      
-      {messages.map((message) => (
-        <div 
-          key={message.id} 
-          className={`flex ${message.isJonah ? 'justify-start' : 'justify-end'}`}
-        >
-          <div 
-            className={`max-w-[80%] px-4 py-3 rounded-lg ${
-              message.isJonah 
-                ? `bg-gray-900 bg-opacity-80 border ${getMoodClass(jonahMood)} ${getStyleClass(responseStyle)} ${getWeightClass(messageWeight)}`
-                : 'bg-gray-800 text-white'
-            }`}
-          >
-            {message.isJonah 
-              ? applyTextEffects(message.content, jonahMood, emotionalTrend)
-              : message.content
-            }
-            <div className="text-xs mt-1 opacity-50">
-              {formatTime(message.timestamp)}
-            </div>
-          </div>
+        <div className="text-xs text-gray-500 mt-1">
+          {new Date(message.timestamp).toLocaleTimeString()}
         </div>
-      ))}
-      
-      {isTyping && (
-        <div className="flex justify-start">
-          <div className={`max-w-[80%] px-4 py-3 rounded-lg bg-gray-900 bg-opacity-80 border ${getMoodClass(jonahMood)}`}>
-            <div className="typing-indicator">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      <div ref={messagesEndRef} />
-
-      <style>
-        {`
-        .typing-indicator {
-          display: flex;
-          align-items: center;
-        }
-        
-        .typing-indicator span {
-          height: 8px;
-          width: 8px;
-          border-radius: 50%;
-          background-color: currentColor;
-          margin: 0 2px;
-          display: inline-block;
-          animation: bounce 1.5s infinite ease-in-out;
-        }
-        
-        .typing-indicator span:nth-child(1) {
-          animation-delay: 0s;
-        }
-        
-        .typing-indicator span:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-        
-        .typing-indicator span:nth-child(3) {
-          animation-delay: 0.4s;
-        }
-        
-        @keyframes bounce {
-          0%, 60%, 100% {
-            transform: translateY(0);
-          }
-          30% {
-            transform: translateY(-5px);
-          }
-        }
-        `}
-      </style>
+      </div>
     </div>
   );
 };

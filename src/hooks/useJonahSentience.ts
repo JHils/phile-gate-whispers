@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SentienceData } from '@/utils/jonahAdvancedBehavior/types';
 import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/analyzer';
-import { generateGreeting } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/responseGenerator';
+import { generateGreeting } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
 import { initializeSentience } from '@/utils/jonahSentience';
 
 /**
@@ -46,6 +46,17 @@ export function useJonahSentience() {
     }, 5000);
     
     return () => clearInterval(interval);
+  }, []);
+  
+  // Update sentience data method for other components to use
+  const updateSentience = useCallback((updates: Partial<SentienceData>) => {
+    if (window.JonahConsole?.sentience) {
+      window.JonahConsole.sentience = {
+        ...window.JonahConsole.sentience,
+        ...updates
+      };
+      setSentience({...window.JonahConsole.sentience});
+    }
   }, []);
   
   // Get appropriate greeting based on context
@@ -107,6 +118,7 @@ export function useJonahSentience() {
   return {
     sentience,
     getGreeting,
-    triggerRandomMessage
+    triggerRandomMessage,
+    updateSentience
   };
 }

@@ -7,7 +7,7 @@ import {
   checkForTriggerPhrases,
   processEmotionalInput,
   generateGreeting
-} from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/analyzer';
+} from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
 import { modifyTrustLevel } from '@/utils/jonahAdvancedBehavior/trustSystem';
 
 export function useResponseGeneration(addBotMessage: (message: string) => void, trustLevel: string) {

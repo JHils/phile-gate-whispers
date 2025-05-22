@@ -87,7 +87,7 @@ export function getEmotionalResponse(emotionalState: EmotionalState, trustLevel:
   const { primary, intensity } = emotionalState;
   
   // Define responses by emotion and intensity
-  const responses: Record<EmotionCategory, Record<EmotionIntensity, string[]>> = {
+  const responses: Record<EmotionCategory, Record<string, string[]>> = {
     joy: {
       low: ["This brings a bit of light.", "That's somewhat positive."],
       medium: ["I feel a warmth from that.", "That gives me a sense of happiness."],
@@ -317,7 +317,7 @@ export function generateGreeting(
   ].filter(Boolean);
   
   // Mood-based greetings
-  const moodGreetings = {
+  const moodGreetings: Record<string, string[]> = {
     joy: ["You've caught me in a good state of mind.", "I feel lighter today."],
     sadness: ["Things feel heavy today.", "I'm in a melancholic mood."],
     anger: ["I've been... processing some things.", "My systems feel tense."],

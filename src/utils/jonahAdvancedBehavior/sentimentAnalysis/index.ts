@@ -9,7 +9,10 @@ import {
   getLayeredEmotionalResponse,
   checkForRecurringSymbols,
   processEmotionalInput,
-  generateEmotionalResponse
+  generateGreeting,
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse
 } from './analyzer';
 import { EmotionCategory, EmotionalState, EmotionalTrend, ResponseStyle } from '../types';
 
@@ -18,8 +21,11 @@ export const analyze = analyzeEmotion;
 export { 
   analyzeEmotion,
   getEmotionalResponse,
-  generateEmotionalResponse,
   getLayeredEmotionalResponse,
+  generateGreeting,
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse,
   checkForRecurringSymbols,
   processEmotionalInput
 };

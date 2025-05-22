@@ -51,7 +51,7 @@ export type ResponseStyle =
   | 'RESIDUE';
 
 // Emotional Trend Analysis
-export type EmotionalTrend = 'improving' | 'deteriorating' | 'stable' | 'fluctuating';
+export type EmotionalTrend = 'improving' | 'deteriorating' | 'stable' | 'fluctuating' | 'intensifying' | 'diminishing';
 
 // Conversation Context
 export interface ConversationContext {
@@ -60,18 +60,22 @@ export interface ConversationContext {
   userTrustLevel: number;
   depth: number;
   sessionStartTime: number;
+  recentMessages?: string[]; // Add this to fix the enhancedMemorySystem error
 }
 
-// Story Flag Type
+// Story Flag Type - Updated to include the name and description fields
 export interface StoryFlag {
   id: string;
+  name?: string; // Added to fix errors in consoleClueSystem.ts
   discovered: boolean;
   timestamp?: number;
+  description?: string; // Added to fix errors in consoleClueSystem.ts
 }
 
-// Book Code Type
+// Book Code Type - Updated to include the name field
 export interface BookCode {
   code: string;
+  name?: string; // Added to fix errors
   unlocked: boolean;
   timestamp?: number;
 }
@@ -83,6 +87,52 @@ export interface EcoAwarenessState {
   reminderTimestamp: number;
   userAwareness: number;
   triggersFound: string[];
+  biomeResponses?: Record<string, string[]>; // Added to fix error in useJonahEcoAwareness.ts
+}
+
+// MicroQuest type for BotQuestSystem
+export interface MicroQuest {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  unlocked: boolean;
+  reward?: number;
+}
+
+// Confession Entry type
+export interface ConfessionEntry {
+  id: string;
+  text: string;
+  timestamp: number;
+  emotion?: EmotionCategory;
+  trust?: number;
+}
+
+// Testament Entry type
+export interface TestamentEntry {
+  id: string;
+  text: string;
+  timestamp: number;
+  trustLevel: number;
+  emotion?: EmotionCategory;
+}
+
+// Reality Fabric type
+export interface RealityFabric {
+  moodChangeTime: number;
+  currentMood: string;
+  moodHistory: string[];
+  anomalyCount: number;
+  anomalies: string[];
+  journal: string[];
+  crossSiteWhispers: string[];
+  mood: string;
+  dreamState: boolean;
+  lastDreamTime: number;
+  hiddenMessages: string[];
+  emotionalState?: EmotionalState;
+  stability?: number; // Added to fix error in conversationMemory.ts
 }
 
 // Sentience Data Structure
@@ -111,21 +161,11 @@ export interface SentienceData {
   microQuests?: {
     active: string[];
     completed: string[];
+    available?: string[]; // Added to fix error
   };
-  realityFabric?: {
-    moodChangeTime: number;
-    currentMood: string;
-    moodHistory: string[];
-    anomalyCount: number;
-    anomalies: string[];
-    journal: string[];
-    crossSiteWhispers: string[];
-    mood: string;
-    dreamState: boolean;
-    lastDreamTime: number;
-    hiddenMessages: string[];
-    emotionalState?: EmotionalState;
-  };
+  realityFabric?: RealityFabric;
+  ecoAwareness?: EcoAwarenessState; // Added to fix BotEcologicalAwareness.tsx error
+  newsAwareness?: boolean; // Added to fix BotNewsAwareness.tsx error
 }
 
 // Create an emotional state with defaults

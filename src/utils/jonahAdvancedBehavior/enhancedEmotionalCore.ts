@@ -12,7 +12,7 @@ import {
   getLoopResponse,
   getBlankFragmentResponse,
   generateGreeting
-} from './sentimentAnalysis/responseGenerator';
+} from './sentimentAnalysis';
 import { getCurrentTrustLevel, getCurrentTrustRank } from './trustSystem';
 
 // Generate emotional response with context awareness
