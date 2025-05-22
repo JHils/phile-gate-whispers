@@ -1,3 +1,4 @@
+
 /**
  * Initialize Jonah Advanced Behavior
  * Centralizes initialization of all advanced behavioral systems
@@ -56,4 +57,9 @@ export function initializeAdvancedBehavior() {
   console.log("Jonah Advanced Behavior System initialized");
   
   return true;
+}
+
+// Re-export for convenience
+export function initializeJonahSystems() {
+  return initializeAdvancedBehavior();
 }

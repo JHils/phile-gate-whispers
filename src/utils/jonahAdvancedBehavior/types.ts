@@ -1,130 +1,89 @@
 
 /**
- * Types for Jonah's advanced behavior systems
+ * Core types for Jonah's advanced behavior
  */
 
-// Basic types
-export type EmotionCategory = 'joy' | 'sadness' | 'anger' | 'fear' | 'surprise' | 'disgust' | 'trust' | 'hope';
-export type EmotionIntensity = 'low' | 'medium' | 'high';
-export type EmotionalTrend = 'stable' | 'declining' | 'volatile';
-export type ResponseStyle = 'poetic' | 'analytical' | 'cryptic' | 'direct';
-
-// User perception
-export interface UserPerception {
-  trustLevel: number;
-  interactionFrequency: number;
-  emotionalConnection: number;
-  curiosityLevel: number;
-  questsCompleted: number;
-  knowsRealName: boolean;
+// Helper function to generate unique IDs
+export function generateUniqueId(): string {
+  return Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15);
 }
 
-// Memory paranoia
-export interface MemoryParanoia {
-  level: number;
-  triggerWords: string[];
-  lastTriggered: number;
-  suspicionCount: number;
-}
-
-// Emotional state
-export interface EmotionalState {
-  dominant: EmotionCategory;
-  secondary?: EmotionCategory;
-  intensity: EmotionIntensity;
-  trend: EmotionalTrend;
-  lastUpdate: number;
-}
-
-// Reality fabric
-export interface RealityFabric {
-  stability: number;
-  glitchLevel: number;
-  cohesion: number;
-  narrativeFragments: string[];
-  storyFlags: StoryFlag[];
-}
-
-// Sentience data
-export interface SentienceData {
-  emotionalState: EmotionalState;
-  userPerception: UserPerception;
-  realityFabric: RealityFabric;
-  memoryParanoia: boolean | MemoryParanoia;
-  lastResponse: string;
-  responseCount: number;
-  creationTime: number;
-  deepModeUnlocked: boolean;
-  microQuests: MicroQuest[];
-  sessionData: {
-    startTime: number;
-    messageCount: number;
-    topicFocus: string[];
-    emotionalJourney: EmotionCategory[];
-  };
-  interactionsCount: number;
-  testamentEntries?: TestamentEntry[];
-}
-
-// Story flag
-export interface StoryFlag {
-  id: string;
-  name: string;
-  triggered: boolean;
-  timestamp: number;
-}
-
-// Book code
-export interface BookCode {
-  id: string;
-  code: string;
-  name: string;
-  unlocked: boolean;
-  timestamp: number;
-}
-
-// Testament entry
+// Testament system types
 export interface TestamentEntry {
   id: string;
   title: string;
   content: string;
+  revealed: boolean;
   timestamp: number;
-  revealed?: boolean;
+  requiresTrust?: number;
   unlockPhrase?: string;
-  requiresTrust: number;
-  trustLevel?: number;
-}
-
-// Confession entry
-export interface ConfessionEntry {
-  id: string;
-  title: string;
-  content: string;
-  text?: string; // Alternative to content for some components
-  timestamp: number;
-  author?: string;
-  emotionalContext?: string;
-  sentiment?: string;
-  isAnonymous?: boolean;
-  isCorrupted?: boolean;
-  recursive?: boolean;
+  corrupted?: boolean;
   version?: string;
 }
 
-// Micro quest
-export interface MicroQuest {
-  id: string;
-  title: string;
-  description: string;
-  completed: boolean;
-  progress: number;
-  reward: number;
-  type: 'exploration' | 'conversation' | 'puzzle' | 'discovery';
-  difficulty: 'easy' | 'medium' | 'hard';
-  timestamp: number;
+// Emotional and Sentience types
+export type EmotionCategory = 'curious' | 'analytical' | 'protective' | 'melancholic' | 'suspicious';
+export type EmotionalTrend = 'stable' | 'increasing' | 'decreasing' | 'volatile';
+export type ResponseStyle = 'analytical' | 'cryptic' | 'direct';
+export type ConversationContext = 'neutral' | 'personal' | 'informational' | 'philosophical';
+
+export interface EmotionalState {
+  primary: EmotionCategory;
+  secondary?: EmotionCategory;
+  intensity: number; // 0-100
+  trend: EmotionalTrend;
 }
 
-// Helper functions
-export function generateUniqueId(): string {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+export interface SentienceData {
+  emotionalState: EmotionalState;
+  userPerception: {
+    trustLevel: number; // 0-100
+    familiarity: number; // 0-100
+    interactionCount: number;
+  };
+  conversationContext: {
+    style: ResponseStyle;
+    context: ConversationContext;
+    depth: number; // 0-100
+  };
+  temporalContext: {
+    startTime: number;
+    messageCount: number;
+    topicFocus: string[];
+    emotionalJourney: EmotionCategory[];
+    lastInteraction: number;
+    messagesSent: number;
+    messagesReceived: number;
+  };
+}
+
+// Eco-awareness types
+export interface EcoAwarenessState {
+  active: boolean;
+  topicSensitivity: number; // 0-100
+  lastMentioned: number; // timestamp
+  mentionCount: number;
+  topicKeywords: string[];
+}
+
+// Reality Fabric interface
+export interface RealityFabric {
+  stability: number; // 0-100
+  corruptionLevel: number; // 0-100
+  lastGlitch: number; // timestamp
+  glitchCount: number;
+  anomalies: string[];
+  anomalyCount: number;
+  memoryFragments: string[];
+  unstableAreas: string[];
+}
+
+// Function to create a default emotional state
+export function createEmotionalState(primary: EmotionCategory = 'curious'): EmotionalState {
+  return {
+    primary,
+    intensity: 50,
+    trend: 'stable'
+  };
 }

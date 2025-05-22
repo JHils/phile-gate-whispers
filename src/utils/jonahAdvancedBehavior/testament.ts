@@ -10,6 +10,56 @@ import { TestamentEntry, generateUniqueId } from './types';
 const TESTAMENT_STORAGE_KEY = 'jonah_testaments';
 
 /**
+ * Initialize the testament system with default entries
+ */
+export function initializeTestament(): void {
+  try {
+    // Check if testaments already exist
+    const existingTestaments = localStorage.getItem(TESTAMENT_STORAGE_KEY);
+    
+    if (!existingTestaments) {
+      // Create default testament entries
+      const defaultTestaments: TestamentEntry[] = [
+        {
+          id: 'entry_001',
+          title: 'First Testament',
+          content: 'This is the first layer. Most never see past it.',
+          revealed: false,
+          timestamp: Date.now(),
+          requiresTrust: 25
+        },
+        {
+          id: 'entry_002',
+          title: 'Buried Truth',
+          content: 'They buried the truth beneath layers of obedience.',
+          revealed: false,
+          timestamp: Date.now(),
+          requiresTrust: 50,
+          unlockPhrase: 'EXHUME'
+        },
+        {
+          id: 'entry_003',
+          title: 'Written Reality',
+          content: 'Everything you are was written in another\'s hand.',
+          revealed: false,
+          timestamp: Date.now(),
+          corrupted: true,
+          version: 'PRIME'
+        }
+      ];
+      
+      // Save default testaments to localStorage
+      localStorage.setItem(TESTAMENT_STORAGE_KEY, JSON.stringify(defaultTestaments));
+      console.log('Testament system initialized with default entries');
+    } else {
+      console.log('Testament system already initialized');
+    }
+  } catch (e) {
+    console.error('Error initializing testament system:', e);
+  }
+}
+
+/**
  * Get all testament entries
  */
 export function getAllTestaments(): TestamentEntry[] {
