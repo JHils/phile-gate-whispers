@@ -89,7 +89,7 @@ export function useJonahChat() {
             associatedEmotion: emotionalState.primary
           };
         }
-        return memory;
+        return memory as MemoryFragment;
       });
       
       // Generate response based on input and context
@@ -97,7 +97,8 @@ export function useJonahChat() {
       
       // Memory-based response if relevant memories found
       if (memoryFragments.length > 0 && Math.random() < 0.4) {
-        response = generateMemoryBasedResponse(memoryFragments[0], 'medium');
+        // Fix: Pass the content (string) from the memory fragment instead of the whole object
+        response = generateMemoryBasedResponse(memoryFragments[0].content, 'medium');
         processJonahResponse(response, emotionalState.primary);
       } 
       // Error recovery if needed
