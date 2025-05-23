@@ -48,6 +48,12 @@ export type ResponseStyle =
   | 'STATIC'
   | 'ERROR';
 
+// Trust Levels
+export type TrustLevel = 'none' | 'low' | 'medium' | 'high';
+
+// Emotion Intensity
+export type EmotionIntensity = 'low' | 'medium' | 'high';
+
 // Emotional State
 export interface EmotionalState {
   primary: EmotionCategory;
@@ -60,7 +66,7 @@ export interface EmotionalState {
 export function createEmotionalState(
   primary: EmotionCategory,
   secondary?: EmotionCategory,
-  intensity: 'low' | 'medium' | 'high' = 'medium'
+  intensity: EmotionIntensity = 'medium'
 ): EmotionalState {
   // Convert intensity to numeric value
   let numericIntensity = 50; // medium default
@@ -74,6 +80,12 @@ export function createEmotionalState(
     intensity: numericIntensity,
     trend: 'stable'
   };
+}
+
+// Generate unique ID helper
+export function generateUniqueId(): string {
+  return Math.random().toString(36).substring(2, 15) + 
+    Math.random().toString(36).substring(2, 15);
 }
 
 // Timeline Event
@@ -95,6 +107,7 @@ export interface TestamentEntry {
   unlocked: boolean;
   unlockPhrase: string;
   dateUnlocked: string | null;
+  timestamp?: number;
 }
 
 // Journal Entry Content
@@ -119,6 +132,97 @@ export interface MemoryFragment {
   timestamp: number;
 }
 
+// Confession Entry
+export interface ConfessionEntry {
+  id: string;
+  content: string;
+  timestamp: number;
+  approved: boolean;
+  category: string;
+  importance: number;
+}
+
+// Book Code
+export interface BookCode {
+  id: string;
+  title: string;
+  code: string;
+  unlocked: boolean;
+  content: string;
+}
+
+// Book Code Data
+export interface BookCodeData {
+  codes: BookCode[];
+  activeCode: string | null;
+}
+
+// Story Flag
+export interface StoryFlag {
+  id: string;
+  name: string;
+  triggered: boolean;
+  timestamp: number;
+}
+
+// Clue Data
+export interface ClueData {
+  id: string;
+  text: string;
+  found: boolean;
+  category: string;
+}
+
+// Conversation Context Data
+export interface ConversationContextData {
+  recentMessages: Array<{
+    content: string;
+    isUser: boolean;
+    emotion: EmotionCategory;
+    timestamp: number;
+  }>;
+  dominantEmotions: EmotionCategory[];
+  trustLevel: TrustLevel;
+  sessionStart: number;
+  messageCount: number;
+  topics: string[];
+}
+
+// Reality Fabric
+export interface RealityFabric {
+  stability: number;
+  corruptionLevel: number;
+  lastGlitch: number;
+  glitchCount: number;
+  anomalies: string[];
+  anomalyCount: number;
+  memoryFragments: string[];
+  unstableAreas: string[];
+  moodChangeTime: number;
+  currentMood: string;
+  moodHistory: string[];
+  mood: string;
+  dreamState: boolean;
+  lastDreamTime: number;
+  hiddenMessages: string[];
+  journal: JournalEntry[];
+  crossSiteWhispers: string[];
+}
+
+// Eco Awareness State
+export interface EcoAwarenessState {
+  enabled: boolean;
+  level: number;
+  lastUpdate: number;
+  topics: {
+    climate: boolean;
+    conservation: boolean;
+    sustainability: boolean;
+  };
+  responses: string[];
+  factoids: string[];
+}
+
 // Sentience Data
 export interface SentienceData {
   level: number;
@@ -135,6 +239,7 @@ export interface SentienceData {
     messagesSent: number;
     startTime: number;
     idleTime: number;
+    messageCount?: number;
   };
   emotionalState: {
     primary: EmotionCategory;
@@ -162,25 +267,8 @@ export interface SentienceData {
     messagesReceived: number;
   };
   microQuests: MicroQuest[];
-  realityFabric?: {
-    stability: number;
-    corruptionLevel: number;
-    lastGlitch: number;
-    glitchCount: number;
-    anomalies: string[];
-    anomalyCount: number;
-    memoryFragments: string[];
-    unstableAreas: string[];
-    moodChangeTime: number;
-    currentMood: string;
-    moodHistory: string[];
-    mood: string;
-    dreamState: boolean;
-    lastDreamTime: number;
-    hiddenMessages: string[];
-    journal: JournalEntry[];
-    crossSiteWhispers: string[];
-  };
+  ecoAwareness?: EcoAwarenessState;
+  realityFabric?: RealityFabric;
 }
 
 // Temporal State
@@ -198,7 +286,7 @@ export interface MicroQuest {
   completed: boolean;
   progress: number;
   reward: number;
-  type: 'conversation' | 'discovery' | 'echo' | 'whisper';
+  type: 'conversation' | 'discovery' | 'echo' | 'whisper' | 'exploration' | 'puzzle';
   difficulty: 'easy' | 'medium' | 'hard';
   timestamp: number;
 }

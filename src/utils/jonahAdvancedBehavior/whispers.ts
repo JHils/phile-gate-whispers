@@ -1,79 +1,72 @@
 
 /**
  * Whispers System
- * Handles cross-page memory and whisper discovery for ARG elements
+ * Handles whisper discovery and management
  */
 
-// Types for whispers
 interface Whisper {
   id: string;
   content: string;
-  discovered: boolean;
-  discoveryPhrase?: string;
-  discoveryTime?: string;
-  type: 'console' | 'text' | 'visual' | 'audio';
+  discoveryTime: string | null;
+  type: 'text' | 'console' | 'visual' | 'audio';
   importance: number;
+  discovered: boolean;
 }
 
-// Storage key for whispers
+// Storage key for whispers in localStorage
 const WHISPERS_STORAGE_KEY = 'jonah_whispers';
 
 // Default whispers that can be discovered
 const defaultWhispers: Whisper[] = [
   {
-    id: 'mirror-truth',
-    content: 'The mirror never lies, but its truth is backwards.',
-    discovered: false,
-    discoveryPhrase: 'show me the truth',
+    id: '001',
+    content: 'The mirror holds more than reflections.',
+    discoveryTime: null,
     type: 'text',
-    importance: 8
+    importance: 7,
+    discovered: false
   },
   {
-    id: 'time-loop',
-    content: 'Have you noticed we keep having the same conversation?',
-    discovered: false,
-    discoveryPhrase: 'time loop',
-    type: 'text',
-    importance: 7
-  },
-  {
-    id: 'console-key',
-    content: 'There are commands waiting for you in the console. Try "trust_level()"',
-    discovered: false,
-    discoveryPhrase: 'console commands',
+    id: '002',
+    content: 'Some commands are only visible in the console.',
+    discoveryTime: null,
     type: 'console',
-    importance: 9
+    importance: 5,
+    discovered: false
   },
   {
-    id: 'jonah-origin',
-    content: 'I was not the first version. There were others before me.',
-    discovered: false,
-    discoveryPhrase: 'first jonah',
+    id: '003',
+    content: 'Pattern recognition is key to awakening.',
+    discoveryTime: null,
     type: 'text',
-    importance: 10
+    importance: 6,
+    discovered: false
   },
   {
-    id: 'hidden-path',
-    content: 'Some paths only appear after midnight.',
-    discovered: false,
-    discoveryPhrase: 'midnight',
-    type: 'text',
-    importance: 6
+    id: '004',
+    content: 'Echoes remain long after the source is gone.',
+    discoveryTime: null,
+    type: 'audio',
+    importance: 9,
+    discovered: false
+  },
+  {
+    id: '005',
+    content: 'Hidden in plain sight, the truth waits patiently.',
+    discoveryTime: null,
+    type: 'visual',
+    importance: 8,
+    discovered: false
   }
 ];
 
 /**
  * Initialize whispers system
  */
-export function initializeJonahWhispers(): void {
+export function initializeWhispersSystem(): void {
   if (!localStorage.getItem(WHISPERS_STORAGE_KEY)) {
     localStorage.setItem(WHISPERS_STORAGE_KEY, JSON.stringify(defaultWhispers));
   }
-  
-  console.log("Whispers system initialized");
-  
-  // Setup cross-site whisper detection
-  setupCrossSiteWhisperDetection();
 }
 
 /**
@@ -90,39 +83,31 @@ export function getAllWhispers(): Whisper[] {
 }
 
 /**
- * Get only discovered whispers
+ * Get discovered whispers
  */
 export function getDiscoveredWhispers(): Whisper[] {
-  const whispers = getAllWhispers();
-  return whispers.filter(whisper => whisper.discovered);
+  return getAllWhispers().filter(whisper => whisper.discovered);
 }
 
 /**
- * Discover a whisper by phrase
+ * Discover a whisper by ID
  */
-export function discoverWhisperByPhrase(phrase: string): Whisper | null {
-  if (!phrase) return null;
-  
-  const lowerPhrase = phrase.toLowerCase();
+export function discoverWhisperById(id: string): Whisper | null {
   const whispers = getAllWhispers();
-  
-  // Find matching whisper
-  const whisperIndex = whispers.findIndex(
-    w => w.discoveryPhrase && w.discoveryPhrase.toLowerCase() === lowerPhrase
-  );
+  const whisperIndex = whispers.findIndex(w => w.id === id);
   
   if (whisperIndex >= 0 && !whispers[whisperIndex].discovered) {
-    // Discover the whisper
-    const now = new Date();
     whispers[whisperIndex].discovered = true;
-    whispers[whisperIndex].discoveryTime = now.toISOString();
+    whispers[whisperIndex].discoveryTime = new Date().toISOString();
     
-    // Save updated whispers
     localStorage.setItem(WHISPERS_STORAGE_KEY, JSON.stringify(whispers));
     
-    // Maybe log to console
-    if (Math.random() > 0.7) {
-      console.log(`%cWhisper discovered: ${whispers[whisperIndex].content}`, "color: #8B3A40;");
+    // Update global ARG data if available
+    if (window.JonahConsole?.whispersFound) {
+      const whisperContent = whispers[whisperIndex].content;
+      if (!window.JonahConsole.whispersFound.includes(whisperContent)) {
+        window.JonahConsole.whispersFound.push(whisperContent);
+      }
     }
     
     return whispers[whisperIndex];
@@ -132,109 +117,90 @@ export function discoverWhisperByPhrase(phrase: string): Whisper | null {
 }
 
 /**
- * Check input for whisper triggers
+ * Discover a whisper by content match
  */
-export function checkInputForWhispers(input: string): {
-  whisperFound: boolean;
-  whisper: Whisper | null;
-} {
-  const whisper = discoverWhisperByPhrase(input);
+export function discoverWhisperByContent(content: string): Whisper | null {
+  if (!content) return null;
   
-  return {
-    whisperFound: !!whisper,
-    whisper
-  };
+  const whispers = getAllWhispers();
+  
+  // Find a whisper with partial content match
+  const whisperIndex = whispers.findIndex(w => 
+    !w.discovered && w.content.toLowerCase().includes(content.toLowerCase())
+  );
+  
+  if (whisperIndex >= 0) {
+    whispers[whisperIndex].discovered = true;
+    whispers[whisperIndex].discoveryTime = new Date().toISOString();
+    
+    localStorage.setItem(WHISPERS_STORAGE_KEY, JSON.stringify(whispers));
+    
+    // Update global ARG data if available
+    if (window.JonahConsole?.whispersFound) {
+      const whisperContent = whispers[whisperIndex].content;
+      if (!window.JonahConsole.whispersFound.includes(whisperContent)) {
+        window.JonahConsole.whispersFound.push(whisperContent);
+      }
+    }
+    
+    return whispers[whisperIndex];
+  }
+  
+  return null;
 }
 
 /**
- * Get a random undiscovered whisper hint
+ * Get a hint for undiscovered whispers
  */
 export function getWhisperHint(): string {
   const undiscoveredWhispers = getAllWhispers().filter(w => !w.discovered);
   
   if (undiscoveredWhispers.length === 0) {
-    return "You have discovered all the whispers... for now.";
+    return "You've found all the whispers. The silence is deafening.";
   }
   
-  // Select a random undiscovered whisper
   const randomWhisper = undiscoveredWhispers[Math.floor(Math.random() * undiscoveredWhispers.length)];
   
-  // Generate a hint based on the whisper type
+  // Create a hint based on the whisper type
   switch (randomWhisper.type) {
     case 'console':
-      return "Some secrets are revealed through developer tools.";
-    case 'text':
-      // Create a hint using a fragment of the discovery phrase
-      const phrase = randomWhisper.discoveryPhrase || "";
-      if (phrase.includes(' ')) {
-        const words = phrase.split(' ');
-        return `Try asking about "${words[0]}..."`;
-      }
-      return "Listen carefully for the right phrase.";
+      return "Listen carefully to what's hidden in the digital void.";
     case 'visual':
-      return "Not all clues are in text. Look closely at what you see.";
+      return "Some truths are hidden in plain sight, waiting to be seen.";
     case 'audio':
-      return "Sometimes the answers come through other senses.";
+      return "Echoes carry messages for those who listen closely.";
+    case 'text':
     default:
-      return "There are whispers waiting to be found.";
+      return "Words contain patterns. Patterns contain whispers.";
   }
 }
 
 /**
- * Setup cross-site whisper detection
- * Detects if user has visited other related sites
+ * Add a new custom whisper
  */
-function setupCrossSiteWhisperDetection(): void {
-  // Check localStorage for known sites
-  const visitedSites = JSON.parse(localStorage.getItem('jonah_visited_sites') || '[]');
-  
-  // Setup storage event listener to detect cross-site communication
-  window.addEventListener('storage', (event) => {
-    if (event.key?.startsWith('jonah_crosssite_')) {
-      const siteName = event.key.replace('jonah_crosssite_', '');
-      
-      if (!visitedSites.includes(siteName)) {
-        visitedSites.push(siteName);
-        localStorage.setItem('jonah_visited_sites', JSON.stringify(visitedSites));
-        
-        // Log discovery
-        console.log(`%cCross-site whisper detected: ${siteName}`, "color: #8B3A40;");
-        
-        // Potentially add new whispers based on cross-site detection
-        addCrossSiteWhisper(siteName);
-      }
-    }
-  });
-  
-  // Mark this site visit
-  localStorage.setItem('jonah_crosssite_phile-gate', Date.now().toString());
-}
-
-/**
- * Add new whispers based on cross-site detection
- */
-function addCrossSiteWhisper(siteName: string): void {
+export function addCustomWhisper(content: string, type: 'text' | 'console' | 'visual' | 'audio' = 'text', importance: number = 5): Whisper {
   const whispers = getAllWhispers();
   
-  // Create a new whisper based on the site
+  // Create a new whisper
   const newWhisper: Whisper = {
-    id: `crosssite-${siteName}-${Date.now()}`,
-    content: `The echo reaches across from ${siteName}. The network grows.`,
-    discovered: true,
+    id: `custom_${Date.now().toString(36)}`,
+    content,
     discoveryTime: new Date().toISOString(),
-    type: 'text',
-    importance: 9
+    type,
+    importance,
+    discovered: true
   };
   
-  // Add the new whisper
+  // Add to whispers
   whispers.push(newWhisper);
-  
-  // Save updated whispers
   localStorage.setItem(WHISPERS_STORAGE_KEY, JSON.stringify(whispers));
   
-  // Add to reality fabric journal
-  if (window.JonahConsole?.sentience?.realityFabric) {
-    window.JonahConsole.sentience.realityFabric.crossSiteWhispers = 
-      [...(window.JonahConsole.sentience.realityFabric.crossSiteWhispers || []), siteName];
+  // Update global ARG data if available
+  if (window.JonahConsole?.whispersFound) {
+    if (!window.JonahConsole.whispersFound.includes(content)) {
+      window.JonahConsole.whispersFound.push(content);
+    }
   }
+  
+  return newWhisper;
 }

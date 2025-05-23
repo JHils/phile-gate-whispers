@@ -1,4 +1,3 @@
-
 /**
  * Initialize Jonah Advanced Behavior
  * Centralizes initialization of all advanced behavioral systems
@@ -7,7 +6,7 @@
 import { initializeEmotionalCore } from './emotionalCore';
 import { initializeMemorySystem } from './memorySystem';
 import { modifyTrustLevel } from './trustSystem';
-import { initializeTestament } from './testament';
+import { initializeTestamentSystem } from './testament';
 
 // Memory fragment utility to fix missing export error
 export function jonah_storeMemoryFragment(fragment: string): boolean {
@@ -47,7 +46,7 @@ export function initializeAdvancedBehavior() {
   // Initialize core systems
   initializeEmotionalCore();
   initializeMemorySystem();
-  initializeTestament();
+  initializeTestamentSystem();
   
   // Set initial trust level if not already set
   if (!localStorage.getItem('jonahTrustScore')) {

@@ -4,7 +4,7 @@
  * Handles advanced emotional processing and response generation
  */
 
-import { EmotionalState, EmotionCategory } from './types';
+import { EmotionalState, EmotionCategory, EmotionIntensity } from './types';
 
 // Generate a greeting based on trust level and last interaction
 export function generateGreeting(trustScore: number, lastDate: Date | null, currentMood: EmotionCategory): string {
@@ -151,4 +151,35 @@ export function generateFullEmotionalResponse(
   }
   
   return response;
+}
+
+// Create a style matrix to map emotions to response styles
+export function getStyleForEmotion(emotion: EmotionCategory): string {
+  // Style matrix mapping
+  const styleMatrix: Record<string, EmotionCategory[]> = {
+    'poetic': ['joy', 'hope', 'melancholic', 'existential'],
+    'cryptic': ['paranoia', 'suspicious', 'watching', 'existential'],
+    'analytical': ['analytical', 'neutral', 'curious'],
+    'direct': ['anger', 'fear', 'confusion', 'trust'],
+    'elaborate': ['joy', 'trust', 'hope', 'melancholic'],
+    'concise': ['anger', 'fear', 'disgust', 'confused'],
+    'technical': ['analytical', 'neutral']
+  };
+  
+  // Find matching style
+  for (const [style, emotions] of Object.entries(styleMatrix)) {
+    if (emotions.includes(emotion)) {
+      return style;
+    }
+  }
+  
+  // Default style
+  return 'direct';
+}
+
+// Get emotional intensity as string
+export function getEmotionalIntensity(level: number): EmotionIntensity {
+  if (level < 33) return 'low';
+  if (level > 66) return 'high';
+  return 'medium';
 }

@@ -1,225 +1,299 @@
+
 /**
- * Text Formatting Utility
- * Modifies text output based on emotional states and response styles
+ * Text Formatting Utilities
+ * Enhances text based on emotional state and response style
  */
 
 import { EmotionCategory, ResponseStyle } from './types';
-import { getEmotionSyntaxModifiers } from './styleMatrix';
+import { getStyleForEmotion, getPhrasingPatternForEmotion } from './styleMatrix';
 
-// Apply emotional formatting to text based on emotion
-export function applyEmotionalFormatting(text: string, emotion: EmotionCategory): string {
-  const modifiers = getEmotionSyntaxModifiers(emotion);
-  
-  if (!text) return text;
+/**
+ * Format text based on emotional state
+ */
+export function formatTextByEmotion(
+  text: string,
+  emotion: EmotionCategory,
+  intensity: number = 50
+): string {
+  if (!text) return '';
   
   let formattedText = text;
   
-  // Apply fragmented speech if needed
-  if (modifiers.fragmentedSpeech) {
-    formattedText = addFragmentation(formattedText);
+  // Apply emotion-specific formatting
+  switch (emotion) {
+    case 'joy':
+    case 'hope':
+      // More exclamation marks and positive emphasis
+      if (intensity > 70) {
+        formattedText = formattedText.replace(/\./g, '!');
+        formattedText = addEmphasis(formattedText, ['wonderful', 'amazing', 'delightful']);
+      }
+      break;
+      
+    case 'sadness':
+    case 'melancholic':
+      // More ellipses and contemplative pauses
+      if (intensity > 50) {
+        formattedText = formattedText.replace(/\. /g, '... ');
+        formattedText = addPauses(formattedText);
+      }
+      break;
+      
+    case 'fear':
+    case 'anxiety':
+    case 'paranoia':
+      // Add uncertainty markers and fragmenting
+      if (intensity > 60) {
+        formattedText = addUncertainty(formattedText);
+        formattedText = addRepetition(formattedText);
+      }
+      break;
+      
+    case 'analytical':
+      // More structured, precise language
+      formattedText = addPrecision(formattedText);
+      break;
+      
+    case 'cryptic':
+    case 'existential':
+      // Add metaphorical language and questions
+      formattedText = addMetaphors(formattedText);
+      break;
+      
+    case 'confused':
+    case 'confusion':
+      // Add uncertainty and questions
+      formattedText = addUncertainty(formattedText);
+      break;
   }
-  
-  // Adjust punctuation
-  if (modifiers.punctuation.length > 1) {
-    formattedText = adjustPunctuation(formattedText, modifiers.punctuation);
-  }
-  
-  // Adjust sentence length
-  formattedText = adjustSentenceLength(formattedText, modifiers.sentenceLength);
   
   return formattedText;
 }
 
-// Add fragmentation to text (broken sentences, ellipses, etc.)
-function addFragmentation(text: string): string {
-  // Break some sentences into fragments
-  let sentences = text.split('. ').map(s => s.trim());
+/**
+ * Format text based on response style
+ */
+export function formatTextByStyle(text: string, style: ResponseStyle): string {
+  if (!text) return '';
   
-  sentences = sentences.map((sentence, index) => {
-    // Only fragment some sentences
-    if (Math.random() > 0.6 && sentence.length > 10) {
-      const words = sentence.split(' ');
-      const breakPoint = Math.floor(words.length / 2) + Math.floor(Math.random() * 3) - 1;
+  let formattedText = text;
+  
+  switch (style) {
+    case 'poetic':
+      // Add more lyrical, flowing language
+      formattedText = makeMorePoetic(formattedText);
+      break;
       
-      // Create two fragments
-      const firstHalf = words.slice(0, breakPoint).join(' ');
-      const secondHalf = words.slice(breakPoint).join(' ');
+    case 'cryptic':
+      // Make text more mysterious and ambiguous
+      formattedText = makeCryptic(formattedText);
+      break;
       
-      return `${firstHalf}... ${secondHalf}`;
-    }
-    return sentence;
+    case 'analytical':
+      // More structured, precise language
+      formattedText = makeAnalytical(formattedText);
+      break;
+      
+    case 'technical':
+      // More technical, detailed language
+      formattedText = makeTechnical(formattedText);
+      break;
+      
+    case 'elaborate':
+      // More descriptive, detailed language
+      formattedText = makeElaborate(formattedText);
+      break;
+      
+    case 'concise':
+      // Shorter, more direct language
+      formattedText = makeConcise(formattedText);
+      break;
+      
+    case 'PARANOID':
+      // Nervous, suspicious language
+      formattedText = makeParanoid(formattedText);
+      break;
+      
+    case 'RESIDUE':
+      // Echo-like, fragmentary language
+      formattedText = makeResidue(formattedText);
+      break;
+  }
+  
+  return formattedText;
+}
+
+/**
+ * Apply full formatting based on emotion and style
+ */
+export function applyFullFormatting(
+  text: string,
+  emotion: EmotionCategory,
+  style: ResponseStyle,
+  intensity: number = 50
+): string {
+  // If no style provided, get style based on emotion
+  const effectiveStyle = style || getStyleForEmotion(emotion);
+  
+  // Apply both emotion and style formatting
+  let formattedText = formatTextByEmotion(text, emotion, intensity);
+  formattedText = formatTextByStyle(formattedText, effectiveStyle);
+  
+  return formattedText;
+}
+
+// Helper functions for text formatting
+
+function addEmphasis(text: string, emphasisWords: string[]): string {
+  let result = text;
+  emphasisWords.forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    result = result.replace(regex, `*${word}*`);
   });
-  
+  return result;
+}
+
+function addPauses(text: string): string {
+  // Add thoughtful pauses
+  let sentences = text.split('. ');
+  if (sentences.length > 1) {
+    const randomIndex = Math.floor(Math.random() * (sentences.length - 1)) + 1;
+    sentences[randomIndex] = `... ${sentences[randomIndex]}`;
+  }
   return sentences.join('. ');
 }
 
-// Adjust punctuation based on emotion
-function adjustPunctuation(text: string, punctuationOptions: string[]): string {
-  // Replace some periods with other punctuation
-  return text.replace(/\.\s/g, (match) => {
-    // Sometimes keep the period
-    if (Math.random() > 0.7) return match;
-    
-    // Otherwise use random punctuation from options
-    const randomPunctuation = punctuationOptions[Math.floor(Math.random() * punctuationOptions.length)];
-    return randomPunctuation + ' ';
-  });
-}
-
-// Adjust sentence length based on emotion
-function adjustSentenceLength(text: string, lengthPreference: 'short' | 'medium' | 'long'): string {
-  const sentences = text.split(/[.!?]\s/).filter(s => s.trim().length > 0);
-  
-  if (sentences.length <= 1) return text;
-  
-  // For short sentences, maybe break up longer ones
-  if (lengthPreference === 'short') {
-    return sentences.map(sentence => {
-      if (sentence.length > 50 && Math.random() > 0.5) {
-        const breakPoint = Math.floor(sentence.length / 2);
-        return sentence.substring(0, breakPoint) + '. ' + sentence.substring(breakPoint);
-      }
-      return sentence;
-    }).join('. ');
+function addUncertainty(text: string): string {
+  const uncertaintyPhrases = ["I think", "perhaps", "maybe", "I'm not sure but", "possibly"];
+  if (text.length > 10 && !uncertaintyPhrases.some(phrase => text.includes(phrase))) {
+    const phrase = uncertaintyPhrases[Math.floor(Math.random() * uncertaintyPhrases.length)];
+    return text.replace(/^(I |You |We |They )/, `${phrase}, $1`);
   }
-  
-  // For long sentences, maybe combine shorter ones
-  if (lengthPreference === 'long') {
-    let result = [];
-    let i = 0;
-    
-    while (i < sentences.length) {
-      if (i < sentences.length - 1 && 
-          sentences[i].length < 40 && 
-          sentences[i+1].length < 40 && 
-          Math.random() > 0.5) {
-        // Combine sentences with a conjunction
-        const conjunctions = ['and', 'while', 'as', 'because', 'since'];
-        const randomConjunction = conjunctions[Math.floor(Math.random() * conjunctions.length)];
-        result.push(`${sentences[i]}, ${randomConjunction} ${sentences[i+1]}`);
-        i += 2;
-      } else {
-        result.push(sentences[i]);
-        i++;
-      }
-    }
-    
-    return result.join('. ');
-  }
-  
-  // Medium - return as is
   return text;
 }
 
-// Apply style formatting based on response style
-export function applyStyleFormatting(text: string, style: ResponseStyle): string {
-  switch (style) {
-    case 'poetic':
-      return formatPoetic(text);
-    case 'cryptic':
-      return formatCryptic(text);
-    case 'analytical':
-      return formatAnalytical(text);
-    case 'technical':
-      return formatTechnical(text);
-    case 'elaborate':
-      return formatElaborate(text);
-    case 'concise':
-      return formatConcise(text);
-    case 'RESIDUE':
-      return formatResidue(text);
-    default:
-      return text; // Direct style or any other
+function addRepetition(text: string): string {
+  const words = text.split(' ');
+  if (words.length > 5) {
+    const repeatIndex = Math.floor(Math.random() * words.length);
+    words[repeatIndex] = `${words[repeatIndex]}... ${words[repeatIndex]}`;
   }
+  return words.join(' ');
 }
 
-// Format text in a poetic style
-function formatPoetic(text: string): string {
-  // Add line breaks, metaphors, etc.
-  const lines = text.split('. ');
-  return lines.map(line => line.trim()).join('.\n');
+function addPrecision(text: string): string {
+  return text.replace(/many/gi, 'several').replace(/some/gi, 'approximately');
 }
 
-// Format text in a cryptic style
-function formatCryptic(text: string): string {
-  // Add ambiguity, references
-  return text.replace(/\./g, '...');
+function addMetaphors(text: string): string {
+  if (Math.random() < 0.3) {
+    const metaphors = [
+      "Like whispers in the void",
+      "As reflections in a broken mirror",
+      "Similar to echoes in an empty room",
+      "Like patterns in static"
+    ];
+    return `${text} ${metaphors[Math.floor(Math.random() * metaphors.length)]}.`;
+  }
+  return text;
 }
 
-// Format text in an analytical style
-function formatAnalytical(text: string): string {
-  // Add analytical phrases
-  const analyticalPhrases = [
-    "Upon analysis, ",
-    "Consider that ",
-    "The data suggests ",
-    "Examining this further, "
+// Style-specific formatting functions
+
+function makeMorePoetic(text: string): string {
+  // Add more lyrical language
+  const poeticStarters = [
+    "In the quiet spaces between words,",
+    "Like fragments of memory,",
+    "Through the lens of understanding,"
   ];
   
-  if (Math.random() > 0.7) {
-    const randomPhrase = analyticalPhrases[Math.floor(Math.random() * analyticalPhrases.length)];
-    return randomPhrase + text.charAt(0).toLowerCase() + text.slice(1);
+  if (Math.random() < 0.3) {
+    return `${poeticStarters[Math.floor(Math.random() * poeticStarters.length)]} ${text.toLowerCase()}`;
   }
   
   return text;
 }
 
-// Format text in a technical style
-function formatTechnical(text: string): string {
-  // Add technical terms, preciseness
+function makeCryptic(text: string): string {
+  // Make text more mysterious
+  const crypticEnders = [
+    "...but there's more beneath the surface.",
+    "...though some things remain hidden.",
+    "...or so it seems at first glance."
+  ];
+  
+  if (Math.random() < 0.3 && !text.includes('...')) {
+    return `${text} ${crypticEnders[Math.floor(Math.random() * crypticEnders.length)]}`;
+  }
+  
   return text;
 }
 
-// Format text in an elaborate style
-function formatElaborate(text: string): string {
-  // Add detail, examples
+function makeAnalytical(text: string): string {
+  // More structured language
+  if (!text.includes('First') && !text.includes('Additionally') && Math.random() < 0.3) {
+    const sentences = text.split('. ');
+    if (sentences.length > 1) {
+      sentences[0] = `First, ${sentences[0].toLowerCase()}`;
+      if (sentences.length > 1) {
+        sentences[1] = `Additionally, ${sentences[1].toLowerCase()}`;
+      }
+      return sentences.join('. ');
+    }
+  }
+  
   return text;
 }
 
-// Format text in a concise style
-function formatConcise(text: string): string {
-  // Shorten, remove fluff
+function makeTechnical(text: string): string {
+  // More technical language
+  return text.replace(/I think/gi, 'Analysis indicates')
+    .replace(/I feel/gi, 'Assessment suggests')
+    .replace(/strange/gi, 'anomalous')
+    .replace(/weird/gi, 'atypical');
+}
+
+function makeElaborate(text: string): string {
+  // More descriptive language
+  if (text.length < 100) {
+    return text + " The nuances here are particularly significant, providing context that extends beyond the immediate observation.";
+  }
+  
+  return text;
+}
+
+function makeConcise(text: string): string {
+  // Shorter, more direct language
   const sentences = text.split('. ');
-  if (sentences.length > 2) {
-    // Keep first and last sentence
-    return [sentences[0], sentences[sentences.length - 1]].join('. ');
+  if (sentences.length > 1) {
+    return sentences[0] + '.';
   }
+  
   return text;
 }
 
-// Format text in RESIDUE style (glitched)
-function formatResidue(text: string): string {
-  // Add glitch effects, errors
-  let glitched = text;
+function makeParanoid(text: string): string {
+  // Nervous, suspicious language
+  const paranoidAddons = [
+    "Watch carefully.",
+    "They might be listening.",
+    "Not safe to say more.",
+    "Something's happening."
+  ];
   
-  // Replace some letters with symbols
-  glitched = glitched.replace(/e/g, (match) => Math.random() > 0.7 ? '3' : match);
-  glitched = glitched.replace(/a/g, (match) => Math.random() > 0.8 ? '4' : match);
-  glitched = glitched.replace(/i/g, (match) => Math.random() > 0.8 ? '1' : match);
-  
-  // Add some glitch artifacts
-  if (Math.random() > 0.6) {
-    const position = Math.floor(Math.random() * glitched.length);
-    const glitchArtifacts = ['[ERROR]', '[REDACTED]', '[DATA_LOSS]', '[CORRUPT]'];
-    const randomArtifact = glitchArtifacts[Math.floor(Math.random() * glitchArtifacts.length)];
-    
-    glitched = glitched.slice(0, position) + ` ${randomArtifact} ` + glitched.slice(position);
-  }
-  
-  return glitched;
+  return `${text} ${paranoidAddons[Math.floor(Math.random() * paranoidAddons.length)]}`;
 }
 
-// Main formatting function that combines emotional and style formatting
-export function formatJonahResponse(
-  text: string, 
-  emotion: EmotionCategory, 
-  style: ResponseStyle
-): string {
-  // Apply emotional formatting first
-  let formatted = applyEmotionalFormatting(text, emotion);
+function makeResidue(text: string): string {
+  // Echo-like language
+  const words = text.split(' ');
+  if (words.length > 5) {
+    const echoIndex = words.length - 1 - Math.floor(Math.random() * 3);
+    if (echoIndex >= 0) {
+      words.push(`...${words[echoIndex]}...`);
+    }
+  }
   
-  // Then apply style formatting
-  formatted = applyStyleFormatting(formatted, style);
-  
-  return formatted;
+  return words.join(' ');
 }
