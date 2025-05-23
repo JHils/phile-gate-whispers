@@ -6,8 +6,15 @@
 
 import { TrustLevel } from './types';
 
-// Modify trust level by a given amount
-export function modifyTrustLevel(change: number): void {
+// Get trust level text description
+export function getTrustLevelText(score: number): string {
+  if (score >= 75) return 'high';
+  if (score >= 25) return 'medium';
+  return 'low';
+}
+
+// Modify trust level by a given amount and return new score
+export function modifyTrustLevel(change: number): number {
   try {
     // Get current trust score
     const currentScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
@@ -40,8 +47,11 @@ export function modifyTrustLevel(change: number): void {
       localStorage.setItem('jonah_emotion_primary', 'suspicious');
     }
     
+    return newScore;
+    
   } catch (error) {
     console.error('Error modifying trust level:', error);
+    return 50; // Return default score on error
   }
 }
 
