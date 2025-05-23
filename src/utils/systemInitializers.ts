@@ -30,7 +30,7 @@ export function initializeConsoleTracking(): void {
   
   // Example test response - Create an actual EmotionalState instead of a string
   const emotionalState: EmotionalState = createEmotionalState('hope' as EmotionCategory);
-  const testResponse = getEmotionalResponse("Test input", emotionalState, 'medium');
+  const testResponse = getEmotionalResponse("Test input", emotionalState, 'direct');
   console.log("Test emotional response:", testResponse);
 }
 
