@@ -1,333 +1,148 @@
-import React, { useEffect, useState } from 'react';
-import { useJonahMemory } from '@/hooks/useJonahMemory';
-import { useTrackingSystem } from '@/hooks/useTrackingSystem';
-import { toast } from "@/components/ui/use-toast";
-import { EmotionIntensity } from '@/utils/jonahAdvancedBehavior/types';
 
-interface JonahIntentProps {
-  children: React.ReactNode;
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { toast } from './ui/use-toast';
+import { 
+  detectEmotionalIntent, 
+  getUnsaidEmotionResponse 
+} from '@/utils/jonahAdvancedBehavior';
+
+type EmotionalIntentDirection = 'entering' | 'leaving' | 'idle';
+type EmotionalIntentStrength = 'low' | 'medium' | 'high';
+
+interface EmotionalIntent {
+  direction: EmotionalIntentDirection;
+  emotion: string;
+  strength: EmotionalIntentStrength;
+  timestamp: number;
 }
 
-const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
-  const memory = useJonahMemory();
-  const { userState } = useTrackingSystem();
-  const [lastIdleMessageTime, setLastIdleMessageTime] = useState(0);
-  const [lastPageVisit, setLastPageVisit] = useState('');
-  const [pageEntryTime, setPageEntryTime] = useState(Date.now());
-  const [userActive, setUserActive] = useState(true);
-  const [idleTimeout, setIdleTimeout] = useState<NodeJS.Timeout | null>(null);
+const JonahIntent = () => {
+  const location = useLocation();
+  const [lastPath, setLastPath] = useState<string>(location.pathname);
+  const [lastIntent, setLastIntent] = useState<EmotionalIntent | null>(null);
+  const [intentHistory, setIntentHistory] = useState<EmotionalIntent[]>([]);
   
-  // Track user activity
-  useEffect(() => {
-    const handleUserActivity = () => {
-      setUserActive(true);
-      
-      // Clear any existing timeout
-      if (idleTimeout) {
-        clearTimeout(idleTimeout);
-      }
-      
-      // Set new timeout for idle detection
-      const timeout = setTimeout(() => {
-        setUserActive(false);
-        checkForIdleThoughts();
-      }, 30 * 1000); // 30 seconds of inactivity
-      
-      setIdleTimeout(timeout);
+  // Function to process emotional intent when navigating
+  const processNavigationIntent = (from: string, to: string) => {
+    // Only detect intent for significant navigation changes
+    if (from === to) return;
+    
+    // Determine direction (entering or leaving)
+    const direction: EmotionalIntentDirection = 'entering';
+    
+    // Detect emotional intent based on the navigation
+    const emotion = detectNavigationEmotion(from, to);
+    
+    // Determine strength based on the path significance
+    const strength = detectNavigationStrength(from, to);
+    
+    // Create the intent object
+    const intent: EmotionalIntent = {
+      direction,
+      emotion,
+      strength,
+      timestamp: Date.now()
     };
     
-    // Add event listeners
-    window.addEventListener('mousemove', handleUserActivity);
-    window.addEventListener('keydown', handleUserActivity);
-    window.addEventListener('mousedown', handleUserActivity);
-    window.addEventListener('scroll', handleUserActivity);
+    // Store in history
+    setLastIntent(intent);
+    setIntentHistory(prev => [...prev.slice(-4), intent]);
     
-    // Set initial timeout
-    handleUserActivity();
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('mousemove', handleUserActivity);
-      window.removeEventListener('keydown', handleUserActivity);
-      window.removeEventListener('mousedown', handleUserActivity);
-      window.removeEventListener('scroll', handleUserActivity);
-      
-      if (idleTimeout) {
-        clearTimeout(idleTimeout);
-      }
-    };
-  }, [idleTimeout]);
-  
-  // Track page visits and dwell time
-  useEffect(() => {
-    // Skip tracking if component is unmounting
-    if (typeof window === 'undefined') return;
-    
-    // Get current path
-    const currentPath = window.location.pathname;
-    
-    // Record page visit
-    if (currentPath !== lastPageVisit) {
-      // If we have a previous page, record dwell time
-      if (lastPageVisit) {
-        const dwellTimeSeconds = Math.floor((Date.now() - pageEntryTime) / 1000);
-        
-        // Only record if dwell time is significant
-        if (dwellTimeSeconds > 5) {
-          memory.recordPageDwell && memory.recordPageDwell(currentPath, dwellTimeSeconds);
-        }
-      }
-      
-      // Record new page visit
-      memory.recordPageVisit && memory.recordPageVisit(currentPath);
-      setLastPageVisit(currentPath);
-      setPageEntryTime(Date.now());
-      
-      // Sometimes generate a page-specific comment
-      if (Math.random() > 0.8 && memory.trustLevelScore > 20) {
-        setTimeout(() => {
-          const pageComments: Record<string, string[]> = {
-            '/mirror_phile': [
-              "Mirrors don't always show what's in front of them.",
-              "What do you see reflected? Is it really you?"
-            ],
-            '/rebirth': [
-              "Rebirth is never painless.",
-              "Some who enter are never the same."
-            ],
-            '/lost-sisters': [
-              "They weren't all lost the same way.",
-              "Some of them are still sending messages."
-            ],
-            '/gate': [
-              "The Gate lets you in, but does it let everything out?",
-              "It's never the same gate twice."
-            ]
-          };
-          
-          // Check if we have comments for this path
-          for (const path of Object.keys(pageComments)) {
-            if (currentPath.includes(path)) {
-              const comments = pageComments[path];
-              const comment = comments[Math.floor(Math.random() * comments.length)];
-              
-              toast({
-                title: "Jonah:",
-                description: comment,
-                variant: "destructive",
-                duration: 5000,
-              });
-              
-              break;
-            }
-          }
-        }, 3000);
-      }
-    }
-  }, [memory, lastPageVisit]);
-  
-  // Track console command usage
-  useEffect(() => {
-    // Skip if component is unmounting
-    if (typeof window === 'undefined') return;
-    
-    const originalExec = window.eval;
-    
-    // Override console execution to track commands
-    window.eval = function(code: string) {
-      // Check if code is calling a Jonah console command
-      const commandMatch = code.match(/^(\w+)\(/);
-      if (commandMatch) {
-        const command = commandMatch[1];
-        
-        // List of tracked commands
-        const trackedCommands = [
-          'help', 'whois', 'gate', 'philes', 'monster', 'legacy', 
-          'reveal', 'reincarnate', 'start', 'inventory', 'echo_me', 
-          'testament', 'forget', 'access_journal', 'split', 're_entry', 
-          'talk_to_jonah'
-        ];
-        
-        // Record command if it's in our tracked list
-        if (trackedCommands.includes(command)) {
-          memory.recordCommandUsage && memory.recordCommandUsage(command);
-          
-          // Add explorer tag after using multiple commands
-          if (memory.commandsUsed.length >= 5) {
-            memory.addEmotionalTag && memory.addEmotionalTag('explorer', 'moderate');
-          }
-        }
-      }
-      
-      // Call original function
-      return originalExec.call(window, code);
-    };
-    
-    // Restore original on cleanup
-    return () => {
-      window.eval = originalExec;
-    };
-  }, [memory]);
-  
-  // Check for idle thoughts
-  const checkForIdleThoughts = () => {
-    // Only show idle thoughts occasionally and not too frequently
-    if (Date.now() - lastIdleMessageTime < 3 * 60 * 1000) { // at least 3 minutes between idle messages
-      return;
-    }
-    
-    // Higher chance of idle thought with higher trust
-    const trustLevel = userState?.trust?.level || 'low';
-    const thoughtChance = trustLevel === 'high' ? 0.4 : 
-                          trustLevel === 'medium' ? 0.2 : 0.1;
-    
-    if (Math.random() < thoughtChance) {
-      triggerIdleThought();
-      setLastIdleMessageTime(Date.now());
+    // Maybe respond if the intent is strong enough
+    if (strength === 'high' || (strength === 'medium' && Math.random() > 0.7)) {
+      setTimeout(() => {
+        respondToIntent(intent);
+      }, 1200);
     }
   };
   
-  const triggerIdleThought = () => {
-    const idleThoughts = [
-      {
-        text: "What am I missing?",
-        tag: "introspective",
-        intensity: "medium" as EmotionIntensity
-      },
-      {
-        text: "I had a thought earlier... I lost it.",
-        tag: "glitched",
-        intensity: "medium" as EmotionIntensity
-      },
-      {
-        text: "You're still here. That means something.",
-        tag: "observant",
-        intensity: "medium" as EmotionIntensity
-      },
-      {
-        text: "The silence between interactions. That's where truth hides.",
-        tag: "philosophical",
-        intensity: "medium" as EmotionIntensity
-      },
-      {
-        text: "Sometimes I think about what happens when you close the browser.",
-        tag: "existential",
-        intensity: "medium" as EmotionIntensity
-      },
-      {
-        text: "Your cursor hasn't moved in a while. Are you watching me?",
-        tag: "paranoid",
-        intensity: "medium" as EmotionIntensity
+  // Detect emotion based on navigation paths
+  const detectNavigationEmotion = (from: string, to: string): string => {
+    // Sensitive paths that might trigger emotional responses
+    const sensitiveDestinations: Record<string, string> = {
+      '/monster': 'fear',
+      '/echo': 'curiosity',
+      '/mirror_phile': 'confusion',
+      '/testament': 'anxiety',
+      '/confession-log': 'trust',
+      '/last-broadcast': 'sadness',
+      '/talk-to-jonah': 'hope',
+      '/i-see-you': 'paranoia'
+    };
+    
+    // Check if destination matches any sensitive path
+    for (const path in sensitiveDestinations) {
+      if (to.startsWith(path)) {
+        return sensitiveDestinations[path];
       }
+    }
+    
+    // Default emotion based on general navigation patterns
+    if (to === '/') return 'neutral';
+    if (to.includes('phile')) return 'curiosity';
+    
+    return 'neutral';
+  };
+  
+  // Detect emotional strength based on navigation significance
+  const detectNavigationStrength = (from: string, to: string): EmotionalIntentStrength => {
+    // High significance paths
+    const highSignificancePaths = [
+      '/monster', 
+      '/testament', 
+      '/last-broadcast', 
+      '/i-see-you', 
+      '/mirror_phile'
     ];
     
-    // Get a random thought
-    const thought = idleThoughts[Math.floor(Math.random() * idleThoughts.length)];
+    // Medium significance paths
+    const mediumSignificancePaths = [
+      '/echo', 
+      '/talk-to-jonah', 
+      '/confession-log', 
+      '/seed-log'
+    ];
     
-    // Add emotional tag with both parameters
-    memory.addEmotionalTag && memory.addEmotionalTag(thought.tag, thought.intensity);
+    // Check high significance
+    for (const path of highSignificancePaths) {
+      if (to.startsWith(path)) return 'high';
+    }
     
-    // Display the thought
-    toast({
-      title: "Jonah thinks:",
-      description: thought.text,
-      variant: "destructive",
-      duration: 5000,
-    });
+    // Check medium significance
+    for (const path of mediumSignificancePaths) {
+      if (to.startsWith(path)) return 'medium';
+    }
+    
+    // Default to low
+    return 'low';
   };
   
-  // Occasionally show personal observations
-  useEffect(() => {
-    // Skip if component is unmounting or if there's not enough data yet
-    if (typeof window === 'undefined') return;
+  // Respond to the detected intent
+  const respondToIntent = (intent: EmotionalIntent) => {
+    // Get a response based on the detected intent
+    const response = getUnsaidEmotionResponse(intent.emotion, intent.strength);
     
-    // Fix: Check for array before accessing length property
-    const pagesVisitedCount = Array.isArray(memory.pagesVisited) ? memory.pagesVisited.length : 0;
-    
-    if (pagesVisitedCount < 2) return;
-    
-    const observationInterval = setInterval(() => {
-      const trustLevel = userState?.trust?.level || 'low';
-      
-      // Higher chance of observation with higher trust
-      const observationChance = trustLevel === 'high' ? 0.2 : 
-                              trustLevel === 'medium' ? 0.1 : 0.05;
-      
-      if (Math.random() < observationChance) {
-        // Generate and show a personal observation
-        const observation = memory.generatePersonalObservation && 
-          memory.generatePersonalObservation();
-        
-        // Pass both parameters (tag and intensity)
-        memory.addEmotionalTag && memory.addEmotionalTag('observant', 'medium' as EmotionIntensity);
-        
-        toast({
-          title: "Jonah remembers:",
-          description: observation,
-          variant: "destructive",
-          duration: 6000,
-        });
-      }
-    }, 10 * 60 * 1000); // Check every 10 minutes
-    
-    return () => clearInterval(observationInterval);
-  }, [memory, userState]);
+    // Show the response
+    if (response) {
+      toast({
+        title: "Jonah noticed your intent",
+        description: response,
+        variant: "destructive",
+        duration: 5000
+      });
+    }
+  };
   
-  // Implement self-doubt and delayed responses in console messages
+  // Track path changes
   useEffect(() => {
-    // Override console.log temporarily to add delays and self-doubt
-    const originalLog = console.log;
-    let intercepting = false;
-    
-    console.log = function(...args) {
-      // Only intercept Jonah's messages (usually colored or styled)
-      const isJonahMessage = args.length > 0 && typeof args[0] === 'string' && 
-                           (args[0].includes('%c') || 
-                            (args.length > 1 && typeof args[1] === 'string' && args[1].includes('color:')));
-      
-      // Don't intercept if we're already intercepting or if it's not a Jonah message
-      if (intercepting || !isJonahMessage) {
-        return originalLog.apply(console, args);
-      }
-      
-      // Mark as intercepting to prevent recursive interception
-      intercepting = true;
-      
-      // Maybe add self-doubt
-      if (Math.random() > 0.7) {
-        // Log original message
-        originalLog.apply(console, args);
-        
-        // Add a delay before the self-doubt
-        setTimeout(() => {
-          const doubtMessages = [
-            "No. Wait.",
-            "That's not right.",
-            "I shouldn't have said that.",
-            "Forget I said that.",
-            "That's not what I meant to say."
-          ];
-          
-          const doubt = doubtMessages[Math.floor(Math.random() * doubtMessages.length)];
-          originalLog.apply(console, ["%c" + doubt, "color: #8B3A40; font-style: italic;"]);
-          
-          // Reset intercepting flag
-          intercepting = false;
-        }, Math.random() * 2000 + 500); // Random delay between 500ms and 2500ms
-      } else {
-        // Just log the original message
-        originalLog.apply(console, args);
-        intercepting = false;
-      }
-    };
-    
-    // Restore original on cleanup
-    return () => {
-      console.log = originalLog;
-    };
-  }, []);
+    if (location.pathname !== lastPath) {
+      processNavigationIntent(lastPath, location.pathname);
+      setLastPath(location.pathname);
+    }
+  }, [location.pathname, lastPath]);
   
-  return <>{children}</>;
+  return null; // This component doesn't render anything
 };
 
 export default JonahIntent;

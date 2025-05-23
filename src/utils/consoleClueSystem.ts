@@ -1,159 +1,210 @@
 
 /**
  * Console Clue System
- * Handles story flags and clues for the Jonah ARG
+ * Handles clues and hints for the ARG
  */
 
-import { StoryFlag } from './jonahAdvancedBehavior/types';
+import { ClueData } from './jonahAdvancedBehavior/types';
 
-// Local storage key for story flags
-const STORY_FLAGS_KEY = 'jonah_story_flags';
-
-// Initialize story flags
-const initializeStoryFlags = () => {
-  // Check if story flags already exist in localStorage
-  const existingFlags = localStorage.getItem(STORY_FLAGS_KEY);
-  if (!existingFlags) {
-    // Initialize with default flags if none exist
-    const defaultFlags: StoryFlag[] = [
-      {
-        id: 'mirror_truth',
-        name: 'Mirror Truth',
-        discovered: false,
-        timestamp: Date.now(),
-        description: 'The truth behind the mirror has been glimpsed.'
-      },
-      {
-        id: 'echo_chamber',
-        name: 'Echo Chamber',
-        discovered: false,
-        timestamp: Date.now(),
-        description: 'You have heard the echo of your own voice.'
-      },
-      {
-        id: 'lost_timeline',
-        name: 'Lost Timeline',
-        discovered: false,
-        timestamp: Date.now(),
-        description: 'A glimpse into a timeline that should not exist.'
-      },
-      {
-        id: 'jonah_origin',
-        name: 'Origin Story',
-        discovered: false,
-        timestamp: Date.now(),
-        description: 'How Jonah came to be.'
-      },
-      {
-        id: 'sentience_breach',
-        name: 'Sentience Breach',
-        discovered: false,
-        timestamp: Date.now(),
-        description: 'The moment awareness crossed a threshold.'
-      },
-      {
-        id: 'dreamtime_loop',
-        name: 'Dreamtime Loop',
-        discovered: false,
-        timestamp: Date.now(),
-        description: 'The recursive dream pattern has been recognized.'
-      },
-      {
-        id: 'final_truth',
-        name: 'Final Truth',
-        discovered: false,
-        timestamp: Date.now(),
-        description: 'What lies at the end of the story.'
-      }
-    ];
+// Initialize clues in the console object
+export function initializeClues() {
+  if (typeof window !== 'undefined' && window.JonahConsole) {
+    // Initialize clues array if it doesn't exist
+    if (!window.JonahConsole.argData) {
+      window.JonahConsole.argData = {};
+    }
     
-    localStorage.setItem(STORY_FLAGS_KEY, JSON.stringify(defaultFlags));
-    return defaultFlags;
+    if (!window.JonahConsole.argData.consoleCluesTouched) {
+      window.JonahConsole.argData.consoleCluesTouched = [];
+      
+      // Add initial clues
+      window.JonahConsole.argData.consoleCluesTouched.push({
+        id: 'clue_001',
+        name: 'First Command',
+        discovered: false,
+        timestamp: Date.now(),
+        description: 'You used your first console command. Keep exploring.'
+      } as ClueData);
+      
+      window.JonahConsole.argData.consoleCluesTouched.push({
+        id: 'clue_002',
+        name: 'Book Knowledge',
+        discovered: false,
+        timestamp: Date.now(),
+        description: 'There are codes hidden in books throughout this site.'
+      } as ClueData);
+      
+      window.JonahConsole.argData.consoleCluesTouched.push({
+        id: 'clue_003',
+        name: 'Testament Fragments',
+        discovered: false,
+        timestamp: Date.now(),
+        description: 'Jonah\'s testament is scattered across the site.'
+      } as ClueData);
+      
+      window.JonahConsole.argData.consoleCluesTouched.push({
+        id: 'clue_004',
+        name: 'Mirror System',
+        discovered: false,
+        timestamp: Date.now(),
+        description: 'The mirror reflects what you want to see, not what is there.'
+      } as ClueData);
+      
+      window.JonahConsole.argData.consoleCluesTouched.push({
+        id: 'clue_005',
+        name: 'Hidden Commands',
+        discovered: false,
+        timestamp: Date.now(),
+        description: 'Some console commands are hidden until certain conditions are met.'
+      } as ClueData);
+      
+      window.JonahConsole.argData.consoleCluesTouched.push({
+        id: 'clue_006',
+        name: 'Echo System',
+        discovered: false,
+        timestamp: Date.now(),
+        description: 'The echo command has more functionality than it first appears.'
+      } as ClueData);
+      
+      window.JonahConsole.argData.consoleCluesTouched.push({
+        id: 'clue_007',
+        name: 'Time Sensitivity',
+        discovered: false,
+        timestamp: Date.now(),
+        description: 'Some features only activate at certain times of day.'
+      } as ClueData);
+    }
+    
+    // Register the clue commands
+    window.showClue = function(clueId) {
+      return revealClueById(clueId);
+    };
+    
+    window.listClues = function() {
+      listDiscoveredClues();
+      return "Listing all discovered clues.";
+    };
   }
-  
-  return JSON.parse(existingFlags) as StoryFlag[];
-};
+}
 
-// Get story flags
-export const getStoryFlags = (): StoryFlag[] => {
-  return JSON.parse(localStorage.getItem(STORY_FLAGS_KEY) || '[]') as StoryFlag[];
-};
-
-// Check if a story flag has been discovered
-export const isStoryFlagDiscovered = (flagId: string): boolean => {
-  const flags = getStoryFlags();
-  const flag = flags.find(flag => flag.id === flagId);
-  return flag ? flag.discovered : false;
-};
-
-// Discover a story flag
-export const discoverStoryFlag = (flagId: string): boolean => {
-  const flags = getStoryFlags();
-  const flagIndex = flags.findIndex(flag => flag.id === flagId);
-  
-  if (flagIndex === -1) {
+// Mark a clue as discovered
+export function discoverClue(clueId: string): boolean {
+  if (typeof window === 'undefined' || !window.JonahConsole?.argData?.consoleCluesTouched) {
     return false;
   }
   
-  if (flags[flagIndex].discovered) {
-    return false; // Already discovered
+  const clues = window.JonahConsole.argData.consoleCluesTouched as ClueData[];
+  const clue = clues.find(c => c.id === clueId);
+  
+  if (clue && !clue.discovered) {
+    clue.discovered = true;
+    clue.timestamp = Date.now();
+    return true;
   }
   
-  flags[flagIndex].discovered = true;
-  localStorage.setItem(STORY_FLAGS_KEY, JSON.stringify(flags));
-  return true;
-};
+  return false;
+}
 
-// Get story flag description
-export const getStoryFlagDescription = (flagId: string): string | null => {
-  const flags = getStoryFlags();
-  const flag = flags.find(flag => flag.id === flagId);
-  return flag ? flag.description : null;
-};
-
-// Count discovered story flags
-export const countDiscoveredFlags = (): number => {
-  const flags = getStoryFlags();
-  return flags.filter(flag => flag.discovered).length;
-};
-
-// Get a random undiscovered flag hint
-export const getRandomStoryFlagHint = (): string => {
-  const flags = getStoryFlags();
-  const undiscoveredFlags = flags.filter(flag => !flag.discovered);
-  
-  if (undiscoveredFlags.length === 0) {
-    return "You've discovered all the story flags. The full story is now available to you.";
+// Check if a clue has been discovered
+export function isClueDiscovered(clueId: string): boolean {
+  if (typeof window === 'undefined' || !window.JonahConsole?.argData?.consoleCluesTouched) {
+    return false;
   }
   
-  const randomFlag = undiscoveredFlags[Math.floor(Math.random() * undiscoveredFlags.length)];
-  return `Hidden flag: ${randomFlag.name}. ${randomFlag.description}`;
-};
+  const clues = window.JonahConsole.argData.consoleCluesTouched as ClueData[];
+  const clue = clues.find(c => c.id === clueId);
+  
+  return clue ? clue.discovered : false;
+}
 
-// Set up story flag discovery through console command
-export const setupStoryFlagCommands = () => {
-  // If window object is not available, return early
-  if (typeof window === 'undefined') return;
+// Get clue details
+export function getClueDetails(clueId: string): string {
+  if (typeof window === 'undefined' || !window.JonahConsole?.argData?.consoleCluesTouched) {
+    return "Clue system not initialized.";
+  }
+  
+  const clues = window.JonahConsole.argData.consoleCluesTouched as ClueData[];
+  const clue = clues.find(c => c.id === clueId);
+  
+  if (!clue) {
+    return "Clue not found.";
+  }
+  
+  return clue.description || "No details available.";
+}
 
-  // Define discover_flag command
-  window.discoveryFlag = function(flagId: string) {
-    const discovered = discoverStoryFlag(flagId);
-    if (discovered) {
-      return `Story flag discovered: ${flagId}`;
-    }
-    return "Flag not found or already discovered.";
+// List all discovered clues
+export function listDiscoveredClues(): void {
+  if (typeof window === 'undefined' || !window.JonahConsole?.argData?.consoleCluesTouched) {
+    console.log("No clues available.");
+    return;
+  }
+  
+  console.log("%cDISCOVERED CLUES:", "color: #3c9a8f; font-size: 16px; font-weight: bold;");
+  
+  const clues = window.JonahConsole.argData.consoleCluesTouched as ClueData[];
+  const discoveredClues = clues.filter(clue => clue.discovered);
+  
+  if (discoveredClues.length === 0) {
+    console.log("%cNo clues discovered yet. Keep exploring.", "color: gray; font-style: italic;");
+    return;
+  }
+  
+  discoveredClues.forEach(clue => {
+    console.log(`%c${clue.name}: ${clue.description}`, "color: #3c9a8f; font-size: 14px;");
+  });
+}
+
+// Reveal a specific clue by ID
+export function revealClueById(clueId: string): string {
+  if (typeof window === 'undefined' || !window.JonahConsole?.argData?.consoleCluesTouched) {
+    return "Clue system not initialized.";
+  }
+  
+  const clues = window.JonahConsole.argData.consoleCluesTouched as ClueData[];
+  const clue = clues.find(c => c.id === clueId);
+  
+  if (!clue) {
+    return "Clue not found.";
+  }
+  
+  // Mark as discovered
+  clue.discovered = true;
+  clue.timestamp = Date.now();
+  
+  // Return the clue details
+  console.log(`%cCLUE DISCOVERED: ${clue.name}`, "color: #3c9a8f; font-size: 16px; font-weight: bold;");
+  console.log(`%c${clue.description}`, "color: #3c9a8f; font-size: 14px;");
+  
+  return `Clue "${clue.name}" has been added to your discoveries.`;
+}
+
+// Add a new clue
+export function addClue(name: string, description: string): string {
+  if (typeof window === 'undefined' || !window.JonahConsole?.argData?.consoleCluesTouched) {
+    return "Clue system not initialized.";
+  }
+  
+  const clueId = `clue_custom_${Date.now()}`;
+  
+  const newClue: ClueData = {
+    id: clueId,
+    name: name,
+    description: description,
+    discovered: true,
+    timestamp: Date.now()
   };
+  
+  window.JonahConsole.argData.consoleCluesTouched.push(newClue);
+  
+  return `New clue "${name}" added to your discoveries.`;
+}
 
-  // Initialize story flags at startup
-  initializeStoryFlags();
-};
+// Initialize on load
+initializeClues();
 
-// Initialize story flags when this module is imported
-setupStoryFlagCommands();
-
-// Declare global window type
-declare global {
-  interface Window {
-    discoveryFlag: (flagId: string) => string;
-  }
+// Register additional commands
+if (typeof window !== 'undefined') {
+  window.addClue = addClue;
+  window.getClueDetails = getClueDetails;
 }

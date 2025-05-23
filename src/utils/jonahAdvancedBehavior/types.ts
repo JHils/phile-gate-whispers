@@ -56,6 +56,9 @@ export interface MicroQuest {
 export type StoryFlag = string;
 export type BookCode = string;
 
+// Trust level type
+export type TrustLevel = 'high' | 'medium' | 'low' | 'none';
+
 // Emotional and Sentience types
 export type EmotionCategory = 
   | 'curious' | 'analytical' | 'protective' | 'melancholic' | 'suspicious'
@@ -153,6 +156,26 @@ export interface RealityFabric {
   hiddenMessages?: string[];
   journal?: any[];
   crossSiteWhispers?: any[];
+}
+
+// BookCode interface
+export interface BookCodeData {
+  id: string;
+  code: string;
+  name: string;
+  unlocked: boolean;
+  timestamp?: number;
+  discovered?: boolean;
+  pageNumber?: number;
+}
+
+// Clue interface
+export interface ClueData {
+  id: string;
+  name: string;
+  discovered: boolean;
+  timestamp?: number;
+  description?: string;
 }
 
 // Function to create a default emotional state

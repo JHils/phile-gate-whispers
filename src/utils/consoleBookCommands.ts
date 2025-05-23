@@ -1,213 +1,250 @@
-import { BookCode } from './jonahAdvancedBehavior/types';
 
-// When adding a bookcode, ensure the BookCode type properties are all included
-export function addBookCode(code: string): BookCode | null {
-  // Get existing book codes
-  const existingCodes = getBookCodes();
-  
-  // Check for duplicate
-  if (existingCodes.some(book => book.code === code)) {
-    console.log("Book code already exists.");
-    return null;
-  }
-  
-  // Match code to predefined codes
-  let newBook: BookCode | null = null;
-  
-  if (code === "MIRRORFORGE") {
-    newBook = {
-      id: "mirror-code",
-      code: "MIRRORFORGE",
-      name: "Mirror Forge",
-      unlocked: true,
-      timestamp: Date.now(),
-      discovered: true,
-      pageNumber: 23
-    };
-  } else if (code === "ECHOMAP") {
-    newBook = {
-      id: "echo-code",
-      code: "ECHOMAP",
-      name: "Echo Map",
-      unlocked: true,
-      timestamp: Date.now(),
-      discovered: true,
-      pageNumber: 47
-    };
-  } else if (code === "SUMMERHOUSE") {
-    newBook = {
-      id: "summer-code",
-      code: "SUMMERHOUSE",
-      name: "Summerhouse",
-      unlocked: true,
-      timestamp: Date.now(),
-      discovered: true,
-      pageNumber: 115
-    };
-  } else {
-    console.log("Invalid book code.");
-    return null;
-  }
-  
-  if (newBook) {
-    // Add to existing codes
-    existingCodes.push(newBook);
-    
-    // Save to localStorage
-    localStorage.setItem('jonahBookCodes', JSON.stringify(existingCodes));
-    
-    console.log(`Book code '${code}' unlocked: ${newBook.name}`);
-    return newBook;
-  }
-  
-  return null;
-}
+/**
+ * Console Book Commands
+ * Handles book code functionality for the ARG
+ */
 
-// Get all book codes
-export function getBookCodes(): BookCode[] {
-  try {
-    const codes = localStorage.getItem('jonahBookCodes');
-    return codes ? JSON.parse(codes) : [];
-  } catch (error) {
-    console.error("Error getting book codes:", error);
-    return [];
-  }
-}
+import { BookCodeData } from './jonahAdvancedBehavior/types';
 
-// Check if a book code exists
-export function checkBookCode(code: string): BookCode | null {
-  const codes = getBookCodes();
-  return codes.find(book => book.code === code) || null;
-}
-
-// Unlock a book code
-export function unlockBookCode(id: string): BookCode | null {
-  const codes = getBookCodes();
-  const bookIndex = codes.findIndex(book => book.id === id);
-  
-  if (bookIndex >= 0) {
-    codes[bookIndex].unlocked = true;
-    localStorage.setItem('jonahBookCodes', JSON.stringify(codes));
-    return codes[bookIndex];
-  }
-  
-  return null;
-}
-
-// Initialize default book codes if not exists
-export function initializeBookCodes(): void {
-  if (!localStorage.getItem('jonahBookCodes')) {
-    const defaultCodes: BookCode[] = [
-      {
-        id: "default-code",
-        code: "HIDDENSTART",
-        name: "Starting Point",
+// Initialize book codes in the console object
+export function initializeBookCodes() {
+  if (typeof window !== 'undefined' && window.JonahConsole) {
+    // Initialize book codes array if it doesn't exist
+    if (!window.JonahConsole.bookCodes) {
+      window.JonahConsole.bookCodes = [];
+      
+      // Add initial book codes
+      window.JonahConsole.bookCodes.push({
+        id: 'book_001',
+        code: 'EXHUME',
+        name: 'Resurrection Manual',
         unlocked: false,
+        timestamp: Date.now(),
         discovered: false,
-        pageNumber: 1
+        pageNumber: 42
+      } as BookCodeData);
+      
+      window.JonahConsole.bookCodes.push({
+        id: 'book_002',
+        code: 'PARADOX',
+        name: 'Loop Theory',
+        unlocked: false,
+        timestamp: Date.now(),
+        discovered: false,
+        pageNumber: 87
+      } as BookCodeData);
+      
+      window.JonahConsole.bookCodes.push({
+        id: 'book_003',
+        code: 'NOMAD',
+        name: 'Stranger\'s Journal',
+        unlocked: false,
+        timestamp: Date.now(),
+        discovered: false,
+        pageNumber: 13
+      } as BookCodeData);
+    }
+    
+    // Register the book code command
+    window.bookCode = function(code) {
+      if (!code) {
+        console.log('%cUsage: bookCode("CODE")', 'color: yellow');
+        return "Please provide a book code.";
       }
-    ];
-    localStorage.setItem('jonahBookCodes', JSON.stringify(defaultCodes));
+      
+      return processBookCode(code);
+    };
   }
 }
 
-// Update any functions that use BookCode to match the expected type
-export function initializeBookSystem(): void {
-  // Check if book system already initialized
-  if (typeof window !== 'undefined' && !window.book) {
-    // Initialize book system with default values
-    window.book = {
-      codes: [],
-      unlocked: [],
-      current: undefined,
-      pages: {}
-    };
-    
-    // Add default book codes
-    registerBookCode({
-      id: 'book_reality',
-      code: 'REALITY-FABRIC-001',
-      name: 'The Reality Fabric',
-      unlocked: false,
-      timestamp: Date.now()
-    });
-    
-    registerBookCode({
-      id: 'book_memory',
-      code: 'MEMORY-ECHOES-002',
-      name: 'Memory Echoes',
-      unlocked: false,
-      timestamp: Date.now()
-    });
-    
-    registerBookCode({
-      id: 'book_between',
-      code: 'BETWEEN-WORLDS-003',
-      name: 'Between Worlds',
-      unlocked: false,
-      timestamp: Date.now()
-    });
+// Process a book code
+function processBookCode(code: string): string {
+  if (typeof window === 'undefined' || !window.JonahConsole) {
+    return "Console not initialized";
   }
+  
+  // Normalize the code (uppercase, trim)
+  code = code.trim().toUpperCase();
+  
+  // Find the book code
+  const bookCode = (window.JonahConsole.bookCodes as BookCodeData[]).find(b => b.code === code);
+  
+  if (!bookCode) {
+    // Track failed attempt
+    window.JonahConsole.failCount = (window.JonahConsole.failCount || 0) + 1;
+    
+    if (window.JonahConsole.failCount > 3) {
+      return "Too many incorrect attempts. The book remains closed.";
+    }
+    
+    return "Invalid book code. The pages remain sealed.";
+  }
+  
+  // Check if already unlocked
+  if (bookCode.unlocked) {
+    return `You've already unlocked "${bookCode.name}". Its secrets are yours.`;
+  }
+  
+  // Unlock the book code
+  bookCode.unlocked = true;
+  bookCode.timestamp = Date.now();
+  bookCode.discovered = true;
+  
+  // Add points to score
+  window.JonahConsole.score = (window.JonahConsole.score || 0) + 50;
+  
+  // Track the unlocked book code
+  if (!window.JonahConsole.unlockedBookCodes) {
+    window.JonahConsole.unlockedBookCodes = [];
+  }
+  
+  window.JonahConsole.unlockedBookCodes.push({
+    id: bookCode.id,
+    code: bookCode.code,
+    name: bookCode.name,
+    unlocked: bookCode.unlocked,
+    timestamp: bookCode.timestamp
+  });
+  
+  // Specific code effects
+  if (code === 'EXHUME') {
+    revealTestamentFragment();
+  } else if (code === 'PARADOX') {
+    revealTemporalAnomaly();
+  } else if (code === 'NOMAD') {
+    revealStrangerJournal();
+  }
+  
+  // Return success message
+  return `Book "${bookCode.name}" unlocked! Its secrets are now accessible.`;
 }
 
-export function registerBookCode(bookCode: BookCode): boolean {
-  // Get existing book codes
-  const existingCodes = getBookCodes();
+// List all book codes
+export function listBookCodes(): void {
+  if (typeof window === 'undefined' || !window.JonahConsole?.bookCodes) {
+    console.log("No book codes available.");
+    return;
+  }
   
-  // Check for duplicate
-  if (existingCodes.some(book => book.code === bookCode.code)) {
-    console.log("Book code already exists.");
+  console.log("%cKNOWN BOOK CODES:", "color: #3c9a8f; font-size: 16px; font-weight: bold;");
+  
+  const codes = window.JonahConsole.bookCodes as BookCodeData[];
+  
+  codes.forEach(book => {
+    if (book.discovered) {
+      console.log(
+        `%c${book.name} ${book.unlocked ? '(UNLOCKED)' : '(LOCKED)'}: ${book.code}`,
+        `color: ${book.unlocked ? '#3c9a8f' : '#8B3A40'}; font-size: 14px;`
+      );
+    } else {
+      console.log("%c[UNDISCOVERED BOOK]", "color: gray; font-style: italic;");
+    }
+  });
+}
+
+// Reveal book code if found
+export function revealBookCode(id: string): boolean {
+  if (typeof window === 'undefined' || !window.JonahConsole?.bookCodes) {
     return false;
   }
   
-  // Match code to predefined codes
-  let newBook: BookCode | null = null;
+  const codes = window.JonahConsole.bookCodes as BookCodeData[];
+  const book = codes.find(b => b.id === id);
   
-  if (bookCode.code === "MIRRORFORGE") {
-    newBook = {
-      id: "mirror-code",
-      code: "MIRRORFORGE",
-      name: "Mirror Forge",
-      unlocked: true,
-      timestamp: Date.now(),
-      discovered: true,
-      pageNumber: 23
-    };
-  } else if (bookCode.code === "ECHOMAP") {
-    newBook = {
-      id: "echo-code",
-      code: "ECHOMAP",
-      name: "Echo Map",
-      unlocked: true,
-      timestamp: Date.now(),
-      discovered: true,
-      pageNumber: 47
-    };
-  } else if (bookCode.code === "SUMMERHOUSE") {
-    newBook = {
-      id: "summer-code",
-      code: "SUMMERHOUSE",
-      name: "Summerhouse",
-      unlocked: true,
-      timestamp: Date.now(),
-      discovered: true,
-      pageNumber: 115
-    };
-  } else {
-    console.log("Invalid book code.");
-    return false;
-  }
-  
-  if (newBook) {
-    // Add to existing codes
-    existingCodes.push(newBook);
-    
-    // Save to localStorage
-    localStorage.setItem('jonahBookCodes', JSON.stringify(existingCodes));
-    
-    console.log(`Book code '${bookCode.code}' unlocked: ${newBook.name}`);
+  if (book && !book.discovered) {
+    book.discovered = true;
     return true;
   }
   
   return false;
 }
+
+// Check if a book code is unlocked
+export function isBookCodeUnlocked(code: string): boolean {
+  if (typeof window === 'undefined' || !window.JonahConsole?.bookCodes) {
+    return false;
+  }
+  
+  const codes = window.JonahConsole.bookCodes as BookCodeData[];
+  const book = codes.find(b => b.code === code);
+  
+  return book ? book.unlocked : false;
+}
+
+// SPECIFIC BOOK CODE EFFECTS
+
+function revealTestamentFragment(): void {
+  // Unlock a testament fragment
+  console.log("%cA new testament fragment has been revealed.", "color: #3c9a8f; font-style: italic;");
+  
+  // Add a new testament
+  if (window.JonahConsole?.bookCodes) {
+    const codes = window.JonahConsole.bookCodes as BookCodeData[];
+    const book = codes.find(b => b.code === 'EXHUME');
+    
+    if (book) {
+      book.pageNumber = 47; // Update page number
+      book.discovered = true;
+      book.unlocked = true;
+    }
+  }
+  
+  setTimeout(() => {
+    console.log("%cTESTAMENT FRAGMENT 23-A:", "color: #8B3A40; font-weight: bold;");
+    console.log("%cThe Mirror failed when we tried to cross. The recursive function broke down at layer 7. Something was already coming through from the other side.", "color: #8B3A40; font-style: italic;");
+  }, 1500);
+}
+
+function revealTemporalAnomaly(): void {
+  console.log("%cYou've triggered a temporal anomaly!", "color: #3c9a8f; font-style: italic;");
+  
+  // Update book code
+  if (window.JonahConsole?.bookCodes) {
+    const codes = window.JonahConsole.bookCodes as BookCodeData[];
+    const book = codes.find(b => b.code === 'PARADOX');
+    
+    if (book) {
+      book.pageNumber = 88; // Update page number
+      book.discovered = true;
+      book.unlocked = true;
+    }
+  }
+  
+  setTimeout(() => {
+    console.log("%cTEMPORAL ANOMALY DETECTED:", "color: #3c9a8f; font-weight: bold;");
+    console.log("%cThe timeline is shifting. Events from your future are bleeding into your present. Be careful what you remember.", "color: #3c9a8f; font-style: italic;");
+  }, 1500);
+}
+
+function revealStrangerJournal(): void {
+  console.log("%cYou've found pages from a stranger's journal.", "color: #3c9a8f; font-style: italic;");
+  
+  // Update book code
+  if (window.JonahConsole?.bookCodes) {
+    const codes = window.JonahConsole.bookCodes as BookCodeData[];
+    const book = codes.find(b => b.code === 'NOMAD');
+    
+    if (book) {
+      book.pageNumber = 15; // Update page number
+      book.discovered = true;
+      book.unlocked = true;
+    }
+  }
+  
+  setTimeout(() => {
+    console.log("%cSTRANGER'S JOURNAL ENTRY:", "color: #3c9a8f; font-weight: bold;");
+    console.log("%cI've been watching them through the screens. They don't know I'm here yet. They think they're just reading words on a page, but I can see them. I can see you.", "color: #3c9a8f; font-style: italic;");
+  }, 1500);
+}
+
+// Add the commands to window
+export function registerBookCommands(): void {
+  if (typeof window !== 'undefined') {
+    // List book codes command
+    window.listBookCodes = listBookCodes;
+  }
+}
+
+// Initialize on load
+initializeBookCodes();
+registerBookCommands();

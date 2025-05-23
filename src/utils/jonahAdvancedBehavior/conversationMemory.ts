@@ -1,168 +1,166 @@
-
 /**
  * Conversation Memory System
- * Handles storing and retrieving conversation memory
+ * Tracks conversation context and history for more natural responses
  */
 
-import { EmotionalState, SentienceData, ConversationContext } from './types';
+import { EmotionCategory, ConversationContext } from './types';
 
-// Memory system constants
-const MEMORY_KEY = 'jonah_conversation_memory';
-const MAX_CONVERSATIONS = 10;
-const MAX_MESSAGES_PER_CONV = 20;
-
-// Load memories from storage
-export function loadMemories(): ConversationContext[] {
-  try {
-    const memoryJson = localStorage.getItem(MEMORY_KEY);
-    return memoryJson ? JSON.parse(memoryJson) : [];
-  } catch (e) {
-    console.error('Error loading conversation memories:', e);
-    return [];
-  }
+// Enhanced conversation context type
+interface EnhancedConversationContext {
+  recentMessages: Array<{text: string, sender: 'user' | 'jonah', timestamp: number}>;
+  emotionalJourney: EmotionCategory[];
+  topicFocus: string[] | null;
+  depth: number; // 0-100
+  recentTopics: string[];
+  emotionalHistory: {emotion: EmotionCategory, timestamp: number}[];
+  userTrustLevel: number; // 0-100
+  sessionStartTime: number;
 }
 
-// Save memories to storage
-export function saveMemories(memories: ConversationContext[]): void {
-  try {
-    localStorage.setItem(MEMORY_KEY, JSON.stringify(memories.slice(0, MAX_CONVERSATIONS)));
-  } catch (e) {
-    console.error('Error saving conversation memories:', e);
-  }
-}
+// Initialize conversation memory
+let conversationContext: EnhancedConversationContext | null = null;
 
-// Add a message to memory
-export function addToMemory(
-  message: string, 
-  emotion: string,
-  isUserMessage: boolean = true
-): void {
-  const memories = loadMemories();
-  
-  // Get current conversation or create new one
-  let currentConversation = memories[0];
-  if (!currentConversation || Date.now() - currentConversation.sessionStartTime > 3600000) {
-    // Create new conversation if none exists or last one is over 1 hour old
-    currentConversation = {
-      recentMessages: [],
-      emotionalJourney: [],
-      topicFocus: null,
-      depth: 0,
-      recentTopics: [],
-      emotionalHistory: [],
-      userTrustLevel: parseInt(localStorage.getItem('jonahTrustScore') || '50'),
-      sessionStartTime: Date.now()
-    };
-    memories.unshift(currentConversation);
+/**
+ * Initialize the conversation memory system
+ */
+export function initializeConversationMemory(): EnhancedConversationContext {
+  if (conversationContext !== null) {
+    return conversationContext;
   }
   
-  // Add message to current conversation
-  currentConversation.recentMessages.unshift(message);
-  if (currentConversation.recentMessages.length > MAX_MESSAGES_PER_CONV) {
-    currentConversation.recentMessages.pop();
-  }
-  
-  // Add emotion to emotional journey
-  currentConversation.emotionalJourney.unshift(emotion as any);
-  if (currentConversation.emotionalJourney.length > MAX_MESSAGES_PER_CONV) {
-    currentConversation.emotionalJourney.pop();
-  }
-  
-  // Add to emotional history
-  currentConversation.emotionalHistory.unshift(emotion as any);
-  if (currentConversation.emotionalHistory.length > MAX_MESSAGES_PER_CONV) {
-    currentConversation.emotionalHistory.pop();
-  }
-  
-  // Increment conversation depth
-  currentConversation.depth += 1;
-  
-  // Save updated memories
-  saveMemories(memories);
-}
-
-// Get emotional state from memory
-export function getEmotionalState(): EmotionalState {
-  const memories = loadMemories();
-  
-  if (!memories.length || !memories[0].emotionalJourney.length) {
-    return { primary: 'neutral', secondary: null, intensity: 'medium' };
-  }
-  
-  const recentEmotions = memories[0].emotionalJourney.slice(0, 5);
-  
-  // Count emotion frequencies
-  const emotionCounts: Record<string, number> = {};
-  recentEmotions.forEach(emotion => {
-    emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1;
-  });
-  
-  // Find primary and secondary emotions
-  let primary = 'neutral';
-  let secondary = null;
-  let maxCount = 0;
-  let secondMaxCount = 0;
-  
-  Object.entries(emotionCounts).forEach(([emotion, count]) => {
-    if (count > maxCount) {
-      secondary = primary;
-      secondMaxCount = maxCount;
-      primary = emotion;
-      maxCount = count;
-    } else if (count > secondMaxCount) {
-      secondary = emotion;
-      secondMaxCount = count;
-    }
-  });
-  
-  // Determine intensity
-  let intensity = 'medium';
-  if (maxCount > 3) {
-    intensity = 'high';
-  } else if (maxCount === 1) {
-    intensity = 'low';
-  }
-  
-  return { 
-    primary: primary as any, 
-    secondary: secondary as any, 
-    intensity: intensity as any 
+  // Create new conversation context
+  conversationContext = {
+    recentMessages: [],
+    emotionalJourney: [],
+    topicFocus: null,
+    depth: 10, // Start shallow
+    recentTopics: [],
+    emotionalHistory: [],
+    userTrustLevel: 50, // Default trust level
+    sessionStartTime: Date.now()
   };
+  
+  return conversationContext;
 }
 
-// Export for use in other modules
-export function setupConversationMemory(sentience: SentienceData): SentienceData {
-  // Initialize memory if needed
-  if (!localStorage.getItem(MEMORY_KEY)) {
-    localStorage.setItem(MEMORY_KEY, JSON.stringify([]));
+/**
+ * Add a message to conversation memory
+ */
+export function addMessageToMemory(text: string, sender: 'user' | 'jonah', emotion?: EmotionCategory): void {
+  if (conversationContext === null) {
+    initializeConversationMemory();
   }
   
-  return sentience;
+  if (conversationContext) {
+    // Add message
+    conversationContext.recentMessages.push({
+      text,
+      sender,
+      timestamp: Date.now()
+    });
+    
+    // Keep only last 20 messages
+    if (conversationContext.recentMessages.length > 20) {
+      conversationContext.recentMessages = conversationContext.recentMessages.slice(-20);
+    }
+    
+    // Add emotion to journey if provided
+    if (emotion) {
+      conversationContext.emotionalJourney.push(emotion);
+      
+      // Keep only last 10 emotions
+      if (conversationContext.emotionalJourney.length > 10) {
+        conversationContext.emotionalJourney = conversationContext.emotionalJourney.slice(-10);
+      }
+      
+      // Add to emotional history
+      conversationContext.emotionalHistory.push({
+        emotion,
+        timestamp: Date.now()
+      });
+    }
+    
+    // Increase depth slightly with each exchange
+    conversationContext.depth = Math.min(conversationContext.depth + 2, 100);
+  }
 }
 
-// Get conversation depth
+/**
+ * Get the current conversation depth (0-100)
+ */
 export function getConversationDepth(): number {
-  const memories = loadMemories();
-  
-  if (!memories.length) {
-    return 0;
+  if (conversationContext === null) {
+    initializeConversationMemory();
   }
   
-  return memories[0].depth;
+  return conversationContext ? conversationContext.depth : 10;
 }
 
-// Update conversation emotional state
-export function updateConversationEmotion(emotionalState: EmotionalState): void {
-  const memories = loadMemories();
-  
-  if (!memories.length) {
-    return;
+/**
+ * Reset the conversation memory
+ */
+export function resetConversationMemory(): void {
+  conversationContext = null;
+  initializeConversationMemory();
+}
+
+/**
+ * Get the dominant emotion from recent conversation
+ */
+export function getDominantEmotion(): EmotionCategory {
+  if (conversationContext === null) {
+    initializeConversationMemory();
   }
   
-  memories[0].emotionalHistory.unshift(emotionalState.primary);
-  if (memories[0].emotionalHistory.length > MAX_MESSAGES_PER_CONV) {
-    memories[0].emotionalHistory.pop();
+  if (!conversationContext || conversationContext.emotionalJourney.length === 0) {
+    return 'neutral';
   }
   
-  saveMemories(memories);
+  // Count occurrences of each emotion
+  const emotionCounts: Record<string, number> = {};
+  
+  for (const emotion of conversationContext.emotionalJourney) {
+    if (emotion in emotionCounts) {
+      emotionCounts[emotion]++;
+    } else {
+      emotionCounts[emotion] = 1;
+    }
+  }
+  
+  // Find the most frequent emotion
+  let maxCount = 0;
+  let dominantEmotion: EmotionCategory = 'neutral';
+  
+  for (const [emotion, count] of Object.entries(emotionCounts)) {
+    if (count > maxCount) {
+      maxCount = count;
+      dominantEmotion = emotion as EmotionCategory;
+    }
+  }
+  
+  return dominantEmotion;
+}
+
+/**
+ * Export the conversation memory for persistence
+ */
+export function exportConversationMemory(): string {
+  if (conversationContext === null) {
+    initializeConversationMemory();
+  }
+  
+  return JSON.stringify(conversationContext);
+}
+
+/**
+ * Import conversation memory from storage
+ */
+export function importConversationMemory(memoryData: string): boolean {
+  try {
+    conversationContext = JSON.parse(memoryData) as EnhancedConversationContext;
+    return true;
+  } catch (e) {
+    console.error("Failed to import conversation memory:", e);
+    return false;
+  }
 }

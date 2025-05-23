@@ -1,5 +1,52 @@
 
-// Add the missing export function
+import { EcoAwarenessState } from '@/utils/jonahAdvancedBehavior/types';
+
+/**
+ * Initializes the eco-awareness system for Jonah
+ */
+export function initializeEcoAwareness() {
+  if (typeof window === 'undefined' || !window.JonahConsole) return;
+  
+  // Check if eco-awareness is already initialized
+  if (!window.JonahConsole.sentience?.ecoAwareness) {
+    // Create default eco-awareness state
+    const defaultEcoState: EcoAwarenessState = {
+      active: true,
+      topicSensitivity: 30,
+      lastMentioned: 0,
+      mentionCount: 0,
+      topicKeywords: ['nature', 'environment', 'ecosystem', 'climate', 'earth', 'forest', 'ocean'],
+      currentBiome: 'none',
+      userAwareness: 0,
+      triggersFound: [],
+      awareness: '0'
+    };
+    
+    // Initialize in window object
+    if (window.JonahConsole.sentience) {
+      window.JonahConsole.sentience.ecoAwareness = defaultEcoState;
+    }
+    
+    // Also initialize in localStorage for persistence
+    localStorage.setItem('jonah_eco_awareness', JSON.stringify(defaultEcoState));
+  }
+}
+
+/**
+ * Get an ecological response based on the current biome
+ */
+export function getEcoResponse(biome: string): string {
+  const biomeResponses = getBiomeResponses();
+  
+  // Get responses for the specified biome, or default to 'none'
+  const responses = biomeResponses[biome as keyof typeof biomeResponses] || 
+                   biomeResponses['none'];
+  
+  // Return a random response from the available ones
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
+// Add the biome responses function
 export function getBiomeResponses() {
   return {
     forest: [

@@ -5,6 +5,36 @@
  */
 
 // Initialize the cross site whisper system
+export function initializeJonahWhispers() {
+  if (typeof window !== 'undefined') {
+    // Initialize the whispers array if it doesn't exist
+    if (!window.JonahConsole?.whispers) {
+      window.JonahConsole = {
+        ...window.JonahConsole,
+        whispers: [
+          {
+            id: "whisper_001",
+            content: "You weren't supposed to hear this.",
+            unlockedBy: "consoleCommand:echo_me",
+            timestamp: Date.now()
+          },
+          {
+            id: "whisper_002",
+            content: "This line is overwritten every 13 hours.",
+            unlockedBy: "trustLevel > 75"
+          },
+          {
+            id: "whisper_003",
+            content: "The mirror reflects what you want to see.",
+            unlockedBy: "visitPage:mirror_phile"
+          }
+        ]
+      };
+    }
+  }
+}
+
+// Initialize the cross site whisper system
 export function initializeCrossSiteWhisper() {
   // Ensure the sentience object exists
   if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
