@@ -68,21 +68,9 @@ export const generateEmotionalResponse = (emotion: string, intensity?: string) =
 // Export initialization function
 export { 
   initializeAdvancedBehavior, 
-  initializeJonahSystems, 
-  jonah_storeMemoryFragment
+  initializeJonahSystems 
 } from './initializeBehavior';
 
-// Export helper functions
-export function jonah_storeMemoryFragment(text: string) {
-  try {
-    if (!window.JonahConsole) window.JonahConsole = {};
-    if (!window.JonahConsole.argData) window.JonahConsole.argData = {};
-    if (!window.JonahConsole.argData.memoryFragments) window.JonahConsole.argData.memoryFragments = [];
-    
-    window.JonahConsole.argData.memoryFragments.push(text);
-    return true;
-  } catch (e) {
-    console.error("Error storing memory fragment", e);
-    return false;
-  }
-}
+// Export helper functions - remove the duplicate declaration here
+export { jonah_storeMemoryFragment } from './initializeBehavior';
+

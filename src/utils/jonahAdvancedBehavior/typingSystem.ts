@@ -43,8 +43,42 @@ export function getRandomPause(): number {
   return Math.random() * 100;
 }
 
+/**
+ * Track phrases for repetition detection
+ * @param phrase The phrase to track
+ */
+export function trackPhrase(phrase: string): void {
+  // Implementation for phrase tracking
+  console.log(`Tracking phrase: ${phrase}`);
+}
+
+/**
+ * Get a false memory response
+ */
+export function getFalseMemoryResponse(): string {
+  return "I remember we discussed this before...";
+}
+
+/**
+ * Get a response for detected loops in conversation
+ */
+export function getLoopResponse(): string {
+  return "We seem to be going in circles...";
+}
+
+/**
+ * Get response for blank fragments in conversation
+ */
+export function getBlankFragmentResponse(): string {
+  return "I notice there's something missing here...";
+}
+
 export default {
   splitAndTypeMessage,
   getTypingDelay,
-  getRandomPause
+  getRandomPause,
+  trackPhrase,
+  getFalseMemoryResponse,
+  getLoopResponse,
+  getBlankFragmentResponse
 };
