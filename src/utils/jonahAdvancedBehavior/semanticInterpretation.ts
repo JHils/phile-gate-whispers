@@ -149,8 +149,5 @@ export function getEmotionalResponseToInput(text: string): string {
   }
   
   // Get response based on the emotional state and dominantEmotion
-  const intensity = emotionalState.intensity;
-  const intensityLabel = intensity < 33 ? 'low' : intensity > 66 ? 'high' : 'medium';
-  
-  return getEmotionalResponse(dominantEmotion, intensityLabel);
+  return getEmotionalResponse(text, emotionalState, 'direct');
 }

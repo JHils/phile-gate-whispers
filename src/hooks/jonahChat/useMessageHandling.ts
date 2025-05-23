@@ -10,7 +10,7 @@ const checkForTriggerPhrases = (input: string) => ({ trustChange: 0, triggered: 
 const processEmotionalInput = (input: string) => "I understand what you're saying.";
 
 // Import the generateGreeting function from enhancedEmotionalCore
-import { generateGreeting } from '@/utils/jonahAdvancedBehavior/enhancedEmotionalCore';
+import { generateGreeting } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis/responseGenerator';
 
 // Placeholder for modifyTrustLevel
 const modifyTrustLevel = (change: number) => {

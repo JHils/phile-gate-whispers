@@ -5,6 +5,16 @@
 
 import { EmotionCategory, EmotionalState, ResponseStyle } from './types';
 import { formatJonahResponse } from './textFormatting';
+import { generateGreeting as generateGreetingOriginal } from './sentimentAnalysis/responseGenerator';
+
+// Export the generateGreeting function
+export function generateGreeting(
+  trustScore: number,
+  lastInteraction: Date | null,
+  currentEmotion: EmotionCategory
+): string {
+  return generateGreetingOriginal(trustScore, lastInteraction, currentEmotion);
+}
 
 // Generate emotional response based on emotional state and input
 export function getEmotionalResponse(
@@ -16,26 +26,26 @@ export function getEmotionalResponse(
   // For now we'll return a simple formatted response
   
   const baseResponse = `I processed your input: "${input}"`;
-  return formatJonahResponse(baseResponse, emotionalState.primary, emotionalState.intensity, style);
+  return formatJonahResponse(baseResponse, emotionalState.primary, style);
 }
 
 // Generate a full emotional response with context
 export function generateFullEmotionalResponse(
-  input: string,
   emotionalState: EmotionalState,
-  style: ResponseStyle = 'direct',
-  contextData: any = {}
+  trustLevel: string = 'medium',
+  includeContext: boolean = false,
+  memories: any[] = []
 ): string {
   // Get the base emotional response
-  let response = getEmotionalResponse(input, emotionalState, style);
+  let response = `I'm processing with ${emotionalState.primary} as my dominant emotion`;
   
   // Add contextual elements if available
-  if (contextData.memoryTriggers && contextData.memoryTriggers.length > 0) {
-    const memory = contextData.memoryTriggers[0];
+  if (memories && memories.length > 0) {
+    const memory = memories[0];
     response += `\n\nThis reminds me of something: "${memory}"`;
   }
   
-  if (contextData.trustLevel === 'high' && Math.random() > 0.7) {
+  if (trustLevel === 'high' && Math.random() > 0.7) {
     response += "\n\nI value our conversations.";
   }
   

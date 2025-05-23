@@ -98,7 +98,7 @@ export function useJonahChat() {
           emotionalState.secondary,
           'medium'
         );
-        response = generateFullEmotionalResponse(fullEmotionalState, 'medium', true, []);
+        response = generateFullEmotionalResponse(fullEmotionalState, 'medium', true);
         processJonahResponse(response, emotionalState.primary);
       }
     }, 1000 + Math.floor(Math.random() * 1000)); // Random typing delay
@@ -154,7 +154,7 @@ export function useJonahChat() {
         emotionalState.secondary,
         'medium'
       );
-      const response = generateFullEmotionalResponse(fullEmotionalState, 'medium', true, []);
+      const response = generateFullEmotionalResponse(fullEmotionalState, 'medium', true);
       processJonahResponse(response, emotionalState.primary);
     }, 1200);
   }, [addUserMessage, updateContext, setTyping, processJonahResponse]);

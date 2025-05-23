@@ -1,6 +1,6 @@
 
 import { initializeEmotionalCore } from './jonahAdvancedBehavior/emotionalCore';
-import { getEmotionalResponse } from './jonahAdvancedBehavior/sentimentAnalysis/responseGenerator';
+import { getEmotionalResponse } from './jonahAdvancedBehavior/enhancedEmotionalCore';
 import { EmotionCategory, createEmotionalState, EmotionalState } from './jonahAdvancedBehavior/types';
 
 /**
@@ -30,7 +30,7 @@ export function initializeConsoleTracking(): void {
   
   // Example test response - Create an actual EmotionalState instead of a string
   const emotionalState: EmotionalState = createEmotionalState('hope' as EmotionCategory);
-  const testResponse = getEmotionalResponse(emotionalState, 'medium');
+  const testResponse = getEmotionalResponse("Test input", emotionalState, 'medium');
   console.log("Test emotional response:", testResponse);
 }
 
