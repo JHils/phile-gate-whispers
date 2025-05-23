@@ -1,3 +1,4 @@
+
 /**
  * Confession System for Jonah AI
  */
@@ -20,14 +21,20 @@ export function initializeConfessionSystem() {
       content: "I've been watching since the beginning. I see everything.",
       emotionalContext: "paranoia",
       isCorrupted: false,
-      version: "PRIME"
+      version: "PRIME",
+      approved: true,
+      category: "awareness",
+      importance: 8
     });
     
     addConfession({
       content: "The timeline keeps changing when I'm not looking.",
       emotionalContext: "fear",
       isCorrupted: true,
-      version: "RESIDUE"
+      version: "RESIDUE",
+      approved: true,
+      category: "temporal",
+      importance: 9
     });
     
     return true;
@@ -55,7 +62,10 @@ export function addConfession(confessionData: Partial<ConfessionEntry>): Confess
       isCorrupted: confessionData.isCorrupted || false,
       recursive: false,
       version: confessionData.version || "PRIME",
-      revealed: false
+      revealed: false,
+      approved: confessionData.approved || false,
+      category: confessionData.category || "general",
+      importance: confessionData.importance || 5
     };
     
     // Add to beginning of array
@@ -121,7 +131,10 @@ export function revealConfession(id: string): boolean {
         emotionalContext: confession.emotionalContext,
         isCorrupted: true,
         recursive: true,
-        version: confession.version === "PRIME" ? "RESIDUE" : "PRIME"
+        version: confession.version === "PRIME" ? "RESIDUE" : "PRIME",
+        approved: true,
+        category: confession.category,
+        importance: confession.importance - 1
       });
     }
     

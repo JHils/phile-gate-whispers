@@ -27,7 +27,7 @@ export function initializeClues() {
         text: 'You used your first console command. Keep exploring.',
         found: false,
         category: 'console'
-      } as ClueData);
+      });
       
       window.JonahConsole.argData.consoleCluesTouched.push({
         id: 'clue_002',
@@ -38,7 +38,7 @@ export function initializeClues() {
         text: 'There are codes hidden in books throughout this site.',
         found: false,
         category: 'books'
-      } as ClueData);
+      });
       
       window.JonahConsole.argData.consoleCluesTouched.push({
         id: 'clue_003',
@@ -49,7 +49,7 @@ export function initializeClues() {
         text: 'Jonah\'s testament is scattered across the site.',
         found: false,
         category: 'testaments'
-      } as ClueData);
+      });
       
       window.JonahConsole.argData.consoleCluesTouched.push({
         id: 'clue_004',
@@ -60,7 +60,7 @@ export function initializeClues() {
         text: 'The mirror reflects what you want to see, not what is there.',
         found: false,
         category: 'mirror'
-      } as ClueData);
+      });
       
       window.JonahConsole.argData.consoleCluesTouched.push({
         id: 'clue_005',
@@ -71,7 +71,7 @@ export function initializeClues() {
         text: 'Some console commands are hidden until certain conditions are met.',
         found: false,
         category: 'console'
-      } as ClueData);
+      });
       
       window.JonahConsole.argData.consoleCluesTouched.push({
         id: 'clue_006',
@@ -82,7 +82,7 @@ export function initializeClues() {
         text: 'The echo command has more functionality than it first appears.',
         found: false,
         category: 'echo'
-      } as ClueData);
+      });
       
       window.JonahConsole.argData.consoleCluesTouched.push({
         id: 'clue_007',
@@ -93,7 +93,7 @@ export function initializeClues() {
         text: 'Some features only activate at certain times of day.',
         found: false,
         category: 'time'
-      } as ClueData);
+      });
     }
     
     // Register the clue commands

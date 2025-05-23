@@ -11,6 +11,16 @@ export function initializeEcoAwareness() {
   if (!window.JonahConsole.sentience?.ecoAwareness) {
     // Create default eco-awareness state
     const defaultEcoState: EcoAwarenessState = {
+      enabled: false,
+      level: 0,
+      lastUpdate: Date.now(),
+      topics: {
+        climate: false,
+        conservation: false,
+        sustainability: false
+      },
+      responses: [],
+      factoids: [],
       active: true,
       topicSensitivity: 30,
       lastMentioned: 0,
@@ -19,7 +29,8 @@ export function initializeEcoAwareness() {
       currentBiome: 'none',
       userAwareness: 0,
       triggersFound: [],
-      awareness: '0'
+      awareness: '0',
+      metadata: {}
     };
     
     // Initialize in window object

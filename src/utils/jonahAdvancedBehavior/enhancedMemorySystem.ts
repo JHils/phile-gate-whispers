@@ -51,26 +51,22 @@ export function getConversationContext(sentience?: SentienceData): ConversationC
   // Default context if no sentience data available
   let context: ConversationContextData = {
     recentMessages: [],
-    emotionalJourney: [],
-    topicFocus: null,
-    depth: 0,
-    recentTopics: [],
-    emotionalHistory: [],
-    userTrustLevel: 50,
-    sessionStartTime: Date.now()
+    dominantEmotions: [],
+    trustLevel: 'medium',
+    sessionStart: Date.now(),
+    messageCount: 0,
+    topics: []
   };
   
   // If sentience data is available, use it to create context
   if (sentience) {
     context = {
-      recentMessages: getRecentMessages(),
-      emotionalJourney: getEmotionalHistory(),
-      topicFocus: getTopicFocus(),
-      depth: sentience.conversationContext?.depth || 0,
-      recentTopics: getRecentTopics(),
-      emotionalHistory: getEmotionalStateHistory(),
-      userTrustLevel: sentience.userPerception?.trustLevel || 50,
-      sessionStartTime: sentience.temporalContext?.startTime || Date.now()
+      recentMessages: getRecentMessagesAsObjects(),
+      dominantEmotions: getEmotionalHistory(),
+      trustLevel: sentience.userPerception?.trustLevel > 50 ? 'high' : sentience.userPerception?.trustLevel > 25 ? 'medium' : 'low',
+      sessionStart: sentience.temporalContext?.startTime || Date.now(),
+      messageCount: sentience.temporalContext?.messageCount || 0,
+      topics: sentience.temporalContext?.topicFocus || []
     };
   }
   
@@ -143,10 +139,15 @@ function updateRecentInputs(input: string): void {
 
 // Helper functions for conversation context
 
-function getRecentMessages(): string[] {
+function getRecentMessagesAsObjects(): Array<{content: string; isUser: boolean; emotion: EmotionCategory; timestamp: number}> {
   try {
     const record = JSON.parse(localStorage.getItem('jonah_conversation_record') || '[]');
-    return record.slice(-5).map((item: any) => item.user || '');
+    return record.slice(-5).map((item: any) => ({
+      content: item.user || '',
+      isUser: true,
+      emotion: item.emotion || 'neutral',
+      timestamp: item.timestamp || Date.now()
+    }));
   } catch (e) {
     console.error("Error getting recent messages:", e);
     return [];
@@ -163,16 +164,6 @@ function getEmotionalHistory(): EmotionCategory[] {
   }
 }
 
-function getTopicFocus(): string[] | null {
-  // This would use more advanced NLP in a real implementation
-  return null;
-}
-
-function getRecentTopics(): string[] {
-  // This would extract topics with NLP in a real implementation
-  return [];
-}
-
 function getEmotionalStateHistory(): EmotionalState[] {
   try {
     const record = JSON.parse(localStorage.getItem('jonah_emotional_states') || '[]');
@@ -187,13 +178,12 @@ function getEmotionalStateHistory(): EmotionalState[] {
 export function createConversationContext(trustLevel: 'low' | 'medium' | 'high'): ConversationContextData {
   return {
     recentMessages: [],
-    emotionalJourney: ['neutral'],
-    topicFocus: null,
-    depth: 0,
-    recentTopics: [],
-    emotionalHistory: [],
-    userTrustLevel: trustLevel === 'high' ? 80 : trustLevel === 'medium' ? 50 : 20,
-    sessionStartTime: Date.now()
+    dominantEmotions: ['neutral'],
+    trustLevel: trustLevel,
+    sessionStart: Date.now(),
+    messageCount: 0,
+    topics: [],
+    userTrustLevel: trustLevel === 'high' ? 80 : trustLevel === 'medium' ? 50 : 20
   };
 }
 
@@ -206,13 +196,26 @@ export function storeInMemory(
 ): ConversationContextData {
   const newContext = { ...context };
   
-  // Update recent messages
+  // Update recent messages with properly structured objects
   if (isUser) {
-    newContext.recentMessages = [...newContext.recentMessages.slice(-4), input];
+    const newMessage = {
+      content: input,
+      isUser: true,
+      emotion: mood,
+      timestamp: Date.now()
+    };
+    
+    newContext.recentMessages = [
+      ...(newContext.recentMessages || []).slice(-4),
+      newMessage
+    ];
   }
   
   // Update emotional journey
-  newContext.emotionalJourney = [...newContext.emotionalJourney.slice(-9), mood];
+  newContext.dominantEmotions = [
+    ...(newContext.dominantEmotions || []).slice(-9),
+    mood
+  ];
   
   return newContext;
 }

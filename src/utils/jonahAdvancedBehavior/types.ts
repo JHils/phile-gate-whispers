@@ -132,7 +132,7 @@ export interface MemoryFragment {
   timestamp: number;
 }
 
-// Confession Entry
+// Confession Entry - Updated with all required fields
 export interface ConfessionEntry {
   id: string;
   content: string;
@@ -198,7 +198,7 @@ export interface ClueData {
   timestamp?: number;
 }
 
-// Conversation Context Data
+// Conversation Context Data - Updated with all fields
 export interface ConversationContextData {
   recentMessages: Array<{
     content: string;
@@ -212,6 +212,12 @@ export interface ConversationContextData {
   messageCount: number;
   topics: string[];
   emotionalJourney?: EmotionCategory[];
+  topicFocus?: string | string[] | null;
+  depth?: number;
+  recentTopics?: string[];
+  emotionalHistory?: EmotionalState[];
+  userTrustLevel?: number;
+  sessionStartTime?: number;
 }
 
 // Reality Fabric
@@ -236,7 +242,7 @@ export interface RealityFabric {
   lastDetection?: number;
 }
 
-// Eco Awareness State
+// Eco Awareness State - Updated with all required fields
 export interface EcoAwarenessState {
   enabled: boolean;
   level: number;
@@ -259,6 +265,8 @@ export interface EcoAwarenessState {
   previousBiomes?: string[];
   triggersFound?: string[];
   metadata?: Record<string, any>;
+  reminderTimestamp?: number;
+  biomeResponses?: Record<string, string[]>;
 }
 
 // Sentience Data
@@ -282,7 +290,7 @@ export interface SentienceData {
   };
   emotionalState: {
     primary: EmotionCategory;
-    secondary: EmotionCategory | null;
+    secondary: EmotionCategory;
     intensity: string;
     trend: EmotionalTrend;
   };
@@ -309,6 +317,11 @@ export interface SentienceData {
   ecoAwareness?: EcoAwarenessState;
   realityFabric?: RealityFabric;
   userEmotions?: Record<string, number>;
+  dreams?: any[];
+  emotionalHistory?: any[];
+  memorizedPhrases?: string[];
+  trustLevel?: TrustLevel;
+  newsAwareness?: any;
 }
 
 // Temporal State

@@ -25,12 +25,18 @@ const initialEmotions: Record<string, number> = {
 
 const initialEmotionalState: EmotionalState = {
   primary: 'neutral',
-  secondary: null,
-  intensity: 'low'
+  secondary: undefined,
+  intensity: 25,
+  trend: 'stable'
 };
 
 const initialSentienceData: SentienceData = {
-  emotionalState: initialEmotionalState,
+  emotionalState: {
+    primary: 'neutral',
+    secondary: 'neutral',
+    intensity: 'low',
+    trend: 'stable'
+  },
   userPerception: {
     trustLevel: 50,
     familiarity: 0,
@@ -88,6 +94,16 @@ const initialSentienceData: SentienceData = {
   },
   dreams: [],
   ecoAwareness: {
+    enabled: true,
+    level: 0,
+    lastUpdate: Date.now(),
+    topics: {
+      climate: true,
+      conservation: true,
+      sustainability: true
+    },
+    responses: [],
+    factoids: [],
     active: true,
     topicSensitivity: 50,
     lastMentioned: Date.now(),
@@ -95,12 +111,10 @@ const initialSentienceData: SentienceData = {
     topicKeywords: [],
     currentBiome: "none",
     previousBiomes: [],
-    reminderTimestamp: Date.now(),
     userAwareness: 0,
     triggersFound: [],
-    biomeResponses: {},
-    lastUpdate: Date.now(),
-    awareness: "0" // Using string instead of number
+    awareness: 0,
+    metadata: {}
   },
   newsAwareness: {
     articles: [],

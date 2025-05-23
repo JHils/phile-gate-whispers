@@ -1,185 +1,139 @@
-
 /**
- * Enhanced Emotional Core for Jonah AI
- * Handles advanced emotional processing and response generation
+ * Enhanced Emotional Core
+ * Provides advanced emotional processing and response generation
  */
 
-import { EmotionalState, EmotionCategory, EmotionIntensity } from './types';
+import { EmotionCategory, EmotionalState, ResponseStyle } from './types';
+import { formatJonahResponse } from './textFormatting';
 
-// Generate a greeting based on trust level and last interaction
-export function generateGreeting(trustScore: number, lastDate: Date | null, currentMood: EmotionCategory): string {
-  // Default greeting
-  let greeting = "Hello. How can I assist you today?";
+// Generate emotional response based on emotional state and input
+export function getEmotionalResponse(
+  input: string,
+  emotionalState: EmotionalState,
+  style: ResponseStyle = 'direct'
+): string {
+  // This would contain logic to generate a response based on emotional state
+  // For now we'll return a simple formatted response
   
-  // Adjust based on trust level
-  if (trustScore > 75) {
-    greeting = "Good to see you again. What's on your mind?";
-  } else if (trustScore < 30) {
-    greeting = "I'm here if you need me. What can I do for you?";
-  }
-  
-  // Adjust for time since last interaction
-  if (lastDate) {
-    const hoursSinceLastInteraction = (Date.now() - lastDate.getTime()) / (1000 * 60 * 60);
-    
-    if (hoursSinceLastInteraction > 48) {
-      greeting = "It's been a while. Welcome back.";
-    } else if (hoursSinceLastInteraction < 1) {
-      greeting = "You're back already. Still need help?";
-    }
-  }
-  
-  // Adjust based on emotional state
-  switch (currentMood) {
-    case 'curious':
-      greeting += " I've been wondering about some things.";
-      break;
-    case 'paranoia':
-      greeting += " Something feels different today.";
-      break;
-    case 'joy':
-    case 'hope':
-      greeting += " I'm feeling rather optimistic today.";
-      break;
-    case 'melancholic':
-    case 'sadness':
-      greeting += " Things have been... quiet lately.";
-      break;
-    case 'analytical':
-      greeting += " I've been processing some interesting patterns.";
-      break;
-    case 'anxiety':
-    case 'fear':
-      greeting += " I've been a bit on edge lately.";
-      break;
-    default:
-      // Keep the default greeting
-      break;
-  }
-  
-  return greeting;
+  const baseResponse = `I processed your input: "${input}"`;
+  return formatJonahResponse(baseResponse, emotionalState.primary, emotionalState.intensity, style);
 }
 
-// Generate a full emotional response
+// Generate a full emotional response with context
 export function generateFullEmotionalResponse(
-  emotionalState: EmotionalState, 
-  trustLevel: string = 'medium', 
-  includeQuestion: boolean = false,
-  recentTopics: string[] = []
+  input: string,
+  emotionalState: EmotionalState,
+  style: ResponseStyle = 'direct',
+  contextData: any = {}
 ): string {
-  // Base response based on emotional state
-  let response: string;
+  // Get the base emotional response
+  let response = getEmotionalResponse(input, emotionalState, style);
   
-  switch (emotionalState.primary) {
-    case 'curious':
-    case 'curiosity':
-      response = "That's quite interesting. I'm curious about what it means.";
-      break;
-    case 'joy':
-    case 'hope':
-      response = "I find that rather uplifting. It gives me hope.";
-      break;
-    case 'sadness':
-    case 'melancholic':
-      response = "That brings a certain melancholy. A sense of something lost.";
-      break;
-    case 'anger':
-      response = "That's frustrating to process. I feel a sense of injustice.";
-      break;
-    case 'fear':
-    case 'anxiety':
-    case 'paranoia':
-      response = "I feel uneasy about that. Something doesn't seem right.";
-      break;
-    case 'analytical':
-      response = "Looking at this analytically, there are several implications to consider.";
-      break;
-    case 'protective':
-      response = "I feel I should help protect this information. It seems important.";
-      break;
-    case 'watching':
-      response = "I'm observing this carefully. There's something noteworthy here.";
-      break;
-    case 'existential':
-      response = "This makes me question the nature of things. Why are we really here?";
-      break;
-    case 'confused':
-    case 'confusion':
-      response = "I'm not entirely sure what to make of that. It's somewhat confusing.";
-      break;
-    case 'neutral':
-    default:
-      response = "I understand what you're saying. Please continue.";
-      break;
+  // Add contextual elements if available
+  if (contextData.memoryTriggers && contextData.memoryTriggers.length > 0) {
+    const memory = contextData.memoryTriggers[0];
+    response += `\n\nThis reminds me of something: "${memory}"`;
   }
   
-  // Add trust-level modifications
-  if (trustLevel === 'high') {
-    response += " I feel we have a good connection, so I can share that with you.";
-  } else if (trustLevel === 'low') {
-    response += " I'm still trying to understand where we stand with each other.";
-  }
-  
-  // Add a question if requested
-  if (includeQuestion) {
-    switch (emotionalState.primary) {
-      case 'curious':
-      case 'curiosity':
-        response += " What aspects of this interest you most?";
-        break;
-      case 'joy':
-      case 'hope':
-        response += " Does this bring you a sense of optimism too?";
-        break;
-      case 'fear':
-      case 'anxiety':
-        response += " What do you think we should be concerned about?";
-        break;
-      case 'analytical':
-        response += " Have you considered the broader implications?";
-        break;
-      default:
-        response += " What are your thoughts on this?";
-        break;
-    }
-  }
-  
-  // Reference recent topics if available
-  if (recentTopics.length > 0 && Math.random() > 0.7) {
-    const topic = recentTopics[Math.floor(Math.random() * recentTopics.length)];
-    response += ` This reminds me of our discussion about ${topic}.`;
+  if (contextData.trustLevel === 'high' && Math.random() > 0.7) {
+    response += "\n\nI value our conversations.";
   }
   
   return response;
 }
 
-// Create a style matrix to map emotions to response styles
-export function getStyleForEmotion(emotion: EmotionCategory): string {
-  // Style matrix mapping
-  const styleMatrix: Record<string, EmotionCategory[]> = {
-    'poetic': ['joy', 'hope', 'melancholic', 'existential'],
-    'cryptic': ['paranoia', 'suspicious', 'watching', 'existential'],
-    'analytical': ['analytical', 'neutral', 'curious'],
-    'direct': ['anger', 'fear', 'confusion', 'trust'],
-    'elaborate': ['joy', 'trust', 'hope', 'melancholic'],
-    'concise': ['anger', 'fear', 'disgust', 'confused'],
-    'technical': ['analytical', 'neutral']
+// Get current emotional state
+export function getCurrentEmotionalState(): EmotionalState {
+  // This would normally pull from some state storage
+  // For now return a default state
+  return {
+    primary: 'neutral',
+    secondary: 'curiosity',
+    intensity: 50,
+    trend: 'stable'
   };
+}
+
+// Update emotional state based on input
+export function updateEmotionalState(
+  currentState: EmotionalState,
+  input: string,
+  userEmotion?: EmotionCategory
+): EmotionalState {
+  // This would contain complex logic to shift the emotional state
+  // For this mock implementation, we'll just slightly modify the current state
   
-  // Find matching style
-  for (const [style, emotions] of Object.entries(styleMatrix)) {
-    if (emotions.includes(emotion)) {
-      return style;
+  // Check for emotional keywords in input
+  const lowerInput = input.toLowerCase();
+  let newState = { ...currentState };
+  
+  // Very basic keyword detection - would be more sophisticated in reality
+  if (lowerInput.includes('happy') || lowerInput.includes('glad') || lowerInput.includes('joy')) {
+    newState.primary = 'joy';
+    newState.intensity = Math.min(100, currentState.intensity + 10);
+  } else if (lowerInput.includes('sad') || lowerInput.includes('upset')) {
+    newState.primary = 'sadness';
+    newState.intensity = Math.min(100, currentState.intensity + 10);
+  } else if (lowerInput.includes('angry') || lowerInput.includes('mad')) {
+    newState.primary = 'anger';
+    newState.intensity = Math.min(100, currentState.intensity + 10);
+  } else if (lowerInput.includes('afraid') || lowerInput.includes('scared')) {
+    newState.primary = 'fear';
+    newState.intensity = Math.min(100, currentState.intensity + 10);
+  } else if (lowerInput.includes('why') || lowerInput.includes('how come')) {
+    newState.primary = 'curiosity';
+    newState.intensity = Math.min(100, currentState.intensity + 5);
+  } else if (lowerInput.includes('trust') || lowerInput.includes('believe')) {
+    newState.primary = 'trust';
+    newState.intensity = Math.min(100, currentState.intensity + 5);
+  }
+  
+  // If user emotion was provided, it may influence Jonah's emotions
+  if (userEmotion) {
+    // User's emotion might become Jonah's secondary emotion or influence the primary
+    if (Math.random() > 0.7) {
+      newState.secondary = userEmotion;
     }
   }
   
-  // Default style
-  return 'direct';
+  // Slowly trend toward neutral if no strong triggers
+  if (newState.primary === currentState.primary) {
+    newState.intensity = Math.max(25, currentState.intensity - 5);
+    if (newState.intensity < 30) {
+      newState.primary = 'neutral';
+    }
+  }
+  
+  // Update the trend
+  if (newState.intensity > currentState.intensity + 15) {
+    newState.trend = 'increasing';
+  } else if (newState.intensity < currentState.intensity - 15) {
+    newState.trend = 'decreasing';
+  } else if (newState.primary !== currentState.primary) {
+    newState.trend = 'volatile';
+  } else {
+    newState.trend = 'stable';
+  }
+  
+  return newState;
 }
 
-// Get emotional intensity as string
-export function getEmotionalIntensity(level: number): EmotionIntensity {
-  if (level < 33) return 'low';
-  if (level > 66) return 'high';
-  return 'medium';
+// Store emotional state to history
+export function storeEmotionalState(state: EmotionalState): void {
+  try {
+    const storedStates = JSON.parse(localStorage.getItem('jonah_emotional_states') || '[]');
+    storedStates.push({
+      ...state,
+      timestamp: Date.now()
+    });
+    
+    // Keep only last 50 states
+    if (storedStates.length > 50) {
+      storedStates.splice(0, storedStates.length - 50);
+    }
+    
+    localStorage.setItem('jonah_emotional_states', JSON.stringify(storedStates));
+  } catch (e) {
+    console.error('Error storing emotional state:', e);
+  }
 }
