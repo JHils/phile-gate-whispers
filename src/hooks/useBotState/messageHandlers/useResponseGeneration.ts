@@ -1,6 +1,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { EmotionalState, EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
+import { EmotionalState, EmotionCategory, JonahResponse } from '@/utils/jonahAdvancedBehavior/types';
 import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
 import { 
   checkForTriggerPhrases,
@@ -34,7 +34,7 @@ export function useResponseGeneration(addBotMessage: (message: string) => void, 
     userInput: string, 
     sessionHistory: string[], 
     timeSinceLastInteraction: number
-  ) => {
+  ): JonahResponse => {
     // Track response time
     const responseStart = Date.now();
     setLastResponseTime(responseStart);
@@ -61,7 +61,12 @@ export function useResponseGeneration(addBotMessage: (message: string) => void, 
       
       addBotMessage(greeting);
       setHasGreeted(true);
-      return;
+      
+      return {
+        response: greeting,
+        trustChange: 0,
+        memoryTriggered: false
+      };
     }
     
     // Handle returning after a long time
@@ -69,7 +74,12 @@ export function useResponseGeneration(addBotMessage: (message: string) => void, 
       const returnGreeting = "You've been gone for a while. I've been waiting.";
       addBotMessage(returnGreeting);
       setHasGreeted(true);
-      return;
+      
+      return {
+        response: returnGreeting,
+        trustChange: 0,
+        memoryTriggered: false
+      };
     }
     
     // Analyze emotional context of user input
@@ -77,10 +87,13 @@ export function useResponseGeneration(addBotMessage: (message: string) => void, 
     
     // 3. TRUST MODULATION ENGINE - Check for trust triggers
     const triggerResult = checkForTriggerPhrases(userInput);
+    let trustChange = 0;
     
     // Update trust level if triggered
-    if (triggerResult.triggered && triggerResult.trustChange !== 0) {
+    if (triggerResult.triggered && triggerResult.trustChange !== undefined) {
+      trustChange = triggerResult.trustChange;
       modifyTrustLevel(triggerResult.trustChange);
+      
       // 5. CONSOLE ECHO & FLICKER LAYER
       if (triggerResult.trustChange > 0 && Math.random() < 0.3) {
         console.log("%cTrust increased. New patterns accessible.", "color: #8B3A40; font-style: italic;");
@@ -88,7 +101,7 @@ export function useResponseGeneration(addBotMessage: (message: string) => void, 
     }
     
     // Process emotional input to get response
-    const response = processEmotionalInput(userInput);
+    const responseText = processEmotionalInput(userInput);
     
     // Handle very short inputs
     if (userInput.length < 5) {
@@ -96,8 +109,14 @@ export function useResponseGeneration(addBotMessage: (message: string) => void, 
       setConsecutiveShortResponses(prev => prev + 1);
       
       if (consecutiveShortResponses > 2) {
-        addBotMessage("You're not giving me much to work with. Could you be more specific?");
-        return;
+        const shortResponse = "You're not giving me much to work with. Could you be more specific?";
+        addBotMessage(shortResponse);
+        
+        return {
+          response: shortResponse,
+          trustChange: -1,
+          memoryTriggered: false
+        };
       } else {
         const shortResponses = [
           "Hmm?",
@@ -106,8 +125,14 @@ export function useResponseGeneration(addBotMessage: (message: string) => void, 
           "Go on.",
           "And?"
         ];
-        addBotMessage(shortResponses[Math.floor(Math.random() * shortResponses.length)]);
-        return;
+        const shortResponse = shortResponses[Math.floor(Math.random() * shortResponses.length)];
+        addBotMessage(shortResponse);
+        
+        return {
+          response: shortResponse,
+          trustChange: 0,
+          memoryTriggered: false
+        };
       }
     }
     
@@ -115,7 +140,13 @@ export function useResponseGeneration(addBotMessage: (message: string) => void, 
     setConsecutiveShortResponses(0);
     
     // 1. EMOTIONAL FLOW INJECTION - Generate final response with emotional tone
-    addBotMessage(response);
+    addBotMessage(responseText);
+    
+    return {
+      response: responseText,
+      trustChange,
+      memoryTriggered: false
+    };
     
   }, [
     addBotMessage, 

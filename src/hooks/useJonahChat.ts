@@ -7,6 +7,8 @@ import { useMessageFormatting } from './jonahChat/useMessageFormatting';
 import { useConversationContext } from './jonahChat/useConversationContext';
 import { findRelevantMemories, generateMemoryBasedResponse } from '@/utils/jonahAdvancedBehavior/enhancedMemorySystem';
 import { EmotionCategory, EmotionalState, createEmotionalState } from '@/utils/jonahAdvancedBehavior/types';
+
+// Import the enhanced emotional core functions
 import { generateFullEmotionalResponse } from '@/utils/jonahAdvancedBehavior/enhancedEmotionalCore';
 
 // Error recovery function (placeholder)
