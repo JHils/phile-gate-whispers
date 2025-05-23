@@ -28,9 +28,9 @@ export const initializeAllSystems = initializeJonahSystems;
 export function initializeConsoleTracking(): void {
   console.log("Console tracking initialized");
   
-  // Example test response
-  const emotionalState = createEmotionalState('hope');
-  const testResponse = getEmotionalResponse('hope', 'medium');
+  // Example test response - Fix: Create an actual EmotionalState instead of a string
+  const emotionalState = createEmotionalState('hope' as EmotionCategory);
+  const testResponse = getEmotionalResponse('hope' as EmotionCategory, 'medium');
   console.log("Test emotional response:", testResponse);
 }
 

@@ -37,7 +37,7 @@ export function initializeSimba(): void {
 export function feedSimba(): string {
   initializeSimba();
   
-  if (!window.JonahConsole.simba) return "Error: Simba not initialized.";
+  if (!window.JonahConsole?.simba) return "Error: Simba not initialized.";
   
   // Ensure simba properties use number types
   if (typeof window.JonahConsole.simba.interactions === 'string') {
@@ -55,7 +55,7 @@ export function feedSimba(): string {
 export function petSimba(): string {
   initializeSimba();
   
-  if (!window.JonahConsole.simba) return "Error: Simba not initialized.";
+  if (!window.JonahConsole?.simba) return "Error: Simba not initialized.";
   
   // Ensure simba properties use number types
   if (typeof window.JonahConsole.simba.interactions === 'string') {
@@ -80,7 +80,7 @@ export function petSimba(): string {
 export function playWithSimba(): string {
   initializeSimba();
   
-  if (!window.JonahConsole.simba) return "Error: Simba not initialized.";
+  if (!window.JonahConsole?.simba) return "Error: Simba not initialized.";
   
   // Ensure simba properties use number types
   if (typeof window.JonahConsole.simba.interactions === 'string') {
@@ -97,7 +97,7 @@ export function playWithSimba(): string {
 export function checkSimba(): string {
   initializeSimba();
   
-  if (!window.JonahConsole.simba) return "Error: Simba not initialized.";
+  if (!window.JonahConsole?.simba) return "Error: Simba not initialized.";
   
   const timeSinceSeen = Date.now() - (window.JonahConsole.simba.lastSeen || 0);
   const hoursSinceSeen = timeSinceSeen / (1000 * 60 * 60);

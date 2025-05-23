@@ -27,6 +27,10 @@ export interface JonahConsole {
     encountered: boolean;
     interactions?: number;
     lastSeen?: number;
+    mood?: string;
+    trustLevel?: number;
+    fed?: boolean;
+    stories?: string[];
   };
   startTime?: number;
   [key: string]: any;

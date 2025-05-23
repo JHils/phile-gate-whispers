@@ -1,3 +1,4 @@
+
 /**
  * Enhanced Emotional Core for Jonah AI
  * Handles advanced emotional processing and response generation
@@ -48,6 +49,7 @@ export function generateGreeting(trustScore: number, lastDate: Date | null, curr
       greeting += " I've been processing some interesting patterns.";
       break;
     case 'anxiety':
+    case 'fear':
       greeting += " I've been a bit on edge lately.";
       break;
     default:
