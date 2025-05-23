@@ -1,3 +1,4 @@
+
 /**
  * Semantic Interpretation System
  * Analyzes deeper meaning in text
@@ -6,7 +7,7 @@
 // Import emotional core for integration
 import { EmotionalState, EmotionCategory } from './types';
 import { analyzeEmotion } from './sentimentAnalysis/analyzer';
-import { getCompoundEmotionalState } from './emotionalCore';
+import { getCurrentEmotionalState } from './emotionalCore';
 
 // Define emotion categories with semantically related terms
 const emotionKeywords: Record<string, string[]> = {

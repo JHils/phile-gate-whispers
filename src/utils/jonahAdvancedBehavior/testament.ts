@@ -1,4 +1,3 @@
-
 /**
  * Testament System
  * Handles Jonah's testaments - personal reflections and hidden insights
@@ -138,3 +137,48 @@ export function checkTestamentReveals(trustLevel: number, input?: string): Testa
   
   return revealing;
 }
+
+// Unlock testament by phrase - new function
+export function unlockTestamentByPhrase(phrase: string): TestamentEntry | null {
+  const testaments = getAllTestaments();
+  const testament = testaments.find(t => 
+    t.unlockPhrase && t.unlockPhrase.toLowerCase() === phrase.toLowerCase() && !t.revealed
+  );
+  
+  if (testament) {
+    return revealTestament(testament.id);
+  }
+  
+  return null;
+}
+
+// Get testament teaser - new function
+export function getTestamentTeaser(): string {
+  const teasers = [
+    "There are records waiting to be discovered.",
+    "Some testaments remain hidden in the system.",
+    "Jonah's memories are scattered throughout the network.",
+    "Unlocking higher trust will reveal more of Jonah's testament.",
+    "Certain phrases may unlock hidden records."
+  ];
+  
+  return teasers[Math.floor(Math.random() * teasers.length)];
+}
+
+// Generate response based on testament - new function
+export function generateTestamentResponse(testament: TestamentEntry): string {
+  return `I've revealed a testament: "${testament.title}"\n\n${testament.content}\n\nThis record was from ${new Date(testament.timestamp).toLocaleDateString()}.`;
+}
+
+// Get revealed entries - fixing the missing function
+export function getRevealedEntries(): TestamentEntry[] {
+  return getRevealedTestaments();
+}
+
+// Export the new functions explicitly
+export {
+  unlockTestamentByPhrase,
+  getTestamentTeaser,
+  generateTestamentResponse,
+  getRevealedEntries
+};

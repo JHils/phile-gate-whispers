@@ -165,6 +165,22 @@ export function getEmotionalResponse(emotion: EmotionCategory, intensity: 'low' 
       low: ["Something seems slightly off here.", "I'm a bit wary of this."],
       medium: ["I'm suspicious of these claims.", "This doesn't seem entirely trustworthy."],
       high: ["I strongly doubt this information.", "There's definitely something wrong here."]
+    },
+    // Adding the missing emotion categories to fix the type error
+    curious: {
+      low: ["I'm slightly interested in this.", "This has caught my attention a bit."],
+      medium: ["I'm quite curious about this.", "This is quite fascinating."],
+      high: ["I'm intensely curious about this!", "I need to know more about this!"]
+    },
+    disgust: {
+      low: ["That's somewhat unpleasant.", "I find that a bit distasteful."],
+      medium: ["That's disgusting.", "I find that repulsive."],
+      high: ["That's utterly revolting!", "I'm completely repulsed by that!"]
+    },
+    confusion: {
+      low: ["I'm slightly confused by this.", "This is a bit puzzling."],
+      medium: ["I'm confused about this.", "This doesn't make sense to me."],
+      high: ["I'm completely baffled by this!", "This makes absolutely no sense!"]
     }
   };
   
