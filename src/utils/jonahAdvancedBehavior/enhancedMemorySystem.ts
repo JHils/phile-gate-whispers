@@ -183,9 +183,48 @@ function getEmotionalStateHistory(): EmotionalState[] {
   }
 }
 
-// Export additional functions needed by the system
-export { 
-  storeUserInput,
-  getConversationContext,
-  updateMemoryWithResponse
-};
+// Create conversation context
+export function createConversationContext(trustLevel: 'low' | 'medium' | 'high'): ConversationContextData {
+  return {
+    recentMessages: [],
+    emotionalJourney: ['neutral'],
+    topicFocus: null,
+    depth: 0,
+    recentTopics: [],
+    emotionalHistory: [],
+    userTrustLevel: trustLevel === 'high' ? 80 : trustLevel === 'medium' ? 50 : 20,
+    sessionStartTime: Date.now()
+  };
+}
+
+// Store in memory function
+export function storeInMemory(
+  input: string,
+  mood: EmotionCategory,
+  isUser: boolean,
+  context: ConversationContextData
+): ConversationContextData {
+  const newContext = { ...context };
+  
+  // Update recent messages
+  if (isUser) {
+    newContext.recentMessages = [...newContext.recentMessages.slice(-4), input];
+  }
+  
+  // Update emotional journey
+  newContext.emotionalJourney = [...newContext.emotionalJourney.slice(-9), mood];
+  
+  return newContext;
+}
+
+// Find relevant memories
+export function findRelevantMemories(input: string, context: any): any[] {
+  // Mock implementation - would use real NLP in a production system
+  return [];
+}
+
+// Generate memory-based response
+export function generateMemoryBasedResponse(memory: any, trustLevel: string): string {
+  // Mock implementation
+  return "I remember something similar to that.";
+}

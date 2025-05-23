@@ -55,7 +55,12 @@ export function generateEmotionalResponse(
     curiosity: ["That's interesting to consider", "I want to know more about this"],
     confusion: ["I'm finding this hard to process", "This is a bit disorienting"],
     watching: ["I'm observing carefully", "I'm taking note of this"],
-    existential: ["I question the meaning of this", "I wonder if any of this is real"]
+    existential: ["I question the meaning of this", "I wonder if any of this is real"],
+    curious: ["I'm interested in exploring this further", "This piques my curiosity"],
+    analytical: ["I'm analyzing the patterns here", "Let me examine this logically"],
+    protective: ["I feel the need to protect this", "I want to safeguard this information"],
+    melancholic: ["This gives me a sense of longing", "There's a wistfulness to this"],
+    suspicious: ["I'm not sure I can trust this", "Something doesn't seem right here"]
   };
   
   // Get emotional content based on state

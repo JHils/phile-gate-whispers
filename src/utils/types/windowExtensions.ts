@@ -24,6 +24,8 @@ export interface JonahConsole {
   bookCodes?: any[];
   simba?: {
     encountered: boolean;
+    interactions?: number;
+    lastSeen?: number;
   };
   startTime?: number;
   [key: string]: any;

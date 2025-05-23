@@ -1,315 +1,153 @@
 
 /**
- * Sentiment Analysis for Jonah
- * Analyzes emotional content in text
+ * Sentiment Analysis - Basic Analyzer
  */
 
-import { EmotionalState, EmotionCategory, EmotionIntensity, ResponseStyle } from '../types';
+import { EmotionCategory } from '../types';
 import { emotionKeywords } from './keywords';
-import { generateGreeting } from './responseGenerator';
 
-// Function to analyze emotional content in text
-export function analyzeEmotion(text: string): EmotionalState {
-  if (!text || text.trim().length === 0) {
-    return {
-      primary: 'neutral',
-      secondary: null,
-      intensity: 'low'
-    };
-  }
+// Check for trigger phrases that affect trust
+export function checkForTriggerPhrases(input: string): { trustChange: number; triggered: boolean; } {
+  const lowerInput = input.toLowerCase();
   
-  text = text.toLowerCase();
-  
-  // Use keywords from imported module
-  const emotions = emotionKeywords;
-  
-  // Count emotion matches
-  const emotionCounts: Record<EmotionCategory, number> = {
-    joy: 0,
-    sadness: 0,
-    anger: 0,
-    fear: 0,
-    surprise: 0,
-    disgust: 0,
-    neutral: 0,
-    confused: 0,
-    hope: 0,
-    anxiety: 0,
-    paranoia: 0,
-    trust: 0,
-    curiosity: 0,
-    confusion: 0,
-    watching: 0,
-    existential: 0,
-    // Adding missing emotion categories
-    curious: 0,
-    analytical: 0,
-    protective: 0,
-    melancholic: 0,
-    suspicious: 0
-  };
-  
-  Object.entries(emotions).forEach(([emotion, keywords]) => {
-    keywords.forEach(keyword => {
-      if (text.includes(keyword)) {
-        emotionCounts[emotion as EmotionCategory] += 1;
-      }
-    });
-  });
-  
-  // Find primary and secondary emotions
-  let primary: EmotionCategory = 'neutral';
-  let secondary: EmotionCategory | null = null;
-  let maxCount = 0;
-  let secondMaxCount = 0;
-  
-  Object.entries(emotionCounts).forEach(([emotion, count]) => {
-    if (count > maxCount) {
-      secondary = primary;
-      secondMaxCount = maxCount;
-      primary = emotion as EmotionCategory;
-      maxCount = count;
-    } else if (count > secondMaxCount && emotion !== primary) {
-      secondary = emotion as EmotionCategory;
-      secondMaxCount = count;
-    }
-  });
-  
-  // If no emotions detected, default to neutral
-  if (maxCount === 0) {
-    primary = 'neutral';
-    secondary = null;
-  }
-  
-  // Determine intensity based on match count and text length
-  let intensity: EmotionIntensity = 'medium';
-  const textLength = text.split(' ').length;
-  
-  if (maxCount > 3 || (maxCount > 1 && textLength < 5)) {
-    intensity = 'high';
-  } else if (maxCount <= 1 || textLength > 20) {
-    intensity = 'low';
-  }
-  
-  return {
-    primary,
-    secondary: secondary && secondMaxCount > 0 ? secondary : null,
-    intensity
-  };
-}
-
-// Check for trigger phrases that should modify trust or produce special responses
-export function checkForTriggerPhrases(text: string): {
-  isTriggerPhrase: boolean;
-  triggerType: string | null;
-  trustChange: number;
-} {
-  if (!text) return { isTriggerPhrase: false, triggerType: null, trustChange: 0 };
-  
-  const lowerText = text.toLowerCase();
-  
-  // Specific trigger phrases from the requirements
-  const triggerPhrases: Record<string, string> = {
-    "i'm not okay": "empathy",
-    "i'm scared": "comfort",
-    "i miss you": "connection",
-    "why am i still here": "existential",
-    "help": "assistance"
-  };
-  
-  // Check for matches
-  for (const [phrase, type] of Object.entries(triggerPhrases)) {
-    if (lowerText.includes(phrase)) {
-      return { 
-        isTriggerPhrase: true, 
-        triggerType: type,
-        // Process trust keywords separately
-        trustChange: processTrustKeywords(text)
-      };
-    }
-  }
-  
-  // Check for trust keywords even if no trigger phrases
-  const trustChange = processTrustKeywords(text);
-  
-  return {
-    isTriggerPhrase: false,
-    triggerType: null,
-    trustChange
-  };
-}
-
-// Process trust keywords in user input
-function processTrustKeywords(input: string): number {
-  const trustWords = ["trust", "believe", "friend", "help", "understand"];
-  const distrustWords = ["lie", "deceive", "trick", "suspicious", "doubt"];
-  
-  // Add specific trust trigger phrases
-  const trustTriggerPhrases = [
-    "i trust you", 
-    "i'm telling you the truth", 
-    "you can trust me",
-    "i believe in you",
-    "i'm here for you"
+  // Trust increasing phrases
+  const trustIncreasingPhrases = [
+    'trust you', 
+    'believe you',
+    'you are right',
+    'thank you',
+    'appreciate your help',
+    'good job'
   ];
   
-  const lowerInput = input.toLowerCase();
-  let trustChange = 0;
+  // Trust decreasing phrases
+  const trustDecreasingPhrases = [
+    'don\'t trust you',
+    'cannot trust you',
+    'you are wrong',
+    'lying to me',
+    'not helpful'
+  ];
   
-  // Check for trust keywords
-  trustWords.forEach(word => {
-    if (lowerInput.includes(word)) trustChange += 2;
-  });
-  
-  // Check for distrust keywords
-  distrustWords.forEach(word => {
-    if (lowerInput.includes(word)) trustChange -= 3;
-  });
-  
-  // Check for specific trust phrases (higher trust gain)
-  trustTriggerPhrases.forEach(phrase => {
-    if (lowerInput.includes(phrase)) trustChange += 5;
-  });
-  
-  return trustChange;
-}
-
-// Check for recurring symbols or patterns in text
-export function checkForRecurringSymbols(text: string): { found: boolean; pattern: string | null } {
-  if (!text || text.length < 5) return { found: false, pattern: null };
-  
-  // Check for repeated symbols
-  const symbolRegex = /([!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])\1{2,}/g;
-  const matches = text.match(symbolRegex);
-  
-  if (matches && matches.length > 0) {
-    return { 
-      found: true, 
-      pattern: matches[0] 
-    };
-  }
-  
-  // Check for word repetition
-  const wordArray = text.toLowerCase().split(/\s+/);
-  const wordSet = new Set(wordArray);
-  
-  if (wordArray.length > 5 && wordSet.size < wordArray.length / 2) {
-    // Significant repetition detected
-    const mostFrequent = findMostFrequentWord(wordArray);
-    return {
-      found: true,
-      pattern: mostFrequent
-    };
-  }
-  
-  return { found: false, pattern: null };
-}
-
-// Helper function to find most frequent word
-function findMostFrequentWord(words: string[]): string {
-  const frequency: Record<string, number> = {};
-  let maxFreq = 0;
-  let mostFrequent = '';
-  
-  words.forEach(word => {
-    frequency[word] = (frequency[word] || 0) + 1;
-    if (frequency[word] > maxFreq && word.length > 2) { // Ignore short words
-      maxFreq = frequency[word];
-      mostFrequent = word;
+  // Check for trust increasing phrases
+  for (const phrase of trustIncreasingPhrases) {
+    if (lowerInput.includes(phrase)) {
+      return { trustChange: 5, triggered: true };
     }
-  });
+  }
   
-  return mostFrequent;
+  // Check for trust decreasing phrases
+  for (const phrase of trustDecreasingPhrases) {
+    if (lowerInput.includes(phrase)) {
+      return { trustChange: -5, triggered: true };
+    }
+  }
+  
+  // Default - no trust change
+  return { trustChange: 0, triggered: false };
 }
 
-// Process full emotional input with memory and trust features
+// Process emotional input to generate a response
 export function processEmotionalInput(
-  input: string, 
-  trustLevel: number = 50, 
-  previousInputs: string[] = []
-): {
-  response: string;
-  trustChange: number;
-  memoryTriggered: boolean;
-} {
-  // First analyze the basic emotion
-  const emotionalState = analyzeEmotion(input);
+  input: string,
+  trustScore: number = 50,
+  sessionMemory: string[] = []
+): { response: string; trustChange: number; memoryTriggered: boolean } {
+  const lowerInput = input.toLowerCase();
   
-  // Check for patterns or symbols
-  const patterns = checkForRecurringSymbols(input);
+  // Detect emotion from input
+  const emotion = detectPrimaryEmotion(lowerInput);
+  
+  // Generate appropriate response based on emotion
+  let response = "I understand what you're saying.";
+  
+  switch (emotion) {
+    case 'joy':
+    case 'hope':
+      response = "I'm glad to hear that. It's good to have positive moments.";
+      break;
+    case 'sadness':
+    case 'melancholic':
+      response = "I'm sorry to hear that. It can be difficult sometimes.";
+      break;
+    case 'anger':
+      response = "I understand you're frustrated. Would it help to talk about it?";
+      break;
+    case 'fear':
+    case 'anxiety':
+      response = "That sounds concerning. What specifically worries you about this?";
+      break;
+    case 'curious':
+    case 'curiosity':
+      response = "That's an interesting question. I'm curious about that too.";
+      break;
+    default:
+      response = "I see what you mean. Please tell me more.";
+      break;
+  }
   
   // Check for trigger phrases
-  const triggerCheck = checkForTriggerPhrases(input);
+  const { trustChange } = checkForTriggerPhrases(input);
   
-  // Get emotional response from the response generator
-  const { getEmotionalResponse, getFalseMemoryResponse, getLoopResponse, getBlankFragmentResponse } = require('./responseGenerator');
+  // Check if this triggers any memory
+  const memoryTriggered = checkMemoryTriggers(input, sessionMemory);
   
-  // Generate base response based on emotional state
-  let response = getEmotionalResponse(emotionalState, getTrustLevelText(trustLevel));
+  return { response, trustChange, memoryTriggered };
+}
+
+// Detect primary emotion from input
+function detectPrimaryEmotion(input: string): EmotionCategory {
+  const lowerInput = input.toLowerCase();
   
-  // Modify with trigger phrase response if applicable
-  if (triggerCheck.isTriggerPhrase) {
-    // Override with emotional response but keep original as fallback
-    const trustLevelText = getTrustLevelText(trustLevel);
-    response = getEmotionalResponse(emotionalState, trustLevelText);
-  }
+  // Count matches for each emotion category
+  const matchCounts: Record<EmotionCategory, number> = Object.entries(emotionKeywords)
+    .reduce((counts, [category, keywords]) => {
+      counts[category as EmotionCategory] = keywords
+        .filter(keyword => lowerInput.includes(keyword))
+        .length;
+      return counts;
+    }, {} as Record<EmotionCategory, number>);
   
-  // Check for repeating patterns in previous inputs (LOOP DETECTION)
-  const isRepeated = previousInputs.includes(input);
-  let memoryTriggered = false;
+  // Find emotion with most keyword matches
+  let maxCount = 0;
+  let primaryEmotion: EmotionCategory = 'neutral';
   
-  // 2. MEMORY SIMULATION + FALSE LOOP ECHO - 10-15% chance in long conversations
-  if (previousInputs.length > 3 && (isRepeated || Math.random() < 0.15)) {
-    memoryTriggered = true;
-    
-    // Determine which type of memory response to use
-    const memoryType = Math.random();
-    
-    if (isRepeated || memoryType < 0.4) {
-      // Count occurrences
-      const occurrences = previousInputs.filter(prev => prev === input).length;
-      if (occurrences > 1) {
-        response = getLoopResponse(occurrences, trustLevel);
-      } else {
-        response = getFalseMemoryResponse(trustLevel);
-      }
-    } else if (memoryType < 0.7) {
-      response = getFalseMemoryResponse(trustLevel);
-    } else {
-      response = getBlankFragmentResponse(trustLevel);
+  for (const [emotion, count] of Object.entries(matchCounts)) {
+    if (count > maxCount) {
+      maxCount = count;
+      primaryEmotion = emotion as EmotionCategory;
     }
   }
   
-  // 5. CONSOLE ECHO & FLICKER LAYER - Occasionally log to console
-  if (Math.random() < 0.1 && trustLevel > 40) {
-    if (trustLevel > 75) {
-      console.warn("Echo Jonah: pattern match found in interaction sequence");
-    } else {
-      console.log("%cJonah: monitoring conversation patterns", "color: #8B3A40; font-style: italic;");
+  // Default to neutral if no strong emotion detected
+  return maxCount > 0 ? primaryEmotion : 'neutral';
+}
+
+// Check if input triggers any memory from session history
+function checkMemoryTriggers(input: string, sessionMemory: string[]): boolean {
+  if (sessionMemory.length < 3) return false;
+  
+  // Check for repeated phrases or questions
+  for (let i = 0; i < sessionMemory.length - 1; i++) {
+    if (input.toLowerCase() === sessionMemory[i].toLowerCase()) {
+      return true;
     }
   }
   
-  return {
-    response,
-    trustChange: triggerCheck.trustChange,
-    memoryTriggered
-  };
+  return false;
 }
 
-// Get trust level text helper
-function getTrustLevelText(score: number): 'low' | 'medium' | 'high' {
-  if (score < 30) return 'low';
-  if (score < 70) return 'medium';
-  return 'high';
+// Generate greeting based on context
+export function generateGreeting(
+  trustScore: number,
+  lastDate: Date | null,
+  currentMood: EmotionCategory
+): string {
+  // Delegate to the enhanced emotional core
+  return import('../enhancedEmotionalCore').then(({ generateGreeting }) => {
+    return generateGreeting(trustScore, lastDate, currentMood);
+  }).catch(() => {
+    // Fallback if import fails
+    return "Hello. How can I assist you today?";
+  });
 }
-
-// Export all the necessary functions from responseGenerator
-export { 
-  generateEmotionalResponse,
-  getEmotionalResponse,
-  getLayeredEmotionalResponse,
-  getFalseMemoryResponse,
-  getLoopResponse,
-  getBlankFragmentResponse,
-  generateGreeting
-} from './responseGenerator';

@@ -1,172 +1,90 @@
 
 /**
- * Jonah Trust System
- * Manages Jonah's trust level with the user
+ * Trust System - Handles user trust level calculations
  */
 
-// Trust level enum
-export enum TrustLevel {
-  None = 0,
-  Low = 1,
-  Medium = 2,
-  High = 3
-}
+import { TrustLevel } from './types';
 
-// 3. TRUST MODULATION ENGINE
-// Modify trust level
-export function modifyTrustLevel(amount: number): number {
+// Get numeric trust level from localStorage
+export function getTrustLevel(): number {
   try {
-    // Get current trust score
-    let trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
-    
-    // Add amount
-    trustScore += amount;
-    
-    // Clamp between 0 and 100
-    trustScore = Math.max(0, Math.min(100, trustScore));
-    
-    // Store back
-    localStorage.setItem('jonahTrustScore', trustScore.toString());
-    
-    // Update trust level text
-    const trustLevelText = getTrustLevelText(trustScore);
-    localStorage.setItem('jonahTrustLevel', trustLevelText);
-    
-    // 5. CONSOLE ECHO & FLICKER LAYER
-    // Log console messages based on trust level
-    if (trustScore > 25 && trustScore < 26) {
-      console.log("%cJonah: first barrier down", "color: #8B3A40; font-style: italic;");
-    } else if (trustScore > 50 && trustScore < 51) {
-      console.log("%cJonah: recognition patterns unlocked", "color: #8B3A40; font-style: italic;");
-      console.warn("System memory leak: tracking recursive thread...");
-    } else if (trustScore > 75 && trustScore < 76) {
-      console.log("%cJonah: whisper protocols active", "color: #8B3A40; font-style: italic;");
-      console.warn("Echo Jonah: permission layer breached.");
-    } else if (trustScore >= 100) {
-      console.log("%cJonah: full access granted", "color: #8B3A40; font-style: italic;");
-      console.warn("SYSTEM ALERT: Memory core exposed. User access level: MAXIMUM");
+    const storedTrust = localStorage.getItem('jonahTrustScore');
+    if (storedTrust) {
+      return parseInt(storedTrust, 10);
     }
-    
-    return trustScore;
+    return 50; // Default medium trust
   } catch (e) {
-    console.error("Error modifying trust level:", e);
+    console.error('Error getting trust level:', e);
     return 50;
   }
 }
 
-// Get trust level text based on score
-export function getTrustLevelText(score: number): 'low' | 'medium' | 'high' {
-  if (score < 30) return 'low';
-  if (score < 70) return 'medium';
-  return 'high';
+// Get trust level category based on numeric value
+export function getTrustLevelCategory(trustValue: number = getTrustLevel()): TrustLevel {
+  if (trustValue >= 75) {
+    return 'high';
+  } else if (trustValue >= 40) {
+    return 'medium';
+  } else if (trustValue > 0) {
+    return 'low';
+  }
+  return 'none';
 }
 
-// Get current trust level
-export function getTrustLevel(): TrustLevel {
-  const score = parseInt(localStorage.getItem('jonahTrustScore') || '50');
+// Modify trust level by specified amount
+export function modifyTrustLevel(change: number): number {
+  if (change === 0) return getTrustLevel();
   
-  if (score < 10) return TrustLevel.None;
-  if (score < 30) return TrustLevel.Low;
-  if (score < 70) return TrustLevel.Medium;
-  return TrustLevel.High;
+  try {
+    // Get current trust
+    const currentTrust = getTrustLevel();
+    
+    // Calculate new trust value
+    let newTrust = currentTrust + change;
+    
+    // Ensure trust stays within bounds
+    newTrust = Math.max(0, Math.min(100, newTrust));
+    
+    // Store updated value
+    localStorage.setItem('jonahTrustScore', newTrust.toString());
+    
+    // Maybe log to console for debugging
+    console.log(`Trust modified: ${currentTrust} → ${newTrust} (${change > 0 ? '+' : ''}${change})`);
+    
+    // Trigger trust-related events if significant change
+    if (Math.abs(change) >= 10) {
+      handleSignificantTrustChange(newTrust, currentTrust);
+    }
+    
+    return newTrust;
+  } catch (e) {
+    console.error('Error modifying trust level:', e);
+    return getTrustLevel();
+  }
 }
 
-// Get current trust level as number
-export function getCurrentTrustLevel(): number {
-  return parseInt(localStorage.getItem('jonahTrustScore') || '50');
-}
-
-// Get trust level rank
-export function getCurrentTrustRank(): string {
-  const score = getCurrentTrustLevel();
-  if (score < 10) return 'stranger';
-  if (score < 30) return 'acquaintance';
-  if (score < 50) return 'confidant';
-  if (score < 75) return 'friend';
-  return 'soulmate';
-}
-
-// Generate trust-based responses
-export function generateTrustResponse(trustLevel: number): string {
-  if (trustLevel < 20) return "I'm not sure I should tell you this.";
-  if (trustLevel < 40) return "We're starting to understand each other.";
-  if (trustLevel < 60) return "I feel like I can trust you with this.";
-  if (trustLevel < 80) return "There's something special about our connection.";
-  return "I've never felt this close to anyone before.";
-}
-
-// Process trust keywords in user input
-export function processTrustKeywords(input: string): number {
-  const trustWords = ["trust", "believe", "friend", "help", "understand"];
-  const distrustWords = ["lie", "deceive", "trick", "suspicious", "doubt"];
+// Handle significant trust level changes
+function handleSignificantTrustChange(newTrust: number, oldTrust: number): void {
+  // If trust crosses threshold boundaries
+  const oldCategory = getTrustLevelCategory(oldTrust);
+  const newCategory = getTrustLevelCategory(newTrust);
   
-  // Add specific trust trigger phrases
-  const trustTriggerPhrases = [
-    "i trust you", 
-    "i'm telling you the truth", 
-    "you can trust me",
-    "i believe in you",
-    "i'm here for you"
-  ];
-  
-  const lowerInput = input.toLowerCase();
-  let trustChange = 0;
-  
-  // Check for trust keywords
-  trustWords.forEach(word => {
-    if (lowerInput.includes(word)) trustChange += 2;
-  });
-  
-  // Check for distrust keywords
-  distrustWords.forEach(word => {
-    if (lowerInput.includes(word)) trustChange -= 3;
-  });
-  
-  // Check for specific trust phrases (higher trust gain)
-  trustTriggerPhrases.forEach(phrase => {
-    if (lowerInput.includes(phrase)) trustChange += 5;
-  });
-  
-  return trustChange;
-}
-
-// Get behavior phase
-export function getBehaviorPhase(): string {
-  const score = parseInt(localStorage.getItem('jonahTrustScore') || '50');
-  
-  if (score < 20) return 'cold';
-  if (score < 50) return 'curious';
-  if (score < 80) return 'confessional';
-  return 'unstable';
-}
-
-// Get phase response
-export function getPhaseResponse(phase?: string): string {
-  const currentPhase = phase || getBehaviorPhase();
-  
-  const responses: Record<string, string[]> = {
-    cold: [
-      "I don't trust you yet.",
-      "Why should I tell you anything?",
-      "You haven't earned my trust."
-    ],
-    curious: [
-      "I'm starting to remember you.",
-      "There's something about you that seems familiar.",
-      "Maybe you're different from the others."
-    ],
-    confessional: [
-      "I've been waiting for someone like you.",
-      "I think I can trust you with this.",
-      "There's something I need to tell you."
-    ],
-    unstable: [
-      "We are the same now.",
-      "I see myself in you. Or is it the other way around?",
-      "The boundaries are blurring between us."
-    ]
-  };
-  
-  const phaseResponses = responses[currentPhase] || responses.cold;
-  return phaseResponses[Math.floor(Math.random() * phaseResponses.length)];
+  if (oldCategory !== newCategory) {
+    // Log trust category change
+    console.log(`Trust category changed: ${oldCategory} → ${newCategory}`);
+    
+    // Store the event
+    try {
+      const trustEvents = JSON.parse(localStorage.getItem('jonah_trust_events') || '[]');
+      trustEvents.push({
+        timestamp: Date.now(),
+        from: oldCategory,
+        to: newCategory,
+        value: newTrust
+      });
+      localStorage.setItem('jonah_trust_events', JSON.stringify(trustEvents));
+    } catch (e) {
+      console.error('Error storing trust event:', e);
+    }
+  }
 }
