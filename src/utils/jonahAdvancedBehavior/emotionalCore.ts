@@ -85,7 +85,6 @@ export function getEmotionalResponse(emotion: EmotionCategory, intensity: 'low' 
       medium: ["That makes me sad.", "I feel sorrow about that."],
       high: ["That's deeply saddening.", "I feel profound grief."]
     },
-    // Add other emotion categories with their responses
     anger: {
       low: ["That's irritating.", "I'm a bit annoyed."],
       medium: ["That makes me angry.", "I feel upset about that."],
@@ -166,7 +165,6 @@ export function getEmotionalResponse(emotion: EmotionCategory, intensity: 'low' 
       medium: ["I'm suspicious of these claims.", "This doesn't seem entirely trustworthy."],
       high: ["I strongly doubt this information.", "There's definitely something wrong here."]
     },
-    // Adding the missing emotion categories to fix the type error
     curious: {
       low: ["I'm slightly interested in this.", "This has caught my attention a bit."],
       medium: ["I'm quite curious about this.", "This is quite fascinating."],

@@ -3,6 +3,7 @@ import React, { useRef } from 'react';
 import JonahChatHeader from './JonahChatHeader';
 import EnhancedJonahChatMessages from './EnhancedJonahChatMessages';
 import EnhancedJonahChatInput from './EnhancedJonahChatInput';
+import JonahVisual from './JonahVisual';
 import { EmotionCategory, EmotionalTrend, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
 import { ChatMessage } from '@/hooks/jonahChat/types';
 
@@ -41,16 +42,25 @@ const JonahChatInterface: React.FC<JonahChatInterfaceProps> = ({
   
   return (
     <>
-      <JonahChatHeader 
-        jonahMood={jonahMood} 
-        emotionalTrend={emotionalTrend} 
-        responseStyle={responseStyle}
-        conversationDepth={conversationDepth}
-        jonahVersion={jonahVersion}
-        toggleVersion={toggleVersion}
-        resetConversation={resetConversation}
-        messageWeight={messageWeight}
-      />
+      <div className="flex items-center justify-between mb-4">
+        <JonahChatHeader 
+          jonahMood={jonahMood} 
+          emotionalTrend={emotionalTrend} 
+          responseStyle={responseStyle}
+          conversationDepth={conversationDepth}
+          jonahVersion={jonahVersion}
+          toggleVersion={toggleVersion}
+          resetConversation={resetConversation}
+          messageWeight={messageWeight}
+        />
+        
+        {/* Add Jonah's visual representation */}
+        <JonahVisual 
+          jonahMood={jonahMood} 
+          jonahVersion={jonahVersion} 
+          messageWeight={messageWeight}
+        />
+      </div>
       
       <EnhancedJonahChatMessages 
         messages={messages}

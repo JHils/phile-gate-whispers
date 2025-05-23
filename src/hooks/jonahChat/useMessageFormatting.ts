@@ -1,6 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { EmotionCategory, ResponseStyle } from '@/utils/jonahAdvancedBehavior/types';
+import { getStyleForEmotion } from '@/utils/jonahAdvancedBehavior/styleMatrix';
 
 export function useMessageFormatting() {
   const [messageWeight, setMessageWeight] = useState<'light' | 'medium' | 'heavy'>('medium');
@@ -17,22 +18,9 @@ export function useMessageFormatting() {
       setMessageWeight('medium');
     }
     
-    // Update style based on mood - ensure we're using valid ResponseStyle values
-    if (mood === 'analytical') {
-      setResponseStyle('analytical');
-    } else if (mood === 'paranoia') {
-      setResponseStyle('cryptic');
-    } else if (mood === 'hope') {
-      setResponseStyle('HOPEFUL');
-    } else if (mood === 'melancholic' || mood === 'existential') {
-      setResponseStyle('poetic');
-    } else if (mood === 'watching') {
-      setResponseStyle('MIRROR');
-    } else if (mood === 'curiosity' || mood === 'curious') {
-      setResponseStyle('elaborate');
-    } else {
-      setResponseStyle('direct');
-    }
+    // Update style based on mood using the styleMatrix instead of hardcoded values
+    const newStyle = getStyleForEmotion(mood);
+    setResponseStyle(newStyle);
   }, []);
   
   return {
