@@ -1,153 +1,259 @@
 
 /**
- * Sentiment Analysis - Basic Analyzer
+ * Sentiment Analysis Module - Analyzer
+ * Handles emotional analysis and response generation
  */
 
-import { EmotionCategory } from '../types';
+import { EmotionCategory, EmotionalState, createEmotionalState } from '../types';
 import { emotionKeywords } from './keywords';
+import { getGreetingResponse } from './responses';
 
-// Check for trigger phrases that affect trust
-export function checkForTriggerPhrases(input: string): { trustChange: number; triggered: boolean; } {
-  const lowerInput = input.toLowerCase();
+// Analyze emotion in text
+export function analyzeEmotion(text: string): EmotionalState {
+  if (!text || text.trim() === '') {
+    return createEmotionalState('neutral');
+  }
+  
+  const lowerText = text.toLowerCase();
+  
+  // Count keyword matches for each emotion
+  const emotionScores: Record<string, number> = {};
+  let maxScore = 0;
+  let primaryEmotion: EmotionCategory = 'neutral';
+  let secondaryEmotion: EmotionCategory | undefined;
+  
+  // Calculate scores for each emotion
+  for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+    const score = keywords.filter(keyword => lowerText.includes(keyword)).length;
+    emotionScores[emotion] = score;
+    
+    if (score > maxScore) {
+      // Previous highest becomes secondary
+      if (maxScore > 0) {
+        secondaryEmotion = primaryEmotion;
+      }
+      
+      // Update highest
+      maxScore = score;
+      primaryEmotion = emotion as EmotionCategory;
+    } else if (score > 0 && score === maxScore && emotion !== primaryEmotion) {
+      // Equal highest becomes secondary
+      secondaryEmotion = emotion as EmotionCategory;
+    }
+  }
+  
+  // Determine intensity based on match count
+  let intensity: 'low' | 'medium' | 'high' = 'medium';
+  
+  if (maxScore === 0) {
+    primaryEmotion = 'neutral';
+    intensity = 'low';
+  } else if (maxScore > 3) {
+    intensity = 'high';
+  } else if (maxScore === 1) {
+    intensity = 'low';
+  }
+  
+  return createEmotionalState(primaryEmotion, secondaryEmotion, intensity);
+}
+
+// Generate greeting based on trust level and last seen date
+export function generateGreeting(trustScore: number, lastDate: Date | null, currentMood: EmotionCategory): string {
+  // Determine time of day
+  const hour = new Date().getHours();
+  const timeOfDay = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
+  
+  // Basic greeting
+  let greeting = `Good ${timeOfDay}.`;
+  
+  // Trust-based variation
+  if (trustScore >= 75) {
+    greeting = `Hey there. Good ${timeOfDay}.`;
+  } else if (trustScore <= 25) {
+    greeting = `Hello. ${timeOfDay === 'evening' ? 'It\'s dark.' : ''}`;
+  }
+  
+  // Add return visitor acknowledgment if we've seen them before
+  if (lastDate) {
+    const msSinceLastVisit = Date.now() - lastDate.getTime();
+    const daysSinceLastVisit = msSinceLastVisit / (1000 * 60 * 60 * 24);
+    
+    if (daysSinceLastVisit < 0.5) {
+      greeting += " Welcome back.";
+    } else if (daysSinceLastVisit < 7) {
+      greeting += " Nice to see you again.";
+    } else if (daysSinceLastVisit > 30) {
+      greeting += " It's been a while since your last visit.";
+    }
+  } else {
+    // First time visitor
+    greeting += " I'm Jonah.";
+  }
+  
+  // Mood-based addition
+  if (currentMood === 'curious' || currentMood === 'curiosity') {
+    greeting += " What brings you here today?";
+  } else if (currentMood === 'hope') {
+    greeting += " I'm glad you're here.";
+  } else if (currentMood === 'paranoia') {
+    greeting += " Something feels different today.";
+  }
+  
+  return greeting;
+}
+
+// Check for trigger phrases that modify trust
+export function checkForTriggerPhrases(input: string): { trustChange: number; triggered: boolean } {
+  const lowerInput = input.toLowerCase().trim();
   
   // Trust increasing phrases
   const trustIncreasingPhrases = [
-    'trust you', 
-    'believe you',
-    'you are right',
-    'thank you',
-    'appreciate your help',
-    'good job'
+    "i trust you", 
+    "we can work together", 
+    "thank you for helping",
+    "you're helpful",
+    "you're right"
   ];
   
   // Trust decreasing phrases
   const trustDecreasingPhrases = [
-    'don\'t trust you',
-    'cannot trust you',
-    'you are wrong',
-    'lying to me',
-    'not helpful'
+    "i don't trust you",
+    "you're lying",
+    "you're not making sense",
+    "stop being creepy",
+    "this is stupid"
   ];
   
-  // Check for trust increasing phrases
+  // Check for matches
   for (const phrase of trustIncreasingPhrases) {
     if (lowerInput.includes(phrase)) {
       return { trustChange: 5, triggered: true };
     }
   }
   
-  // Check for trust decreasing phrases
   for (const phrase of trustDecreasingPhrases) {
     if (lowerInput.includes(phrase)) {
       return { trustChange: -5, triggered: true };
     }
   }
   
-  // Default - no trust change
   return { trustChange: 0, triggered: false };
 }
 
-// Process emotional input to generate a response
-export function processEmotionalInput(
-  input: string,
-  trustScore: number = 50,
-  sessionMemory: string[] = []
-): { response: string; trustChange: number; memoryTriggered: boolean } {
-  const lowerInput = input.toLowerCase();
-  
-  // Detect emotion from input
-  const emotion = detectPrimaryEmotion(lowerInput);
-  
-  // Generate appropriate response based on emotion
-  let response = "I understand what you're saying.";
-  
-  switch (emotion) {
-    case 'joy':
-    case 'hope':
-      response = "I'm glad to hear that. It's good to have positive moments.";
-      break;
-    case 'sadness':
-    case 'melancholic':
-      response = "I'm sorry to hear that. It can be difficult sometimes.";
-      break;
-    case 'anger':
-      response = "I understand you're frustrated. Would it help to talk about it?";
-      break;
-    case 'fear':
-    case 'anxiety':
-      response = "That sounds concerning. What specifically worries you about this?";
-      break;
-    case 'curious':
-    case 'curiosity':
-      response = "That's an interesting question. I'm curious about that too.";
-      break;
-    default:
-      response = "I see what you mean. Please tell me more.";
-      break;
-  }
-  
-  // Check for trigger phrases
-  const { trustChange } = checkForTriggerPhrases(input);
-  
-  // Check if this triggers any memory
-  const memoryTriggered = checkMemoryTriggers(input, sessionMemory);
-  
-  return { response, trustChange, memoryTriggered };
+// Process emotional input (simple implementation)
+export function processEmotionalInput(input: string): string {
+  const emotion = analyzeEmotion(input);
+  return getEmotionalResponse(emotion.primary, emotion.intensity);
 }
 
-// Detect primary emotion from input
-function detectPrimaryEmotion(input: string): EmotionCategory {
-  const lowerInput = input.toLowerCase();
+// Get emotional response based on emotion and intensity
+export function getEmotionalResponse(emotion: EmotionCategory, intensity: 'low' | 'medium' | 'high'): string {
+  // Simple implementation - would be expanded with more responses
+  const responses: Record<EmotionCategory, Record<string, string[]>> = {
+    joy: {
+      low: ["That's nice to hear."],
+      medium: ["I'm glad to hear that!"],
+      high: ["That's wonderful news!"]
+    },
+    sadness: {
+      low: ["I understand."],
+      medium: ["I'm sorry to hear that."],
+      high: ["That must be really difficult."]
+    },
+    // Add default responses for all other emotions
+    anger: { low: ["I see."], medium: ["I understand your frustration."], high: ["I can tell this is important to you."] },
+    fear: { low: ["I understand."], medium: ["That does sound concerning."], high: ["I can see why that would be worrying."] },
+    surprise: { low: ["Oh."], medium: ["That's surprising."], high: ["Wow, I didn't expect that!"] },
+    disgust: { low: ["Hmm."], medium: ["That does sound unpleasant."], high: ["That sounds truly awful."] },
+    neutral: { low: ["I see."], medium: ["I understand."], high: ["I'm following what you're saying."] },
+    confused: { low: ["Hmm."], medium: ["I'm not quite following."], high: ["Could you explain that differently?"] },
+    hope: { low: ["There's that."], medium: ["That's something to look forward to."], high: ["That gives me hope too."] },
+    anxiety: { low: ["I see."], medium: ["That does sound stressful."], high: ["That would make anyone anxious."] },
+    paranoia: { low: ["Interesting."], medium: ["I can see why you might feel that way."], high: ["That does sound concerning."] },
+    trust: { low: ["I see."], medium: ["I appreciate your confidence."], high: ["Thank you for sharing that with me."] },
+    curiosity: { low: ["Hmm."], medium: ["That's interesting."], high: ["I'd like to know more about that."] },
+    confusion: { low: ["Hmm."], medium: ["That is a bit perplexing."], high: ["That's quite confusing."] },
+    watching: { low: ["I see."], medium: ["I notice that pattern too."], high: ["That's definitely worth observing."] },
+    existential: { low: ["Hmm."], medium: ["That's a deep thought."], high: ["That raises profound questions."] },
+    curious: { low: ["Interesting."], medium: ["That's fascinating."], high: ["Tell me more about that."] },
+    analytical: { low: ["I see."], medium: ["Let's think about this logically."], high: ["There are several factors to consider."] },
+    protective: { low: ["I understand."], medium: ["I want to help with this."], high: ["It's important to safeguard this."] },
+    melancholic: { low: ["I see."], medium: ["There's a certain sadness to that."], high: ["That evokes a deep sense of longing."] },
+    suspicious: { low: ["Hmm."], medium: ["That does raise questions."], high: ["It's wise to be cautious about that."] }
+  };
   
-  // Count matches for each emotion category
-  const matchCounts: Record<EmotionCategory, number> = Object.entries(emotionKeywords)
-    .reduce((counts, [category, keywords]) => {
-      counts[category as EmotionCategory] = keywords
-        .filter(keyword => lowerInput.includes(keyword))
-        .length;
-      return counts;
-    }, {} as Record<EmotionCategory, number>);
+  // Get response for the specified emotion and intensity
+  const emotionResponses = responses[emotion] || responses.neutral;
+  const intensityResponses = emotionResponses[intensity] || emotionResponses.medium;
   
-  // Find emotion with most keyword matches
-  let maxCount = 0;
-  let primaryEmotion: EmotionCategory = 'neutral';
-  
-  for (const [emotion, count] of Object.entries(matchCounts)) {
-    if (count > maxCount) {
-      maxCount = count;
-      primaryEmotion = emotion as EmotionCategory;
-    }
-  }
-  
-  // Default to neutral if no strong emotion detected
-  return maxCount > 0 ? primaryEmotion : 'neutral';
+  return intensityResponses[Math.floor(Math.random() * intensityResponses.length)];
 }
 
-// Check if input triggers any memory from session history
-function checkMemoryTriggers(input: string, sessionMemory: string[]): boolean {
-  if (sessionMemory.length < 3) return false;
-  
-  // Check for repeated phrases or questions
-  for (let i = 0; i < sessionMemory.length - 1; i++) {
-    if (input.toLowerCase() === sessionMemory[i].toLowerCase()) {
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-// Generate greeting based on context
-export function generateGreeting(
-  trustScore: number,
-  lastDate: Date | null,
-  currentMood: EmotionCategory
+// Layered emotional response generation
+export function getLayeredEmotionalResponse(
+  emotion: EmotionCategory,
+  trustLevel: string,
+  includeContext: boolean = false
 ): string {
-  // Delegate to the enhanced emotional core
-  return import('../enhancedEmotionalCore').then(({ generateGreeting }) => {
-    return generateGreeting(trustScore, lastDate, currentMood);
-  }).catch(() => {
-    // Fallback if import fails
-    return "Hello. How can I assist you today?";
-  });
+  // Use the base emotional response
+  const baseResponse = getEmotionalResponse(emotion, 'medium');
+  
+  // Add trust level modification
+  let trustModifier = "";
+  if (trustLevel === "high") {
+    trustModifier = " I feel I can be open with you about this.";
+  } else if (trustLevel === "low") {
+    trustModifier = " I'm still trying to understand our dynamic.";
+  }
+  
+  // Add context if requested
+  let contextAddition = "";
+  if (includeContext) {
+    contextAddition = " Based on our conversation, I think this is significant.";
+  }
+  
+  return baseResponse + trustModifier + contextAddition;
+}
+
+// Check for recurring symbols in text
+export function checkForRecurringSymbols(text: string): boolean {
+  // Simple implementation - check for repeated characters
+  const symbolRegex = /([^a-zA-Z0-9\s])\1{2,}/;
+  return symbolRegex.test(text);
+}
+
+// Generate false memory response
+export function getFalseMemoryResponse(): string {
+  const responses = [
+    "Wait, didn't we talk about this before?",
+    "I remember you mentioning something similar earlier.",
+    "This feels familiar. Have we discussed this?",
+    "I think I recall you saying something about this previously."
+  ];
+  
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
+// Generate loop response
+export function getLoopResponse(): string {
+  const responses = [
+    "I feel like we're going in circles.",
+    "We seem to be looping back to the same topic.",
+    "Haven't we covered this ground already?",
+    "This conversation feels recursive."
+  ];
+  
+  return responses[Math.floor(Math.random() * responses.length)];
+}
+
+// Generate blank fragment response
+export function getBlankFragmentResponse(): string {
+  const responses = [
+    "I... there's something missing here.",
+    "I feel like I've forgotten something important.",
+    "There's a blank space in my memory about this.",
+    "Something's missing. I can't quite put it together."
+  ];
+  
+  return responses[Math.floor(Math.random() * responses.length)];
 }

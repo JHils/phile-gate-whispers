@@ -17,32 +17,21 @@ export function useMessageFormatting() {
       setMessageWeight('medium');
     }
     
-    // Update style based on mood
-    switch (mood) {
-      case 'analytical':
-        setResponseStyle('analytical');
-        break;
-      case 'cryptic':
-      case 'paranoia':
-        setResponseStyle('cryptic');
-        break;
-      case 'hope':
-        setResponseStyle('HOPEFUL');
-        break;
-      case 'melancholic':
-      case 'existential':
-        setResponseStyle('poetic');
-        break;
-      case 'watching':
-        setResponseStyle('MIRROR');
-        break;
-      case 'curiosity':
-      case 'curious':
-        setResponseStyle('elaborate');
-        break;
-      default:
-        setResponseStyle('direct');
-        break;
+    // Update style based on mood - ensure we're using valid EmotionCategory values
+    if (mood === 'analytical') {
+      setResponseStyle('analytical');
+    } else if (mood === 'cryptic' || mood === 'paranoia') {
+      setResponseStyle('cryptic');
+    } else if (mood === 'hope') {
+      setResponseStyle('HOPEFUL');
+    } else if (mood === 'melancholic' || mood === 'existential') {
+      setResponseStyle('poetic');
+    } else if (mood === 'watching') {
+      setResponseStyle('MIRROR');
+    } else if (mood === 'curiosity' || mood === 'curious') {
+      setResponseStyle('elaborate');
+    } else {
+      setResponseStyle('direct');
     }
   }, []);
   

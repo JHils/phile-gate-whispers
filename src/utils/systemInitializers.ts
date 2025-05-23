@@ -21,12 +21,15 @@ export function initializeJonahSystems(): void {
   console.log("Jonah systems initialized.");
 }
 
+// Alias for backward compatibility
+export const initializeAllSystems = initializeJonahSystems;
+
 // Initialize console tracking (placeholder - to be implemented)
 export function initializeConsoleTracking(): void {
   console.log("Console tracking initialized");
   
   // Example test response
-  const emotionalState = createEmotionalState('hope', undefined, 'medium');
+  const emotionalState = createEmotionalState('hope');
   const testResponse = getEmotionalResponse('hope', 'medium');
   console.log("Test emotional response:", testResponse);
 }

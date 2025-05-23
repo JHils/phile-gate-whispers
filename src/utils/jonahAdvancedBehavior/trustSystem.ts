@@ -31,6 +31,12 @@ export function getTrustLevelCategory(trustValue: number = getTrustLevel()): Tru
   return 'none';
 }
 
+// Get descriptive text for trust level
+export function getTrustLevelText(trustValue: number = getTrustLevel()): TrustLevel {
+  // This is just an alias for getTrustLevelCategory for compatibility
+  return getTrustLevelCategory(trustValue);
+}
+
 // Modify trust level by specified amount
 export function modifyTrustLevel(change: number): number {
   if (change === 0) return getTrustLevel();

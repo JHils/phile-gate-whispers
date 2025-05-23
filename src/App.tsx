@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -64,10 +65,10 @@ import './App.css';
 
 // Import system initializers from the centralized location
 import {
-  initializeAllSystems
+  initializeJonahSystems
 } from './utils/systemInitializers';
 
-// Import additional systems not covered by initializeAllSystems
+// Import additional systems not covered by initializeJonahSystems
 import { initializeEcoAwareness } from './utils/jonahEcoAwareness';
 import { initializeNewsAwareness } from './utils/jonahNewsAwareness';
 import { initializeFuzzyStoryMatching } from './utils/fuzzyStoryMatching';
@@ -82,7 +83,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   // Initialize all Jonah systems
   useEffect(() => {
     // Initialize all core systems at once
-    initializeAllSystems();
+    initializeJonahSystems();
     
     // Initialize additional systems
     initializeEcoAwareness();
