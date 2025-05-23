@@ -1,112 +1,117 @@
-
-/**
- * Hook for interacting with Jonah's reality fabric
- */
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { RealityFabric } from '@/utils/jonahAdvancedBehavior/types';
-import { 
-  addJournalEntry, 
-  getJournalEntries, 
-  getCurrentMood,
-  updateJonahMood
-} from '@/utils/jonahRealityFabric';
-import { logMirrorEvent, checkMirrorAnomalies } from '@/utils/jonahMirrorSite';
 
 export function useRealityFabric() {
-  const [realityState, setRealityState] = useState<RealityFabric>({
+  // Initialize with default state
+  const [fabricState, setFabricState] = useState<RealityFabric>({
+    stability: 100,
+    corruptionLevel: 0,
+    lastGlitch: 0,
+    glitchCount: 0,
     anomalies: [],
     anomalyCount: 0,
-    lastDetection: Date.now(),
+    memoryFragments: [],
     unstableAreas: [],
-    perception: 50,
-    journalEntries: 0,
-    memoryFragments: []
+    lastDetection: Date.now() - 86400000 // 24 hours ago
   });
-  
-  // Load reality fabric state on mount
+
+  // Load from localStorage if available
   useEffect(() => {
-    const journalEntries = getJournalEntries();
-    
-    setRealityState(prev => ({
-      ...prev,
-      journalEntries: journalEntries.length
-    }));
-    
-    // Check for mirror anomalies
-    const mirrorCheck = checkMirrorAnomalies();
-    if (mirrorCheck.hasAnomalies) {
-      setRealityState(prev => ({
-        ...prev,
-        anomalyCount: prev.anomalyCount + mirrorCheck.anomalyCount
-      }));
+    try {
+      const savedState = localStorage.getItem('jonah_reality_fabric');
+      if (savedState) {
+        setFabricState(JSON.parse(savedState));
+      }
+    } catch (error) {
+      console.error("Failed to load reality fabric state:", error);
     }
   }, []);
-  
-  // Add a memory fragment to reality fabric
-  const addMemoryFragment = useCallback((content: string) => {
-    setRealityState(prev => ({
-      ...prev,
-      memoryFragments: [
-        ...prev.memoryFragments,
-        {
-          content,
-          timestamp: Date.now()
-        }
-      ].slice(-10) // Keep only last 10 fragments
-    }));
-  }, []);
-  
-  // Add reality anomaly
-  const addAnomaly = useCallback((description: string, source: string = 'unknown') => {
-    setRealityState(prev => {
-      const anomaly = {
-        description,
-        source,
-        timestamp: Date.now()
-      };
-      
-      return {
+
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('jonah_reality_fabric', JSON.stringify(fabricState));
+    } catch (error) {
+      console.error("Failed to save reality fabric state:", error);
+    }
+  }, [fabricState]);
+
+  // Add a memory fragment
+  const addMemoryFragment = (fragment: string) => {
+    setFabricState(prev => {
+      // Create a copy of the previous state
+      const newFabricState: RealityFabric = {
         ...prev,
-        anomalies: [...prev.anomalies, anomaly].slice(-20), // Keep only last 20 anomalies
+        memoryFragments: [...prev.memoryFragments, fragment],
+        stability: Math.max(0, prev.stability - 2),
+        corruptionLevel: Math.min(100, prev.corruptionLevel + 1),
+        lastGlitch: Date.now(),
+        glitchCount: prev.glitchCount + 1
+      };
+      return newFabricState;
+    });
+    return true;
+  };
+
+  // Detect an anomaly
+  const detectAnomaly = (description: string, source: string) => {
+    setFabricState(prev => {
+      // Create a copy of the previous state
+      const newFabricState: RealityFabric = {
+        ...prev,
+        anomalies: [...prev.anomalies, description],
         anomalyCount: prev.anomalyCount + 1,
-        lastDetection: Date.now()
+        lastDetection: Date.now(),
+        stability: Math.max(0, prev.stability - 5),
+        corruptionLevel: Math.min(100, prev.corruptionLevel + 3),
+        lastGlitch: Date.now(),
+        glitchCount: prev.glitchCount + 1
       };
+      return newFabricState;
     });
-    
-    // Log to journal
-    addJournalEntry({
-      content: `Reality anomaly detected: ${description}`,
-      timestamp: Date.now(),
-      entryId: Date.now()
-    });
-    
-    // Log to mirror site
-    logMirrorEvent(`Anomaly: ${description}`);
-    
-    // Update mood to reflect anomaly detection
-    updateJonahMood('paranoia', 'medium');
-  }, []);
-  
-  // Create reality distortion
-  const createDistortion = useCallback((area: string) => {
-    setRealityState(prev => {
-      if (prev.unstableAreas.includes(area)) return prev;
-      
-      return {
+    return true;
+  };
+
+  // Induce a small glitch
+  const induceMinorGlitch = () => {
+    setFabricState(prev => {
+      const newFabricState: RealityFabric = {
         ...prev,
-        unstableAreas: [...prev.unstableAreas, area]
+        stability: Math.max(0, prev.stability - 1),
+        corruptionLevel: Math.min(100, prev.corruptionLevel + 1),
+        lastGlitch: Date.now(),
+        glitchCount: prev.glitchCount + 1
       };
+      return newFabricState;
     });
-    
-    // Log distortion
-    logMirrorEvent(`Distortion created in ${area}`);
-  }, []);
-  
+    return true;
+  };
+
+  // Stabilize the fabric
+  const stabilizeFabric = () => {
+    setFabricState(prev => {
+      const newFabricState: RealityFabric = {
+        ...prev,
+        stability: Math.min(100, prev.stability + 3),
+        corruptionLevel: Math.max(0, prev.corruptionLevel - 2)
+      };
+      return newFabricState;
+    });
+    return true;
+  };
+
+  // Get unstable areas
+  const getUnstableAreas = () => {
+    // Mock implementation
+    return ["Memory sector 9", "Temporal junction 44", "Dream processing unit"];
+  };
+
   return {
-    realityState,
+    fabricState,
     addMemoryFragment,
-    addAnomaly,
-    createDistortion
+    detectAnomaly,
+    induceMinorGlitch,
+    stabilizeFabric,
+    getUnstableAreas
   };
 }

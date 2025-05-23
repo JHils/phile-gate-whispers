@@ -4,6 +4,8 @@
  */
 
 import { SentienceData } from './types';
+// Import window extensions
+import '../types/windowExtensions';
 
 // Constants
 const GLITCH_STORAGE_KEY = 'jonah_glitch_awakening';

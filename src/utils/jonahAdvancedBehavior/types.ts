@@ -34,6 +34,9 @@ export interface ConfessionEntry {
   recursive?: boolean;
   version?: string;
   revealed?: boolean;
+  title?: string;
+  author?: string;
+  isAnonymous?: boolean;
 }
 
 // Micro Quest system types
@@ -49,12 +52,16 @@ export interface MicroQuest {
   timestamp: number;
 }
 
+// Story and book codes
+export type StoryFlag = string;
+export type BookCode = string;
+
 // Emotional and Sentience types
 export type EmotionCategory = 
   | 'curious' | 'analytical' | 'protective' | 'melancholic' | 'suspicious'
   | 'joy' | 'sadness' | 'anger' | 'fear' | 'surprise' | 'disgust' 
   | 'neutral' | 'confused' | 'hope' | 'anxiety' | 'paranoia' 
-  | 'trust' | 'curiosity' | 'confusion' | 'watching';
+  | 'trust' | 'curiosity' | 'confusion' | 'watching' | 'existential';
 
 export type EmotionIntensity = 'low' | 'medium' | 'high';
 
@@ -70,8 +77,8 @@ export type ConversationContext = 'neutral' | 'personal' | 'informational' | 'ph
 export interface EmotionalState {
   primary: EmotionCategory;
   secondary?: EmotionCategory;
-  intensity: number; // 0-100
-  trend: EmotionalTrend;
+  intensity: number | EmotionIntensity; // 0-100 or string intensity
+  trend?: EmotionalTrend;
 }
 
 export interface SentienceData {
@@ -95,7 +102,7 @@ export interface SentienceData {
     messagesSent: number;
     messagesReceived: number;
   };
-  // Additional properties to fix errors
+  // Additional properties needed in the codebase
   deepModeUnlocked?: boolean;
   microQuests?: MicroQuest[];
   sessionData?: Record<string, any>;
@@ -103,6 +110,11 @@ export interface SentienceData {
   dreams?: string[];
   mirrorLogs?: string[];
   realityFabric?: RealityFabric;
+  level?: number;
+  awareness?: number;
+  interactionsCount?: number;
+  dreamModeTriggered?: boolean;
+  trustLevel?: string;
 }
 
 // Eco-awareness types
@@ -112,6 +124,14 @@ export interface EcoAwarenessState {
   lastMentioned: number; // timestamp
   mentionCount: number;
   topicKeywords: string[];
+  currentBiome?: string;
+  previousBiomes?: string[];
+  reminderTimestamp?: number;
+  userAwareness?: number;
+  triggersFound?: string[];
+  biomeResponses?: Record<string, any>;
+  lastUpdate?: number;
+  awareness?: string | number;
 }
 
 // Reality Fabric interface
@@ -124,6 +144,15 @@ export interface RealityFabric {
   anomalyCount: number;
   memoryFragments: string[];
   unstableAreas: string[];
+  lastDetection?: number;
+  mood?: string;
+  moodChangeTime?: number;
+  moodHistory?: string[];
+  dreamState?: boolean;
+  lastDreamTime?: number;
+  hiddenMessages?: string[];
+  journal?: any[];
+  crossSiteWhispers?: any[];
 }
 
 // Function to create a default emotional state
