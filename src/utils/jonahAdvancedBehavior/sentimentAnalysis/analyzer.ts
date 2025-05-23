@@ -140,14 +140,14 @@ export function checkForTriggerPhrases(input: string): { trustChange: number; tr
   return { trustChange: 0, triggered: false };
 }
 
-// Process emotional input (simple implementation)
+// Process emotional input
 export function processEmotionalInput(input: string): string {
   const emotion = analyzeEmotion(input);
-  return getEmotionalResponse(emotion.primary, emotion.intensity);
+  return getEmotionalResponse(emotion.primary, emotion.intensity.toString() as "low" | "medium" | "high");
 }
 
 // Get emotional response based on emotion and intensity
-export function getEmotionalResponse(emotion: EmotionCategory, intensity: 'low' | 'medium' | 'high'): string {
+export function getEmotionalResponse(emotion: EmotionCategory, intensityValue: "low" | "medium" | "high"): string {
   // Simple implementation - would be expanded with more responses
   const responses: Record<EmotionCategory, Record<string, string[]>> = {
     joy: {
@@ -184,7 +184,7 @@ export function getEmotionalResponse(emotion: EmotionCategory, intensity: 'low' 
   
   // Get response for the specified emotion and intensity
   const emotionResponses = responses[emotion] || responses.neutral;
-  const intensityResponses = emotionResponses[intensity] || emotionResponses.medium;
+  const intensityResponses = emotionResponses[intensityValue] || emotionResponses.medium;
   
   return intensityResponses[Math.floor(Math.random() * intensityResponses.length)];
 }

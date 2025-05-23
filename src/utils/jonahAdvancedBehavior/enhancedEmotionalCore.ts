@@ -33,7 +33,6 @@ export function generateGreeting(trustScore: number, lastDate: Date | null, curr
     case 'curious':
       greeting += " I've been wondering about some things.";
       break;
-    case 'anxious':
     case 'paranoia':
       greeting += " Something feels different today.";
       break;
@@ -47,6 +46,9 @@ export function generateGreeting(trustScore: number, lastDate: Date | null, curr
       break;
     case 'analytical':
       greeting += " I've been processing some interesting patterns.";
+      break;
+    case 'anxiety':
+      greeting += " I've been a bit on edge lately.";
       break;
     default:
       // Keep the default greeting

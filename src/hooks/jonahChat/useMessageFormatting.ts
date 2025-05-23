@@ -17,10 +17,10 @@ export function useMessageFormatting() {
       setMessageWeight('medium');
     }
     
-    // Update style based on mood - ensure we're using valid EmotionCategory values
+    // Update style based on mood - ensure we're using valid ResponseStyle values
     if (mood === 'analytical') {
       setResponseStyle('analytical');
-    } else if (mood === 'cryptic' || mood === 'paranoia') {
+    } else if (mood === 'paranoia') {
       setResponseStyle('cryptic');
     } else if (mood === 'hope') {
       setResponseStyle('HOPEFUL');

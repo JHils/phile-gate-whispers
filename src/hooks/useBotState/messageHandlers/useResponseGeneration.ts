@@ -75,24 +75,23 @@ export function useResponseGeneration(addBotMessage: (message: string) => void, 
     // Analyze emotional context of user input
     const emotionalState = analyzeEmotion(userInput);
     
-    // 3. TRUST MODULATION ENGINE - Process trust triggers and emotions
-    const { response, trustChange, memoryTriggered } = processEmotionalInput(
-      userInput,
-      parseInt(localStorage.getItem('jonahTrustScore') || '50'),
-      sessionMemory
-    );
+    // 3. TRUST MODULATION ENGINE - Check for trust triggers
+    const triggerResult = checkForTriggerPhrases(userInput);
     
-    // Update trust level if needed
-    if (trustChange !== 0) {
-      modifyTrustLevel(trustChange);
+    // Update trust level if triggered
+    if (triggerResult.triggered && triggerResult.trustChange !== 0) {
+      modifyTrustLevel(triggerResult.trustChange);
       // 5. CONSOLE ECHO & FLICKER LAYER
-      if (trustChange > 0 && Math.random() < 0.3) {
+      if (triggerResult.trustChange > 0 && Math.random() < 0.3) {
         console.log("%cTrust increased. New patterns accessible.", "color: #8B3A40; font-style: italic;");
       }
     }
     
-    // Handle very short inputs if we're not in a memory trigger
-    if (userInput.length < 5 && !memoryTriggered) {
+    // Process emotional input to get response
+    const response = processEmotionalInput(userInput);
+    
+    // Handle very short inputs
+    if (userInput.length < 5) {
       // Handle very short inputs
       setConsecutiveShortResponses(prev => prev + 1);
       

@@ -1,6 +1,7 @@
 
 import { SentienceData } from '../jonahAdvancedBehavior/types';
 
+// Define a consolidated JonahConsole interface
 export interface JonahConsole {
   argData?: {
     memoryFragments?: string[];

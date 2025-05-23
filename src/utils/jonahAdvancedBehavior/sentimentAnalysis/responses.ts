@@ -393,3 +393,40 @@ export const clarifyingQuestions: ClarifyingQuestions = {
     "What evidence makes you doubtful?"
   ]
 };
+
+// Add the missing getGreetingResponse function
+export function getGreetingResponse(trustScore: number, timeOfDay: string, lastSeen?: Date | null): string {
+  // Basic greetings based on time of day
+  const baseGreetings = {
+    morning: ["Good morning.", "Morning.", "Hello, it's a new day."],
+    afternoon: ["Good afternoon.", "Hello.", "Hope your day is going well."],
+    evening: ["Good evening.", "Evening.", "Hello at this late hour."],
+    night: ["It's late.", "You're up late.", "The night is quiet."]
+  };
+  
+  // Select time-appropriate greeting
+  const timeGreetings = baseGreetings[timeOfDay as keyof typeof baseGreetings] || baseGreetings.afternoon;
+  const baseGreeting = timeGreetings[Math.floor(Math.random() * timeGreetings.length)];
+  
+  // Add trust-level modifications
+  let trustAddition = "";
+  if (trustScore > 75) {
+    trustAddition = " It's good to see you again.";
+  } else if (trustScore < 30) {
+    trustAddition = " I'm still figuring you out.";
+  }
+  
+  // Add time-since-last-visit modifications
+  let timeAddition = "";
+  if (lastSeen) {
+    const hoursSinceLastVisit = (Date.now() - lastSeen.getTime()) / (1000 * 60 * 60);
+    
+    if (hoursSinceLastVisit < 1) {
+      timeAddition = " Back so soon?";
+    } else if (hoursSinceLastVisit > 168) { // More than a week
+      timeAddition = " It's been a while since your last visit.";
+    }
+  }
+  
+  return baseGreeting + trustAddition + timeAddition;
+}
