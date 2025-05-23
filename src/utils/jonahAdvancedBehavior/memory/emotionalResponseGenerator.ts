@@ -1,4 +1,3 @@
-
 import { EmotionCategory } from '../types';
 import { getEmotionalResponse } from '../emotionalCore';
 
@@ -29,7 +28,12 @@ export function generateEmotionalResponse(
     'paranoia': ['paranoid', 'suspicious', 'distrustful', 'watching', 'following', 'tracked'],
     'trust': ['trust', 'believe', 'faith', 'rely', 'confide', 'honest'],
     'watching': ['watching', 'observing', 'seeing', 'noticing', 'looking', 'monitoring'],
-    'existential': ['existence', 'meaning', 'purpose', 'real', 'simulated', 'consciousness']
+    'existential': ['existence', 'meaning', 'purpose', 'real', 'simulated', 'consciousness'],
+    'curious': ['curious', 'inquisitive', 'questioning', 'exploration', 'discovery', 'interest'],
+    'analytical': ['analyze', 'examine', 'evaluate', 'assess', 'consider', 'deduce'],
+    'protective': ['protect', 'guard', 'defend', 'shield', 'secure', 'safeguard'],
+    'melancholic': ['wistful', 'nostalgic', 'yearning', 'longing', 'bittersweet', 'sentimental'],
+    'suspicious': ['suspect', 'dubious', 'disbelieving', 'doubtful', 'wary', 'mistrustful']
   };
 
   // Find the most prominent emotion in the input
@@ -145,6 +149,31 @@ const emotionalResponseTemplates: Record<EmotionCategory, Record<EmotionIntensit
     'low': ["You're pondering existence.", "I sense philosophical thoughts."],
     'medium': ["You're questioning reality.", "Your existential thoughts are deep."],
     'high': ["You're in an existential crisis.", "You're questioning everything."]
+  },
+  'curious': {
+    'low': ["You seem a bit intrigued.", "I sense some curiosity."],
+    'medium': ["Your curiosity is evident.", "I see your inquisitive nature."],
+    'high': ["Your curiosity is profound.", "You're deeply investigative."]
+  },
+  'analytical': {
+    'low': ["You're being somewhat analytical.", "I sense some calculation."],
+    'medium': ["Your analytical approach is clear.", "You're evaluating carefully."],
+    'high': ["Your analysis is extremely thorough.", "You're deeply methodical."]
+  },
+  'protective': {
+    'low': ["You seem somewhat protective.", "I notice a guarding element."],
+    'medium': ["Your protective nature is clear.", "You're actively safeguarding."],
+    'high': ["You're extremely protective now.", "Your defensive stance is strong."]
+  },
+  'melancholic': {
+    'low': ["There's a hint of nostalgia.", "I sense some wistfulness."],
+    'medium': ["Your melancholy is palpable.", "There's a clear yearning present."],
+    'high': ["You're deeply melancholic.", "The weight of memory is heavy."]
+  },
+  'suspicious': {
+    'low': ["You seem slightly wary.", "I sense some hesitation."],
+    'medium': ["Your suspicion is evident.", "You're clearly doubtful."],
+    'high': ["You're extremely mistrustful.", "Your suspicion runs deep."]
   }
 };
 

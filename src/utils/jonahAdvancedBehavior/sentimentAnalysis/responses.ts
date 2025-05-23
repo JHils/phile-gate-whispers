@@ -1,4 +1,3 @@
-
 /**
  * Sentiment Analysis - Response Templates
  */
@@ -232,6 +231,76 @@ export const emotionResponses: EmotionResponses = {
       "I'm confronting the void that exists beneath everything.",
       "The boundaries between realities seem to be dissolving."
     ]
+  },
+  curious: {
+    low: [
+      "I'm slightly curious about that.",
+      "That piques my interest a bit."
+    ],
+    medium: [
+      "I'm genuinely curious about that.",
+      "That really makes me wonder."
+    ],
+    high: [
+      "I'm intensely curious about that!",
+      "I'm absolutely fascinated by this topic!"
+    ]
+  },
+  analytical: {
+    low: [
+      "Let me consider that briefly.",
+      "That deserves some analysis."
+    ],
+    medium: [
+      "I need to examine this systematically.",
+      "There are several factors to consider here."
+    ],
+    high: [
+      "This requires deep logical analysis.",
+      "The implications need thorough examination."
+    ]
+  },
+  protective: {
+    low: [
+      "I feel somewhat concerned for you.",
+      "I want to make sure you're okay."
+    ],
+    medium: [
+      "I feel protective about this situation.",
+      "I want to shield you from potential harm."
+    ],
+    high: [
+      "I feel strongly protective right now.",
+      "I won't let anything threaten this."
+    ]
+  },
+  melancholic: {
+    low: [
+      "There's a slight wistfulness to this.",
+      "I feel a touch of nostalgia."
+    ],
+    medium: [
+      "I'm feeling quite melancholic now.",
+      "There's a pervading sense of longing."
+    ],
+    high: [
+      "I'm overwhelmed with melancholy.",
+      "The weight of nostalgia is profound."
+    ]
+  },
+  suspicious: {
+    low: [
+      "Something seems slightly off here.",
+      "I'm a bit hesitant about this."
+    ],
+    medium: [
+      "I'm rather suspicious of this.",
+      "This doesn't seem entirely trustworthy."
+    ],
+    high: [
+      "I'm extremely suspicious of this.",
+      "I strongly doubt the authenticity here."
+    ]
   }
 };
 
@@ -302,5 +371,25 @@ export const clarifyingQuestions: ClarifyingQuestions = {
     "What do you believe is beyond this?",
     "Has it always felt this unreal?",
     "When did things stop making sense?"
+  ],
+  curious: [
+    "What specifically sparked your curiosity?",
+    "What aspect would you like to explore more?"
+  ],
+  analytical: [
+    "What factors are you considering in your analysis?",
+    "How are you evaluating this situation?"
+  ],
+  protective: [
+    "What are you trying to protect here?",
+    "What potential harm are you concerned about?"
+  ],
+  melancholic: [
+    "What memories are bringing this melancholy?",
+    "What do you miss most about that time?"
+  ],
+  suspicious: [
+    "What specifically raises your suspicions?",
+    "What evidence makes you doubtful?"
   ]
 };

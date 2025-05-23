@@ -164,6 +164,7 @@ export interface RealityFabric {
   hiddenMessages?: string[];
   journal?: any[];
   crossSiteWhispers?: any[];
+  currentMood?: string; // Added missing property
 }
 
 // BookCode interface

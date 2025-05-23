@@ -18,5 +18,11 @@ export const emotionKeywords: Record<EmotionCategory, string[]> = {
   curiosity: ['curious', 'interested', 'intrigued', 'fascinated', 'captivated', 'engaged', 'keen'],
   confusion: ['unsure', 'unclear', 'mixed', 'muddled', 'uncertain', 'ambiguous', 'vague'],
   watching: ['observe', 'watch', 'monitor', 'surveillance', 'tracking', 'following', 'noticing'],
-  existential: ['meaning', 'existence', 'reality', 'void', 'purpose', 'consciousness', 'simulation', 'illusion']
+  existential: ['meaning', 'existence', 'reality', 'void', 'purpose', 'consciousness', 'simulation', 'illusion'],
+  // Adding missing emotion categories
+  curious: ['curious', 'inquisitive', 'questioning', 'exploring', 'interested', 'probing', 'investigating'],
+  analytical: ['analytical', 'logical', 'systematic', 'examining', 'evaluating', 'reasoning', 'calculating'],
+  protective: ['protective', 'guarding', 'defending', 'shielding', 'safeguarding', 'watching over', 'vigilant'],
+  melancholic: ['melancholic', 'wistful', 'pensive', 'nostalgic', 'reflective', 'somber', 'yearning'],
+  suspicious: ['suspicious', 'distrusting', 'skeptical', 'wary', 'doubtful', 'leery', 'questioning']
 };

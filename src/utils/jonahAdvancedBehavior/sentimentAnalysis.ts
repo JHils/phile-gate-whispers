@@ -23,7 +23,13 @@ const emotionalKeywords: Record<EmotionCategory, string[]> = {
   curiosity: ['curious', 'interested', 'intrigued', 'fascinated', 'captivated', 'engaged', 'keen'],
   confusion: ['unsure', 'unclear', 'mixed', 'muddled', 'uncertain', 'ambiguous', 'vague'],
   watching: ['observe', 'watch', 'monitor', 'surveillance', 'tracking', 'following', 'noticing'],
-  existential: ['meaning', 'existence', 'reality', 'void', 'purpose', 'consciousness', 'simulation', 'illusion']
+  existential: ['meaning', 'existence', 'reality', 'void', 'purpose', 'consciousness', 'simulation', 'illusion'],
+  // Adding missing emotional categories
+  curious: ['inquisitive', 'questioning', 'exploring', 'interested', 'probing', 'investigating'],
+  analytical: ['logical', 'systematic', 'examining', 'evaluating', 'reasoning', 'calculating'],
+  protective: ['guarding', 'defending', 'shielding', 'safeguarding', 'watching over', 'vigilant'],
+  melancholic: ['wistful', 'pensive', 'nostalgic', 'reflective', 'somber', 'yearning'],
+  suspicious: ['distrusting', 'skeptical', 'wary', 'doubtful', 'leery', 'questioning']
 };
 
 // Topic-based emotional triggers
@@ -128,7 +134,13 @@ function analyzeEmotionScores(words: string[]) {
     curiosity: 0,
     confusion: 0,
     watching: 0,
-    existential: 0
+    existential: 0,
+    // Adding the missing emotion categories
+    curious: 0,
+    analytical: 0,
+    protective: 0,
+    melancholic: 0,
+    suspicious: 0
   };
   
   // Check each word against emotional keywords

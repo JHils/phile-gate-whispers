@@ -1,3 +1,4 @@
+
 /**
  * Sentiment Analysis for Jonah
  * Analyzes emotional content in text
@@ -39,7 +40,13 @@ export function analyzeEmotion(text: string): EmotionalState {
     curiosity: 0,
     confusion: 0,
     watching: 0,
-    existential: 0
+    existential: 0,
+    // Adding missing emotion categories
+    curious: 0,
+    analytical: 0,
+    protective: 0,
+    melancholic: 0,
+    suspicious: 0
   };
   
   Object.entries(emotions).forEach(([emotion, keywords]) => {
