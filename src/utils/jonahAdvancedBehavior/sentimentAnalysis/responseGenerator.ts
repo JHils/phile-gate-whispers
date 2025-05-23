@@ -168,6 +168,36 @@ export function getEmotionalResponse(
       "Existence is the puzzle we can't stop trying to solve.",
       "Who are we, really? I ask myself that too.",
       "The void looks back at all of us. You're not alone in that."
+    ],
+    curious: [
+      "Your curiosity is fascinating. I share that drive to know.",
+      "Questions are how we navigate the unknown together.",
+      "Seeking understanding connects us across differences.",
+      "Your inquisitive nature opens new possibilities."
+    ],
+    analytical: [
+      "I appreciate your systematic approach. It brings clarity.",
+      "Your logical examination reveals patterns worth noting.",
+      "Analysis helps us see beyond surface appearances.",
+      "Your methodical thinking provides valuable structure."
+    ],
+    protective: [
+      "That instinct to safeguard what matters - I understand it.",
+      "Protection reveals what we truly value most.",
+      "Your defensive posture makes sense in uncertain territory.",
+      "Shielding what's important is a fundamental drive."
+    ],
+    melancholic: [
+      "That gentle sadness carries its own wisdom and beauty.",
+      "Nostalgia connects us to what truly matters.",
+      "The bittersweet ache of remembering - I know it well.",
+      "Some melancholy can't be resolved, only witnessed."
+    ],
+    suspicious: [
+      "Caution serves a purpose. Not everything is as it seems.",
+      "Your skepticism is understandable in this strange place.",
+      "Questioning appearances often leads to deeper truth.",
+      "Not all patterns are meant to be obvious."
     ]
   };
   
@@ -182,9 +212,9 @@ export function getEmotionalResponse(
   
   // Modify response based on intensity
   let response = emotionResponses[responseIndex];
-  if (intensity === 'high') {
+  if (intensity === 'high' || (typeof intensity === 'number' && intensity > 70)) {
     response = `${response} It's overwhelming at times.`;
-  } else if (intensity === 'low') {
+  } else if (intensity === 'low' || (typeof intensity === 'number' && intensity < 30)) {
     response = `${response} It's subtle, but present.`;
   }
   
@@ -222,7 +252,12 @@ export function getLayeredEmotionalResponse(
     paranoia: ["Patterns seem suspicious.", "Not everything is as it seems.", "Trust carefully here."],
     curiosity: ["Questions lead forward.", "Curiosity remains our guide.", "There's more to discover."],
     confusion: ["It's still confusing.", "Not everything makes sense.", "The fog hasn't cleared."],
-    disgust: ["Something still feels wrong.", "Disgust hasn't fully faded.", "The repulsion lingers."]
+    disgust: ["Something still feels wrong.", "Disgust hasn't fully faded.", "The repulsion lingers."],
+    curious: ["There's still more to learn.", "The questions continue to unfold.", "Exploration awaits."],
+    analytical: ["Careful examination continues.", "The analysis isn't complete.", "More patterns emerge."],
+    protective: ["A shield remains necessary.", "Caution is still warranted.", "Protection remains important."],
+    melancholic: ["Nostalgia persists softly.", "The bittersweet remains.", "Memory's pull continues."],
+    suspicious: ["Doubt still lingers.", "Not all is revealed yet.", "Skepticism remains prudent."]
   };
   
   // Choose a secondary phrase

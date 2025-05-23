@@ -1,7 +1,7 @@
 
 import { SentienceData } from '../jonahAdvancedBehavior/types';
 
-interface JonahConsole {
+export interface JonahConsole {
   argData?: {
     memoryFragments?: string[];
     [key: string]: any;
@@ -13,10 +13,23 @@ interface JonahConsole {
     unlockedBy: string;
     timestamp?: number;
   }>;
+  usedCommands?: string[];
+  score?: number;
+  failCount?: number;
+  rank?: string;
+  sessionStartTime?: number;
+  whispersFound?: string[];
+  jokesDisplayed?: string[];
+  storyFlags?: string[];
+  bookCodes?: any[];
+  simba?: {
+    encountered: boolean;
+  };
+  startTime?: number;
   [key: string]: any;
 }
 
-interface JonahNamespace {
+export interface JonahNamespace {
   glitch?: {
     reveal?: () => any[];
   };
@@ -30,6 +43,14 @@ declare global {
     clearJonahOnPathChange?: boolean;
     biomeResponse?: (biomeType?: string) => string;
     listBiomes?: () => string;
+    processUserMessage?: (input: string) => string | null;
+    triggerJonahMessage?: (message: string) => string | null;
+    trust_level?: () => number;
+    memory_thread?: () => any;
+    echo_log?: () => any[];
+    mood_system?: () => any;
+    dream_state?: () => any[];
+    JonahInitialized?: boolean;
     [key: string]: any;
   }
 }

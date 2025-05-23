@@ -1,128 +1,191 @@
 
 /**
- * Enhanced Memory System
- * Advanced memory functionality for Jonah
+ * Enhanced Memory System for Jonah
  */
 
-import { ConversationContext, EmotionCategory } from './types';
+import { 
+  EmotionCategory,
+  EmotionalState,
+  SentienceData,
+  TrustLevel,
+  ConversationContextData
+} from './types';
 
-// Find memories relevant to current input
-export function findRelevantMemories(input: string, context: ConversationContext): string[] {
-  // This would normally search a database or persistent store
-  // For now, just return a simple mock result
+// Store user input in memory
+export function storeUserInput(input: string, emotionalState: EmotionalState): void {
+  if (!input) return;
   
-  const relevantTopics = [
-    "mirror", "gate", "echo", "reflection", "timeline", "dream",
-    "memory", "sister", "loop", "trapped", "bird", "shadow"
-  ];
-  
-  // Check if any relevant topic is in the input
-  for (const topic of relevantTopics) {
-    if (input.toLowerCase().includes(topic)) {
-      return [`I remember something about ${topic}. It feels important.`];
+  // Get existing memory data or initialize it
+  let memoryData = [];
+  try {
+    const storedData = localStorage.getItem('jonah_memory');
+    if (storedData) {
+      memoryData = JSON.parse(storedData);
     }
+  } catch (e) {
+    console.error("Error accessing memory data:", e);
   }
   
-  return [];
-}
-
-// Generate response based on memory
-export function generateMemoryBasedResponse(memory: string, trustLevel: string): string {
-  // Add context based on trust level
-  if (trustLevel === "high") {
-    return `${memory} I trust you enough to share this.`;
-  } else if (trustLevel === "low") {
-    return `${memory} I'm not sure why I'm telling you this.`;
+  // Add new entry
+  memoryData.push({
+    timestamp: Date.now(),
+    input,
+    emotion: emotionalState.primary
+  });
+  
+  // Limit memory size
+  if (memoryData.length > 100) {
+    memoryData = memoryData.slice(-100);
   }
   
-  return memory;
-}
-
-// Export a structure that holds conversation topics
-export const conversationTopics = {
-  tracked: [] as string[],
-  significant: [] as string[],
-  repeated: [] as string[]
-};
-
-// Track a significant topic in conversation
-export function trackSignificantTopic(topic: string): void {
-  if (!conversationTopics.tracked.includes(topic)) {
-    conversationTopics.tracked.push(topic);
-    
-    // Mark as significant if it matches key themes
-    const keyThemes = ["mirror", "gate", "sister", "dream", "timeline"];
-    if (keyThemes.some(theme => topic.toLowerCase().includes(theme))) {
-      conversationTopics.significant.push(topic);
-    }
+  // Store updated memory
+  try {
+    localStorage.setItem('jonah_memory', JSON.stringify(memoryData));
+  } catch (e) {
+    console.error("Error storing memory data:", e);
   }
 }
 
-// Create a new conversation context
-export function createConversationContext(trustLevel: string): ConversationContext {
-  return {
+// Get conversation context for response generation
+export function getConversationContext(sentience?: SentienceData): ConversationContextData {
+  // Default context if no sentience data available
+  let context: ConversationContextData = {
     recentMessages: [],
     emotionalJourney: [],
     topicFocus: null,
     depth: 0,
     recentTopics: [],
     emotionalHistory: [],
-    userTrustLevel: parseInt(trustLevel) || 50,
+    userTrustLevel: 50,
     sessionStartTime: Date.now()
   };
+  
+  // If sentience data is available, use it to create context
+  if (sentience) {
+    context = {
+      recentMessages: getRecentMessages(),
+      emotionalJourney: getEmotionalHistory(),
+      topicFocus: getTopicFocus(),
+      depth: sentience.conversationContext?.depth || 0,
+      recentTopics: getRecentTopics(),
+      emotionalHistory: getEmotionalStateHistory(),
+      userTrustLevel: sentience.userPerception?.trustLevel || 50,
+      sessionStartTime: sentience.temporalContext?.startTime || Date.now()
+    };
+  }
+  
+  return context;
 }
 
-// Initialize empty conversation context
-export function createEmptyContext(): ConversationContext {
-  return {
-    recentTopics: [],
-    emotionalHistory: [],
-    userTrustLevel: 0,
-    depth: 0,
-    sessionStartTime: Date.now(),
-    recentMessages: [],
-    emotionalJourney: [],
-    topicFocus: null
-  };
-}
-
-// Store user or Jonah input in memory
-export function storeInMemory(
-  input: string,
-  mood: EmotionCategory,
-  isUser: boolean,
-  context: ConversationContext
-): ConversationContext {
-  // Clone the context to avoid mutation
-  const updatedContext = { ...context };
-  
-  // Add to recent messages (keep last 5 only)
-  updatedContext.recentMessages = [
-    ...updatedContext.recentMessages,
-    input
-  ].slice(-5);
-  
-  // Record emotional journey
-  updatedContext.emotionalJourney = [
-    ...updatedContext.emotionalJourney,
-    mood
-  ].slice(-10);
-  
-  // Detect topic focus based on content
-  if (input.length > 20) {
-    const topics = ["mirror", "gate", "echo", "dream", "memory", "loop", "time"];
-    for (const topic of topics) {
-      if (input.toLowerCase().includes(topic)) {
-        updatedContext.topicFocus = topic;
-        break;
-      }
+// Update memory with new response data
+export function updateMemoryWithResponse(
+  userInput: string, 
+  response: string, 
+  emotionalState: EmotionalState, 
+  trustLevel: TrustLevel
+): void {
+  // Get existing memory record
+  let memoryRecord = [];
+  try {
+    const storedRecord = localStorage.getItem('jonah_conversation_record');
+    if (storedRecord) {
+      memoryRecord = JSON.parse(storedRecord);
     }
+  } catch (e) {
+    console.error("Error accessing conversation record:", e);
   }
   
-  // Increase depth counter for more complex conversations
-  if (isUser) {
-    updatedContext.depth = updatedContext.depth + 1;
+  // Add new interaction
+  memoryRecord.push({
+    timestamp: Date.now(),
+    user: userInput,
+    response,
+    emotion: emotionalState.primary,
+    trust: trustLevel
+  });
+  
+  // Limit size
+  if (memoryRecord.length > 50) {
+    memoryRecord = memoryRecord.slice(-50);
   }
   
-  return updatedContext;
+  // Store updated record
+  try {
+    localStorage.setItem('jonah_conversation_record', JSON.stringify(memoryRecord));
+  } catch (e) {
+    console.error("Error storing conversation record:", e);
+  }
+  
+  // Update most recent inputs for pattern recognition
+  updateRecentInputs(userInput);
 }
+
+// Update recent inputs list
+function updateRecentInputs(input: string): void {
+  try {
+    // Get recent inputs
+    let recentInputs = JSON.parse(localStorage.getItem('recent_inputs') || '[]');
+    
+    // Add new input
+    recentInputs.push(input);
+    
+    // Limit to last 10
+    if (recentInputs.length > 10) {
+      recentInputs = recentInputs.slice(-10);
+    }
+    
+    // Store updated list
+    localStorage.setItem('recent_inputs', JSON.stringify(recentInputs));
+  } catch (e) {
+    console.error("Error updating recent inputs:", e);
+  }
+}
+
+// Helper functions for conversation context
+
+function getRecentMessages(): string[] {
+  try {
+    const record = JSON.parse(localStorage.getItem('jonah_conversation_record') || '[]');
+    return record.slice(-5).map((item: any) => item.user || '');
+  } catch (e) {
+    console.error("Error getting recent messages:", e);
+    return [];
+  }
+}
+
+function getEmotionalHistory(): EmotionCategory[] {
+  try {
+    const record = JSON.parse(localStorage.getItem('jonah_conversation_record') || '[]');
+    return record.slice(-10).map((item: any) => item.emotion || 'neutral');
+  } catch (e) {
+    console.error("Error getting emotional history:", e);
+    return ['neutral'];
+  }
+}
+
+function getTopicFocus(): string[] | null {
+  // This would use more advanced NLP in a real implementation
+  return null;
+}
+
+function getRecentTopics(): string[] {
+  // This would extract topics with NLP in a real implementation
+  return [];
+}
+
+function getEmotionalStateHistory(): EmotionalState[] {
+  try {
+    const record = JSON.parse(localStorage.getItem('jonah_emotional_states') || '[]');
+    return record;
+  } catch (e) {
+    console.error("Error getting emotional state history:", e);
+    return [];
+  }
+}
+
+// Export additional functions needed by the system
+export { 
+  storeUserInput,
+  getConversationContext,
+  updateMemoryWithResponse
+};

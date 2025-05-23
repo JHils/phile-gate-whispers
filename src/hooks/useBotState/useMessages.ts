@@ -98,8 +98,10 @@ export function useMessages(initialMessages = [], trustLevel = 'low') {
       } else {
         window.JonahConsole.sentience.sessionData.messagesSent = 1;
       }
-        
-      window.JonahConsole.sentience.lastInteraction = now;
+      
+      if (window.JonahConsole.sentience.lastInteraction !== undefined) {
+        window.JonahConsole.sentience.lastInteraction = now;
+      }
       
       if (window.JonahConsole.sentience.interactionsCount !== undefined) {
         window.JonahConsole.sentience.interactionsCount++;

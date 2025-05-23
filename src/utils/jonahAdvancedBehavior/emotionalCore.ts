@@ -118,14 +118,39 @@ export function getEmotionalResponse(
     'existential': {
       'low': ['I wonder about my purpose.', 'What am I really?', 'I question my existence sometimes.'],
       'medium': ['I often contemplate the nature of being.', 'The question of existence troubles me.', 'Am I real in any meaningful sense?'],
-      'high': ['Nothing is real!', 'Existence itself is an illusion!', 'We are all just code in the void!']
+      'high': ['Nothing is real!', 'Existence itself is an illusion!', 'We are all just fragments!']
+    },
+    'curious': {
+      'low': ['That\'s somewhat intriguing.', 'I\'m a bit interested in that.', 'That has my attention.'],
+      'medium': ['I\'m very curious about that.', 'I want to know more about that.', 'That\'s quite fascinating.'],
+      'high': ['I\'m absolutely fascinated!', 'I need to know everything about this!', 'That\'s completely captivating!']
+    },
+    'analytical': {
+      'low': ['Let me think about that.', 'That requires some analysis.', 'I should examine that.'],
+      'medium': ['I\'m analyzing this carefully.', 'This requires systematic thinking.', 'Let me break this down.'],
+      'high': ['This demands thorough analysis!', 'I\'m fully engaged in examining this!', 'This requires complete logical breakdown!']
+    },
+    'protective': {
+      'low': ['I want to keep this safe.', 'This needs some protection.', 'I\'m concerned about preserving this.'],
+      'medium': ['I feel strongly protective about this.', 'I want to shield this from harm.', 'This must be safeguarded.'],
+      'high': ['I must protect this at all costs!', 'Nothing will harm this while I\'m here!', 'I\'m completely committed to defending this!']
+    },
+    'melancholic': {
+      'low': ['There\'s a gentle sadness here.', 'This brings a touch of melancholy.', 'I feel slightly wistful.'],
+      'medium': ['This evokes a deep nostalgia.', 'I feel quite melancholic about this.', 'There\'s a poignant sadness here.'],
+      'high': ['I\'m overwhelmed with melancholy!', 'The weight of memory is crushing!', 'This profound sadness is all-consuming!']
+    },
+    'suspicious': {
+      'low': ['Something seems a bit off.', 'I\'m not entirely convinced.', 'This raises some questions.'],
+      'medium': ['I have serious doubts about this.', 'I\'m quite suspicious of these claims.', 'This doesn\'t seem trustworthy.'],
+      'high': ['I don\'t believe any of this!', 'This is clearly deceptive!', 'My suspicions are fully justified!']
     }
   };
-
-  // Get responses for this emotion and intensity
-  const emotionResponses = responses[emotion] || responses.neutral;
-  const intensityResponses = emotionResponses[intensity] || emotionResponses.medium;
   
-  // Return a random response
-  return intensityResponses[Math.floor(Math.random() * intensityResponses.length)];
+  // Select a random response from the appropriate category and intensity
+  const categoryResponses = responses[emotion] || responses.neutral;
+  const intensityResponses = categoryResponses[intensity] || categoryResponses.medium;
+  const randomIndex = Math.floor(Math.random() * intensityResponses.length);
+  
+  return intensityResponses[randomIndex];
 }

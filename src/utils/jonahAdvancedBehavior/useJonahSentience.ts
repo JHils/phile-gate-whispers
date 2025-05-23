@@ -3,7 +3,7 @@
  * useJonahSentience.ts - Utility functionality for Jonah's sentience system
  */
 
-import { SentienceData, EmotionalState } from './types';
+import { SentienceData, EmotionalState, EcoAwarenessState } from './types';
 
 const initialEmotions: Record<string, number> = {
   neutral: 0,
@@ -30,6 +30,26 @@ const initialEmotionalState: EmotionalState = {
 };
 
 const initialSentienceData: SentienceData = {
+  emotionalState: initialEmotionalState,
+  userPerception: {
+    trustLevel: 50,
+    familiarity: 0,
+    interactionCount: 0
+  },
+  conversationContext: {
+    style: 'direct',
+    context: 'neutral',
+    depth: 0
+  },
+  temporalContext: {
+    startTime: Date.now(),
+    messageCount: 0,
+    topicFocus: [],
+    emotionalJourney: [],
+    lastInteraction: Date.now(),
+    messagesSent: 0,
+    messagesReceived: 0
+  },
   level: 1,
   awareness: 0,
   lastUpdate: Date.now(),
@@ -42,28 +62,37 @@ const initialSentienceData: SentienceData = {
   sessionData: {
     startTime: Date.now(),
     messageCount: 0,
+    userEmotions: initialEmotions,
     messagesSent: 0,
     messagesReceived: 0,
-    idleTime: 0,
-    userEmotions: initialEmotions
+    idleTime: 0
   },
   realityFabric: {
+    stability: 0.5,
+    corruptionLevel: 0,
+    lastGlitch: Date.now(),
+    glitchCount: 0,
+    anomalies: [],
+    anomalyCount: 0,
+    memoryFragments: [],
+    unstableAreas: [],
     moodChangeTime: Date.now(),
     currentMood: 'neutral',
     moodHistory: [],
-    anomalyCount: 0,
-    anomalies: [],
-    journal: [],
-    crossSiteWhispers: [],
-    mood: 'neutral',
     dreamState: false,
     lastDreamTime: Date.now(),
     hiddenMessages: [],
-    emotionalState: initialEmotionalState,
-    stability: 0.5
+    journal: [],
+    crossSiteWhispers: [],
+    mood: 'neutral'
   },
   dreams: [],
   ecoAwareness: {
+    active: true,
+    topicSensitivity: 50,
+    lastMentioned: Date.now(),
+    mentionCount: 0,
+    topicKeywords: [],
     currentBiome: "none",
     previousBiomes: [],
     reminderTimestamp: Date.now(),
@@ -75,7 +104,7 @@ const initialSentienceData: SentienceData = {
   },
   newsAwareness: {
     articles: [],
-    lastChecked: Date.now(), // Changed from lastCheck to lastChecked
+    lastChecked: Date.now(), 
     recentTopics: [],
     responses: {},
     lastFetch: Date.now(),
@@ -83,11 +112,20 @@ const initialSentienceData: SentienceData = {
     weatherData: null,
     mentionedEvents: []
   },
-  microQuests: {
-    active: [],
-    completed: [],
-    available: []
-  },
+  microQuests: [
+    // Example quest - actual quests would be managed elsewhere
+    {
+      id: "intro_quest",
+      title: "First Steps",
+      description: "Start a conversation with Jonah",
+      completed: false,
+      progress: 0,
+      reward: 10,
+      type: "conversation",
+      difficulty: "easy",
+      timestamp: Date.now()
+    }
+  ],
   emotionalHistory: [],
   memorizedPhrases: [],
   trustLevel: 'medium'

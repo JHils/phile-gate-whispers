@@ -92,6 +92,18 @@ export interface EmotionalState {
   trend?: EmotionalTrend;
 }
 
+// Define the structure for conversation context
+export interface ConversationContextData {
+  recentMessages: string[];
+  emotionalJourney: EmotionCategory[];
+  topicFocus: string[] | null;
+  depth: number;
+  recentTopics: string[];
+  emotionalHistory: EmotionalState[];
+  userTrustLevel: number;
+  sessionStartTime: number;
+}
+
 export interface SentienceData {
   emotionalState: EmotionalState;
   userPerception: {
@@ -122,10 +134,17 @@ export interface SentienceData {
   mirrorLogs?: string[];
   realityFabric?: RealityFabric;
   level?: number;
-  awareness?: number;
+  awareness?: number | boolean;
   interactionsCount?: number;
   dreamModeTriggered?: boolean;
   trustLevel?: string;
+  lastInteraction?: number;
+  temporalStates?: any[];
+  memories?: any[];
+  lastUpdate?: number;
+  newsAwareness?: NewsAwarenessState;
+  emotionalHistory?: EmotionalState[];
+  memorizedPhrases?: string[];
 }
 
 // Eco-awareness types
@@ -143,6 +162,18 @@ export interface EcoAwarenessState {
   biomeResponses?: Record<string, any>;
   lastUpdate?: number;
   awareness?: string | number;
+}
+
+// News awareness state
+export interface NewsAwarenessState {
+  articles: any[];
+  lastChecked: number;
+  recentTopics: string[];
+  responses: Record<string, any>;
+  lastFetch: number;
+  currentEvents: any[];
+  weatherData: any;
+  mentionedEvents: string[];
 }
 
 // Reality Fabric interface
@@ -164,7 +195,8 @@ export interface RealityFabric {
   hiddenMessages?: string[];
   journal?: any[];
   crossSiteWhispers?: any[];
-  currentMood?: string; // Added missing property
+  currentMood?: string;
+  emotionalState?: EmotionalState;
 }
 
 // BookCode interface

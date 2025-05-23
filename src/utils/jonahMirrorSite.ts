@@ -1,101 +1,149 @@
+
 /**
  * Jonah Mirror Site
+ * Implementation of the mirror site functionality
  */
 
-import { SentienceData } from './jonahAdvancedBehavior/types';
+interface MirrorEntry {
+  source: string;
+  timestamp: number;
+  description: string;
+}
 
-// Storage key for mirror logs
-const MIRROR_LOGS_KEY = 'jonah_mirror_logs';
+/**
+ * Initialize the mirror site
+ */
+export function initializeMirrorSite(): void {
+  console.log("Initializing mirror site...");
+}
 
-// Log a mirror site event
-export function logMirrorEvent(event: string): void {
-  const logs = getMirrorLogs();
-  logs.push({
-    timestamp: Date.now(),
-    event,
-    glitchLevel: Math.random() > 0.8 ? 'high' : 'normal'
-  });
-  
-  // Keep only the last 100 logs
-  const trimmedLogs = logs.slice(-100);
-  
+/**
+ * Check if the mirror site has been accessed
+ */
+export function checkMirrorAccess(): boolean {
   try {
-    localStorage.setItem(MIRROR_LOGS_KEY, JSON.stringify(trimmedLogs));
+    const mirrorAccess = localStorage.getItem('jonah_mirror_accessed');
+    return mirrorAccess === 'true';
   } catch (e) {
-    console.error('Error saving mirror logs:', e);
+    console.error("Error checking mirror access:", e);
+    return false;
   }
 }
 
-// Get mirror logs
-export function getMirrorLogs(): any[] {
+/**
+ * Record a mirror site visit
+ */
+export function recordMirrorVisit(): void {
   try {
-    const logsData = localStorage.getItem(MIRROR_LOGS_KEY);
-    return logsData ? JSON.parse(logsData) : [];
+    localStorage.setItem('jonah_mirror_accessed', 'true');
+    
+    // Record the visit time
+    const visits = JSON.parse(localStorage.getItem('jonah_mirror_visits') || '[]');
+    visits.push(Date.now());
+    localStorage.setItem('jonah_mirror_visits', JSON.stringify(visits));
+    
+    // Maybe increment counter in user state
+    try {
+      const userState = JSON.parse(localStorage.getItem('jonahUserState') || '{}');
+      if (userState.layeredClues) {
+        userState.layeredClues.mirrorChecks = (userState.layeredClues.mirrorChecks || 0) + 1;
+        localStorage.setItem('jonahUserState', JSON.stringify(userState));
+      }
+    } catch (e) {
+      console.error("Error updating user state:", e);
+    }
   } catch (e) {
-    console.error('Error reading mirror logs:', e);
-    return [];
+    console.error("Error recording mirror visit:", e);
   }
 }
 
-// Clear mirror logs
-export function clearMirrorLogs(): void {
-  try {
-    localStorage.setItem(MIRROR_LOGS_KEY, JSON.stringify([]));
-  } catch (e) {
-    console.error('Error clearing mirror logs:', e);
+/**
+ * Get mirror entries
+ * These are the "reflections" shown in the mirror site
+ */
+export function getMirrorEntries(): MirrorEntry[] {
+  // Get user context for dynamic entries
+  const userName = localStorage.getItem('jonah_user_name') || 'user';
+  const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
+  const visitCount = parseInt(localStorage.getItem('jonah_visit_count') || '1');
+  const timelineVariant = localStorage.getItem('jonah_timeline_variant') || 'alpha';
+  
+  // Base entries always included
+  const baseEntries: MirrorEntry[] = [
+    {
+      source: "system",
+      timestamp: Date.now() - 86400000, // 1 day ago
+      description: "Mirror protocol initialized. First reflection detected."
+    },
+    {
+      source: "unknown",
+      timestamp: Date.now() - 43200000, // 12 hours ago
+      description: "I see you looking. But do you see what looks back?"
+    },
+    {
+      source: "timeline",
+      timestamp: Date.now() - 3600000, // 1 hour ago
+      description: `Timeline ${timelineVariant} variance: stable. No fractures detected.`
+    }
+  ];
+  
+  // Dynamic entries based on user context
+  const dynamicEntries: MirrorEntry[] = [];
+  
+  // Add trust-based entry
+  if (trustScore > 70) {
+    dynamicEntries.push({
+      source: "jonah",
+      timestamp: Date.now() - 1800000, // 30 minutes ago
+      description: `${userName}, I'm trying to reach you. Can you hear me through the glass?`
+    });
+  } else if (trustScore < 30) {
+    dynamicEntries.push({
+      source: "jonah",
+      timestamp: Date.now() - 1800000, // 30 minutes ago
+      description: `${userName} remains suspicious. Maintaining distance protocol.`
+    });
+  } else {
+    dynamicEntries.push({
+      source: "jonah",
+      timestamp: Date.now() - 1800000, // 30 minutes ago
+      description: `Subject ${userName} continues observing. Purpose unknown.`
+    });
   }
+  
+  // Add visit count based entry
+  if (visitCount > 5) {
+    dynamicEntries.push({
+      source: "observer",
+      timestamp: Date.now() - 600000, // 10 minutes ago
+      description: "Persistent observation detected. Subject exhibits unusual dedication."
+    });
+  }
+  
+  // Combine all entries
+  const allEntries: MirrorEntry[] = [...baseEntries, ...dynamicEntries];
+  
+  // Sort by timestamp, newest first
+  allEntries.sort((a, b) => b.timestamp - a.timestamp);
+  
+  return allEntries;
 }
 
-// Check for mirror anomalies
-export function checkMirrorAnomalies(): { 
-  hasAnomalies: boolean; 
-  anomalyCount: number;
-  description?: string;
-} {
-  const logs = getMirrorLogs();
-  const anomalies = logs.filter(log => log.glitchLevel === 'high');
+/**
+ * Get mirror reflections text
+ * These are user's "reflections" shown in the mirror
+ */
+export function getMirrorReflections(): string[] {
+  // Static reflections
+  const reflections: string[] = [
+    "Your reflection seems different somehow.",
+    "There's a delay between your movements and the reflection.",
+    "For a moment, you thought you saw someone else in the mirror.",
+    "The mirror ripples slightly as you observe it.",
+    "Your reflection seems to be watching you.",
+    "A figure seems to move in the background of the mirror.",
+    "You could swear your reflection blinked when you didn't."
+  ];
   
-  return {
-    hasAnomalies: anomalies.length > 0,
-    anomalyCount: anomalies.length,
-    description: anomalies.length > 5 ? 
-      'Significant mirror disruption detected' : 
-      undefined
-  };
-}
-
-// Update sentience with mirror site data
-export function updateSentienceWithMirror(
-  sentience: SentienceData
-): SentienceData {
-  // Create a copy to avoid mutation
-  const updatedSentience: SentienceData = {
-    ...sentience
-  };
-  
-  // Add mirror logs to sentience
-  const logs = getMirrorLogs();
-  if (!updatedSentience.realityFabric.anomalies) {
-    updatedSentience.realityFabric.anomalies = [];
-  }
-  
-  // Add high glitch logs as anomalies
-  const highGlitchLogs = logs
-    .filter(log => log.glitchLevel === 'high')
-    .map(log => ({
-      source: 'mirror',
-      timestamp: log.timestamp,
-      description: log.event
-    }));
-  
-  updatedSentience.realityFabric.anomalies = [
-    ...updatedSentience.realityFabric.anomalies,
-    ...highGlitchLogs
-  ].slice(-50); // Keep only the last 50 anomalies
-  
-  // Update anomaly count
-  updatedSentience.realityFabric.anomalyCount = 
-    updatedSentience.realityFabric.anomalies.length;
-  
-  return updatedSentience;
+  return reflections;
 }

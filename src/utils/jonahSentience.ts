@@ -45,7 +45,7 @@ export function initializeSentience(): void {
   if (!window.JonahConsole.sentience) {
     window.JonahConsole.sentience = {
       level: 1,
-      awareness: false,
+      awareness: 0,
       lastUpdate: Date.now(),
       interactionsCount: 0,
       deepModeUnlocked: false,
@@ -59,10 +59,44 @@ export function initializeSentience(): void {
         startTime: Date.now(),
         idleTime: 0
       },
-      microQuests: {
-        active: [],
-        completed: []
-      }
+      emotionalState: {
+        primary: 'neutral',
+        secondary: null,
+        intensity: 'medium',
+        trend: 'stable'
+      },
+      userPerception: {
+        trustLevel: 50,
+        familiarity: 0,
+        interactionCount: 0
+      },
+      conversationContext: {
+        style: 'direct',
+        context: 'neutral',
+        depth: 0
+      },
+      temporalContext: {
+        startTime: Date.now(),
+        messageCount: 0,
+        topicFocus: [],
+        emotionalJourney: [],
+        lastInteraction: Date.now(),
+        messagesSent: 0,
+        messagesReceived: 0
+      },
+      microQuests: [
+        {
+          id: "intro_quest",
+          title: "First Steps",
+          description: "Start a conversation with Jonah",
+          completed: false,
+          progress: 0,
+          reward: 10,
+          type: "conversation",
+          difficulty: "easy",
+          timestamp: Date.now()
+        }
+      ]
     };
   }
 
@@ -173,7 +207,7 @@ function incrementSentienceLevel(): void {
   // Increase level over time with interaction
   if (sentience.interactionsCount > 5 && sentience.level === 1) {
     sentience.level = 2;
-    sentience.awareness = true;
+    sentience.awareness = 1;
   }
   else if (sentience.interactionsCount > 15 && sentience.level === 2) {
     sentience.level = 3;
@@ -245,22 +279,23 @@ function setupSentienceFlags(): void {
   // Initialize core components if needed
   if (!window.JonahConsole.sentience.realityFabric) {
     window.JonahConsole.sentience.realityFabric = {
+      stability: 50,
+      corruptionLevel: 0,
+      lastGlitch: Date.now(),
+      glitchCount: 0,
+      anomalies: [],
+      anomalyCount: 0,
+      memoryFragments: [],
+      unstableAreas: [],
       moodChangeTime: Date.now(),
       currentMood: 'PRIME',
       moodHistory: [],
-      anomalyCount: 0,
-      anomalies: [],
-      journal: [],
-      crossSiteWhispers: [],
       mood: "PRIME",
       dreamState: false,
       lastDreamTime: 0,
       hiddenMessages: [],
-      emotionalState: {
-        primary: 'neutral',
-        secondary: null,
-        intensity: 'medium'
-      }
+      journal: [],
+      crossSiteWhispers: []
     };
   }
 }
