@@ -23,7 +23,10 @@ export function initializeClues() {
         name: 'First Command',
         discovered: false,
         timestamp: Date.now(),
-        description: 'You used your first console command. Keep exploring.'
+        description: 'You used your first console command. Keep exploring.',
+        text: 'You used your first console command. Keep exploring.',
+        found: false,
+        category: 'console'
       } as ClueData);
       
       window.JonahConsole.argData.consoleCluesTouched.push({
@@ -31,7 +34,10 @@ export function initializeClues() {
         name: 'Book Knowledge',
         discovered: false,
         timestamp: Date.now(),
-        description: 'There are codes hidden in books throughout this site.'
+        description: 'There are codes hidden in books throughout this site.',
+        text: 'There are codes hidden in books throughout this site.',
+        found: false,
+        category: 'books'
       } as ClueData);
       
       window.JonahConsole.argData.consoleCluesTouched.push({
@@ -39,7 +45,10 @@ export function initializeClues() {
         name: 'Testament Fragments',
         discovered: false,
         timestamp: Date.now(),
-        description: 'Jonah\'s testament is scattered across the site.'
+        description: 'Jonah\'s testament is scattered across the site.',
+        text: 'Jonah\'s testament is scattered across the site.',
+        found: false,
+        category: 'testaments'
       } as ClueData);
       
       window.JonahConsole.argData.consoleCluesTouched.push({
@@ -47,7 +56,10 @@ export function initializeClues() {
         name: 'Mirror System',
         discovered: false,
         timestamp: Date.now(),
-        description: 'The mirror reflects what you want to see, not what is there.'
+        description: 'The mirror reflects what you want to see, not what is there.',
+        text: 'The mirror reflects what you want to see, not what is there.',
+        found: false,
+        category: 'mirror'
       } as ClueData);
       
       window.JonahConsole.argData.consoleCluesTouched.push({
@@ -55,7 +67,10 @@ export function initializeClues() {
         name: 'Hidden Commands',
         discovered: false,
         timestamp: Date.now(),
-        description: 'Some console commands are hidden until certain conditions are met.'
+        description: 'Some console commands are hidden until certain conditions are met.',
+        text: 'Some console commands are hidden until certain conditions are met.',
+        found: false,
+        category: 'console'
       } as ClueData);
       
       window.JonahConsole.argData.consoleCluesTouched.push({
@@ -63,7 +78,10 @@ export function initializeClues() {
         name: 'Echo System',
         discovered: false,
         timestamp: Date.now(),
-        description: 'The echo command has more functionality than it first appears.'
+        description: 'The echo command has more functionality than it first appears.',
+        text: 'The echo command has more functionality than it first appears.',
+        found: false,
+        category: 'echo'
       } as ClueData);
       
       window.JonahConsole.argData.consoleCluesTouched.push({
@@ -71,7 +89,10 @@ export function initializeClues() {
         name: 'Time Sensitivity',
         discovered: false,
         timestamp: Date.now(),
-        description: 'Some features only activate at certain times of day.'
+        description: 'Some features only activate at certain times of day.',
+        text: 'Some features only activate at certain times of day.',
+        found: false,
+        category: 'time'
       } as ClueData);
     }
     
@@ -192,7 +213,10 @@ export function addClue(name: string, description: string): string {
     name: name,
     description: description,
     discovered: true,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    text: description,
+    found: true,
+    category: 'custom'
   };
   
   window.JonahConsole.argData.consoleCluesTouched.push(newClue);

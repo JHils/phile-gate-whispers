@@ -1,3 +1,4 @@
+
 /**
  * Jonah Advanced Behavior Type Definitions
  */
@@ -145,6 +146,10 @@ export interface ConfessionEntry {
   isCorrupted?: boolean;
   recursive?: boolean;
   version?: string;
+  title?: string;
+  author?: string;
+  isAnonymous?: boolean;
+  revealed?: boolean;
 }
 
 // Book Code
@@ -187,6 +192,10 @@ export interface ClueData {
   text: string;
   found: boolean;
   category: string;
+  name?: string;
+  description?: string;
+  discovered?: boolean;
+  timestamp?: number;
 }
 
 // Conversation Context Data
@@ -202,6 +211,7 @@ export interface ConversationContextData {
   sessionStart: number;
   messageCount: number;
   topics: string[];
+  emotionalJourney?: EmotionCategory[];
 }
 
 // Reality Fabric
@@ -247,6 +257,8 @@ export interface EcoAwarenessState {
   userAwareness?: number;
   awareness?: string | number;
   previousBiomes?: string[];
+  triggersFound?: string[];
+  metadata?: Record<string, any>;
 }
 
 // Sentience Data
@@ -324,4 +336,13 @@ export interface JonahResponse {
   response: string;
   trustChange?: number;
   memoryTriggered?: boolean;
+}
+
+// Interpretation 
+export interface Interpretation {
+  id: string;
+  phrase: string;
+  meaning: string;
+  discovered: boolean;
+  timestamp: number;
 }

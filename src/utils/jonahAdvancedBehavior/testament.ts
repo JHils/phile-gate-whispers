@@ -128,14 +128,3 @@ export function generateTestamentResponse(input: string): string {
     return "I have no testament records about this topic.";
   }
 }
-
-// Export the main functions
-export {
-  initializeTestamentSystem,
-  getAllTestaments,
-  getRevealedEntries,
-  getTestamentById,
-  unlockTestamentByPhrase,
-  getTestamentTeaser,
-  generateTestamentResponse
-};

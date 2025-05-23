@@ -1,8 +1,19 @@
+
 import { useState, useEffect } from 'react';
 import { EcoAwarenessState } from '@/utils/jonahAdvancedBehavior/types';
 
 export function useJonahEcoAwareness() {
   const [ecoState, setEcoState] = useState<EcoAwarenessState>({
+    enabled: false,
+    level: 0,
+    lastUpdate: Date.now(),
+    topics: {
+      climate: false,
+      conservation: false,
+      sustainability: false
+    },
+    responses: [],
+    factoids: [],
     active: false,
     topicSensitivity: 30,
     lastMentioned: 0,
@@ -10,7 +21,9 @@ export function useJonahEcoAwareness() {
     topicKeywords: [],
     currentBiome: "none",
     userAwareness: 0,
-    awareness: "0" // Using string to match the type definition
+    awareness: "0",
+    previousBiomes: [],
+    metadata: {}
   });
 
   // Initialize from localStorage if available
@@ -80,7 +93,7 @@ export function useJonahEcoAwareness() {
       const updated = {
         ...prev,
         currentBiome: biome,
-        previousBiomes: prev.currentBiome ? [...prev.previousBiomes, prev.currentBiome] : prev.previousBiomes,
+        previousBiomes: prev.currentBiome ? [...(prev.previousBiomes || []), prev.currentBiome] : (prev.previousBiomes || []),
         lastUpdate: Date.now()
       };
       localStorage.setItem('jonah_eco_awareness', JSON.stringify(updated));

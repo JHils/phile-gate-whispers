@@ -27,11 +27,11 @@ export function useTestamentSystem() {
     return false;
   }, []);
   
-  const generateResponse = useCallback((): string => {
+  const generateResponse = useCallback((input: string): string => {
     if (activeTestament) {
-      return generateTestamentResponse(activeTestament);
+      return generateTestamentResponse(input);
     } else {
-      return getTestamentTeaser();
+      return getTestamentTeaser("default");
     }
   }, [activeTestament]);
   
