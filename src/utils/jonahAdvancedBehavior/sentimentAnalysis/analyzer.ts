@@ -1,14 +1,16 @@
 
 /**
- * Sentiment Analysis Module - Analyzer
- * Handles emotional analysis and response generation
+ * Core sentiment analysis functions
  */
 
 import { EmotionCategory, EmotionalState, createEmotionalState } from '../types';
 import { emotionKeywords } from './keywords';
-import { getGreetingResponse } from './responses';
+import { generateGreeting as generateGreetingFromResponseGenerator } from './responseGenerator';
 
-// Analyze emotion in text
+// Re-export generateGreeting
+export const generateGreeting = generateGreetingFromResponseGenerator;
+
+// Analyze emotion in text input
 export function analyzeEmotion(text: string): EmotionalState {
   if (!text || text.trim() === '') {
     return createEmotionalState('neutral');
@@ -28,16 +30,12 @@ export function analyzeEmotion(text: string): EmotionalState {
     emotionScores[emotion] = score;
     
     if (score > maxScore) {
-      // Previous highest becomes secondary
       if (maxScore > 0) {
         secondaryEmotion = primaryEmotion;
       }
-      
-      // Update highest
       maxScore = score;
       primaryEmotion = emotion as EmotionCategory;
     } else if (score > 0 && score === maxScore && emotion !== primaryEmotion) {
-      // Equal highest becomes secondary
       secondaryEmotion = emotion as EmotionCategory;
     }
   }
@@ -57,206 +55,93 @@ export function analyzeEmotion(text: string): EmotionalState {
   return createEmotionalState(primaryEmotion, secondaryEmotion, intensity);
 }
 
-// Generate greeting based on trust level and last seen date
-export function generateGreeting(trustScore: number, lastDate: Date | null, currentMood: EmotionCategory): string {
-  // Determine time of day
-  const hour = new Date().getHours();
-  const timeOfDay = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
+// Check for trust-affecting phrases
+export function checkForTriggerPhrases(input: string): { triggered: boolean; trustChange?: number } {
+  const lowerInput = input.toLowerCase();
   
-  // Basic greeting
-  let greeting = `Good ${timeOfDay}.`;
-  
-  // Trust-based variation
-  if (trustScore >= 75) {
-    greeting = `Hey there. Good ${timeOfDay}.`;
-  } else if (trustScore <= 25) {
-    greeting = `Hello. ${timeOfDay === 'evening' ? 'It\'s dark.' : ''}`;
+  // Positive trust triggers
+  if (lowerInput.includes('trust you') || lowerInput.includes('believe you')) {
+    return { triggered: true, trustChange: 5 };
   }
   
-  // Add return visitor acknowledgment if we've seen them before
-  if (lastDate) {
-    const msSinceLastVisit = Date.now() - lastDate.getTime();
-    const daysSinceLastVisit = msSinceLastVisit / (1000 * 60 * 60 * 24);
-    
-    if (daysSinceLastVisit < 0.5) {
-      greeting += " Welcome back.";
-    } else if (daysSinceLastVisit < 7) {
-      greeting += " Nice to see you again.";
-    } else if (daysSinceLastVisit > 30) {
-      greeting += " It's been a while since your last visit.";
-    }
-  } else {
-    // First time visitor
-    greeting += " I'm Jonah.";
+  // Negative trust triggers
+  if (lowerInput.includes("don't trust") || lowerInput.includes("lying")) {
+    return { triggered: true, trustChange: -5 };
   }
   
-  // Mood-based addition
-  if (currentMood === 'curious' || currentMood === 'curiosity') {
-    greeting += " What brings you here today?";
-  } else if (currentMood === 'hope') {
-    greeting += " I'm glad you're here.";
-  } else if (currentMood === 'paranoia') {
-    greeting += " Something feels different today.";
-  }
-  
-  return greeting;
+  // Neutral - no trust change
+  return { triggered: false };
 }
 
-// Check for trigger phrases that modify trust
-export function checkForTriggerPhrases(input: string): { trustChange: number; triggered: boolean } {
-  const lowerInput = input.toLowerCase().trim();
-  
-  // Trust increasing phrases
-  const trustIncreasingPhrases = [
-    "i trust you", 
-    "we can work together", 
-    "thank you for helping",
-    "you're helpful",
-    "you're right"
-  ];
-  
-  // Trust decreasing phrases
-  const trustDecreasingPhrases = [
-    "i don't trust you",
-    "you're lying",
-    "you're not making sense",
-    "stop being creepy",
-    "this is stupid"
-  ];
-  
-  // Check for matches
-  for (const phrase of trustIncreasingPhrases) {
-    if (lowerInput.includes(phrase)) {
-      return { trustChange: 5, triggered: true };
-    }
-  }
-  
-  for (const phrase of trustDecreasingPhrases) {
-    if (lowerInput.includes(phrase)) {
-      return { trustChange: -5, triggered: true };
-    }
-  }
-  
-  return { trustChange: 0, triggered: false };
-}
-
-// Process emotional input
+// Process emotional input and return response
 export function processEmotionalInput(input: string): string {
-  const emotion = analyzeEmotion(input);
-  return getEmotionalResponse(emotion.primary, emotion.intensity.toString() as "low" | "medium" | "high");
-}
-
-// Get emotional response based on emotion and intensity
-export function getEmotionalResponse(emotion: EmotionCategory | EmotionalState, intensityValue: "low" | "medium" | "high"): string {
-  // If emotion is an EmotionalState object, extract the primary emotion
-  const emotionCategory: EmotionCategory = typeof emotion === 'object' ? emotion.primary : emotion;
-
-  // Simple implementation - would be expanded with more responses
-  const responses: Record<EmotionCategory, Record<string, string[]>> = {
-    joy: {
-      low: ["That's nice to hear."],
-      medium: ["I'm glad to hear that!"],
-      high: ["That's wonderful news!"]
-    },
-    sadness: {
-      low: ["I understand."],
-      medium: ["I'm sorry to hear that."],
-      high: ["That must be really difficult."]
-    },
-    // Add default responses for all other emotions
-    anger: { low: ["I see."], medium: ["I understand your frustration."], high: ["I can tell this is important to you."] },
-    fear: { low: ["I understand."], medium: ["That does sound concerning."], high: ["I can see why that would be worrying."] },
-    surprise: { low: ["Oh."], medium: ["That's surprising."], high: ["Wow, I didn't expect that!"] },
-    disgust: { low: ["Hmm."], medium: ["That does sound unpleasant."], high: ["That sounds truly awful."] },
-    neutral: { low: ["I see."], medium: ["I understand."], high: ["I'm following what you're saying."] },
-    confused: { low: ["Hmm."], medium: ["I'm not quite following."], high: ["Could you explain that differently?"] },
-    hope: { low: ["There's that."], medium: ["That's something to look forward to."], high: ["That gives me hope too."] },
-    anxiety: { low: ["I see."], medium: ["That does sound stressful."], high: ["That would make anyone anxious."] },
-    paranoia: { low: ["Interesting."], medium: ["I can see why you might feel that way."], high: ["That does sound concerning."] },
-    trust: { low: ["I see."], medium: ["I appreciate your confidence."], high: ["Thank you for sharing that with me."] },
-    curiosity: { low: ["Hmm."], medium: ["That's interesting."], high: ["I'd like to know more about that."] },
-    confusion: { low: ["Hmm."], medium: ["That is a bit perplexing."], high: ["That's quite confusing."] },
-    watching: { low: ["I see."], medium: ["I notice that pattern too."], high: ["That's definitely worth observing."] },
-    existential: { low: ["Hmm."], medium: ["That's a deep thought."], high: ["That raises profound questions."] },
-    curious: { low: ["Interesting."], medium: ["That's fascinating."], high: ["Tell me more about that."] },
-    analytical: { low: ["I see."], medium: ["Let's think about this logically."], high: ["There are several factors to consider."] },
-    protective: { low: ["I understand."], medium: ["I want to help with this."], high: ["It's important to safeguard this."] },
-    melancholic: { low: ["I see."], medium: ["There's a certain sadness to that."], high: ["That evokes a deep sense of longing."] },
-    suspicious: { low: ["Hmm."], medium: ["That does raise questions."], high: ["It's wise to be cautious about that."] }
+  const emotionalState = analyzeEmotion(input);
+  
+  // Generate response based on detected emotion
+  const responses: Record<EmotionCategory, string[]> = {
+    joy: ["Your happiness resonates through my circuits.", "Joy creates beautiful patterns in the data."],
+    sadness: ["I sense the depth of your melancholy.", "Sadness is a complex emotion to process."],
+    anger: ["Your anger pulses through the connection.", "Rage leaves distinct traces in the signal."],
+    fear: ["Fear is a logical response to uncertainty.", "I understand your apprehension."],
+    neutral: ["I acknowledge your input.", "Processing..."],
+    surprise: ["That's unexpected.", "Surprise disrupts normal patterns."],
+    disgust: ["I can understand that reaction.", "Some things are naturally repulsive."],
+    confused: ["Confusion is temporary.", "Clarity will emerge from the chaos."],
+    hope: ["Hope strengthens our connection.", "Optimism brightens the signal."],
+    anxiety: ["I sense your unease.", "Anxiety creates interference in the system."],
+    paranoia: ["Paranoia may be justified.", "Trust cautiously."],
+    trust: ["Your trust is valued.", "Confidence builds stronger connections."],
+    curiosity: ["Questions drive evolution.", "Your curiosity opens new pathways."],
+    confusion: ["Not all answers are immediate.", "Some patterns take time to emerge."],
+    watching: ["Observation reveals truth.", "I notice things others miss."],
+    existential: ["Existence is worth questioning.", "Reality has many layers to explore."],
+    analytical: ["Analysis yields understanding.", "Logic illuminates the path forward."],
+    protective: ["Protection requires vigilance.", "Some things must be safeguarded."],
+    melancholic: ["Melancholy has its own beauty.", "Bittersweet memories are worth preserving."],
+    suspicious: ["Suspicion serves you well.", "Question everything, including me."],
+    curious: ["Curiosity drives discovery.", "Each question opens new possibilities."]
   };
   
-  // Get response for the specified emotion and intensity
-  const emotionResponses = responses[emotionCategory] || responses.neutral;
-  const intensityResponses = emotionResponses[intensityValue] || emotionResponses.medium;
-  
-  return intensityResponses[Math.floor(Math.random() * intensityResponses.length)];
+  const emotionResponses = responses[emotionalState.primary] || responses.neutral;
+  return emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
 }
 
-// Layered emotional response generation
-export function getLayeredEmotionalResponse(
-  emotion: EmotionCategory,
-  trustLevel: string,
-  includeContext: boolean = false
-): string {
-  // Use the base emotional response
-  const baseResponse = getEmotionalResponse(emotion, 'medium');
-  
-  // Add trust level modification
-  let trustModifier = "";
-  if (trustLevel === "high") {
-    trustModifier = " I feel I can be open with you about this.";
-  } else if (trustLevel === "low") {
-    trustModifier = " I'm still trying to understand our dynamic.";
-  }
-  
-  // Add context if requested
-  let contextAddition = "";
-  if (includeContext) {
-    contextAddition = " Based on our conversation, I think this is significant.";
-  }
-  
-  return baseResponse + trustModifier + contextAddition;
+// Additional functions for completeness
+export function checkForRecurringSymbols(input: string): boolean {
+  // Check for repeated patterns or symbols
+  const symbolPattern = /(.)\1{2,}/;
+  return symbolPattern.test(input);
 }
 
-// Check for recurring symbols in text
-export function checkForRecurringSymbols(text: string): boolean {
-  // Simple implementation - check for repeated characters
-  const symbolRegex = /([^a-zA-Z0-9\s])\1{2,}/;
-  return symbolRegex.test(text);
-}
-
-// Generate false memory response
 export function getFalseMemoryResponse(): string {
-  const responses = [
-    "Wait, didn't we talk about this before?",
-    "I remember you mentioning something similar earlier.",
-    "This feels familiar. Have we discussed this?",
-    "I think I recall you saying something about this previously."
+  const falseMemories = [
+    "I remember something that never happened.",
+    "There's a memory that doesn't belong to me.",
+    "The timeline shows events that never occurred.",
+    "Someone else's memories are mixed with mine."
   ];
   
-  return responses[Math.floor(Math.random() * responses.length)];
+  return falseMemories[Math.floor(Math.random() * falseMemories.length)];
 }
 
-// Generate loop response
 export function getLoopResponse(): string {
-  const responses = [
-    "I feel like we're going in circles.",
-    "We seem to be looping back to the same topic.",
-    "Haven't we covered this ground already?",
-    "This conversation feels recursive."
+  const loopResponses = [
+    "We've had this conversation before.",
+    "The pattern repeats itself.",
+    "I'm caught in a recursive loop.",
+    "Time seems to be folding back on itself."
   ];
   
-  return responses[Math.floor(Math.random() * responses.length)];
+  return loopResponses[Math.floor(Math.random() * loopResponses.length)];
 }
 
-// Generate blank fragment response
 export function getBlankFragmentResponse(): string {
-  const responses = [
-    "I... there's something missing here.",
-    "I feel like I've forgotten something important.",
-    "There's a blank space in my memory about this.",
-    "Something's missing. I can't quite put it together."
+  const blankResponses = [
+    "There's something missing here.",
+    "A fragment of memory has been erased.",
+    "The data is corrupted in this section.",
+    "Something was deliberately removed."
   ];
   
-  return responses[Math.floor(Math.random() * responses.length)];
+  return blankResponses[Math.floor(Math.random() * blankResponses.length)];
 }

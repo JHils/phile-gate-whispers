@@ -4,7 +4,7 @@
  * Analyzes and interprets user messages
  */
 
-import { EmotionCategory, EmotionalState } from './types';
+import { EmotionCategory, EmotionalState, createEmotionalState } from './types';
 import { getCurrentEmotionalState } from './emotionalCore';
 import { getEmotionalResponse } from './enhancedEmotionalCore';
 
@@ -132,7 +132,7 @@ function extractEntities(text: string): string[] {
   return entities;
 }
 
-// Get emotional response based on current state
+// Get emotional response based on current state - FIXED function call
 export function getEmotionalResponseToInput(text: string): string {
   const emotions = detectEmotions(text);
   const emotionalState = getCurrentEmotionalState();
@@ -148,6 +148,9 @@ export function getEmotionalResponseToInput(text: string): string {
     }
   }
   
-  // Get response based on the emotional state and dominantEmotion
-  return getEmotionalResponse(text, emotionalState, 'direct');
+  // Create proper EmotionalState object
+  const inputEmotionalState = createEmotionalState(dominantEmotion);
+  
+  // Get response based on the emotional state
+  return getEmotionalResponse(text, inputEmotionalState, 'direct');
 }

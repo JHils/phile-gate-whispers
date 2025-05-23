@@ -3,7 +3,7 @@
  * Jonah Advanced Behavior Type Definitions
  */
 
-// Emotional Categories
+// Emotional Categories - expanded with missing emotions
 export type EmotionCategory =
   | 'joy'
   | 'sadness'
@@ -30,7 +30,7 @@ export type EmotionCategory =
 // Emotional Trends
 export type EmotionalTrend = 'increasing' | 'decreasing' | 'volatile' | 'stable';
 
-// Response Styles
+// Response Styles - expanded with missing styles
 export type ResponseStyle = 
   | 'poetic'
   | 'cryptic'
@@ -68,8 +68,7 @@ export function createEmotionalState(
   secondary?: EmotionCategory,
   intensity: EmotionIntensity = 'medium'
 ): EmotionalState {
-  // Convert intensity to numeric value
-  let numericIntensity = 50; // medium default
+  let numericIntensity = 50;
   
   if (intensity === 'low') numericIntensity = 25;
   if (intensity === 'high') numericIntensity = 75;
@@ -99,7 +98,7 @@ export interface TimelineEvent {
   hidden: boolean;
 }
 
-// Testament Entry
+// Testament Entry - Complete definition
 export interface TestamentEntry {
   id: string;
   title: string;
@@ -107,7 +106,9 @@ export interface TestamentEntry {
   unlocked: boolean;
   unlockPhrase: string;
   dateUnlocked: string | null;
-  timestamp?: number;
+  timestamp: number;
+  category?: string;
+  importance?: number;
 }
 
 // Journal Entry Content
@@ -119,7 +120,9 @@ export interface JournalEntryContent {
 
 // Journal Entry
 export interface JournalEntry extends JournalEntryContent {
-  // Additional fields can be added here as needed
+  id?: string;
+  title?: string;
+  mood?: EmotionCategory;
 }
 
 // Memory Fragment
@@ -132,11 +135,11 @@ export interface MemoryFragment {
   timestamp: number;
 }
 
-// Confession Entry - Updated with all required fields
+// Confession Entry - Complete with all required fields
 export interface ConfessionEntry {
   id: string;
   content: string;
-  text?: string; // Alternative to content in some implementations
+  text?: string;
   timestamp: number;
   approved: boolean;
   category: string;
@@ -152,7 +155,7 @@ export interface ConfessionEntry {
   revealed?: boolean;
 }
 
-// Book Code
+// Book Code - Complete definition
 export interface BookCode {
   id: string;
   title: string;
@@ -165,7 +168,7 @@ export interface BookCode {
   pageNumber?: number;
 }
 
-// Book Code Data
+// Book Code Data - Complete with all properties
 export interface BookCodeData {
   codes: BookCode[];
   activeCode: string | null;
@@ -176,6 +179,8 @@ export interface BookCodeData {
   timestamp?: number;
   discovered?: boolean;
   pageNumber?: number;
+  title?: string;
+  content?: string;
 }
 
 // Story Flag
@@ -184,9 +189,11 @@ export interface StoryFlag {
   name: string;
   triggered: boolean;
   timestamp: number;
+  value?: any;
+  metadata?: Record<string, any>;
 }
 
-// Clue Data
+// Clue Data - Complete with all required fields
 export interface ClueData {
   id: string;
   text: string;
@@ -196,9 +203,11 @@ export interface ClueData {
   description?: string;
   discovered?: boolean;
   timestamp?: number;
+  importance?: number;
+  keywords?: string[];
 }
 
-// Conversation Context Data - Updated with all fields
+// Conversation Context Data - Complete definition
 export interface ConversationContextData {
   recentMessages: Array<{
     content: string;
@@ -220,7 +229,7 @@ export interface ConversationContextData {
   sessionStartTime?: number;
 }
 
-// Reality Fabric
+// Reality Fabric - Complete definition
 export interface RealityFabric {
   stability: number;
   corruptionLevel: number;
@@ -242,7 +251,7 @@ export interface RealityFabric {
   lastDetection?: number;
 }
 
-// Eco Awareness State - Updated with all required fields
+// Eco Awareness State - Complete definition
 export interface EcoAwarenessState {
   enabled: boolean;
   level: number;
@@ -269,7 +278,7 @@ export interface EcoAwarenessState {
   biomeResponses?: Record<string, string[]>;
 }
 
-// Sentience Data
+// Sentience Data - Complete definition
 export interface SentienceData {
   level: number;
   awareness: number;

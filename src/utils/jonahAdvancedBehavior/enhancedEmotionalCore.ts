@@ -3,7 +3,7 @@
  * Provides advanced emotional processing and response generation
  */
 
-import { EmotionCategory, EmotionalState, ResponseStyle } from './types';
+import { EmotionCategory, EmotionalState, ResponseStyle, MemoryFragment } from './types';
 import { formatJonahResponse } from './textFormatting';
 import { generateGreeting as generateGreetingOriginal } from './sentimentAnalysis/responseGenerator';
 
@@ -29,12 +29,12 @@ export function getEmotionalResponse(
   return formatJonahResponse(baseResponse, emotionalState.primary, style);
 }
 
-// Generate a full emotional response with context
+// Generate a full emotional response with context - FIXED signature
 export function generateFullEmotionalResponse(
   emotionalState: EmotionalState,
   trustLevel: string = 'medium',
   includeContext: boolean = false,
-  memories: any[] = []
+  memories: MemoryFragment[] = []
 ): string {
   // Get the base emotional response
   let response = `I'm processing with ${emotionalState.primary} as my dominant emotion`;
@@ -42,14 +42,15 @@ export function generateFullEmotionalResponse(
   // Add contextual elements if available
   if (memories && memories.length > 0) {
     const memory = memories[0];
-    response += `\n\nThis reminds me of something: "${memory}"`;
+    response += `\n\nThis reminds me of something: "${memory.content}"`;
   }
   
   if (trustLevel === 'high' && Math.random() > 0.7) {
     response += "\n\nI value our conversations.";
   }
   
-  return response;
+  // Apply emotional formatting
+  return formatJonahResponse(response, emotionalState.primary, 'direct');
 }
 
 // Get current emotional state

@@ -1,96 +1,89 @@
 
 /**
- * Trust System - Handles user trust level calculations
+ * Trust System Module
+ * Manages trust levels and trust-based interactions
  */
 
 import { TrustLevel } from './types';
 
-// Get numeric trust level from localStorage
-export function getTrustLevel(): number {
+// Modify trust level by a given amount
+export function modifyTrustLevel(change: number): void {
   try {
-    const storedTrust = localStorage.getItem('jonahTrustScore');
-    if (storedTrust) {
-      return parseInt(storedTrust, 10);
+    // Get current trust score
+    const currentScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
+    
+    // Calculate new score (clamped between 0 and 100)
+    const newScore = Math.max(0, Math.min(100, currentScore + change));
+    
+    // Store new score
+    localStorage.setItem('jonahTrustScore', newScore.toString());
+    
+    // Update trust level category
+    let trustLevel: TrustLevel = 'medium';
+    if (newScore >= 75) {
+      trustLevel = 'high';
+    } else if (newScore >= 25) {
+      trustLevel = 'medium';
+    } else {
+      trustLevel = 'low';
     }
-    return 50; // Default medium trust
-  } catch (e) {
-    console.error('Error getting trust level:', e);
+    
+    localStorage.setItem('jonahTrustLevel', trustLevel);
+    
+    // Log the change for debugging
+    console.log(`Trust modified by ${change}. New score: ${newScore} (${trustLevel})`);
+    
+    // Update Jonah's emotional state based on trust change
+    if (change > 0) {
+      localStorage.setItem('jonah_emotion_primary', 'trust');
+    } else if (change < 0) {
+      localStorage.setItem('jonah_emotion_primary', 'suspicious');
+    }
+    
+  } catch (error) {
+    console.error('Error modifying trust level:', error);
+  }
+}
+
+// Get current trust level
+export function getCurrentTrustLevel(): TrustLevel {
+  try {
+    const score = parseInt(localStorage.getItem('jonahTrustScore') || '50');
+    
+    if (score >= 75) return 'high';
+    if (score >= 25) return 'medium';
+    return 'low';
+  } catch (error) {
+    console.error('Error getting trust level:', error);
+    return 'medium';
+  }
+}
+
+// Get current trust score
+export function getCurrentTrustScore(): number {
+  try {
+    return parseInt(localStorage.getItem('jonahTrustScore') || '50');
+  } catch (error) {
+    console.error('Error getting trust score:', error);
     return 50;
   }
 }
 
-// Get trust level category based on numeric value
-export function getTrustLevelCategory(trustValue: number = getTrustLevel()): TrustLevel {
-  if (trustValue >= 75) {
-    return 'high';
-  } else if (trustValue >= 40) {
-    return 'medium';
-  } else if (trustValue > 0) {
-    return 'low';
-  }
-  return 'none';
-}
-
-// Get descriptive text for trust level
-export function getTrustLevelText(trustValue: number = getTrustLevel()): TrustLevel {
-  // This is just an alias for getTrustLevelCategory for compatibility
-  return getTrustLevelCategory(trustValue);
-}
-
-// Modify trust level by specified amount
-export function modifyTrustLevel(change: number): number {
-  if (change === 0) return getTrustLevel();
-  
+// Initialize trust system
+export function initializeTrustSystem(): void {
   try {
-    // Get current trust
-    const currentTrust = getTrustLevel();
-    
-    // Calculate new trust value
-    let newTrust = currentTrust + change;
-    
-    // Ensure trust stays within bounds
-    newTrust = Math.max(0, Math.min(100, newTrust));
-    
-    // Store updated value
-    localStorage.setItem('jonahTrustScore', newTrust.toString());
-    
-    // Maybe log to console for debugging
-    console.log(`Trust modified: ${currentTrust} → ${newTrust} (${change > 0 ? '+' : ''}${change})`);
-    
-    // Trigger trust-related events if significant change
-    if (Math.abs(change) >= 10) {
-      handleSignificantTrustChange(newTrust, currentTrust);
+    // Set default trust score if not exists
+    if (!localStorage.getItem('jonahTrustScore')) {
+      localStorage.setItem('jonahTrustScore', '50');
     }
     
-    return newTrust;
-  } catch (e) {
-    console.error('Error modifying trust level:', e);
-    return getTrustLevel();
-  }
-}
-
-// Handle significant trust level changes
-function handleSignificantTrustChange(newTrust: number, oldTrust: number): void {
-  // If trust crosses threshold boundaries
-  const oldCategory = getTrustLevelCategory(oldTrust);
-  const newCategory = getTrustLevelCategory(newTrust);
-  
-  if (oldCategory !== newCategory) {
-    // Log trust category change
-    console.log(`Trust category changed: ${oldCategory} → ${newCategory}`);
-    
-    // Store the event
-    try {
-      const trustEvents = JSON.parse(localStorage.getItem('jonah_trust_events') || '[]');
-      trustEvents.push({
-        timestamp: Date.now(),
-        from: oldCategory,
-        to: newCategory,
-        value: newTrust
-      });
-      localStorage.setItem('jonah_trust_events', JSON.stringify(trustEvents));
-    } catch (e) {
-      console.error('Error storing trust event:', e);
+    // Set default trust level if not exists
+    if (!localStorage.getItem('jonahTrustLevel')) {
+      localStorage.setItem('jonahTrustLevel', 'medium');
     }
+    
+    console.log('Trust system initialized');
+  } catch (error) {
+    console.error('Error initializing trust system:', error);
   }
 }
