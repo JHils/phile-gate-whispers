@@ -1,125 +1,96 @@
-
 /**
  * Memory System
- * Core functionality for Jonah's memory capabilities
+ * Handles storage and retrieval of memory fragments
  */
 
-import { MemoryContext, createDefaultMemoryContext } from './memory/memoryContext';
-import { EmotionCategory } from './types';
-
-// Current memory context
-let memoryContext: MemoryContext = createDefaultMemoryContext();
-
-// Initialize memory system
+// Initialize the memory system
 export function initializeMemorySystem(): void {
-  // Try to load memory context from localStorage
+  console.log("Memory system initialized");
+}
+
+// Store a memory fragment
+export function storeMemoryFragment(fragment: string): boolean {
   try {
-    const savedContext = localStorage.getItem('jonah_memory_context');
-    if (savedContext) {
-      memoryContext = { ...memoryContext, ...JSON.parse(savedContext) };
-      console.log('Memory context loaded from storage');
+    // Get existing fragments
+    const fragments = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
+    
+    // Add new fragment with timestamp
+    fragments.push({
+      content: fragment,
+      timestamp: Date.now()
+    });
+    
+    // Keep only the most recent 50 fragments
+    const trimmedFragments = fragments.slice(-50);
+    
+    // Store back to localStorage
+    localStorage.setItem('jonah_memory_fragments', JSON.stringify(trimmedFragments));
+    
+    // Update JonahConsole if available
+    if (window.JonahConsole?.argData) {
+      window.JonahConsole.argData.memoryFragments = 
+        trimmedFragments.map(frag => frag.content);
     }
+    
+    return true;
   } catch (e) {
-    console.error('Error loading memory context:', e);
+    console.error("Error storing memory fragment:", e);
+    return false;
   }
 }
 
-// Save memory context
-export function saveMemoryContext(): void {
+// Get memory fragments, optionally filtered by search term
+export function getMemoryFragments(searchTerm?: string): string[] {
   try {
-    localStorage.setItem('jonah_memory_context', JSON.stringify(memoryContext));
+    const fragments = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
+    
+    if (searchTerm) {
+      return fragments
+        .filter((frag: {content: string}) => 
+          frag.content.toLowerCase().includes(searchTerm.toLowerCase()))
+        .map((frag: {content: string}) => frag.content);
+    }
+    
+    return fragments.map((frag: {content: string}) => frag.content);
   } catch (e) {
-    console.error('Error saving memory context:', e);
+    console.error("Error retrieving memory fragments:", e);
+    return [];
   }
 }
 
-// Update memory with user input
-export function updateMemoryWithInput(input: string): void {
-  // Add to recent inputs
-  memoryContext.recentInputs.unshift(input);
-  if (memoryContext.recentInputs.length > 10) {
-    memoryContext.recentInputs.pop();
+// Clear memory fragments
+export function clearMemoryFragments(): boolean {
+  try {
+    localStorage.removeItem('jonah_memory_fragments');
+    
+    // Update JonahConsole if available
+    if (window.JonahConsole?.argData) {
+      window.JonahConsole.argData.memoryFragments = [];
+    }
+    
+    return true;
+  } catch (e) {
+    console.error("Error clearing memory fragments:", e);
+    return false;
   }
-  
-  // Increment interaction count
-  memoryContext.interactionCount++;
-  
-  // Update last interaction time
-  memoryContext.lastInteractionTime = Date.now();
-  
-  // Save updated context
-  saveMemoryContext();
 }
 
-// Update memory with emotion
-export function updateMemoryWithEmotion(emotion: EmotionCategory): void {
-  // Add to recent emotions
-  memoryContext.recentEmotions.unshift(emotion);
-  if (memoryContext.recentEmotions.length > 10) {
-    memoryContext.recentEmotions.pop();
-  }
+// Get related fragments based on input
+export function getRelatedFragments(input: string): string[] {
+  const words = input.toLowerCase().split(/\s+/);
+  const fragments = getMemoryFragments();
   
-  // Calculate dominant emotion
-  const emotionCounts: Record<string, number> = {};
-  memoryContext.recentEmotions.forEach(e => {
-    emotionCounts[e] = (emotionCounts[e] || 0) + 1;
+  // Simple ranking by word match count
+  const rankedFragments = fragments.map(fragment => {
+    const matchCount = words.filter(word => 
+      fragment.toLowerCase().includes(word)).length;
+    return { fragment, matchCount };
   });
   
-  let maxCount = 0;
-  let dominantEmotion: EmotionCategory = 'neutral';
-  
-  Object.entries(emotionCounts).forEach(([emotion, count]) => {
-    if (count > maxCount) {
-      maxCount = count;
-      dominantEmotion = emotion as EmotionCategory;
-    }
-  });
-  
-  memoryContext.dominantEmotion = dominantEmotion;
-  
-  // Save updated context
-  saveMemoryContext();
-}
-
-// Get current memory context
-export function getMemoryContext(): MemoryContext {
-  return { ...memoryContext };
-}
-
-// Set user name in memory
-export function setUserName(name: string): void {
-  memoryContext.userName = name;
-  saveMemoryContext();
-}
-
-// Update trust level in memory
-export function updateMemoryTrustLevel(trustLevel: 'low' | 'medium' | 'high'): void {
-  memoryContext.trustLevel = trustLevel;
-  saveMemoryContext();
-}
-
-// Memorize important phrase
-export function memorizePhrase(phrase: string): void {
-  if (!memoryContext.memorizedPhrases.includes(phrase)) {
-    memoryContext.memorizedPhrases.push(phrase);
-    if (memoryContext.memorizedPhrases.length > 20) {
-      memoryContext.memorizedPhrases.shift();
-    }
-    saveMemoryContext();
-  }
-}
-
-// Check if phrase is memorized
-export function isPhraseMemorized(phrase: string): boolean {
-  return memoryContext.memorizedPhrases.includes(phrase);
-}
-
-// Get a random memorized phrase
-export function getRandomMemorizedPhrase(): string | null {
-  if (memoryContext.memorizedPhrases.length === 0) {
-    return null;
-  }
-  return memoryContext.memorizedPhrases[
-    Math.floor(Math.random() * memoryContext.memorizedPhrases.length)
-  ];
+  // Sort by match count and return top 3
+  return rankedFragments
+    .sort((a, b) => b.matchCount - a.matchCount)
+    .slice(0, 3)
+    .filter(item => item.matchCount > 0)
+    .map(item => item.fragment);
 }

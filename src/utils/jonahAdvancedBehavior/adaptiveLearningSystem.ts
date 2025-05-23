@@ -1,71 +1,90 @@
-
 /**
- * Adaptive Learning System – Jonah Final Form
- * This version tracks, reflects, and adapts Jonah's responses in real time.
+ * Adaptive Learning System
+ * Tracks user patterns and adapts responses
  */
-
-// In-memory session store (replace with backend or localStorage for persistence)
-let userMemory = {
-  recentInputs: [] as string[],
-  repetitionIndex: {} as Record<string, number>,
-  trustLevel: 50,
-  dominantEmotion: "neutral",
-};
 
 // Track user input patterns
 export function trackUserInput(input: string): void {
-  userMemory.recentInputs.push(input);
-
-  // Update repetition index
-  const phrase = input.toLowerCase();
-  userMemory.repetitionIndex[phrase] = (userMemory.repetitionIndex[phrase] || 0) + 1;
-
-  // Limit recentInputs array size
-  if (userMemory.recentInputs.length > 10) {
-    userMemory.recentInputs.shift();
+  try {
+    // Get existing tracked inputs
+    const trackedInputs = JSON.parse(localStorage.getItem('jonah_tracked_inputs') || '[]');
+    
+    // Add new input with timestamp
+    trackedInputs.push({
+      content: input,
+      timestamp: Date.now()
+    });
+    
+    // Keep only the most recent 100 inputs
+    const trimmedInputs = trackedInputs.slice(-100);
+    
+    // Store back to localStorage
+    localStorage.setItem('jonah_tracked_inputs', JSON.stringify(trimmedInputs));
+  } catch (e) {
+    console.error("Error tracking user input:", e);
   }
-
-  console.log("User input tracked:", input);
 }
 
-// Check if a phrase is repeated
-export function isRepeatedPhrase(input: string): boolean {
-  const count = userMemory.repetitionIndex[input.toLowerCase()] || 0;
-  return count > 1;
-}
-
-// Get a dynamic response for repeated input
-export function getRepetitionResponse(input: string): string | null {
-  const count = userMemory.repetitionIndex[input.toLowerCase()] || 0;
-
-  if (count === 2) return "You said that before. It felt heavier the second time.";
-  if (count === 3) return "You keep returning to that phrase. Why?";
-  if (count >= 4) return "It's looping now. Do you want me to break the cycle or stay inside it with you?";
-
-  return null;
-}
-
-// Adapt response based on emotion + trust + repetition
-export function getAdaptedResponse(baseResponse: string): string {
-  let tone = "";
-
-  if (userMemory.trustLevel < 30) tone = " (said with suspicion)";
-  else if (userMemory.dominantEmotion === "fear") tone = " (softly)";
-  else if (userMemory.dominantEmotion === "hope") tone = " (gently, with hope)";
-  else if (userMemory.dominantEmotion === "paranoia") tone = " (fragmented, glitching)";
-  else if (userMemory.recentInputs.length >= 3 && isRepeatedPhrase(userMemory.recentInputs.slice(-1)[0])) {
-    tone = " (echoed)";
+// Check if the current phrase has been repeated by the user
+export function isRepeatedPhrase(phrase: string): boolean {
+  try {
+    const trackedInputs = JSON.parse(localStorage.getItem('jonah_tracked_inputs') || '[]');
+    
+    // Count occurrences of the exact phrase
+    const occurrences = trackedInputs.filter((input: {content: string}) => 
+      input.content.toLowerCase() === phrase.toLowerCase()
+    ).length;
+    
+    return occurrences > 1;
+  } catch (e) {
+    console.error("Error checking repeated phrase:", e);
+    return false;
   }
-
-  return baseResponse + tone;
 }
 
-// Optional: Reset memory (e.g. on page leave or timeout)
+// Get a response when the user repeats themselves
+export function getRepetitionResponse(phrase: string): string {
+  try {
+    const trackedInputs = JSON.parse(localStorage.getItem('jonah_tracked_inputs') || '[]');
+    
+    // Count occurrences
+    const occurrences = trackedInputs.filter((input: {content: string}) => 
+      input.content.toLowerCase() === phrase.toLowerCase()
+    ).length;
+    
+    if (occurrences <= 2) {
+      return "You've mentioned that before.";
+    } else if (occurrences <= 5) {
+      return `You've said that ${occurrences} times now.`;
+    } else {
+      return "You keep repeating this. Is there something specific you're looking for?";
+    }
+  } catch (e) {
+    console.error("Error generating repetition response:", e);
+    return "I notice you've said that before.";
+  }
+}
+
+// Get an adapted response based on user patterns
+export function getAdaptedResponse(input: string): string | null {
+  // This would use more advanced pattern matching and ML in a real implementation
+  // Simplified version for now
+  if (input.toLowerCase().includes("hello") || input.toLowerCase().includes("hi")) {
+    const trackedInputs = JSON.parse(localStorage.getItem('jonah_tracked_inputs') || '[]');
+    const greetings = trackedInputs.filter((tracked: {content: string}) => 
+      tracked.content.toLowerCase().includes("hello") || tracked.content.toLowerCase().includes("hi")
+    );
+    
+    if (greetings.length > 3) {
+      return "We seem to be greeting each other a lot. Is there something specific you want to discuss?";
+    }
+  }
+  
+  return null; // No adapted response
+}
+
+// Reset the adaptive memory system
 export function resetMemory(): void {
-  userMemory = {
-    recentInputs: [],
-    repetitionIndex: {},
-    trustLevel: 50,
-    dominantEmotion: "neutral",
-  };
+  localStorage.removeItem('jonah_tracked_inputs');
+  console.log("Adaptive memory system reset");
 }

@@ -147,7 +147,10 @@ export function processEmotionalInput(input: string): string {
 }
 
 // Get emotional response based on emotion and intensity
-export function getEmotionalResponse(emotion: EmotionCategory, intensityValue: "low" | "medium" | "high"): string {
+export function getEmotionalResponse(emotion: EmotionCategory | EmotionalState, intensityValue: "low" | "medium" | "high"): string {
+  // If emotion is an EmotionalState object, extract the primary emotion
+  const emotionCategory: EmotionCategory = typeof emotion === 'object' ? emotion.primary : emotion;
+
   // Simple implementation - would be expanded with more responses
   const responses: Record<EmotionCategory, Record<string, string[]>> = {
     joy: {
@@ -183,7 +186,7 @@ export function getEmotionalResponse(emotion: EmotionCategory, intensityValue: "
   };
   
   // Get response for the specified emotion and intensity
-  const emotionResponses = responses[emotion] || responses.neutral;
+  const emotionResponses = responses[emotionCategory] || responses.neutral;
   const intensityResponses = emotionResponses[intensityValue] || emotionResponses.medium;
   
   return intensityResponses[Math.floor(Math.random() * intensityResponses.length)];

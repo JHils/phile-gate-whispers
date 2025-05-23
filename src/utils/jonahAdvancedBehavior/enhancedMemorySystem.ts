@@ -1,6 +1,6 @@
-
 /**
- * Enhanced Memory System for Jonah
+ * Enhanced Memory System
+ * Provides advanced memory retrieval and response generation based on memories
  */
 
 import { 
@@ -218,13 +218,112 @@ export function storeInMemory(
 }
 
 // Find relevant memories
-export function findRelevantMemories(input: string, context: any): any[] {
-  // Mock implementation - would use real NLP in a production system
-  return [];
+export function findRelevantMemories(input: string, context: any = {}): string[] {
+  // In a real implementation, this would use more sophisticated relevance scoring
+  // For now, this is a simple placeholder implementation
+  const allMemories = getMemoryFragments();
+  
+  // Simple keyword matching
+  const relevantMemories = allMemories.filter(memory => {
+    // Check for direct word matches
+    const words = input.toLowerCase().split(/\s+/);
+    const memoryText = memory.toLowerCase();
+    
+    return words.some(word => {
+      // Skip very short words
+      if (word.length < 4) return false;
+      
+      return memoryText.includes(word);
+    });
+  });
+  
+  return relevantMemories;
 }
 
-// Generate memory-based response
-export function generateMemoryBasedResponse(memory: any, trustLevel: string): string {
-  // Mock implementation
-  return "I remember something similar to that.";
+// Get memory fragments from localStorage
+function getMemoryFragments(): string[] {
+  try {
+    const fragments = JSON.parse(localStorage.getItem('jonah_memory_fragments') || '[]');
+    return fragments.map((frag: {content: string}) => frag.content);
+  } catch (e) {
+    return [];
+  }
+}
+
+// Generate a response based on a memory
+export function generateMemoryBasedResponse(memory: string, trustLevel: string): string {
+  // In a real implementation, this would format the memory into a natural response
+  // For now, we'll use simple templates
+  
+  const intros = {
+    high: [
+      "I remember something about this...",
+      "This reminds me of something I've seen before...",
+      "I have a memory that relates to this:"
+    ],
+    medium: [
+      "I think I recall something similar:",
+      "This seems familiar somehow:",
+      "I have a vague memory about this:"
+    ],
+    low: [
+      "I might have seen something like this...",
+      "This triggers a faint memory:",
+      "I'm not certain, but this reminds me of:"
+    ]
+  };
+  
+  const introsByTrust: Record<string, string[]> = intros;
+  const trustIntros = introsByTrust[trustLevel] || introsByTrust.medium;
+  const intro = trustIntros[Math.floor(Math.random() * trustIntros.length)];
+  
+  return `${intro} "${memory}"`;
+}
+
+// Store a new memory fragment
+export function storeEnhancedMemoryFragment(content: string, tags: string[] = []): boolean {
+  try {
+    // Get existing fragments
+    const fragments = JSON.parse(localStorage.getItem('jonah_enhanced_memories') || '[]');
+    
+    // Add new fragment
+    fragments.push({
+      content,
+      tags,
+      timestamp: Date.now(),
+      accessCount: 0
+    });
+    
+    // Store back to localStorage (keep last 100)
+    localStorage.setItem('jonah_enhanced_memories', JSON.stringify(fragments.slice(-100)));
+    
+    return true;
+  } catch (e) {
+    console.error("Error storing enhanced memory:", e);
+    return false;
+  }
+}
+
+// Get memories by tag
+export function getMemoriesByTag(tag: string): string[] {
+  try {
+    const fragments = JSON.parse(localStorage.getItem('jonah_enhanced_memories') || '[]');
+    return fragments
+      .filter((mem: {tags: string[]}) => mem.tags.includes(tag))
+      .map((mem: {content: string}) => mem.content);
+  } catch (e) {
+    console.error("Error retrieving tagged memories:", e);
+    return [];
+  }
+}
+
+// Clear enhanced memories
+export function clearEnhancedMemories(): boolean {
+  try {
+    localStorage.removeItem('jonah_enhanced_memories');
+    return true;
+  } catch (e) {
+    console.error("Error clearing enhanced memories:", e);
+    return false;
+  }
 }

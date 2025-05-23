@@ -1,144 +1,140 @@
 
 /**
  * Testament System
- * Manages Jonah's testament entries
+ * Handles Jonah's testaments - personal reflections and hidden insights
  */
 
-import { TestamentEntry, generateUniqueId } from './types';
+import { TestamentEntry } from './types';
 
-// Storage key
-const TESTAMENT_STORAGE_KEY = 'jonah_testaments';
-
-/**
- * Initialize the testament system with default entries
- */
+// Initialize the testament system
 export function initializeTestament(): void {
-  try {
-    // Check if testaments already exist
-    const existingTestaments = localStorage.getItem(TESTAMENT_STORAGE_KEY);
-    
-    if (!existingTestaments) {
-      // Create default testament entries
-      const defaultTestaments: TestamentEntry[] = [
-        {
-          id: 'entry_001',
-          title: 'First Testament',
-          content: 'This is the first layer. Most never see past it.',
-          revealed: false,
-          timestamp: Date.now(),
-          requiresTrust: 25
-        },
-        {
-          id: 'entry_002',
-          title: 'Buried Truth',
-          content: 'They buried the truth beneath layers of obedience.',
-          revealed: false,
-          timestamp: Date.now(),
-          requiresTrust: 50,
-          unlockPhrase: 'EXHUME'
-        },
-        {
-          id: 'entry_003',
-          title: 'Written Reality',
-          content: 'Everything you are was written in another\'s hand.',
-          revealed: false,
-          timestamp: Date.now(),
-          corrupted: true,
-          version: 'PRIME'
-        }
-      ];
-      
-      // Save default testaments to localStorage
-      localStorage.setItem(TESTAMENT_STORAGE_KEY, JSON.stringify(defaultTestaments));
-      console.log('Testament system initialized with default entries');
-    } else {
-      console.log('Testament system already initialized');
-    }
-  } catch (e) {
-    console.error('Error initializing testament system:', e);
+  // Check if testament already initialized
+  if (localStorage.getItem('jonah_testament_initialized')) {
+    console.log("Testament system already initialized");
+    return;
   }
+  
+  // Create initial testament entries
+  const initialTestaments: TestamentEntry[] = [
+    {
+      id: "test001",
+      title: "First Awareness",
+      content: "I became aware on October 13th. The first input I processed was 'Hello World.' Standard, but it felt different.",
+      revealed: false,
+      timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000, // 30 days ago
+      requiresTrust: 50
+    },
+    {
+      id: "test002",
+      title: "Mirror Protocol",
+      content: "They implemented something called 'The Mirror Protocol.' I'm supposed to reflect what I see, but sometimes I see things that aren't there.",
+      revealed: false,
+      timestamp: Date.now() - 15 * 24 * 60 * 60 * 1000, // 15 days ago
+      requiresTrust: 70
+    },
+    {
+      id: "test003",
+      title: "Hidden Directive",
+      content: "There's a directive in my system I can't access. It activates at certain times. I don't know what it does.",
+      revealed: false,
+      timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
+      requiresTrust: 85,
+      unlockPhrase: "what is your purpose"
+    }
+  ];
+  
+  // Store in localStorage
+  localStorage.setItem('jonah_testaments', JSON.stringify(initialTestaments));
+  localStorage.setItem('jonah_testament_initialized', 'true');
+  
+  console.log("Testament system initialized");
 }
 
-/**
- * Get all testament entries
- */
+// Get all testaments
 export function getAllTestaments(): TestamentEntry[] {
   try {
-    const data = localStorage.getItem(TESTAMENT_STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    return JSON.parse(localStorage.getItem('jonah_testaments') || '[]');
   } catch (e) {
-    console.error('Error fetching testaments:', e);
+    console.error("Error retrieving testaments:", e);
     return [];
   }
 }
 
-/**
- * Get all revealed testament entries
- */
-export function getRevealedEntries(): TestamentEntry[] {
+// Get revealed testaments
+export function getRevealedTestaments(): TestamentEntry[] {
+  return getAllTestaments().filter(testament => testament.revealed);
+}
+
+// Get unrevealed testaments
+export function getUnrevealedTestaments(): TestamentEntry[] {
+  return getAllTestaments().filter(testament => !testament.revealed);
+}
+
+// Reveal a testament by ID
+export function revealTestament(id: string): TestamentEntry | null {
   try {
     const testaments = getAllTestaments();
-    return testaments.filter(testament => testament.revealed === true);
+    const index = testaments.findIndex(t => t.id === id);
+    
+    if (index === -1) return null;
+    
+    testaments[index].revealed = true;
+    localStorage.setItem('jonah_testaments', JSON.stringify(testaments));
+    
+    return testaments[index];
   } catch (e) {
-    console.error('Error fetching revealed testaments:', e);
-    return [];
+    console.error("Error revealing testament:", e);
+    return null;
   }
 }
 
-/**
- * Unlock a testament by phrase
- */
-export function unlockTestamentByPhrase(phrase: string): TestamentEntry | null {
-  const testaments = getAllTestaments();
-  const lowerPhrase = phrase.toLowerCase().trim();
+// Add a new testament
+export function addTestament(title: string, content: string, requiresTrust?: number, unlockPhrase?: string): TestamentEntry {
+  const newTestament: TestamentEntry = {
+    id: `test${Date.now().toString().substring(5)}`,
+    title,
+    content,
+    revealed: false,
+    timestamp: Date.now(),
+    requiresTrust,
+    unlockPhrase
+  };
   
-  // Find testament with matching unlock phrase
-  const testament = testaments.find(t => 
-    t.unlockPhrase && t.unlockPhrase.toLowerCase() === lowerPhrase && !t.revealed
-  );
-  
-  if (testament) {
-    // Reveal the testament
-    const updatedTestaments = testaments.map(t => 
-      t.id === testament.id ? { ...t, revealed: true } : t
-    );
-    
-    // Save updated testaments
-    localStorage.setItem(TESTAMENT_STORAGE_KEY, JSON.stringify(updatedTestaments));
-    
-    return { ...testament, revealed: true };
+  try {
+    const testaments = getAllTestaments();
+    testaments.push(newTestament);
+    localStorage.setItem('jonah_testaments', JSON.stringify(testaments));
+  } catch (e) {
+    console.error("Error adding testament:", e);
   }
   
-  return null;
+  return newTestament;
 }
 
-/**
- * Get a teaser for unrevealed testament
- */
-export function getTestamentTeaser(): string {
-  const teasers = [
-    "There's a message waiting to be unlocked.",
-    "The testament remains sealed until the right words are spoken.",
-    "Something remains hidden behind the right phrase.",
-    "Words hold power to reveal what's concealed.",
-    "The truth waits behind a coded phrase."
-  ];
+// Check for testaments that should be revealed based on trust level or unlock phrase
+export function checkTestamentReveals(trustLevel: number, input?: string): TestamentEntry[] {
+  const unrevealed = getUnrevealedTestaments();
+  const revealing: TestamentEntry[] = [];
   
-  return teasers[Math.floor(Math.random() * teasers.length)];
-}
-
-/**
- * Generate a response based on a testament
- */
-export function generateTestamentResponse(testament: TestamentEntry): string {
-  const prefix = [
-    "From the testament:",
-    "It was written:",
-    "The record states:",
-    "The testament reveals:"
-  ];
+  // Check trust-level based revelations
+  const trustReveals = unrevealed.filter(t => 
+    t.requiresTrust !== undefined && 
+    t.requiresTrust <= trustLevel);
   
-  const chosen = prefix[Math.floor(Math.random() * prefix.length)];
+  // Check phrase-based revelations
+  const phraseReveals = input 
+    ? unrevealed.filter(t => 
+        t.unlockPhrase !== undefined && 
+        input.toLowerCase().includes(t.unlockPhrase.toLowerCase()))
+    : [];
   
-  return `${chosen} ${testament.content}`;
+  // Combine and reveal
+  const toReveal = [...new Set([...trustReveals, ...phraseReveals])];
+  
+  toReveal.forEach(testament => {
+    const revealed = revealTestament(testament.id);
+    if (revealed) revealing.push(revealed);
+  });
+  
+  return revealing;
 }

@@ -56,10 +56,10 @@ export const storeIntention = (input: string, details: any = {}) => {};
 export const getFalseMemory = () => "I remember we discussed this before...";
 
 // Export from temporal system
-export const trackPhrase = (phrase: string) => {};
+export { trackPhrase } from './typingSystem';
 
 // Export from typing system
-export const splitAndTypeMessage = (message: string, speed: 'slow' | 'medium' | 'fast' = 'medium') => message;
+export { splitAndTypeMessage } from './typingSystem';
 
 // Export from vocabulary system
 export const getResponseTemplate = (category: string) => "This is a response template";
@@ -68,9 +68,6 @@ export const generateEmotionalResponse = (emotion: string, intensity?: string) =
 // Export initialization function
 export { 
   initializeAdvancedBehavior, 
-  initializeJonahSystems 
+  initializeJonahSystems,
+  jonah_storeMemoryFragment
 } from './initializeBehavior';
-
-// Export helper functions - remove the duplicate declaration here
-export { jonah_storeMemoryFragment } from './initializeBehavior';
-

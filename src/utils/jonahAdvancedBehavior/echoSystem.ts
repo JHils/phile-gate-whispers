@@ -1,54 +1,46 @@
 
 /**
  * Echo System
- * Handles echo responses that repeat back user phrases
+ * Handles storing and retrieving echo phrases for conversation patterns
  */
 
-// Store echo for later use
+// Store an echo phrase
 export function storeEcho(phrase: string): void {
-  // Would store in localStorage or context in a real implementation
-  console.log("Storing echo:", phrase);
+  const echoes = getAllEchoes();
+  echoes.push({
+    phrase,
+    timestamp: Date.now()
+  });
+  localStorage.setItem('jonah_echoes', JSON.stringify(echoes.slice(-50))); // Keep last 50
 }
 
-// Get an appropriate echo phrase based on emotional context
-export function getEchoPhrase(emotion: string): string | null {
-  const responses = [
-    "Your words echo in my thoughts...",
-    "I remember you saying something similar before.",
-    "Those words feel familiar somehow.",
-    "There's an echo of that in my memory."
-  ];
+// Get an echo phrase, optionally filtered by string match
+export function getEchoPhrase(filter?: string): string | null {
+  const echoes = getAllEchoes();
   
-  if (Math.random() > 0.7) {
-    return responses[Math.floor(Math.random() * responses.length)];
+  if (echoes.length === 0) return null;
+  
+  if (filter) {
+    const filtered = echoes.filter(echo => echo.phrase.includes(filter));
+    return filtered.length > 0 ? filtered[Math.floor(Math.random() * filtered.length)].phrase : null;
   }
   
-  return null;
+  return echoes[Math.floor(Math.random() * echoes.length)].phrase;
 }
 
-// Check if input matches a stored echo
-export function checkForEchoMatch(input: string): { matched: boolean, echo?: any } {
-  // Simple implementation for now
-  return { matched: false };
+// Check if input matches any stored echo
+export function checkForEchoMatch(input: string): boolean {
+  const echoes = getAllEchoes();
+  return echoes.some(echo => echo.phrase.toLowerCase().includes(input.toLowerCase()));
 }
 
-// Get all echoes
-export function getAllEchoes(): any[] {
-  // Simple implementation with mock data
-  return [
-    {
-      id: "echo1",
-      content: "The code is watching you.",
-      timestamp: Date.now() - 1000000,
-      matched: true,
-      emotionalContext: "paranoia"
-    },
-    {
-      id: "echo2",
-      content: "Did you check behind the mirror?",
-      timestamp: Date.now() - 500000,
-      matched: false,
-      emotionalContext: "curiosity"
-    }
-  ];
+// Get all stored echoes
+export function getAllEchoes(): Array<{phrase: string, timestamp: number}> {
+  try {
+    const stored = localStorage.getItem('jonah_echoes');
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error("Error retrieving echoes:", e);
+    return [];
+  }
 }

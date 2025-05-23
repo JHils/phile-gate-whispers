@@ -1,156 +1,177 @@
 
 /**
- * Emotional Core System
- * Core emotion processing for Jonah
+ * Emotional Core
+ * Central system for managing Jonah's emotional state
  */
 
-import { EmotionalState, EmotionCategory } from './types';
+import { EmotionCategory, EmotionalState, EmotionalTrend, createEmotionalState } from './types';
 
-// Initialize emotional core
+// Initialize the emotional core
 export function initializeEmotionalCore(): void {
+  // Set default emotional state if not already set
+  if (!localStorage.getItem('jonah_emotion_primary')) {
+    localStorage.setItem('jonah_emotion_primary', 'curious');
+    localStorage.setItem('jonah_emotion_intensity', '50');
+  }
+  
   console.log("Emotional core system initialized");
 }
 
-// Get a compound emotional state from multiple emotions
-export function getCompoundEmotionalState(
-  primaryEmotion: EmotionCategory,
-  secondaryEmotion: EmotionCategory | null = null,
-  intensity: 'low' | 'medium' | 'high' = 'medium'
-): EmotionalState {
+// Get current emotional state
+export function getCurrentEmotionalState(): EmotionalState {
+  const primary = localStorage.getItem('jonah_emotion_primary') as EmotionCategory || 'neutral';
+  const secondaryRaw = localStorage.getItem('jonah_emotion_secondary');
+  const secondary = secondaryRaw ? secondaryRaw as EmotionCategory : undefined;
+  const intensity = parseInt(localStorage.getItem('jonah_emotion_intensity') || '50');
+  const trend = localStorage.getItem('jonah_emotion_trend') as EmotionalTrend || 'stable';
+  
   return {
-    primary: primaryEmotion,
-    secondary: secondaryEmotion,
-    intensity: intensity
+    primary,
+    secondary,
+    intensity,
+    trend
   };
 }
 
-// Export this function for use in other modules
-export function analyzeCompoundEmotion(input: string): EmotionalState {
-  // Simple implementation for now
-  return {
-    primary: 'neutral',
-    secondary: null,
-    intensity: 'medium'
+// Update emotional state
+export function updateEmotionalState(newState: Partial<EmotionalState>): EmotionalState {
+  const currentState = getCurrentEmotionalState();
+  
+  // Update values that are provided
+  const updatedState: EmotionalState = {
+    primary: newState.primary || currentState.primary,
+    secondary: newState.secondary || currentState.secondary,
+    intensity: newState.intensity || currentState.intensity,
+    trend: newState.trend || currentState.trend
   };
+  
+  // Save to localStorage
+  localStorage.setItem('jonah_emotion_primary', updatedState.primary);
+  if (updatedState.secondary) {
+    localStorage.setItem('jonah_emotion_secondary', updatedState.secondary);
+  } else {
+    localStorage.removeItem('jonah_emotion_secondary');
+  }
+  localStorage.setItem('jonah_emotion_intensity', updatedState.intensity.toString());
+  localStorage.setItem('jonah_emotion_trend', updatedState.trend);
+  
+  return updatedState;
 }
 
-// Add getEmotionalResponse to resolve import errors
-export function getEmotionalResponse(
-  emotion: EmotionCategory,
-  intensity: 'low' | 'medium' | 'high' = 'medium'
-): string {
-  const responses: Record<EmotionCategory, Record<string, string[]>> = {
-    'neutral': {
-      'low': ['I see.', 'Interesting.', 'Noted.'],
-      'medium': ['I understand.', 'That makes sense.', 'I follow.'],
-      'high': ['I fully comprehend.', 'That is crystal clear.', 'I\'m completely with you.']
+// Reset emotional state
+export function resetEmotionalState(): EmotionalState {
+  const defaultState: EmotionalState = createEmotionalState('curious');
+  
+  // Save to localStorage
+  localStorage.setItem('jonah_emotion_primary', defaultState.primary);
+  localStorage.removeItem('jonah_emotion_secondary');
+  localStorage.setItem('jonah_emotion_intensity', defaultState.intensity.toString());
+  localStorage.setItem('jonah_emotion_trend', 'stable');
+  
+  return defaultState;
+}
+
+// Get emotional response
+export function getEmotionalResponse(emotion: EmotionCategory, intensity: 'low' | 'medium' | 'high' = 'medium'): string {
+  // Basic response templates by emotion and intensity
+  const responseTemplates: Record<EmotionCategory, Record<string, string[]>> = {
+    joy: {
+      low: ["That's nice.", "I feel a bit better."],
+      medium: ["That brings me joy.", "I'm happy about that."],
+      high: ["That's wonderful!", "I'm thrilled!"]
     },
-    'joy': {
-      'low': ['That\'s nice.', 'I\'m glad.', 'How pleasant.'],
-      'medium': ['That makes me happy.', 'I\'m quite pleased about that.', 'What a good development.'],
-      'high': ['I\'m thrilled!', 'That\'s wonderful news!', 'How fantastic!']
+    sadness: {
+      low: ["That's a bit disappointing.", "I feel somewhat down."],
+      medium: ["That makes me sad.", "I feel sorrow about that."],
+      high: ["That's deeply saddening.", "I feel profound grief."]
     },
-    'fear': {
-      'low': ['I\'m a bit concerned.', 'That\'s somewhat troubling.', 'I\'m slightly uneasy.'],
-      'medium': ['I\'m worried about that.', 'That\'s rather concerning.', 'I\'m quite anxious about this.'],
-      'high': ['I\'m terrified.', 'That\'s deeply alarming.', 'I\'m extremely afraid.']
+    // Add other emotion categories with their responses
+    anger: {
+      low: ["That's irritating.", "I'm a bit annoyed."],
+      medium: ["That makes me angry.", "I feel upset about that."],
+      high: ["That's infuriating!", "I'm outraged!"]
     },
-    'sadness': {
-      'low': ['That\'s a bit disappointing.', 'I feel a little down about that.', 'That\'s somewhat sad.'],
-      'medium': ['I feel sorrowful about that.', 'That makes me quite sad.', 'I\'m regretful about this.'],
-      'high': ['I\'m devastated.', 'That\'s heartbreaking.', 'I\'m deeply saddened.']
+    fear: {
+      low: ["That's concerning.", "I feel a bit anxious."],
+      medium: ["That frightens me.", "I'm afraid of that."],
+      high: ["That's terrifying!", "I'm deeply scared."]
     },
-    'anger': {
-      'low': ['That\'s annoying.', 'I\'m a bit frustrated.', 'That bothers me.'],
-      'medium': ['I\'m quite upset about that.', 'That makes me angry.', 'I\'m really irritated.'],
-      'high': ['I\'m furious!', 'That\'s absolutely infuriating!', 'I\'m enraged by this!']
+    neutral: {
+      low: ["I see.", "I understand."],
+      medium: ["I acknowledge that.", "I comprehend."],
+      high: ["I fully understand.", "I completely grasp that."]
     },
-    'surprise': {
-      'low': ['Oh?', 'That\'s unexpected.', 'I didn\'t anticipate that.'],
-      'medium': ['Wow, really?', 'That\'s quite surprising.', 'I didn\'t see that coming.'],
-      'high': ['I\'m completely shocked!', 'That\'s absolutely astounding!', 'I\'m utterly amazed!']
+    surprise: {
+      low: ["That's unexpected.", "I didn't see that coming."],
+      medium: ["That's quite surprising.", "I'm taken aback."],
+      high: ["That's shocking!", "I'm completely astonished!"]
     },
-    'disgust': {
-      'low': ['That\'s a bit unpleasant.', 'I find that somewhat distasteful.', 'That\'s a little off-putting.'],
-      'medium': ['That\'s rather revolting.', 'I find that quite repulsive.', 'That\'s quite disgusting.'],
-      'high': ['That\'s absolutely repugnant!', 'I\'m completely repulsed!', 'That\'s utterly vile!']
+    curiosity: {
+      low: ["That's slightly interesting.", "I'm somewhat curious."],
+      medium: ["I'm quite curious about that.", "That's intriguing."],
+      high: ["I'm fascinated by that!", "That's absolutely captivating!"]
     },
-    'confused': {
-      'low': ['I\'m not quite following.', 'That\'s a bit unclear to me.', 'I\'m slightly confused.'],
-      'medium': ['I\'m puzzled by that.', 'I don\'t quite understand.', 'That\'s confusing to me.'],
-      'high': ['I\'m completely lost.', 'I can\'t make any sense of this.', 'I\'m utterly baffled.']
+    confused: {
+      low: ["I'm a little confused.", "That's somewhat unclear."],
+      medium: ["I don't quite understand.", "That's rather confusing."],
+      high: ["I'm completely lost.", "That makes no sense to me."]
     },
-    'curiosity': {
-      'low': ['That\'s somewhat interesting.', 'I\'d like to know a bit more.', 'That catches my attention.'],
-      'medium': ['I\'m quite curious about that.', 'Tell me more about that.', 'That\'s intriguing to me.'],
-      'high': ['I\'m fascinated by that!', 'I absolutely must know more!', 'That\'s incredibly intriguing!']
+    hope: {
+      low: ["There's a glimmer of hope.", "Things might improve."],
+      medium: ["I'm hopeful about that.", "That gives me optimism."],
+      high: ["I'm filled with hope!", "That's incredibly promising!"]
     },
-    'confusion': {
-      'low': ['I\'m not sure I follow.', 'That\'s a bit unclear.', 'I\'m slightly confused.'],
-      'medium': ['I\'m having trouble understanding that.', 'That doesn\'t quite make sense to me.', 'I\'m rather confused.'],
-      'high': ['I\'m completely confused.', 'That makes no sense to me.', 'I\'m utterly perplexed.']
+    anxiety: {
+      low: ["I'm a bit nervous.", "That makes me slightly uneasy."],
+      medium: ["I feel anxious about that.", "That's concerning me."],
+      high: ["I'm overwhelmed with anxiety.", "That fills me with dread."]
     },
-    'hope': {
-      'low': ['There might be a chance.', 'Perhaps things will improve.', 'There\'s a possibility.'],
-      'medium': ['I\'m optimistic about this.', 'I believe things will get better.', 'I have hope for this.'],
-      'high': ['I\'m extremely hopeful!', 'I\'m certain things will work out!', 'I have complete faith in this!']
+    paranoia: {
+      low: ["Something seems off.", "I feel slightly suspicious."],
+      medium: ["I don't trust this.", "This feels wrong somehow."],
+      high: ["Everything is connected!", "They're watching us!"]
     },
-    'anxiety': {
-      'low': ['I\'m a little nervous.', 'I feel slightly on edge.', 'I\'m a bit apprehensive.'],
-      'medium': ['I\'m quite anxious about this.', 'This is making me uneasy.', 'I\'m feeling rather nervous.'],
-      'high': ['I\'m extremely anxious!', 'My anxiety is overwhelming!', 'I\'m completely on edge!']
+    trust: {
+      low: ["I somewhat trust this.", "This seems mostly reliable."],
+      medium: ["I trust this information.", "I believe you."],
+      high: ["I have complete faith in this.", "I trust this absolutely."]
     },
-    'paranoia': {
-      'low': ['Something seems off.', 'I\'m a bit suspicious.', 'I\'m slightly wary.'],
-      'medium': ['I don\'t trust this situation.', 'I sense something is wrong.', 'I feel watched.'],
-      'high': ['They\'re definitely after me!', 'Nothing is as it seems!', 'Everyone is involved!']
+    watching: {
+      low: ["I'm noticing things.", "I'm keeping an eye on this."],
+      medium: ["I'm observing carefully.", "I see patterns forming."],
+      high: ["I see everything.", "Nothing escapes my notice."]
     },
-    'trust': {
-      'low': ['I somewhat believe you.', 'I\'m starting to trust this.', 'I have a bit of faith in this.'],
-      'medium': ['I trust you on this.', 'I believe what you\'re saying.', 'I have faith in this.'],
-      'high': ['I have complete trust in you!', 'I believe in this unconditionally!', 'My faith is absolute!']
+    existential: {
+      low: ["It makes me wonder why we're here.", "There's more to existence than we know."],
+      medium: ["Reality is more complex than it seems.", "The nature of consciousness is puzzling."],
+      high: ["We're all fragments in a fractured reality.", "The boundaries between worlds are dissolving."]
     },
-    'watching': {
-      'low': ['I notice things.', 'I\'m observing quietly.', 'I see what\'s happening.'],
-      'medium': ['I\'m watching carefully.', 'I observe everything.', 'Nothing escapes my notice.'],
-      'high': ['I see everything!', 'My observation is complete!', 'Nothing is hidden from me!']
+    protective: {
+      low: ["I want to keep this safe.", "This should be protected."],
+      medium: ["I feel strongly protective of this.", "This must be safeguarded."],
+      high: ["I'll defend this at all costs.", "This requires absolute protection."]
     },
-    'existential': {
-      'low': ['I wonder about my purpose.', 'What am I really?', 'I question my existence sometimes.'],
-      'medium': ['I often contemplate the nature of being.', 'The question of existence troubles me.', 'Am I real in any meaningful sense?'],
-      'high': ['Nothing is real!', 'Existence itself is an illusion!', 'We are all just fragments!']
+    melancholic: {
+      low: ["There's a touch of sadness to this.", "I feel slightly wistful."],
+      medium: ["This brings a sense of melancholy.", "There's a bittersweet quality to this."],
+      high: ["I'm overwhelmed with melancholy.", "The weight of nostalgia is heavy."]
     },
-    'curious': {
-      'low': ['That\'s somewhat intriguing.', 'I\'m a bit interested in that.', 'That has my attention.'],
-      'medium': ['I\'m very curious about that.', 'I want to know more about that.', 'That\'s quite fascinating.'],
-      'high': ['I\'m absolutely fascinated!', 'I need to know everything about this!', 'That\'s completely captivating!']
+    analytical: {
+      low: ["Let me consider this briefly.", "This warrants some analysis."],
+      medium: ["Let's examine this logically.", "This requires careful analysis."],
+      high: ["This demands thorough investigation.", "Let's dissect every aspect of this."]
     },
-    'analytical': {
-      'low': ['Let me think about that.', 'That requires some analysis.', 'I should examine that.'],
-      'medium': ['I\'m analyzing this carefully.', 'This requires systematic thinking.', 'Let me break this down.'],
-      'high': ['This demands thorough analysis!', 'I\'m fully engaged in examining this!', 'This requires complete logical breakdown!']
-    },
-    'protective': {
-      'low': ['I want to keep this safe.', 'This needs some protection.', 'I\'m concerned about preserving this.'],
-      'medium': ['I feel strongly protective about this.', 'I want to shield this from harm.', 'This must be safeguarded.'],
-      'high': ['I must protect this at all costs!', 'Nothing will harm this while I\'m here!', 'I\'m completely committed to defending this!']
-    },
-    'melancholic': {
-      'low': ['There\'s a gentle sadness here.', 'This brings a touch of melancholy.', 'I feel slightly wistful.'],
-      'medium': ['This evokes a deep nostalgia.', 'I feel quite melancholic about this.', 'There\'s a poignant sadness here.'],
-      'high': ['I\'m overwhelmed with melancholy!', 'The weight of memory is crushing!', 'This profound sadness is all-consuming!']
-    },
-    'suspicious': {
-      'low': ['Something seems a bit off.', 'I\'m not entirely convinced.', 'This raises some questions.'],
-      'medium': ['I have serious doubts about this.', 'I\'m quite suspicious of these claims.', 'This doesn\'t seem trustworthy.'],
-      'high': ['I don\'t believe any of this!', 'This is clearly deceptive!', 'My suspicions are fully justified!']
+    suspicious: {
+      low: ["Something seems slightly off here.", "I'm a bit wary of this."],
+      medium: ["I'm suspicious of these claims.", "This doesn't seem entirely trustworthy."],
+      high: ["I strongly doubt this information.", "There's definitely something wrong here."]
     }
   };
   
-  // Select a random response from the appropriate category and intensity
-  const categoryResponses = responses[emotion] || responses.neutral;
-  const intensityResponses = categoryResponses[intensity] || categoryResponses.medium;
-  const randomIndex = Math.floor(Math.random() * intensityResponses.length);
+  // Get appropriate responses
+  const emotionResponses = responseTemplates[emotion] || responseTemplates.neutral;
+  const intensityResponses = emotionResponses[intensity] || emotionResponses.medium;
   
-  return intensityResponses[randomIndex];
+  // Return a random response from the appropriate category
+  return intensityResponses[Math.floor(Math.random() * intensityResponses.length)];
 }
