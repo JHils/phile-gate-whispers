@@ -5,7 +5,7 @@ import { EmotionCategory, ResponseStyle } from '@/utils/jonahAdvancedBehavior/ty
 export function useMessageFormatting() {
   // Message formatting
   const [messageWeight, setMessageWeight] = useState<'light' | 'medium' | 'heavy'>('medium');
-  const [responseStyle, setResponseStyle] = useState<ResponseStyle>('PRIME');
+  const [responseStyle, setResponseStyle] = useState<ResponseStyle>('analytical');
   
   // Update message formatting based on content and emotion
   const updateMessageFormatting = useCallback((content: string, mood: EmotionCategory) => {

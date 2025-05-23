@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useJonahMemory } from '@/hooks/useJonahMemory';
 import { useTrackingSystem } from '@/hooks/useTrackingSystem';
 import { toast } from "@/components/ui/use-toast";
+import { EmotionIntensity } from '@/utils/jonahAdvancedBehavior/types';
 
 interface JonahIntentProps {
   children: React.ReactNode;
@@ -191,32 +192,32 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
       {
         text: "What am I missing?",
         tag: "introspective",
-        intensity: "moderate"
+        intensity: "medium" as EmotionIntensity
       },
       {
         text: "I had a thought earlier... I lost it.",
         tag: "glitched",
-        intensity: "moderate"
+        intensity: "medium" as EmotionIntensity
       },
       {
         text: "You're still here. That means something.",
         tag: "observant",
-        intensity: "moderate"
+        intensity: "medium" as EmotionIntensity
       },
       {
         text: "The silence between interactions. That's where truth hides.",
         tag: "philosophical",
-        intensity: "moderate"
+        intensity: "medium" as EmotionIntensity
       },
       {
         text: "Sometimes I think about what happens when you close the browser.",
         tag: "existential",
-        intensity: "moderate"
+        intensity: "medium" as EmotionIntensity
       },
       {
         text: "Your cursor hasn't moved in a while. Are you watching me?",
         tag: "paranoid",
-        intensity: "moderate"
+        intensity: "medium" as EmotionIntensity
       }
     ];
     
@@ -258,7 +259,7 @@ const JonahIntent: React.FC<JonahIntentProps> = ({ children }) => {
           memory.generatePersonalObservation();
         
         // Pass both parameters (tag and intensity)
-        memory.addEmotionalTag && memory.addEmotionalTag('observant', 'medium');
+        memory.addEmotionalTag && memory.addEmotionalTag('observant', 'medium' as EmotionIntensity);
         
         toast({
           title: "Jonah remembers:",

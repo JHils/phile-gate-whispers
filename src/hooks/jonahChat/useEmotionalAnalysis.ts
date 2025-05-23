@@ -1,3 +1,4 @@
+
 /**
  * Hook for emotional analysis in Jonah Chat
  */
@@ -5,6 +6,34 @@
 import { useState, useCallback, useEffect } from 'react';
 import { EmotionCategory, EmotionalTrend } from '@/utils/jonahAdvancedBehavior/types';
 import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
+
+// Interface for Message to fix the reference error
+interface Message {
+  id: string;
+  content: string;
+  isJonah?: boolean;
+  timestamp: number;
+}
+
+// Helper function to get emotional value
+function getEmotionalValue(text: string): number | null {
+  // Simple implementation - could be enhanced with proper sentiment analysis
+  const positiveWords = ['good', 'happy', 'great', 'excellent', 'amazing'];
+  const negativeWords = ['bad', 'sad', 'angry', 'terrible', 'awful'];
+  
+  let score = 5; // neutral starting point
+  const lowerText = text.toLowerCase();
+  
+  for (const word of positiveWords) {
+    if (lowerText.includes(word)) score += 1;
+  }
+  
+  for (const word of negativeWords) {
+    if (lowerText.includes(word)) score -= 1;
+  }
+  
+  return score;
+}
 
 export function analyzeEmotionalShift(messages: Message[]): EmotionalTrend {
   if (messages.length < 3) {
@@ -35,11 +64,11 @@ export function analyzeEmotionalShift(messages: Message[]): EmotionalTrend {
   }
   
   if (avgDiff < -1.5) {
-    return 'declining';
+    return 'decreasing';
   }
   
   if (avgDiff > 1.5) {
-    return 'stable'; // Previously "intensifying", changed to match EmotionalTrend type
+    return 'increasing';
   }
   
   return 'stable';
@@ -47,7 +76,7 @@ export function analyzeEmotionalShift(messages: Message[]): EmotionalTrend {
 
 export function useEmotionalAnalysis() {
   // State for emotional analysis
-  const [jonahMood, setJonahMood] = useState<EmotionCategory>('neutral');
+  const [jonahMood, setJonahMood] = useState<EmotionCategory>('curious');
   const [emotionalTrend, setEmotionalTrend] = useState<EmotionalTrend>('stable');
   const [emotionalHistory, setEmotionalHistory] = useState<EmotionCategory[]>([]);
   
@@ -87,8 +116,8 @@ export function useEmotionalAnalysis() {
     }
     
     // Analyze emotional pattern
-    const negativeEmotions = ['sadness', 'anger', 'fear', 'disgust', 'anxiety', 'paranoia'];
-    const positiveEmotions = ['joy', 'trust', 'hope', 'surprise'];
+    const negativeEmotions: EmotionCategory[] = ['sadness', 'anger', 'fear', 'disgust', 'anxiety', 'paranoia'];
+    const positiveEmotions: EmotionCategory[] = ['joy', 'trust', 'hope', 'curious'];
     
     const recentEmotions = updatedHistory.slice(-3);
     const allNegative = recentEmotions.every(e => negativeEmotions.includes(e));
@@ -97,13 +126,13 @@ export function useEmotionalAnalysis() {
                 recentEmotions.some(e => negativeEmotions.includes(e));
     
     if (allNegative) {
-      setEmotionalTrend('declining' as EmotionalTrend);
+      setEmotionalTrend('decreasing');
     } else if (allPositive) {
-      setEmotionalTrend('stable' as EmotionalTrend);
+      setEmotionalTrend('increasing');
     } else if (mixed) {
-      setEmotionalTrend('volatile' as EmotionalTrend);
+      setEmotionalTrend('volatile');
     } else {
-      setEmotionalTrend('stable' as EmotionalTrend);
+      setEmotionalTrend('stable');
     }
   }, [emotionalHistory]);
   

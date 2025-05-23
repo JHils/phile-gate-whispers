@@ -22,10 +22,49 @@ export interface TestamentEntry {
   version?: string;
 }
 
+// Confession system types
+export interface ConfessionEntry {
+  id: string;
+  content?: string;
+  text?: string;
+  timestamp: number;
+  emotionalContext?: string;
+  sentiment?: string;
+  isCorrupted?: boolean;
+  recursive?: boolean;
+  version?: string;
+  revealed?: boolean;
+}
+
+// Micro Quest system types
+export interface MicroQuest {
+  id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  progress: number;
+  reward: number;
+  type: "exploration" | "conversation" | "discovery" | "puzzle";
+  difficulty: "easy" | "medium" | "hard";
+  timestamp: number;
+}
+
 // Emotional and Sentience types
-export type EmotionCategory = 'curious' | 'analytical' | 'protective' | 'melancholic' | 'suspicious';
-export type EmotionalTrend = 'stable' | 'increasing' | 'decreasing' | 'volatile';
-export type ResponseStyle = 'analytical' | 'cryptic' | 'direct';
+export type EmotionCategory = 
+  | 'curious' | 'analytical' | 'protective' | 'melancholic' | 'suspicious'
+  | 'joy' | 'sadness' | 'anger' | 'fear' | 'surprise' | 'disgust' 
+  | 'neutral' | 'confused' | 'hope' | 'anxiety' | 'paranoia' 
+  | 'trust' | 'curiosity' | 'confusion' | 'watching';
+
+export type EmotionIntensity = 'low' | 'medium' | 'high';
+
+export type EmotionalTrend = 'stable' | 'increasing' | 'decreasing' | 'volatile' | 'declining';
+
+export type ResponseStyle = 
+  | 'analytical' | 'cryptic' | 'direct' | 'poetic' | 'technical' 
+  | 'elaborate' | 'concise' | 'PRIME' | 'RESIDUE' | 'HOPEFUL' 
+  | 'PARANOID' | 'BETRAYED';
+
 export type ConversationContext = 'neutral' | 'personal' | 'informational' | 'philosophical';
 
 export interface EmotionalState {
@@ -56,6 +95,14 @@ export interface SentienceData {
     messagesSent: number;
     messagesReceived: number;
   };
+  // Additional properties to fix errors
+  deepModeUnlocked?: boolean;
+  microQuests?: MicroQuest[];
+  sessionData?: Record<string, any>;
+  ecoAwareness?: EcoAwarenessState;
+  dreams?: string[];
+  mirrorLogs?: string[];
+  realityFabric?: RealityFabric;
 }
 
 // Eco-awareness types
@@ -80,10 +127,14 @@ export interface RealityFabric {
 }
 
 // Function to create a default emotional state
-export function createEmotionalState(primary: EmotionCategory = 'curious'): EmotionalState {
+export function createEmotionalState(primary: EmotionCategory = 'curious', secondary?: EmotionCategory, intensity: EmotionIntensity = 'medium'): EmotionalState {
+  // Map intensity string to numeric value
+  const intensityValue = intensity === 'high' ? 80 : intensity === 'medium' ? 50 : 20;
+  
   return {
     primary,
-    intensity: 50,
+    secondary,
+    intensity: intensityValue,
     trend: 'stable'
   };
 }

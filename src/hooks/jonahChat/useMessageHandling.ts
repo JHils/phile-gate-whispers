@@ -30,7 +30,7 @@ export function useMessageHandling() {
       
       // Generate greeting based on trust level and last interaction
       const trustScore = parseInt(localStorage.getItem('jonahTrustScore') || '50');
-      const currentMood = localStorage.getItem('jonah_emotion_primary') as EmotionCategory || 'neutral';
+      const currentMood = localStorage.getItem('jonah_emotion_primary') as EmotionCategory || 'curious';
       
       // 4. DYNAMIC INTRO LINE + MOOD-BASED GREETING
       const greeting = generateGreeting(trustScore, lastDate, currentMood);
