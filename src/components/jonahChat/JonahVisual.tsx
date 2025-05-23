@@ -3,9 +3,12 @@ import React from 'react';
 import { EmotionCategory } from '@/utils/jonahAdvancedBehavior/types';
 
 interface JonahVisualProps {
-  mood: EmotionCategory;
+  mood?: EmotionCategory;
   version?: 'PRIME' | 'RESIDUE';
   intensity?: number;
+  jonahMood?: EmotionCategory;
+  jonahVersion?: 'PRIME' | 'RESIDUE';
+  messageWeight?: 'light' | 'medium' | 'heavy';
 }
 
 /**
@@ -13,13 +16,27 @@ interface JonahVisualProps {
  * Renders a visual representation of Jonah's current emotional state
  */
 const JonahVisual: React.FC<JonahVisualProps> = ({ 
-  mood = 'neutral',
+  mood,
   version = 'PRIME',
-  intensity = 50
+  intensity = 50,
+  jonahMood,
+  jonahVersion,
+  messageWeight
 }) => {
+  // Use jonahMood if provided, else use mood
+  const effectiveMood: EmotionCategory = jonahMood || mood || 'neutral';
+  
+  // Use jonahVersion if provided, else use version
+  const effectiveVersion = jonahVersion || version;
+  
+  // Calculate intensity based on messageWeight if provided
+  const effectiveIntensity = messageWeight ? 
+    (messageWeight === 'heavy' ? 75 : messageWeight === 'light' ? 25 : 50) : 
+    intensity;
+  
   // Map emotion to visual cue
   const getMoodColor = (): string => {
-    switch (mood) {
+    switch (effectiveMood) {
       case 'joy':
       case 'hope':
         return '#3b82f6'; // blue
@@ -56,14 +73,14 @@ const JonahVisual: React.FC<JonahVisualProps> = ({
 
   // Get intensity class
   const getIntensityClass = (): string => {
-    if (intensity > 70) return 'animate-pulse';
-    if (intensity < 30) return 'opacity-70';
+    if (effectiveIntensity > 70) return 'animate-pulse';
+    if (effectiveIntensity < 30) return 'opacity-70';
     return '';
   };
 
   // Get version-specific styling
   const getVersionStyle = (): React.CSSProperties => {
-    if (version === 'RESIDUE') {
+    if (effectiveVersion === 'RESIDUE') {
       return {
         filter: 'grayscale(0.7) hue-rotate(30deg)',
         opacity: 0.8
@@ -74,7 +91,7 @@ const JonahVisual: React.FC<JonahVisualProps> = ({
 
   // Get animation based on mood
   const getMoodAnimation = (): string => {
-    switch (mood) {
+    switch (effectiveMood) {
       case 'paranoia':
       case 'fear':
         return 'animate-bounce';
@@ -109,12 +126,12 @@ const JonahVisual: React.FC<JonahVisualProps> = ({
         }}
       >
         <span className="text-white text-xs font-bold">
-          {version === 'RESIDUE' ? 'R' : 'J'}
+          {effectiveVersion === 'RESIDUE' ? 'R' : 'J'}
         </span>
       </div>
       
       {/* Version indicator */}
-      {version === 'RESIDUE' && (
+      {effectiveVersion === 'RESIDUE' && (
         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-800 rounded-full border border-gray-600 flex items-center justify-center">
           <span className="text-gray-300 text-[8px]">R</span>
         </div>
@@ -122,7 +139,7 @@ const JonahVisual: React.FC<JonahVisualProps> = ({
       
       {/* Text mood indicator */}
       <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-[10px] text-gray-400">
-        {mood}
+        {effectiveMood}
       </div>
     </div>
   );

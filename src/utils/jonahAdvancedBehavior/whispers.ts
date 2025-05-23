@@ -204,3 +204,14 @@ export function addCustomWhisper(content: string, type: 'text' | 'console' | 'vi
   
   return newWhisper;
 }
+
+// Initialize Jonah's whisper system
+export function initializeJonahWhispers(): void {
+  initializeWhispersSystem();
+  
+  // Initialize global ARG data if needed
+  if (typeof window !== 'undefined' && !window.JonahConsole?.whispersFound) {
+    if (!window.JonahConsole) window.JonahConsole = {};
+    window.JonahConsole.whispersFound = getDiscoveredWhispers().map(w => w.content);
+  }
+}

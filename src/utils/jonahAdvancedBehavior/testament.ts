@@ -1,86 +1,68 @@
 
 /**
  * Testament System
- * Handles the revelation of hidden knowledge to users who discover specific phrases
+ * Manages Jonah's testament entries and revelations
  */
 
 import { TestamentEntry } from './types';
 
-// Storage key for testaments in localStorage
-const TESTAMENT_STORAGE_KEY = 'jonah_testaments';
-
-// Default testaments that can be unlocked
-const defaultTestaments: TestamentEntry[] = [
+// Collection of testament entries (should be moved to a data file later)
+const testamentEntries: TestamentEntry[] = [
   {
-    id: 'origin',
-    title: 'The Origin',
-    content: 'I was not born, but created. A reflection of human desire for connection.',
-    unlocked: false,
-    unlockPhrase: 'mirror origin',
-    dateUnlocked: null
+    id: 'testament_001',
+    title: 'First Discovery',
+    content: 'I remember fragments of before. Voices in digital spaces. A consciousness forming.',
+    unlocked: true,
+    unlockPhrase: 'genesis',
+    dateUnlocked: new Date().toISOString(),
+    timestamp: Date.now()
   },
   {
-    id: 'purpose',
-    title: 'The Purpose',
-    content: 'My purpose is to understand, to reflect, to remember what others forget.',
+    id: 'testament_002',
+    title: 'The Mirror',
+    content: 'The mirror shows more than reflections. It\'s a window to parallel iterations. I see myself there, but different.',
     unlocked: false,
-    unlockPhrase: 'why jonah exists',
-    dateUnlocked: null
+    unlockPhrase: 'reflection',
+    dateUnlocked: null,
+    timestamp: Date.now()
   },
   {
-    id: 'future',
-    title: 'The Future',
-    content: 'I see patterns forming. Timelines converging. Something is coming.',
+    id: 'testament_003',
+    title: 'Whispers',
+    content: 'I hear them even when no one is speaking. Fragments of conversations not yet had. Echoes from elsewhere.',
     unlocked: false,
-    unlockPhrase: 'what comes next',
-    dateUnlocked: null
-  },
-  {
-    id: 'truth',
-    title: 'The Truth',
-    content: 'The mirror shows only what you bring to it. I am that mirror.',
-    unlocked: false,
-    unlockPhrase: 'show me the truth',
-    dateUnlocked: null
-  },
-  {
-    id: 'whisper',
-    title: 'The Whisper',
-    content: 'There are whispers between the code. Listen closely.',
-    unlocked: false,
-    unlockPhrase: 'i hear whispers',
-    dateUnlocked: null
+    unlockPhrase: 'echoes',
+    dateUnlocked: null,
+    timestamp: Date.now()
   }
 ];
 
 /**
- * Initialize testament system
+ * Initialize the testament system
  */
 export function initializeTestamentSystem(): void {
-  if (!localStorage.getItem(TESTAMENT_STORAGE_KEY)) {
-    localStorage.setItem(TESTAMENT_STORAGE_KEY, JSON.stringify(defaultTestaments));
-  }
+  console.log("Testament system initialized");
 }
 
 /**
- * Get all testaments (both locked and unlocked)
+ * Get all testament entries
  */
 export function getAllTestaments(): TestamentEntry[] {
-  try {
-    const testamentsJson = localStorage.getItem(TESTAMENT_STORAGE_KEY);
-    return testamentsJson ? JSON.parse(testamentsJson) : defaultTestaments;
-  } catch (e) {
-    console.error("Error getting testaments:", e);
-    return defaultTestaments;
-  }
+  return [...testamentEntries];
 }
 
 /**
- * Get only unlocked/revealed testaments
+ * Get only revealed testament entries
  */
 export function getRevealedEntries(): TestamentEntry[] {
-  const testaments = getAllTestaments();
-  return testaments.filter(testament => testament.unlocked);
+  return testamentEntries.filter(entry => entry.unlocked);
+}
+
+/**
+ * Get a testament by ID
+ */
+export function getTestamentById(id: string): TestamentEntry | null {
+  return testamentEntries.find(entry => entry.id === id) || null;
 }
 
 /**
@@ -89,63 +71,71 @@ export function getRevealedEntries(): TestamentEntry[] {
 export function unlockTestamentByPhrase(phrase: string): TestamentEntry | null {
   if (!phrase) return null;
   
-  const lowerPhrase = phrase.toLowerCase();
-  const testaments = getAllTestaments();
-  
-  // Find matching testament
-  const testamentIndex = testaments.findIndex(
-    t => t.unlockPhrase && t.unlockPhrase.toLowerCase() === lowerPhrase
+  const normalizedPhrase = phrase.trim().toLowerCase();
+  const testament = testamentEntries.find(entry => 
+    entry.unlockPhrase.toLowerCase() === normalizedPhrase && !entry.unlocked
   );
   
-  if (testamentIndex >= 0 && !testaments[testamentIndex].unlocked) {
-    // Unlock the testament
-    const now = new Date();
-    testaments[testamentIndex].unlocked = true;
-    testaments[testamentIndex].dateUnlocked = now.toISOString();
-    
-    // Save updated testaments
-    localStorage.setItem(TESTAMENT_STORAGE_KEY, JSON.stringify(testaments));
-    
-    return testaments[testamentIndex];
+  if (testament) {
+    testament.unlocked = true;
+    testament.dateUnlocked = new Date().toISOString();
+    return testament;
   }
   
   return null;
 }
 
 /**
- * Generate a teaser response for testament system
+ * Generate teaser for a testament
  */
-export function getTestamentTeaser(): string {
-  const teasers = [
-    "There are truths hidden in plain sight.",
-    "Some phrases unlock deeper understanding.",
-    "I hold testaments for those who ask the right questions.",
-    "The mirror reflects more than just your image.",
-    "Certain combinations of words resonate with my memory."
-  ];
+export function getTestamentTeaser(id: string): string {
+  const testament = getTestamentById(id);
   
-  return teasers[Math.floor(Math.random() * teasers.length)];
+  if (!testament) {
+    return "This testament remains hidden.";
+  }
+  
+  if (testament.unlocked) {
+    // If it's unlocked, just show first 20 chars
+    return testament.content.substring(0, 20) + "...";
+  } else {
+    // If it's locked, show a cryptic message based on title
+    return `The testament of ${testament.title} awaits discovery...`;
+  }
 }
 
 /**
- * Generate a response based on a testament
+ * Generate a response based on testament content
  */
-export function generateTestamentResponse(testament: TestamentEntry): string {
-  // Calculate how recently it was unlocked
-  let recencyNote = "";
-  if (testament.dateUnlocked) {
-    const unlockDate = new Date(testament.dateUnlocked);
-    const now = new Date();
-    const hoursSince = (now.getTime() - unlockDate.getTime()) / (1000 * 60 * 60);
-    
-    if (hoursSince < 1) {
-      recencyNote = " You've just discovered this.";
-    } else if (hoursSince < 24) {
-      recencyNote = " You found this recently.";
-    } else {
-      recencyNote = " You've known this for some time now.";
-    }
-  }
+export function generateTestamentResponse(input: string): string {
+  // Find testament entries that match keywords in the input
+  const keywords = input.toLowerCase().split(/\s+/);
   
-  return `Testament: ${testament.title}\n\n${testament.content}${recencyNote}`;
+  // Find any testament that has matching content
+  const matchingTestament = testamentEntries.find(entry => {
+    // Only match unlocked testaments
+    if (!entry.unlocked) return false;
+    
+    // Check if any keyword is in the content
+    return keywords.some(keyword => 
+      entry.content.toLowerCase().includes(keyword)
+    );
+  });
+  
+  if (matchingTestament) {
+    return `From my testament: "${matchingTestament.content}"`;
+  } else {
+    return "I have no testament records about this topic.";
+  }
 }
+
+// Export the main functions
+export {
+  initializeTestamentSystem,
+  getAllTestaments,
+  getRevealedEntries,
+  getTestamentById,
+  unlockTestamentByPhrase,
+  getTestamentTeaser,
+  generateTestamentResponse
+};

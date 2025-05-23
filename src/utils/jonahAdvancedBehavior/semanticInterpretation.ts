@@ -1,198 +1,156 @@
 
 /**
  * Semantic Interpretation Module
- * Analyzes user input for semantic meaning and patterns
+ * Analyzes and interprets user messages
  */
 
-import { EmotionCategory } from './types';
+import { EmotionCategory, EmotionalState } from './types';
 import { getCurrentEmotionalState } from './emotionalCore';
+import { getEmotionalResponse } from './enhancedEmotionalCore';
 
-// Process input for semantic patterns
-export function detectSemanticPatterns(input: string): { 
-  keywords: string[],
-  sentiment: number,
-  urgency: number,
-  complexity: number
-} {
-  if (!input) {
-    return { 
-      keywords: [], 
-      sentiment: 0, 
-      urgency: 0, 
-      complexity: 0 
-    };
-  }
-  
-  // Extract keywords
-  const keywords = extractKeywords(input.toLowerCase());
-  
-  // Calculate sentiment (-1 to 1)
-  const sentiment = calculateSentiment(input);
-  
-  // Calculate urgency (0 to 10)
-  const urgency = calculateUrgency(input);
-  
-  // Calculate complexity (0 to 10)
-  const complexity = calculateComplexity(input);
-  
+// Simple keywords for emotional tone detection
+const emotionKeywords: Record<EmotionCategory, string[]> = {
+  'joy': ['happy', 'joy', 'excited', 'wonderful', 'great'],
+  'sadness': ['sad', 'unhappy', 'depressed', 'miserable', 'gloomy'],
+  'anger': ['angry', 'mad', 'annoyed', 'irritated', 'furious'],
+  'fear': ['afraid', 'scared', 'fearful', 'terrified', 'anxious'],
+  'neutral': ['ok', 'fine', 'neutral', 'normal', 'average'],
+  'surprise': ['surprised', 'shocked', 'amazed', 'astonished', 'stunned'],
+  'curiosity': ['curious', 'interested', 'intrigued', 'fascinated'],
+  'confused': ['confused', 'puzzled', 'bewildered', 'perplexed'],
+  'hope': ['hope', 'hopeful', 'optimistic', 'promising'],
+  'anxiety': ['anxious', 'nervous', 'worried', 'uneasy'],
+  'paranoia': ['paranoid', 'suspicious', 'distrustful'],
+  'trust': ['trust', 'trustworthy', 'reliable', 'dependable'],
+  'watching': ['watching', 'observing', 'monitoring'],
+  'existential': ['existence', 'purpose', 'meaning', 'life'],
+  'protective': ['protect', 'guard', 'shield', 'defend'],
+  'melancholic': ['melancholy', 'wistful', 'nostalgic'],
+  'analytical': ['analyze', 'examine', 'investigate', 'study'],
+  'suspicious': ['suspect', 'doubt', 'mistrust'],
+  'curious': ['curious', 'interested', 'intrigued'],
+  'disgust': ['disgust', 'revolting', 'gross', 'nasty'],
+  'confusion': ['confusion', 'mixed-up', 'unclear']
+};
+
+// Get all semantic interpretations
+export function getAllInterpretations(text: string): Record<string, any> {
   return {
-    keywords,
-    sentiment,
-    urgency,
-    complexity
+    emotions: detectEmotions(text),
+    topics: extractTopics(text),
+    questions: hasQuestion(text),
+    sentiment: analyzeSentiment(text),
+    entities: extractEntities(text)
   };
 }
 
-// Extract keywords
-function extractKeywords(text: string): string[] {
-  // Very simple keyword extraction for now
-  // In a real system, this would use NLP techniques
-  const commonWords = [
-    'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have',
-    'i', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you',
-    'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they',
-    'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one',
-    'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out',
-    'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when',
-    'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know',
-    'take', 'people', 'into', 'year', 'your', 'good', 'some',
-    'could', 'them', 'see', 'other', 'than', 'then', 'now',
-    'look', 'only', 'come', 'its', 'over', 'think', 'also',
-    'back', 'after', 'use', 'two', 'how', 'our', 'work',
-    'first', 'well', 'way', 'even', 'new', 'want', 'because',
-    'any', 'these', 'give', 'day', 'most', 'us'
-  ];
+// Detect emotions in text
+function detectEmotions(text: string): Record<EmotionCategory, number> {
+  const emotions: Partial<Record<EmotionCategory, number>> = {};
+  const normalizedText = text.toLowerCase();
   
-  const words = text.split(/\W+/).filter(word => 
-    word.length > 2 && !commonWords.includes(word)
-  );
-  
-  return [...new Set(words)]; // Remove duplicates
-}
-
-// Calculate sentiment from text
-function calculateSentiment(text: string): number {
-  // Very simple sentiment analysis
-  // In a real system, this would use a trained model
-  const positiveWords = [
-    'good', 'great', 'excellent', 'wonderful', 'amazing',
-    'love', 'happy', 'joy', 'positive', 'beautiful',
-    'perfect', 'best', 'better', 'awesome', 'fantastic',
-    'nice', 'glad', 'enjoy', 'thank', 'thanks',
-    'appreciate', 'excited', 'impressive', 'impressive', 'hope'
-  ];
-  
-  const negativeWords = [
-    'bad', 'terrible', 'awful', 'horrible', 'worst',
-    'hate', 'sad', 'angry', 'negative', 'ugly',
-    'poor', 'worse', 'disappointing', 'annoying', 'terrible',
-    'unfortunately', 'sorry', 'fear', 'regret', 'worry',
-    'disappointed', 'upset', 'concerned', 'wrong', 'worse'
-  ];
-  
-  const lowerText = text.toLowerCase();
-  let score = 0;
-  
-  positiveWords.forEach(word => {
-    if (lowerText.includes(word)) score += 0.1;
-  });
-  
-  negativeWords.forEach(word => {
-    if (lowerText.includes(word)) score -= 0.1;
-  });
-  
-  return Math.min(Math.max(score, -1), 1); // Clamp between -1 and 1
-}
-
-// Calculate urgency from text
-function calculateUrgency(text: string): number {
-  const urgentWords = [
-    'now', 'immediately', 'urgent', 'emergency', 'asap',
-    'quickly', 'hurry', 'fast', 'critical', 'desperate',
-    'please', 'help', 'need', 'must', 'important'
-  ];
-  
-  const lowerText = text.toLowerCase();
-  let score = 0;
-  
-  urgentWords.forEach(word => {
-    if (lowerText.includes(word)) score += 1;
-  });
-  
-  // Check for question marks and exclamation points
-  score += (text.match(/\?/g) || []).length * 0.5;
-  score += (text.match(/!/g) || []).length;
-  
-  return Math.min(Math.max(score, 0), 10); // Clamp between 0 and 10
-}
-
-// Calculate complexity from text
-function calculateComplexity(text: string): number {
-  // Simple complexity measure based on sentence length and word length
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
-  if (sentences.length === 0) return 0;
-  
-  const avgWordsPerSentence = text.split(/\s+/).length / sentences.length;
-  const avgWordLength = text.replace(/\s+/g, '').length / text.split(/\s+/).length;
-  
-  return Math.min(Math.max((avgWordsPerSentence * 0.5 + avgWordLength * 1.5), 0), 10);
-}
-
-// Map semantic patterns to emotional response
-export function mapSemanticsToEmotion(
-  semantics: { keywords: string[], sentiment: number, urgency: number, complexity: number }
-): EmotionCategory {
-  const currentState = getCurrentEmotionalState();
-  
-  // Decide if we should shift emotion based on input
-  // For now, use a simple mapping based on sentiment and urgency
-  if (semantics.urgency > 7) {
-    if (semantics.sentiment < -0.5) return 'fear';
-    if (semantics.sentiment > 0.5) return 'surprise';
-    return 'anxiety';
-  }
-  
-  if (semantics.sentiment < -0.7) return 'sadness';
-  if (semantics.sentiment < -0.4) return 'melancholic';
-  if (semantics.sentiment < -0.2) return 'confused';
-  
-  if (semantics.sentiment > 0.7) return 'joy';
-  if (semantics.sentiment > 0.4) return 'hope';
-  
-  if (semantics.complexity > 8) return 'analytical';
-  if (semantics.complexity > 6) return 'existential';
-  
-  // Check for specific keywords
-  const keywordMap: Record<string, EmotionCategory> = {
-    'trust': 'trust',
-    'doubt': 'suspicious',
-    'watch': 'watching',
-    'observe': 'watching',
-    'pattern': 'analytical',
-    'why': 'curious',
-    'how': 'curious',
-    'what': 'curious',
-    'secret': 'suspicious',
-    'hidden': 'paranoia',
-    'lie': 'paranoia',
-    'protect': 'protective',
-    'safe': 'protective',
-    'danger': 'fear',
-    'memory': 'melancholic',
-    'remember': 'melancholic',
-    'forget': 'melancholic',
-    'lost': 'sadness',
-    'disgusting': 'disgust',
-    'gross': 'disgust',
-    'confusing': 'confusion'
-  };
-  
-  for (const keyword of semantics.keywords) {
-    if (keywordMap[keyword]) {
-      return keywordMap[keyword];
+  // Check for emotion keywords
+  for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+    const matches = keywords.filter(keyword => normalizedText.includes(keyword));
+    if (matches.length > 0) {
+      emotions[emotion as EmotionCategory] = matches.length / keywords.length;
     }
   }
   
-  // Default: return current emotion or neutral if none
-  return currentState.primary || 'neutral';
+  // Ensure all emotions have a value
+  const result: Record<EmotionCategory, number> = {} as Record<EmotionCategory, number>;
+  for (const emotion of Object.keys(emotionKeywords) as EmotionCategory[]) {
+    result[emotion] = emotions[emotion] || 0;
+  }
+  
+  return result;
+}
+
+// Extract topics from text
+function extractTopics(text: string): string[] {
+  // Simple topic extraction
+  const topics: string[] = [];
+  const normalizedText = text.toLowerCase();
+  
+  // Topic detection (simplified)
+  if (normalizedText.includes('weather')) topics.push('weather');
+  if (normalizedText.includes('news')) topics.push('news');
+  if (normalizedText.includes('tech') || normalizedText.includes('technology')) topics.push('technology');
+  if (normalizedText.includes('art') || normalizedText.includes('music')) topics.push('arts');
+  if (normalizedText.includes('help') || normalizedText.includes('assist')) topics.push('assistance');
+  if (normalizedText.includes('philosophy') || normalizedText.includes('exist')) topics.push('philosophy');
+  
+  return topics;
+}
+
+// Check if text contains a question
+function hasQuestion(text: string): boolean {
+  return text.includes('?') || 
+    text.toLowerCase().startsWith('who') ||
+    text.toLowerCase().startsWith('what') ||
+    text.toLowerCase().startsWith('when') ||
+    text.toLowerCase().startsWith('where') ||
+    text.toLowerCase().startsWith('why') ||
+    text.toLowerCase().startsWith('how');
+}
+
+// Simple sentiment analysis
+function analyzeSentiment(text: string): number {
+  const normalizedText = text.toLowerCase();
+  let score = 0;
+  
+  // Positive phrases
+  const positiveWords = ['good', 'great', 'excellent', 'wonderful', 'happy', 'love', 'like', 'thanks'];
+  for (const word of positiveWords) {
+    if (normalizedText.includes(word)) score += 0.5;
+  }
+  
+  // Negative phrases
+  const negativeWords = ['bad', 'terrible', 'awful', 'horrible', 'sad', 'hate', 'dislike', 'sorry'];
+  for (const word of negativeWords) {
+    if (normalizedText.includes(word)) score -= 0.5;
+  }
+  
+  // Clamp the score between -1 and 1
+  return Math.max(-1, Math.min(1, score));
+}
+
+// Extract entities (names, places, etc.)
+function extractEntities(text: string): string[] {
+  // Simple entity extraction
+  const entities: string[] = [];
+  
+  // Find proper nouns (simple approach: words starting with capital letter not at start of sentence)
+  const words = text.split(' ');
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i].replace(/[.,!?]$/, ''); // Remove punctuation
+    if (word.length > 0 && word[0] === word[0].toUpperCase() && isNaN(Number(word))) {
+      entities.push(word);
+    }
+  }
+  
+  return entities;
+}
+
+// Get emotional response based on current state
+export function getEmotionalResponseToInput(text: string): string {
+  const emotions = detectEmotions(text);
+  const emotionalState = getCurrentEmotionalState();
+  
+  // Find the dominant emotion in the text
+  let dominantEmotion: EmotionCategory = 'neutral';
+  let maxScore = 0;
+  
+  for (const [emotion, score] of Object.entries(emotions)) {
+    if (score > maxScore) {
+      maxScore = score;
+      dominantEmotion = emotion as EmotionCategory;
+    }
+  }
+  
+  // Get response based on the emotional state and dominantEmotion
+  const intensity = emotionalState.intensity;
+  const intensityLabel = intensity < 33 ? 'low' : intensity > 66 ? 'high' : 'medium';
+  
+  return getEmotionalResponse(dominantEmotion, intensityLabel);
 }

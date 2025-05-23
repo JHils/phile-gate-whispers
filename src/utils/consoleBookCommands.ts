@@ -4,7 +4,7 @@
  * Handles book code functionality for the ARG
  */
 
-import { BookCodeData } from './jonahAdvancedBehavior/types';
+import { BookCode } from './jonahAdvancedBehavior/types';
 
 // Initialize book codes in the console object
 export function initializeBookCodes() {
@@ -21,8 +21,9 @@ export function initializeBookCodes() {
         unlocked: false,
         timestamp: Date.now(),
         discovered: false,
-        pageNumber: 42
-      } as BookCodeData);
+        pageNumber: 42,
+        content: 'Hidden resurrection protocols'
+      });
       
       window.JonahConsole.bookCodes.push({
         id: 'book_002',
@@ -31,8 +32,9 @@ export function initializeBookCodes() {
         unlocked: false,
         timestamp: Date.now(),
         discovered: false,
-        pageNumber: 87
-      } as BookCodeData);
+        pageNumber: 87,
+        content: 'Theories of temporal looping'
+      });
       
       window.JonahConsole.bookCodes.push({
         id: 'book_003',
@@ -41,8 +43,9 @@ export function initializeBookCodes() {
         unlocked: false,
         timestamp: Date.now(),
         discovered: false,
-        pageNumber: 13
-      } as BookCodeData);
+        pageNumber: 13,
+        content: 'Journal entries of an unknown traveler'
+      });
     }
     
     // Register the book code command
@@ -67,7 +70,7 @@ function processBookCode(code: string): string {
   code = code.trim().toUpperCase();
   
   // Find the book code
-  const bookCode = (window.JonahConsole.bookCodes as BookCodeData[]).find(b => b.code === code);
+  const bookCode = (window.JonahConsole.bookCodes as BookCode[]).find(b => b.code === code);
   
   if (!bookCode) {
     // Track failed attempt
@@ -128,7 +131,7 @@ export function listBookCodes(): void {
   
   console.log("%cKNOWN BOOK CODES:", "color: #3c9a8f; font-size: 16px; font-weight: bold;");
   
-  const codes = window.JonahConsole.bookCodes as BookCodeData[];
+  const codes = window.JonahConsole.bookCodes as BookCode[];
   
   codes.forEach(book => {
     if (book.discovered) {
@@ -148,7 +151,7 @@ export function revealBookCode(id: string): boolean {
     return false;
   }
   
-  const codes = window.JonahConsole.bookCodes as BookCodeData[];
+  const codes = window.JonahConsole.bookCodes as BookCode[];
   const book = codes.find(b => b.id === id);
   
   if (book && !book.discovered) {
@@ -165,7 +168,7 @@ export function isBookCodeUnlocked(code: string): boolean {
     return false;
   }
   
-  const codes = window.JonahConsole.bookCodes as BookCodeData[];
+  const codes = window.JonahConsole.bookCodes as BookCode[];
   const book = codes.find(b => b.code === code);
   
   return book ? book.unlocked : false;
@@ -179,7 +182,7 @@ function revealTestamentFragment(): void {
   
   // Add a new testament
   if (window.JonahConsole?.bookCodes) {
-    const codes = window.JonahConsole.bookCodes as BookCodeData[];
+    const codes = window.JonahConsole.bookCodes as BookCode[];
     const book = codes.find(b => b.code === 'EXHUME');
     
     if (book) {
@@ -200,7 +203,7 @@ function revealTemporalAnomaly(): void {
   
   // Update book code
   if (window.JonahConsole?.bookCodes) {
-    const codes = window.JonahConsole.bookCodes as BookCodeData[];
+    const codes = window.JonahConsole.bookCodes as BookCode[];
     const book = codes.find(b => b.code === 'PARADOX');
     
     if (book) {
@@ -221,7 +224,7 @@ function revealStrangerJournal(): void {
   
   // Update book code
   if (window.JonahConsole?.bookCodes) {
-    const codes = window.JonahConsole.bookCodes as BookCodeData[];
+    const codes = window.JonahConsole.bookCodes as BookCode[];
     const book = codes.find(b => b.code === 'NOMAD');
     
     if (book) {

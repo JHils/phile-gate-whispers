@@ -1,4 +1,3 @@
-
 /**
  * Jonah Advanced Behavior Type Definitions
  */
@@ -136,10 +135,16 @@ export interface MemoryFragment {
 export interface ConfessionEntry {
   id: string;
   content: string;
+  text?: string; // Alternative to content in some implementations
   timestamp: number;
   approved: boolean;
   category: string;
   importance: number;
+  emotionalContext?: EmotionCategory | string;
+  sentiment?: EmotionCategory | string;
+  isCorrupted?: boolean;
+  recursive?: boolean;
+  version?: string;
 }
 
 // Book Code
@@ -149,12 +154,23 @@ export interface BookCode {
   code: string;
   unlocked: boolean;
   content: string;
+  name?: string;
+  timestamp?: number;
+  discovered?: boolean;
+  pageNumber?: number;
 }
 
 // Book Code Data
 export interface BookCodeData {
   codes: BookCode[];
   activeCode: string | null;
+  id?: string;
+  code?: string;
+  name?: string;
+  unlocked?: boolean;
+  timestamp?: number;
+  discovered?: boolean;
+  pageNumber?: number;
 }
 
 // Story Flag
@@ -198,15 +214,16 @@ export interface RealityFabric {
   anomalyCount: number;
   memoryFragments: string[];
   unstableAreas: string[];
-  moodChangeTime: number;
-  currentMood: string;
-  moodHistory: string[];
-  mood: string;
-  dreamState: boolean;
-  lastDreamTime: number;
-  hiddenMessages: string[];
-  journal: JournalEntry[];
-  crossSiteWhispers: string[];
+  moodChangeTime?: number;
+  currentMood?: string;
+  moodHistory?: string[];
+  mood?: string;
+  dreamState?: boolean;
+  lastDreamTime?: number;
+  hiddenMessages?: string[];
+  journal?: JournalEntry[];
+  crossSiteWhispers?: string[];
+  lastDetection?: number;
 }
 
 // Eco Awareness State
@@ -221,6 +238,15 @@ export interface EcoAwarenessState {
   };
   responses: string[];
   factoids: string[];
+  active?: boolean;
+  topicSensitivity?: number;
+  lastMentioned?: number;
+  mentionCount?: number;
+  topicKeywords?: string[];
+  currentBiome?: string;
+  userAwareness?: number;
+  awareness?: string | number;
+  previousBiomes?: string[];
 }
 
 // Sentience Data
@@ -240,6 +266,7 @@ export interface SentienceData {
     startTime: number;
     idleTime: number;
     messageCount?: number;
+    userEmotions?: Record<string, number>;
   };
   emotionalState: {
     primary: EmotionCategory;
@@ -269,6 +296,7 @@ export interface SentienceData {
   microQuests: MicroQuest[];
   ecoAwareness?: EcoAwarenessState;
   realityFabric?: RealityFabric;
+  userEmotions?: Record<string, number>;
 }
 
 // Temporal State

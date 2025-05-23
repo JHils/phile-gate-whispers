@@ -1,4 +1,3 @@
-
 /**
  * Text Formatting Utilities
  * Enhances text based on emotional state and response style
@@ -140,6 +139,18 @@ export function applyFullFormatting(
   formattedText = formatTextByStyle(formattedText, effectiveStyle);
   
   return formattedText;
+}
+
+/**
+ * Format Jonah's response based on emotion and style
+ * This is a wrapper around applyFullFormatting for ease of use
+ */
+export function formatJonahResponse(
+  text: string,
+  emotion: EmotionCategory = 'neutral',
+  style: ResponseStyle = 'direct'
+): string {
+  return applyFullFormatting(text, emotion, style);
 }
 
 // Helper functions for text formatting
