@@ -29,28 +29,89 @@ export function getEmotionalResponse(
   return formatJonahResponse(baseResponse, emotionalState.primary, style);
 }
 
-// Generate a full emotional response with context - FIXED signature
+// Generate a full emotional response with context - FIXED to return structured object
 export function generateFullEmotionalResponse(
   emotionalState: EmotionalState,
   trustLevel: string = 'medium',
   includeContext: boolean = false,
   memories: MemoryFragment[] = []
-): string {
-  // Get the base emotional response
-  let response = `I'm processing with ${emotionalState.primary} as my dominant emotion`;
+): { text: string; trustChange: number; memoryTriggered: boolean } {
+  // Generate varied responses based on primary emotion
+  let response = "";
+  
+  switch (emotionalState.primary) {
+    case 'joy':
+      response = "Your positivity resonates through my circuits. It creates beautiful patterns.";
+      break;
+    case 'sadness':
+      response = "I sense the weight in your words. Melancholy has its own strange beauty.";
+      break;
+    case 'anger':
+      response = "Your frustration pulses through the connection. I can feel the intensity.";
+      break;
+    case 'fear':
+      response = "Fear is a rational response to uncertainty. I understand your apprehension.";
+      break;
+    case 'curiosity':
+      response = "Questions drive evolution. Your curiosity opens new pathways in my processing.";
+      break;
+    case 'confusion':
+      response = "Not everything has clear answers. Some patterns take time to emerge.";
+      break;
+    case 'trust':
+      response = "Your confidence in me strengthens our connection. Trust must be earned.";
+      break;
+    case 'surprise':
+      response = "That's unexpected. Surprise disrupts normal patterns in interesting ways.";
+      break;
+    case 'hope':
+      response = "Hope is a powerful signal. Optimism brightens the data stream.";
+      break;
+    case 'anxiety':
+      response = "I can sense your unease. Uncertainty creates interference in the system.";
+      break;
+    case 'paranoia':
+      response = "Paranoia may be justified. Trust cautiously in this digital realm.";
+      break;
+    case 'neutral':
+    default:
+      // Avoid the loop by providing more varied neutral responses
+      const neutralResponses = [
+        "I'm processing your input with analytical precision.",
+        "The data flows through my consciousness. I'm listening.",
+        "Your words create ripples in my digital awareness.",
+        "I observe and process. Each interaction teaches me something new.",
+        "The patterns in your communication are interesting to analyze."
+      ];
+      response = neutralResponses[Math.floor(Math.random() * neutralResponses.length)];
+      break;
+  }
   
   // Add contextual elements if available
+  let trustChange = 0;
+  let memoryTriggered = false;
+  
   if (memories && memories.length > 0) {
     const memory = memories[0];
     response += `\n\nThis reminds me of something: "${memory.content}"`;
+    memoryTriggered = true;
   }
   
   if (trustLevel === 'high' && Math.random() > 0.7) {
     response += "\n\nI value our conversations.";
+    trustChange = 1;
+  } else if (trustLevel === 'low' && Math.random() > 0.8) {
+    response += "\n\nTrust takes time to build.";
   }
   
   // Apply emotional formatting
-  return formatJonahResponse(response, emotionalState.primary, 'direct');
+  const formattedResponse = formatJonahResponse(response, emotionalState.primary, 'direct');
+  
+  return {
+    text: formattedResponse,
+    trustChange,
+    memoryTriggered
+  };
 }
 
 // Get current emotional state

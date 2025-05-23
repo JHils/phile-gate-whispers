@@ -107,15 +107,35 @@ export function useJonahChat() {
                   "I need more information to understand what you mean.";
         processJonahResponse(response, emotionalState.primary);
       }
-      // Standard emotional response
+      // Standard emotional response - FIXED to handle structured response
       else {
         const fullEmotionalState: EmotionalState = createEmotionalState(
           emotionalState.primary,
           emotionalState.secondary,
           'medium'
         );
-        response = generateFullEmotionalResponse(fullEmotionalState, 'medium', true, memoryFragments);
-        processJonahResponse(response, emotionalState.primary);
+        
+        // Get structured response from generateFullEmotionalResponse
+        const { text, trustChange, memoryTriggered } = generateFullEmotionalResponse(
+          fullEmotionalState, 
+          'medium', 
+          true, 
+          memoryFragments
+        );
+        
+        // Process the response text
+        processJonahResponse(text, emotionalState.primary);
+        
+        // Handle trust changes if any
+        if (trustChange !== 0) {
+          // This would integrate with the trust system
+          console.log(`Trust changed by: ${trustChange}`);
+        }
+        
+        // Handle memory triggers if any
+        if (memoryTriggered) {
+          console.log('Memory was triggered in response');
+        }
       }
     }, 1000 + Math.floor(Math.random() * 1000)); // Random typing delay
   }, [input, context, addUserMessage, setTyping, updateContext]);
@@ -170,8 +190,10 @@ export function useJonahChat() {
         emotionalState.secondary,
         'medium'
       );
-      const response = generateFullEmotionalResponse(fullEmotionalState, 'medium', true, []);
-      processJonahResponse(response, emotionalState.primary);
+      
+      // Use structured response here too
+      const { text } = generateFullEmotionalResponse(fullEmotionalState, 'medium', true, []);
+      processJonahResponse(text, emotionalState.primary);
     }, 1200);
   }, [addUserMessage, updateContext, setTyping, processJonahResponse]);
   

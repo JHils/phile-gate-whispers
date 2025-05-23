@@ -7,13 +7,43 @@ import { EmotionCategory, EmotionalState, createEmotionalState, ResponseStyle } 
 import { emotionKeywords } from './keywords';
 import { formatJonahResponse } from '../textFormatting';
 
-// Analyze emotion in text input
+// Analyze emotion in text input - IMPROVED to better detect emotions
 export function analyzeEmotion(text: string): EmotionalState {
   if (!text || text.trim() === '') {
     return createEmotionalState('neutral');
   }
   
-  const lowerText = text.toLowerCase();
+  const lowerText = text.toLowerCase().trim();
+  
+  // Enhanced pattern matching for common inputs
+  const patterns = {
+    greetings: ['hello', 'hi', 'hey', 'good morning', 'good evening'],
+    questions: ['why', 'what', 'how', 'when', 'where', 'who'],
+    uncertainty: ['?', 'confused', 'lost', 'don\'t know', 'unsure'],
+    friendship: ['friend', 'buddy', 'pal', 'mate'],
+    simple_acknowledgments: ['okay', 'ok', 'sure', 'yes', 'no'],
+  };
+  
+  // Check for specific patterns first
+  if (patterns.greetings.some(greeting => lowerText.includes(greeting))) {
+    return createEmotionalState('joy', 'trust', 'medium');
+  }
+  
+  if (patterns.questions.some(q => lowerText.includes(q))) {
+    return createEmotionalState('curiosity', 'neutral', 'medium');
+  }
+  
+  if (patterns.uncertainty.some(u => lowerText.includes(u)) || lowerText.endsWith('?')) {
+    return createEmotionalState('confusion', 'curiosity', 'medium');
+  }
+  
+  if (patterns.friendship.some(f => lowerText.includes(f))) {
+    return createEmotionalState('trust', 'joy', 'high');
+  }
+  
+  if (patterns.simple_acknowledgments.includes(lowerText)) {
+    return createEmotionalState('neutral', 'curiosity', 'low');
+  }
   
   // Count keyword matches for each emotion
   const emotionScores: Record<string, number> = {};
@@ -41,8 +71,14 @@ export function analyzeEmotion(text: string): EmotionalState {
   let intensity: 'low' | 'medium' | 'high' = 'medium';
   
   if (maxScore === 0) {
-    primaryEmotion = 'neutral';
-    intensity = 'low';
+    // If no keywords matched, but we have text, default to curiosity instead of neutral
+    if (lowerText.length > 2) {
+      primaryEmotion = 'curiosity';
+      intensity = 'low';
+    } else {
+      primaryEmotion = 'neutral';
+      intensity = 'low';
+    }
   } else if (maxScore > 3) {
     intensity = 'high';
   } else if (maxScore === 1) {
