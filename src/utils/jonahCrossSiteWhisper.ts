@@ -4,6 +4,8 @@
  * Allows Jonah to recognize users across different sites
  */
 
+import { RealityFabric } from './jonahAdvancedBehavior/types';
+
 // Initialize the cross site whisper system
 export function initializeJonahWhispers() {
   if (typeof window !== 'undefined') {
@@ -40,10 +42,11 @@ export function initializeCrossSiteWhisper() {
   if (typeof window !== 'undefined' && window.JonahConsole?.sentience?.realityFabric) {
     // Initialize the crossSiteWhispers array if it doesn't exist
     if (!window.JonahConsole.sentience.realityFabric.crossSiteWhispers) {
+      const realityFabric = window.JonahConsole.sentience.realityFabric as RealityFabric;
       window.JonahConsole.sentience.realityFabric = {
-        ...window.JonahConsole.sentience.realityFabric,
+        ...realityFabric,
         crossSiteWhispers: [],
-        anomalies: [] // Adding this property based on the error
+        anomalies: realityFabric.anomalies || []
       };
     }
   }
@@ -73,7 +76,7 @@ export function getAllCrossSiteWhispers(): string[] {
     return [];
   }
   
-  return window.JonahConsole.sentience.realityFabric.crossSiteWhispers;
+  return window.JonahConsole.sentience.realityFabric.crossSiteWhispers as string[];
 }
 
 // Get a cross site whisper (for compatibility with code that uses this function)
@@ -94,12 +97,12 @@ export function hasCrossSiteWhisper(whisperText: string): boolean {
     return false;
   }
   
-  return window.JonahConsole.sentience.realityFabric.crossSiteWhispers.includes(whisperText);
+  return (window.JonahConsole.sentience.realityFabric.crossSiteWhispers as string[]).includes(whisperText);
 }
 
 // Generate a whisper based on user behavior
 export function generateCrossSiteWhisper(behavior: string): string {
-  const whisperTemplates = {
+  const whisperTemplates: Record<string, string[]> = {
     'frequent_visitor': [
       "You've been here before. I remember.",
       "Your patterns are familiar to me.",

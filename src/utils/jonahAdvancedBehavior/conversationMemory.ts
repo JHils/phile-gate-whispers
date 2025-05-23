@@ -1,12 +1,13 @@
+
 /**
  * Conversation Memory System
  * Tracks conversation context and history for more natural responses
  */
 
-import { EmotionCategory, ConversationContext } from './types';
+import { EmotionCategory } from './types';
 
 // Enhanced conversation context type
-interface EnhancedConversationContext {
+export interface EnhancedConversationContext {
   recentMessages: Array<{text: string, sender: 'user' | 'jonah', timestamp: number}>;
   emotionalJourney: EmotionCategory[];
   topicFocus: string[] | null;

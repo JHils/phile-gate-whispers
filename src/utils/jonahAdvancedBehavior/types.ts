@@ -54,7 +54,15 @@ export interface MicroQuest {
 
 // Story and book codes
 export type StoryFlag = string;
-export type BookCode = string;
+export type BookCode = {
+  id: string;
+  code: string;
+  name: string;
+  unlocked: boolean;
+  timestamp?: number;
+  discovered?: boolean;
+  pageNumber?: number;
+};
 
 // Trust level type
 export type TrustLevel = 'high' | 'medium' | 'low' | 'none';
@@ -73,7 +81,7 @@ export type EmotionalTrend = 'stable' | 'increasing' | 'decreasing' | 'volatile'
 export type ResponseStyle = 
   | 'analytical' | 'cryptic' | 'direct' | 'poetic' | 'technical' 
   | 'elaborate' | 'concise' | 'PRIME' | 'RESIDUE' | 'HOPEFUL' 
-  | 'PARANOID' | 'BETRAYED';
+  | 'PARANOID' | 'BETRAYED' | 'MIRROR' | 'STATIC' | 'ERROR';
 
 export type ConversationContext = 'neutral' | 'personal' | 'informational' | 'philosophical';
 

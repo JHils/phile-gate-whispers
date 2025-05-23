@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { TrustLevel } from '@/hooks/useBotState/types';
+import { TrustLevel } from '@/utils/jonahAdvancedBehavior/types';
 
 interface JonahTrustIndicatorProps {
   trustLevel: TrustLevel;

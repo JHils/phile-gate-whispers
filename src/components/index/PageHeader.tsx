@@ -4,9 +4,7 @@ import SpinningCoin from "../SpinningCoin";
 import JonahMoodIndicator from "../JonahMoodIndicator";
 import JonahLogo from "../JonahLogo";
 import JonahTrustIndicator from "../JonahTrustIndicator";
-
-// Define TrustLevel type
-type TrustLevel = 'high' | 'medium' | 'low' | 'none';
+import { TrustLevel } from '@/utils/jonahAdvancedBehavior/types';
 
 interface PageHeaderProps {
   trustLevel: TrustLevel;
