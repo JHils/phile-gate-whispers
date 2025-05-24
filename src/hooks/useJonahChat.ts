@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { analyzeEmotion } from '@/utils/jonahAdvancedBehavior/sentimentAnalysis';
 import { useMessageHandling } from './jonahChat/useMessageHandling';
 import { useEmotionalAnalysis } from './jonahChat/useEmotionalAnalysis';
@@ -53,11 +53,45 @@ export function useJonahChat() {
   const [input, setInput] = useState<string>('');
   const [jonahVersion, setJonahVersion] = useState<'PRIME' | 'RESIDUE'>('PRIME');
   
+  // Patch 1: Typing throttle refs
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTypingStateRef = useRef<boolean>(false);
+  
+  // Patch 3: Emotional recalculation cooldown
+  const emotionalCooldownRef = useRef<NodeJS.Timeout | null>(null);
+  const isEmotionalProcessingRef = useRef<boolean>(false);
+  
+  // Patch 1: Throttled typing setter
+  const setTypingThrottled = useCallback((isTyping: boolean) => {
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    // If we're already in the same state, don't flicker
+    if (lastTypingStateRef.current === isTyping) {
+      return;
+    }
+    
+    // Set a small delay to prevent rapid flickering
+    typingTimeoutRef.current = setTimeout(() => {
+      setTyping(isTyping);
+      lastTypingStateRef.current = isTyping;
+    }, 100);
+  }, [setTyping]);
+  
   // Process user input
   const handleSendMessage = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     
     if (!input.trim()) return;
+    
+    // Patch 3: Check if emotional processing is in cooldown
+    if (isEmotionalProcessingRef.current) {
+      return; // Prevent spam processing
+    }
+    
+    isEmotionalProcessingRef.current = true;
     
     // Add user message to chat
     addUserMessage(input);
@@ -68,9 +102,9 @@ export function useJonahChat() {
     // Update conversation context with user message
     updateContext(input, emotionalState.primary, true);
     
-    // Clear input and show typing indicator
+    // Clear input and show typing indicator with throttling
     setInput('');
-    setTyping(true);
+    setTypingThrottled(true);
     
     // Generate Jonah response
     setTimeout(() => {
@@ -137,8 +171,14 @@ export function useJonahChat() {
           console.log('Memory was triggered in response');
         }
       }
+      
+      // Patch 3: Release emotional processing lock after response
+      setTimeout(() => {
+        isEmotionalProcessingRef.current = false;
+      }, 500);
+      
     }, 1000 + Math.floor(Math.random() * 1000)); // Random typing delay
-  }, [input, context, addUserMessage, setTyping, updateContext]);
+  }, [input, context, addUserMessage, setTypingThrottled, updateContext]);
   
   // Process and add Jonah's response
   const processJonahResponse = useCallback((content: string, mood: EmotionCategory) => {
@@ -153,7 +193,10 @@ export function useJonahChat() {
     
     // Update message formatting
     updateMessageFormatting(content, mood);
-  }, [addJonahResponse, updateContext, updateMoodAndTrend, updateMessageFormatting]);
+    
+    // Turn off typing indicator with throttling
+    setTypingThrottled(false);
+  }, [addJonahResponse, updateContext, updateMoodAndTrend, updateMessageFormatting, setTypingThrottled]);
   
   // Toggle between Jonah versions
   const toggleVersion = useCallback(() => {
@@ -165,11 +208,29 @@ export function useJonahChat() {
     resetMessages();
     resetContext();
     updateMoodAndTrend('neutral');
+    
+    // Clear any pending timeouts
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    if (emotionalCooldownRef.current) {
+      clearTimeout(emotionalCooldownRef.current);
+    }
+    
+    isEmotionalProcessingRef.current = false;
+    lastTypingStateRef.current = false;
   }, [resetMessages, resetContext, updateMoodAndTrend]);
   
   // Simplified sendMessage function for external components
   const sendMessage = useCallback((content: string) => {
     if (!content.trim()) return;
+    
+    // Patch 3: Check cooldown for external messages too
+    if (isEmotionalProcessingRef.current) {
+      return;
+    }
+    
+    isEmotionalProcessingRef.current = true;
     
     // Add user message to chat
     addUserMessage(content);
@@ -180,8 +241,8 @@ export function useJonahChat() {
     // Update conversation context with user message
     updateContext(content, emotionalState.primary, true);
     
-    // Show typing indicator
-    setTyping(true);
+    // Show typing indicator with throttling
+    setTypingThrottled(true);
     
     // Generate Jonah response with a delay
     setTimeout(() => {
@@ -194,8 +255,13 @@ export function useJonahChat() {
       // Use structured response here too
       const { text } = generateFullEmotionalResponse(fullEmotionalState, 'medium', true, []);
       processJonahResponse(text, emotionalState.primary);
+      
+      // Release processing lock
+      setTimeout(() => {
+        isEmotionalProcessingRef.current = false;
+      }, 500);
     }, 1200);
-  }, [addUserMessage, updateContext, setTyping, processJonahResponse]);
+  }, [addUserMessage, updateContext, setTypingThrottled, processJonahResponse]);
   
   return {
     messages,

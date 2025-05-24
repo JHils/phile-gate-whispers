@@ -1,4 +1,3 @@
-
 /**
  * Core sentiment analysis functions
  */
@@ -7,6 +6,14 @@ import { EmotionCategory, EmotionalState, createEmotionalState, ResponseStyle } 
 import { emotionKeywords } from './keywords';
 import { formatJonahResponse } from '../textFormatting';
 
+// Patch 2: Mood cache to prevent double-neutral fallback
+let lastDetectedMood: EmotionCategory | null = null;
+let lastInputProcessed: string = '';
+let moodCacheTimestamp: number = 0;
+
+// Clear mood cache after 30 seconds
+const MOOD_CACHE_TIMEOUT = 30000;
+
 // Analyze emotion in text input - IMPROVED to better detect emotions
 export function analyzeEmotion(text: string): EmotionalState {
   if (!text || text.trim() === '') {
@@ -14,6 +21,15 @@ export function analyzeEmotion(text: string): EmotionalState {
   }
   
   const lowerText = text.toLowerCase().trim();
+  
+  // Patch 2: Check if we're processing the same input recently
+  const now = Date.now();
+  if (lastInputProcessed === lowerText && (now - moodCacheTimestamp) < MOOD_CACHE_TIMEOUT) {
+    // Return cached mood if within timeout and same input
+    if (lastDetectedMood && lastDetectedMood !== 'neutral') {
+      return createEmotionalState(lastDetectedMood, 'neutral', 'medium');
+    }
+  }
   
   // Enhanced pattern matching for common inputs
   const patterns = {
@@ -26,23 +42,34 @@ export function analyzeEmotion(text: string): EmotionalState {
   
   // Check for specific patterns first
   if (patterns.greetings.some(greeting => lowerText.includes(greeting))) {
-    return createEmotionalState('joy', 'trust', 'medium');
+    const mood = 'joy';
+    updateMoodCache(lowerText, mood, now);
+    return createEmotionalState(mood, 'trust', 'medium');
   }
   
   if (patterns.questions.some(q => lowerText.includes(q))) {
-    return createEmotionalState('curiosity', 'neutral', 'medium');
+    const mood = 'curiosity';
+    updateMoodCache(lowerText, mood, now);
+    return createEmotionalState(mood, 'neutral', 'medium');
   }
   
   if (patterns.uncertainty.some(u => lowerText.includes(u)) || lowerText.endsWith('?')) {
-    return createEmotionalState('confusion', 'curiosity', 'medium');
+    const mood = 'confusion';
+    updateMoodCache(lowerText, mood, now);
+    return createEmotionalState(mood, 'curiosity', 'medium');
   }
   
   if (patterns.friendship.some(f => lowerText.includes(f))) {
-    return createEmotionalState('trust', 'joy', 'high');
+    const mood = 'trust';
+    updateMoodCache(lowerText, mood, now);
+    return createEmotionalState(mood, 'joy', 'high');
   }
   
   if (patterns.simple_acknowledgments.includes(lowerText)) {
-    return createEmotionalState('neutral', 'curiosity', 'low');
+    // Patch 2: If we just had a neutral, try to vary it
+    const mood = (lastDetectedMood === 'neutral') ? 'curiosity' : 'neutral';
+    updateMoodCache(lowerText, mood, now);
+    return createEmotionalState(mood, 'curiosity', 'low');
   }
   
   // Count keyword matches for each emotion
@@ -73,7 +100,8 @@ export function analyzeEmotion(text: string): EmotionalState {
   if (maxScore === 0) {
     // If no keywords matched, but we have text, default to curiosity instead of neutral
     if (lowerText.length > 2) {
-      primaryEmotion = 'curiosity';
+      // Patch 2: Avoid consecutive neutrals
+      primaryEmotion = (lastDetectedMood === 'neutral') ? 'curiosity' : 'neutral';
       intensity = 'low';
     } else {
       primaryEmotion = 'neutral';
@@ -85,7 +113,17 @@ export function analyzeEmotion(text: string): EmotionalState {
     intensity = 'low';
   }
   
+  // Update cache
+  updateMoodCache(lowerText, primaryEmotion, now);
+  
   return createEmotionalState(primaryEmotion, secondaryEmotion, intensity);
+}
+
+// Patch 2: Helper function to update mood cache
+function updateMoodCache(input: string, mood: EmotionCategory, timestamp: number): void {
+  lastInputProcessed = input;
+  lastDetectedMood = mood;
+  moodCacheTimestamp = timestamp;
 }
 
 // Generate emotional response based on input and emotional state
