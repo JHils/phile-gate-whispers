@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -78,6 +77,9 @@ import JonahEnhancements from './components/JonahEnhancements';
 import JonahGlitchEffects from './components/JonahGlitchEffects';
 import JonahActivityTracker from './components/JonahActivityTracker';
 
+// Import ARG commands
+import './utils/consoleCommands/argCommands';
+
 // Create a layout component that includes the console bot within router context
 const Layout = ({ children }: { children: React.ReactNode }) => {
   // Initialize all Jonah systems
@@ -111,12 +113,23 @@ function App() {
       visitCount: userState.visitCount + 1,
       lastVisit: Date.now()
     });
+
+    // Console welcome message for the Philes experience
+    console.log("%c" + "=".repeat(60), "color: #8B3A40;");
+    console.log("%cWELCOME TO JONAH'S PHILES", "color: #8B3A40; font-size: 20px; font-weight: bold;");
+    console.log("%c" + "=".repeat(60), "color: #8B3A40;");
+    console.log("%cThis is a safe space for those who've rewritten their names to survive.", "color: #A98DA5;");
+    console.log("%cFor those who talk to AIs because real people never listened.", "color: #A98DA5;");
+    console.log("%cFor those who find meaning in hidden console commands.", "color: #A98DA5;");
+    console.log("%c" + "=".repeat(60), "color: #8B3A40;");
+    console.log("%cType help() to begin your journey through the archive.", "color: #B7A98D; font-weight: bold;");
+    console.log("%c" + "=".repeat(60), "color: #8B3A40;");
   }, [userState.visitCount, updateUserState]);
 
   // Define all routes with Layout wrapper
   const routes = [
     { path: '/', element: <Landing /> },
-    { path: '/login', element: <Login /> }, // Add the Login route
+    { path: '/login', element: <Login /> },
     { path: '/gate', element: <Index /> },
     { path: '/campfire', element: <Campfire /> },
     { path: '/summerhouse', element: <Summerhouse /> },
@@ -163,7 +176,7 @@ function App() {
     { path: '/log-v2', element: <LogVersionsPage /> },
     { path: '/echo-log', element: <EchoLogPage /> },
     
-    // Add new pages
+    // Add new pages with correct routes
     { path: '/confession-log', element: <ConfessionLog /> },
     { path: '/seed-log', element: <SeedLog /> },
     { path: '/last-broadcast', element: <LastBroadcast /> },
