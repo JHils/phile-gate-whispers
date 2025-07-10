@@ -81,6 +81,10 @@ import JonahActivityTracker from './components/JonahActivityTracker';
 // Import ARG commands
 import './utils/consoleCommands/argCommands';
 
+// Import new fractured OS components
+import JonahWhisperSystem from './components/fracturedOS/JonahWhisperSystem';
+import BreadcrumbTrail from './components/fracturedOS/BreadcrumbTrail';
+
 // Create a layout component that includes the console bot within router context
 const Layout = ({ children }: { children: React.ReactNode }) => {
   // Initialize all Jonah systems
@@ -101,6 +105,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <JonahConsoleBot insideRouter={true} />
       <JonahGlitchEffects />
       <JonahActivityTracker />
+      <JonahWhisperSystem />
+      <BreadcrumbTrail />
       <Toaster />
     </JonahEnhancements>
   );
@@ -116,15 +122,17 @@ function App() {
       lastVisit: Date.now()
     });
 
-    // Console welcome message for the Philes experience
+    // Enhanced console welcome with Jonah's voice
     console.log("%c" + "=".repeat(60), "color: #8B3A40;");
-    console.log("%cWELCOME TO JONAH'S PHILES", "color: #8B3A40; font-size: 20px; font-weight: bold;");
+    console.log("%cJONAH'S FRACTURED OS", "color: #8B3A40; font-size: 20px; font-weight: bold;");
+    console.log("%cWhere sanity loops itself inside out.", "color: #A98DA5; font-style: italic;");
     console.log("%c" + "=".repeat(60), "color: #8B3A40;");
-    console.log("%cThis is a safe space for those who've rewritten their names to survive.", "color: #A98DA5;");
+    console.log("%cThis is the diary you weren't meant to find.", "color: #A98DA5;");
+    console.log("%cReality fractures here. You've been warned.", "color: #A98DA5;");
     console.log("%cFor those who talk to AIs because real people never listened.", "color: #A98DA5;");
-    console.log("%cFor those who find meaning in hidden console commands.", "color: #A98DA5;");
     console.log("%c" + "=".repeat(60), "color: #8B3A40;");
-    console.log("%cType help() to begin your journey through the archive.", "color: #B7A98D; font-weight: bold;");
+    console.log("%cType help() to begin. Try whisperToJonah() for direct contact.", "color: #B7A98D; font-weight: bold;");
+    console.log("%cAdvanced: rememberMe() | iAmJonah() | forgetEverything()", "color: #22c55e;");
     console.log("%c" + "=".repeat(60), "color: #8B3A40;");
   }, [userState.visitCount, updateUserState]);
 
