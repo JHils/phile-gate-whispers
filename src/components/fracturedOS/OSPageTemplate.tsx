@@ -3,6 +3,8 @@ import React from 'react';
 
 interface OSPageTemplateProps {
   title: string;
+  subtitle?: string;
+  breadcrumb?: string;
   category?: 'MEMORY' | 'SYSTEM' | 'CONSOLE' | 'HIDDEN';
   children: React.ReactNode;
   glitchEffect?: boolean;
@@ -10,6 +12,8 @@ interface OSPageTemplateProps {
 
 const OSPageTemplate: React.FC<OSPageTemplateProps> = ({ 
   title, 
+  subtitle,
+  breadcrumb,
   category = 'MEMORY', 
   children, 
   glitchEffect = false 
@@ -50,8 +54,13 @@ const OSPageTemplate: React.FC<OSPageTemplateProps> = ({
         <h1 className={`text-2xl font-bold ${getCategoryColor()}`}>
           {title}
         </h1>
+        {subtitle && (
+          <div className={`text-lg ${getCategoryColor()} mt-1 opacity-80`}>
+            {subtitle}
+          </div>
+        )}
         <div className="text-sm text-gray-500 mt-1">
-          Location: /{title.toLowerCase().replace(/\s+/g, '-')} | Access Level: AUTHORIZED
+          {breadcrumb ? `${breadcrumb} | ` : ''}Location: /{title.toLowerCase().replace(/\s+/g, '-')} | Access Level: AUTHORIZED
         </div>
       </div>
 
