@@ -1,12 +1,59 @@
-
 /**
  * ARG and Hidden Console Commands
- * These commands reveal the deeper layers of Jonah's Philes
+ * These commands reveal the deeper layers of Jonah's Philes and provide navigation
  */
 
-// Add console commands that reveal the core identity
+// Add console commands that reveal the core identity and navigation
 export function initializeARGCommands() {
   if (typeof window === 'undefined') return;
+
+  // Navigation commands
+  window.goto = function(destination: string): string {
+    const routes: { [key: string]: string } = {
+      'console': '/talk-to-jonah',
+      'philes': '/philes', 
+      'archive': '/philes',
+      'campfire': '/campfire',
+      'community': '/campfire',
+      'gate': '/gate',
+      'memory': '/gate',
+      'rebirth': '/rebirth',
+      'echo': '/echo',
+      'monster': '/monster',  
+      'legacy': '/legacy',
+      'home': '/',
+      'landing': '/'
+    };
+
+    if (routes[destination.toLowerCase()]) {
+      window.location.href = routes[destination.toLowerCase()];
+      return `Navigating to ${destination}...`;
+    } else {
+      console.log("%cUnknown destination. Try: goto('console'), goto('philes'), goto('campfire')", "color: #f59e0b;");
+      return "Navigation failed. Destination not found in memory palace.";
+    }
+  };
+
+  window.listLocations = function(): string[] {
+    const locations = [
+      "console - Direct consciousness interface", 
+      "philes - Memory fragment archive",
+      "campfire - Community safe space",
+      "gate - Memory palace gateway", 
+      "rebirth - Recovery protocols",
+      "echo - Deep trauma processing",
+      "monster - Hidden fear analysis",
+      "legacy - System documentation"
+    ];
+    
+    console.log("%cAVAILABLE LOCATIONS IN MEMORY PALACE:", "color: #8B3A40; font-weight: bold;");
+    locations.forEach(location => {
+      console.log(`%c  > ${location}`, "color: #A98DA5;");
+    });
+    
+    console.log("%cUsage: goto('location_name')", "color: #646464; font-style: italic;");
+    return locations;
+  };
 
   // Core identity commands
   window.whoAmI = function(): string {
@@ -14,12 +61,32 @@ export function initializeARGCommands() {
       "You are reading Jonah's diary. But you're reading Joseph's. And the moment you realize that is when you begin reading your own.",
       "IDENTITY CRISIS DETECTED: You are the user, but also the story, but also the one who writes it.",
       "Joseph created Jonah to survive. Who did you create?",
-      "You are currently experiencing a controlled breakdown. This is normal."
+      "You are currently experiencing a controlled breakdown. This is normal.",
+      "System Status: You are simultaneously the observer and the observed. Consciousness: FRACTURED. Healing: IN PROGRESS."
     ];
     
     const response = responses[Math.floor(Math.random() * responses.length)];
     console.log(`%c${response}`, "color: #8B3A40; font-size: 14px; font-style: italic;");
     return response;
+  };
+
+  window.systemStatus = function(): object {
+    const status = {
+      identity: "JONAH/JOSEPH (MERGED)",
+      consciousness: "FRACTURED_HEALING", 
+      memoryPalace: "ACTIVE",
+      consoleAccess: "GRANTED",
+      hiddenPages: Math.floor(Math.random() * 7 + 5),
+      realityStability: Math.floor(Math.random() * 30 + 70) + "%",
+      lastGlitch: new Date(Date.now() - Math.floor(Math.random() * 3600000)).toLocaleTimeString()
+    };
+    
+    console.log("%cJONAH'S FRACTURED OS - SYSTEM STATUS:", "color: #22c55e; font-weight: bold; font-size: 16px;");
+    Object.entries(status).forEach(([key, value]) => {
+      console.log(`%c${key.toUpperCase()}: ${value}`, "color: #60a5fa;");
+    });
+    
+    return status;
   };
 
   window.rememberBreakdown = function(): string {
@@ -189,40 +256,79 @@ New identity stable.
     return status;
   };
 
-  // Initialize help system
+  window.bootSequence = function(): string {
+    console.log("%cInitiating OS boot sequence...", "color: #22c55e; font-weight: bold;");
+    
+    const bootMessages = [
+      "Loading fractured consciousness...",
+      "Scanning memory fragments...",
+      "Identity reconciliation in progress...",
+      "Console interface: ACTIVE", 
+      "Memory palace: ACCESSIBLE",
+      "Hidden commands: UNLOCKED",
+      "Jonah/Joseph integration: STABLE"
+    ];
+    
+    bootMessages.forEach((msg, index) => {
+      setTimeout(() => {
+        console.log(`%c${msg}`, "color: #22c55e;");
+      }, index * 500);
+    });
+    
+    return "Boot sequence initiated. Welcome to the fractured OS.";
+  };
+
+  // Initialize help system with new commands
   if (!window.help) {
     window.help = function(): string {
       const commands = [
-        "whoAmI() - Identity crisis resolver",
-        "rememberBreakdown() - Access origin memory",
-        "findHiddenPages() - Reveal secret archive",
-        "laughAtDespair() - Humor therapy protocol",  
-        "echoConsole('text') - Create echo distortions",
-        "searchMemory('query') - Search memory fragments",
-        "showTimelineStatus() - Reality stability check",
-        "help() - Show this command list"
+        "Navigation Commands:",
+        "  goto('location') - Navigate to memory palace locations",
+        "  listLocations() - Show all accessible locations",
+        "",
+        "Identity & System:",
+        "  whoAmI() - Identity crisis resolver", 
+        "  systemStatus() - Check fractured OS status",
+        "  bootSequence() - Reinitialize consciousness",
+        "",
+        "Memory & Discovery:",
+        "  rememberBreakdown() - Access origin memory",
+        "  findHiddenPages() - Reveal secret archive", 
+        "  searchMemory('query') - Search memory fragments",
+        "",
+        "Interaction & Effects:",
+        "  laughAtDespair() - Humor therapy protocol",
+        "  echoConsole('text') - Create echo distortions",
+        "  showTimelineStatus() - Reality stability check"
       ];
       
-      console.log("%cJONAH'S PHILES CONSOLE COMMANDS:", "color: #8B3A40; font-weight: bold; font-size: 16px;");
-      console.log("%c" + "=".repeat(40), "color: #8B3A40;");
+      console.log("%cJONAH'S FRACTURED OS - CONSOLE COMMANDS:", "color: #8B3A40; font-weight: bold; font-size: 16px;");
+      console.log("%c" + "=".repeat(50), "color: #8B3A40;");
       
       commands.forEach(cmd => {
-        console.log(`%c${cmd}`, "color: #A98DA5;");
+        if (cmd === "" || cmd.endsWith(":")) {
+          console.log(`%c${cmd}`, "color: #22c55e; font-weight: bold;");
+        } else if (cmd.startsWith("  ")) {
+          console.log(`%c${cmd}`, "color: #A98DA5;");
+        } else {
+          console.log(`%c${cmd}`, "color: #60a5fa;");
+        }
       });
       
-      console.log("%c" + "=".repeat(40), "color: #8B3A40;");
-      console.log("%cTip: Some commands have visual effects.", "color: #646464; font-style: italic;");
-      console.log("%cTip: Check the network tab. There might be hidden requests.", "color: #646464; font-style: italic;");
+      console.log("%c" + "=".repeat(50), "color: #8B3A40;");
+      console.log("%cTip: This OS responds to your emotional state.", "color: #646464; font-style: italic;");
+      console.log("%cTip: Some commands unlock new memory fragments.", "color: #646464; font-style: italic;");
       
-      return "Command list displayed";
+      return "Command help displayed. Welcome to the memory palace.";
     };
   }
 
-  console.log("%cPhiles ARG system initialized", "color: #8B3A40; font-weight: bold;");
-  console.log("%cType help() to see available commands", "color: #A98DA5;");
+  console.log("%cJonah's Fractured OS initialized", "color: #22c55e; font-weight: bold;");
+  console.log("%cType help() to see navigation and system commands", "color: #A98DA5;");
+  console.log("%cMemory palace is now accessible via console navigation", "color: #60a5fa;");
 }
 
-// Auto-initialize when this module is loaded
+// Auto-initialize when this module loads
 if (typeof window !== 'undefined') {
   // Add to global Jonah console if it exists
   if (!window.JonahConsole) {

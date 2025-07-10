@@ -60,6 +60,7 @@ import TalkToJonah from './pages/TalkToJonah';
 
 // Import JonahConsoleBot
 import JonahConsoleBot from './components/JonahConsoleBot';
+import MemoryMapNavigation from './components/fracturedOS/MemoryMapNavigation';
 import './App.css';
 
 // Import system initializers from the centralized location
@@ -96,6 +97,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <JonahEnhancements>
       {children}
+      <MemoryMapNavigation />
       <JonahConsoleBot insideRouter={true} />
       <JonahGlitchEffects />
       <JonahActivityTracker />
