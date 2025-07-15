@@ -28,7 +28,7 @@ export function useUserProgression() {
     exp += (userState.visitCount || 0) * 5;
     
     // Console commands - properly handle boolean and number values
-    exp += Object.values(userState.events || {}).reduce((sum: number, eventValue) => {
+    const eventsExp = Object.values(userState.events || {}).reduce((sum: number, eventValue) => {
       // Convert boolean to number (true = 1, false = 0) and handle numbers
       let numericValue: number;
       if (typeof eventValue === 'boolean') {
@@ -37,7 +37,9 @@ export function useUserProgression() {
         numericValue = eventValue;
       }
       return sum + numericValue;
-    }, 0) * 10;
+    }, 0);
+    
+    exp += eventsExp * 10;
     
     // Special achievements
     if (userState.console?.helpCalled) exp += 25;
