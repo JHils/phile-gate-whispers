@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useTrackingSystem } from './useTrackingSystem';
 
@@ -31,7 +30,12 @@ export function useUserProgression() {
     // Console commands - properly handle boolean and number values
     exp += Object.values(userState.events || {}).reduce((sum, eventValue) => {
       // Convert boolean to number (true = 1, false = 0) and handle numbers
-      const numericValue = typeof eventValue === 'boolean' ? (eventValue ? 1 : 0) : (eventValue as number);
+      let numericValue: number;
+      if (typeof eventValue === 'boolean') {
+        numericValue = eventValue ? 1 : 0;
+      } else {
+        numericValue = eventValue;
+      }
       return sum + numericValue;
     }, 0) * 10;
     
