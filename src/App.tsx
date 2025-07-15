@@ -85,6 +85,10 @@ import './utils/consoleCommands/argCommands';
 import JonahWhisperSystem from './components/fracturedOS/JonahWhisperSystem';
 import BreadcrumbTrail from './components/fracturedOS/BreadcrumbTrail';
 
+// Import new community components
+import LiveEchoOverlay from './components/community/LiveEchoOverlay';
+import JonahDigest from './components/community/JonahDigest';
+
 // Create a layout component that includes the console bot within router context
 const Layout = ({ children }: { children: React.ReactNode }) => {
   // Initialize all Jonah systems
@@ -107,6 +111,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <JonahActivityTracker />
       <JonahWhisperSystem />
       <BreadcrumbTrail />
+      <LiveEchoOverlay />
+      <JonahDigest />
       <Toaster />
     </JonahEnhancements>
   );
