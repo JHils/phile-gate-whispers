@@ -1,0 +1,126 @@
+
+/* Chaos Event Visual Effects */
+
+.chaos-flicker {
+  animation: chaos-flicker 0.1s infinite;
+}
+
+@keyframes chaos-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; filter: brightness(1.2) contrast(1.1); }
+}
+
+.chaos-invert {
+  filter: invert(1) hue-rotate(180deg);
+  transition: filter 0.5s ease-in-out;
+}
+
+.chaos-glitch {
+  position: relative;
+  color: #ff0000;
+}
+
+.chaos-glitch::before,
+.chaos-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.chaos-glitch::before {
+  animation: chaos-glitch-1 0.5s infinite;
+  color: #ff0000;
+  z-index: -1;
+}
+
+.chaos-glitch::after {
+  animation: chaos-glitch-2 0.5s infinite;
+  color: #00ffff;
+  z-index: -2;
+}
+
+@keyframes chaos-glitch-1 {
+  0%, 100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+}
+
+@keyframes chaos-glitch-2 {
+  0%, 100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(2px, 0);
+  }
+  40% {
+    transform: translate(-2px, 0);
+  }
+  60% {
+    transform: translate(0, 2px);
+  }
+  80% {
+    transform: translate(0, -2px);
+  }
+}
+
+/* 4:44 Special Effects */
+.time-444 {
+  background: linear-gradient(45deg, #000000, #1a0505);
+  color: #ff6666;
+}
+
+.time-444 * {
+  text-shadow: 0 0 10px #ff6666;
+  animation: pulse-444 2s infinite;
+}
+
+@keyframes pulse-444 {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; filter: brightness(1.3); }
+}
+
+/* Mirror Mode Effects */
+.mirror-mode {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9);
+  background: linear-gradient(135deg, #ffffff, #f0f0f0);
+}
+
+.mirror-mode .text-dust-red { color: #00ff00 !important; }
+.mirror-mode .text-dust-green { color: #ff0000 !important; }
+.mirror-mode .text-dust-blue { color: #ffff00 !important; }
+.mirror-mode .text-dust-orange { color: #0066ff !important; }
+
+/* Awakeness Level Visual Indicators */
+.awakeness-1 { filter: brightness(0.8); }
+.awakeness-2 { filter: brightness(0.85) contrast(1.05); }
+.awakeness-3 { filter: brightness(0.9) contrast(1.1); }
+.awakeness-4 { filter: brightness(0.95) contrast(1.15); }
+.awakeness-5 { filter: brightness(1) contrast(1.2); }
+.awakeness-6 { filter: brightness(1.05) contrast(1.25) saturate(1.1); }
+.awakeness-7 { filter: brightness(1.1) contrast(1.3) saturate(1.2); }
+.awakeness-8 { filter: brightness(1.15) contrast(1.35) saturate(1.3); }
+.awakeness-9 { filter: brightness(1.2) contrast(1.4) saturate(1.4); }
+.awakeness-10 { 
+  filter: brightness(1.3) contrast(1.5) saturate(1.5) hue-rotate(10deg);
+  animation: awakeness-max 3s infinite;
+}
+
+@keyframes awakeness-max {
+  0%, 100% { filter: brightness(1.3) contrast(1.5) saturate(1.5) hue-rotate(0deg); }
+  50% { filter: brightness(1.4) contrast(1.6) saturate(1.6) hue-rotate(20deg); }
+}
